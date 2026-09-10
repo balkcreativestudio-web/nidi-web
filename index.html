@@ -37,6 +37,9 @@
         --ink: #2a241d;
         --ink2: #7a6f62;
         --muted: #b0a596;
+        /* The input's hairline. Warmer and far lighter than ink, which
+           is what stops the form reading as a boxed control. */
+        --field-line: #e7dfd2;
         --serif: Georgia, "Times New Roman", serif;
         --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
           sans-serif;
@@ -66,12 +69,13 @@
       }
 
       header {
-        padding: 28px 28px 0;
+        padding: 24px 28px 0;
       }
 
       .wordmark {
         font-family: var(--serif);
-        font-size: 22px;
+        font-weight: 400;
+        font-size: 20px;
         line-height: 1;
         color: var(--ink);
       }
@@ -85,16 +89,24 @@
         padding: 32px 28px;
       }
 
+      /* Two fixed sizes rather than a clamp: the brief names 52 and 36,
+         and a fluid scale would only hit those two numbers at two exact
+         viewport widths. The breakpoint is the switch. */
       h1 {
         font-family: var(--serif);
-        font-weight: normal;
-        /* Scales with the viewport so the line holds its proportion on
-           a phone without a media query. */
-        font-size: clamp(34px, 7vw, 60px);
-        line-height: 1.1;
+        font-weight: 400;
+        font-size: 52px;
+        line-height: 1.2;
         letter-spacing: -0.02em;
+        color: var(--ink);
         margin: 0 0 40px;
         max-width: 12ch;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 36px;
+        }
       }
 
       form {
@@ -110,11 +122,17 @@
         flex: 1 1 220px;
         min-width: 0;
         font-family: var(--sans);
-        font-size: 16px; /* 16px or iOS Safari zooms on focus */
+        /* 14px per the brief. NOTE: iOS Safari zooms the page when a
+           text field smaller than 16px takes focus, and does not zoom
+           back out — so on iPhone this costs a jump on the one control
+           the page exists for. The fix, if that matters more than the
+           14px, is a `@media (max-width: 600px)` bumping this to 16px;
+           it is a single rule and nothing else changes. */
+        font-size: 14px;
         color: var(--ink);
-        background: #fff;
-        border: 1px solid var(--ink);
-        border-radius: 6px;
+        background: var(--paper);
+        border: 1px solid var(--field-line);
+        border-radius: 4px;
         padding: 14px 16px;
       }
 
@@ -124,12 +142,12 @@
 
       button {
         font-family: var(--sans);
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 500;
         color: var(--paper);
         background: var(--ink);
         border: 1px solid var(--ink);
-        border-radius: 6px;
+        border-radius: 4px;
         padding: 14px 22px;
         cursor: pointer;
       }
@@ -245,8 +263,6 @@
       </a>
       <span class="sep">·</span>
       BALK Creative Studio
-      <span class="sep">·</span>
-      KvK 42012785
     </footer>
 
     <script>
