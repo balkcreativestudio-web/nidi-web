@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>nidi — Grow close. From anywhere.</title>
+    <meta
+      name="description"
+      content="A quiet place for two people who love the same child. Launching this autumn."
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="nidi — Grow close. From anywhere." />
+    <meta
+      property="og:description"
+      content="A quiet place for two people who love the same child. Launching this autumn."
+    />
+    <meta property="og:url" content="https://www.nidi.life" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="nidi — Grow close. From anywhere." />
+    <meta
+      name="twitter:description"
+      content="A quiet place for two people who love the same child. Launching this autumn."
+    />
+
+    <link rel="canonical" href="https://www.nidi.life" />
+    <meta name="theme-color" content="#FFFDF9" />
+
+    <style>
+      /* One screen, nothing below the fold. The page is a grid of three
+         rows — header, hero, footer — pinned to the viewport, so the
+         footer sits at the bottom without absolute positioning and
+         without overlapping the hero on a short screen. */
+      :root {
+        --paper: #fffdf9;
+        --ink: #2a241d;
+        --ink2: #7a6f62;
+        --muted: #b0a596;
+        --serif: Georgia, "Times New Roman", serif;
+        --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--paper);
+        color: var(--ink);
+      }
+
+      body {
+        /* dvh so mobile browser chrome cannot push the footer out of
+           view; vh is the fallback for anything that lacks it. */
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      header {
+        padding: 28px 28px 0;
+      }
+
+      .wordmark {
+        font-family: var(--serif);
+        font-size: 22px;
+        line-height: 1;
+        color: var(--ink);
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 32px 28px;
+      }
+
+      h1 {
+        font-family: var(--serif);
+        font-weight: normal;
+        /* Scales with the viewport so the line holds its proportion on
+           a phone without a media query. */
+        font-size: clamp(34px, 7vw, 60px);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin: 0 0 40px;
+        max-width: 12ch;
+      }
+
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        width: 100%;
+        max-width: 460px;
+      }
+
+      input[type="email"] {
+        flex: 1 1 220px;
+        min-width: 0;
+        font-family: var(--sans);
+        font-size: 16px; /* 16px or iOS Safari zooms on focus */
+        color: var(--ink);
+        background: #fff;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        padding: 14px 16px;
+      }
+
+      input[type="email"]::placeholder {
+        color: var(--muted);
+      }
+
+      button {
+        font-family: var(--sans);
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--paper);
+        background: var(--ink);
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        padding: 14px 22px;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      .note {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 20px 0 0;
+      }
+
+      .done {
+        font-family: var(--serif);
+        font-size: 18px;
+        color: var(--ink);
+        margin: 0;
+        /* Holds the form's height so the page does not jump when the
+           form is replaced. */
+        min-height: 52px;
+        display: flex;
+        align-items: center;
+      }
+
+      .error {
+        font-size: 14px;
+        color: var(--ink2);
+        margin: 12px 0 0;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      footer {
+        padding: 24px 28px 28px;
+        text-align: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      footer a {
+        color: var(--ink2);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(122, 111, 98, 0.35);
+      }
+
+      footer a:hover {
+        color: var(--ink);
+      }
+
+      .sep {
+        padding: 0 8px;
+      }
+
+      /* Visible focus for keyboard users. The default ring is removed
+         by the border styling above on some browsers. */
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="wordmark">nidi</div>
+    </header>
+
+    <main>
+      <h1>Grow close. From anywhere.</h1>
+
+      <form id="form" novalidate>
+        <label for="email" class="sr-only" hidden>Your email</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="Your email"
+          autocomplete="email"
+          required
+          aria-label="Your email"
+        />
+        <button id="submit" type="submit">Get early access</button>
+      </form>
+
+      <p class="done" id="done" hidden>
+        You're in. We'll write when nidi is ready.
+      </p>
+
+      <p class="error" id="error" hidden role="alert">
+        Something went wrong. Try again.
+      </p>
+
+      <p class="note">Launching on the App Store this autumn.</p>
+    </main>
+
+    <footer>
+      <a href="https://www.iubenda.com/privacy-policy/19443572" rel="noopener">
+        Privacy
+      </a>
+      <span class="sep">·</span>
+      <a
+        href="https://www.iubenda.com/terms-and-conditions/19443572"
+        rel="noopener"
+      >
+        Terms
+      </a>
+      <span class="sep">·</span>
+      BALK Creative Studio
+      <span class="sep">·</span>
+      KvK 42012785
+    </footer>
+
+    <script>
+      // The endpoint is public by design: verify_jwt is false on the
+      // function and its CORS is open, so no Supabase key is needed
+      // here and none is embedded.
+      var ENDPOINT =
+        "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/path-c-waitlist";
+
+      var form = document.getElementById("form");
+      var input = document.getElementById("email");
+      var button = document.getElementById("submit");
+      var done = document.getElementById("done");
+      var error = document.getElementById("error");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var email = input.value.trim();
+
+        // Checked here as well as on the server so an obvious typo does
+        // not cost a round trip. The server is still the authority.
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          error.hidden = false;
+          input.focus();
+          return;
+        }
+
+        error.hidden = true;
+        button.disabled = true;
+        input.disabled = true;
+
+        fetch(ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email,
+            locale: "en",
+            source: "landing",
+          }),
+        })
+          .then(function (res) {
+            if (!res.ok) throw new Error("http " + res.status);
+            return res.json();
+          })
+          .then(function (body) {
+            if (!body || body.ok !== true) throw new Error("not ok");
+            form.hidden = true;
+            done.hidden = false;
+          })
+          .catch(function () {
+            // Re-enable rather than stranding the form: a failed submit
+            // should be retryable in place.
+            button.disabled = false;
+            input.disabled = false;
+            error.hidden = false;
+          });
+      });
+    </script>
+  </body>
+</html>
