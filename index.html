@@ -103,12 +103,6 @@
         max-width: 12ch;
       }
 
-      @media (max-width: 600px) {
-        h1 {
-          font-size: 36px;
-        }
-      }
-
       form {
         display: flex;
         flex-wrap: wrap;
@@ -122,12 +116,8 @@
         flex: 1 1 220px;
         min-width: 0;
         font-family: var(--sans);
-        /* 14px per the brief. NOTE: iOS Safari zooms the page when a
-           text field smaller than 16px takes focus, and does not zoom
-           back out — so on iPhone this costs a jump on the one control
-           the page exists for. The fix, if that matters more than the
-           14px, is a `@media (max-width: 600px)` bumping this to 16px;
-           it is a single rule and nothing else changes. */
+        /* 14px on desktop; the breakpoint below takes it back to 16px
+           on phones. See that block for why. */
         font-size: 14px;
         color: var(--ink);
         background: var(--paper);
@@ -204,6 +194,26 @@
 
       .sep {
         padding: 0 8px;
+      }
+
+      /* The one breakpoint. It sits here, below every base rule it
+         overrides: a media query carries no extra specificity, so
+         placed above them it would lose the tie and silently do
+         nothing.
+
+         The input goes back up to 16px because iOS Safari zooms the
+         page in when a text field smaller than that takes focus, and
+         never zooms back out — which would put a jump on the one
+         control this page exists for. 14px is the brand size and holds
+         everywhere it can be held; the phone is where it cannot. */
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 36px;
+        }
+
+        input[type="email"] {
+          font-size: 16px;
+        }
       }
 
       /* Visible focus for keyboard users. The default ring is removed
