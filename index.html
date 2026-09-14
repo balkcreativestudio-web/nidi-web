@@ -7,21 +7,21 @@
     <title>nidi. Grow close. From anywhere.</title>
     <meta
       name="description"
-      content="A quiet place for two people who love the same child. Launching this autumn."
+      content="A quiet place for two people who love the same child. Coming soon to the App Store."
     />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content="nidi. Grow close. From anywhere." />
     <meta
       property="og:description"
-      content="A quiet place for two people who love the same child. Launching this autumn."
+      content="A quiet place for two people who love the same child. Coming soon to the App Store."
     />
     <meta property="og:url" content="https://www.nidi.life" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="nidi. Grow close. From anywhere." />
     <meta
       name="twitter:description"
-      content="A quiet place for two people who love the same child. Launching this autumn."
+      content="A quiet place for two people who love the same child. Coming soon to the App Store."
     />
 
     <link rel="canonical" href="https://www.nidi.life" />
@@ -178,6 +178,12 @@
         padding: 14px 16px;
       }
 
+      /* An address that cannot be sent: the field alone says so. */
+      input[type="email"][aria-invalid="true"] {
+        border-color: #cc644c;
+        box-shadow: 0 0 0 1px #cc644c;
+      }
+
       input[type="email"]::placeholder {
         color: var(--muted);
       }
@@ -278,6 +284,14 @@
         outline: 2px solid var(--ink);
         outline-offset: 2px;
       }
+
+      /* Focus goes back to a field that cannot be sent; its ring takes
+         the error colour too, or the ink ring hides the state. */
+      input[aria-invalid="true"]:focus-visible,
+      input[aria-invalid="true"]:focus {
+        outline: 2px solid #cc644c;
+        outline-offset: 2px;
+      }
     </style>
   </head>
 
@@ -349,7 +363,7 @@
           placeholder: "Your email",
           cta: "Get early access",
           done: "You're in. We'll write when nidi is ready.",
-          invalid: "Enter a full email address, like name@example.com.",
+          invalid: "Check the email address.",
           failed: "We couldn't add you just now. Try again in a moment.",
           note: "Coming soon to the App Store.",
           privacy: "Privacy",
@@ -364,7 +378,7 @@
           placeholder: "Tu email",
           cta: "Quiero acceso anticipado",
           done: "Listo. Te escribimos cuando nidi esté disponible.",
-          invalid: "Escribí un email completo, como nombre@ejemplo.com.",
+          invalid: "Revisá el email.",
           failed: "No pudimos anotarte ahora. Probá de nuevo en un momento.",
           note: "Muy pronto en el App Store.",
           privacy: "Privacidad",
@@ -431,7 +445,7 @@
 
         // Checked here as well as on the server so an obvious typo does
         // not cost a round trip. The server is still the authority.
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[a-z]{2,}$/i.test(email)) {
           showError("invalid");
           input.focus();
           return;
@@ -469,12 +483,26 @@
           });
       });
 
+      // An incomplete address (no "@", no ".com" or similar) is marked on
+      // the field itself, with no sentence on the page: the field says
+      // what is wrong by looking wrong, and focus goes back to it. A
+      // screen reader still hears a short line (visually hidden).
+      // A failed request keeps its visible line; there is nothing to
+      // fix in the field.
       function showError(kind) {
         error.dataset.kind = kind;
         error.textContent = COPY[lang][kind];
         error.hidden = false;
+        error.classList.toggle("sr-only", kind === "invalid");
         if (kind === "invalid") input.setAttribute("aria-invalid", "true");
       }
+
+      input.addEventListener("input", function () {
+        if (input.getAttribute("aria-invalid") === "true") {
+          input.removeAttribute("aria-invalid");
+          error.hidden = true;
+        }
+      });
     </script>
   </body>
 </html>
