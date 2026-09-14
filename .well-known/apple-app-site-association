@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "9DYTBDGWXD.life.nidi.app",
+        "appIDs": ["9DYTBDGWXD.life.nidi.app"],
+        "paths": ["/join/*"],
+        "components": [
+          { "/": "/join/*", "comment": "Invite links: https://nidi.life/join/<code>" }
+        ]
+      }
+    ]
+  }
+}
