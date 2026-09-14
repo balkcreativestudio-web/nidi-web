@@ -1,6 +1,6 @@
 # nidi-web
 
-The pre-launch page for [nidi.life](https://www.nidi.life).
+The pre-launch page for [nidi.life](https://nidi.life).
 
 One `index.html`, no framework, no build step. It exists to capture
 email addresses before launch and does nothing else.
