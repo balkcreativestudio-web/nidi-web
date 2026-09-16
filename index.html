@@ -337,9 +337,9 @@
     </main>
 
     <footer>
-      <a id="privacy" href="https://www.iubenda.com/privacy-policy/19443572" rel="noopener" data-i18n="privacy">Privacy</a>
+      <a id="privacy" href="/privacy/" data-i18n="privacy">Privacy</a>
       <span class="sep">·</span>
-      <a href="https://www.iubenda.com/terms-and-conditions/19443572" rel="noopener" data-i18n="terms">Terms</a>
+      <a id="terms" href="/terms/" data-i18n="terms">Terms</a>
       <span class="sep">·</span>
       BALK Creative Studio
     </footer>
@@ -368,7 +368,8 @@
           note: "Coming soon to the App Store.",
           privacy: "Privacy",
           terms: "Terms",
-          privacyUrl: "https://www.iubenda.com/privacy-policy/19443572",
+          privacyUrl: "/privacy/",
+          termsUrl: "/terms/",
           nav: "Language",
         },
         es: {
@@ -383,7 +384,8 @@
           note: "Muy pronto en el App Store.",
           privacy: "Privacidad",
           terms: "Términos",
-          privacyUrl: "https://www.iubenda.com/privacy-policy/37271793",
+          privacyUrl: "/privacidad/",
+          termsUrl: "/terminos/",
           nav: "Idioma",
         },
       };
@@ -401,7 +403,11 @@
           if (c[key]) nodes[i].textContent = c[key];
         }
         document.getElementById("email").placeholder = c.placeholder;
+        // Both documents live on nidi.life now, one page per language
+        // (2026-09-16). They used to open iubenda's own page, which looked
+        // like someone else's product.
         document.getElementById("privacy").href = c.privacyUrl;
+        document.getElementById("terms").href = c.termsUrl;
         document.querySelector(".lang").setAttribute("aria-label", c.nav);
         var buttons = document.querySelectorAll(".lang button");
         for (var j = 0; j < buttons.length; j++) {
