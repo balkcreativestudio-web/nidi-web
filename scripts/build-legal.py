@@ -101,9 +101,17 @@ TEMPLATE = """<!doctype html>
       .lang .bar {{ width: 1px; height: 14px; background: var(--line); }}
 
       main {{
-        max-width: 720px;
+        max-width: 960px;
         margin: 0 auto;
-        padding: 40px 28px 64px;
+        padding: 32px 28px 64px;
+      }}
+
+      /* Read by a screen reader, not shown: iubenda's own heading is the
+         visible title, and two titles saying the same thing is worse than
+         none. */
+      .sr-only {{
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
       }}
 
       h1.page-title {{
@@ -211,10 +219,34 @@ TEMPLATE = """<!doctype html>
         box-shadow: none !important;
         padding: 24px !important;
       }}
-      .doc .main-header > * + * {{ margin-top: 16px; }}
+      .doc .main-header > * + * {{ margin-top: 14px; }}
+      .doc .main-header h1 {{
+        margin: 0 !important;
+        font-size: 34px !important;
+      }}
+      /* Their stylesheet paints this rule in their own green. */
+      .doc .main-header {{ border-top-color: var(--line) !important; }}
       .doc .main-header__meta {{
         color: var(--ink2) !important;
         font-size: 14px !important;
+      }}
+
+      /* Their two columns: a table of contents beside the document. Left
+         to itself the aside takes a third of the width and the text ends up
+         in a 480px trench. Below 900px the aside goes and their own
+         "Table of contents" button takes over. */
+      .doc .aside-main-wrapper {{
+        display: grid !important;
+        grid-template-columns: 200px minmax(0, 1fr) !important;
+        gap: 48px !important;
+        align-items: start;
+      }}
+      .doc aside {{ position: sticky; top: 24px; }}
+      .doc .table-of-content-list a {{ font-size: 14px !important; }}
+
+      @media (max-width: 900px) {{
+        .doc .aside-main-wrapper {{ grid-template-columns: minmax(0, 1fr) !important; }}
+        .doc aside {{ display: none !important; }}
       }}
 
       /* Their cards, accordions and buttons: paper edges, no shadows. */
@@ -278,7 +310,7 @@ TEMPLATE = """<!doctype html>
     </header>
 
     <main>
-      <h1 class="page-title">{title}</h1>
+      <h1 class="sr-only">{title}</h1>
       <div class="doc">
         {embed}
       </div>
