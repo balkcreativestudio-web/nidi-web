@@ -160,7 +160,7 @@ EN = dict(
          'anywhere else.'),
         ('What does nidi cost?',
          'The first exchanges are free. After that, one membership keeps a '
-         'nidi going, and only one of the two people pays it. The other side '
+         'nidi going, and only one person pays it. The other side '
          'never sees a payment screen.'),
         ('How do I cancel?',
          'Memberships are handled by Apple, not by us. On your iPhone open '
@@ -176,7 +176,7 @@ EN = dict(
          'account. We email you a code to make sure it is really you, and '
          'nothing is deleted until you enter it.'),
         ('Who can see what we send?',
-         'Only the two adults in that nidi. Photos and voice notes are '
+         'Only the adults in that nidi. Photos and voice notes are '
          'stored privately and are not public, not searchable, and not '
          'shown to anyone else. We do not sell anything to anyone.'),
         ('I am not getting notifications.',
@@ -215,7 +215,7 @@ ES = dict(
          'lado.'),
         ('¿Cuánto cuesta nidi?',
          'Los primeros intercambios son gratis. Después, una membresía '
-         'mantiene el nidi andando, y la paga una sola de las dos personas. '
+         'mantiene el nidi andando, y la paga una sola persona. '
          'La otra nunca ve una pantalla de pago.'),
         ('¿Cómo doy de baja la membresía?',
          'Las membresías las maneja Apple, no nosotros. En tu iPhone entrá '
@@ -231,7 +231,7 @@ ES = dict(
          'cuenta. Te mandamos un código por correo para confirmar que sos '
          'vos, y no se borra nada hasta que lo pongas.'),
         ('¿Quién puede ver lo que nos mandamos?',
-         'Solo los dos adultos de ese nidi. Las fotos y los audios se '
+         'Solo los adultos de ese nidi. Las fotos y los audios se '
          'guardan de forma privada: no son públicos, no aparecen en '
          'búsquedas y no se le muestran a nadie más. No le vendemos nada a '
          'nadie.'),
