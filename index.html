@@ -81,7 +81,8 @@
          foot, on this page as on every other (Maru, 2026-09-26). */
       .why-link {
         font-family: var(--sans);
-        font-size: 13px;
+        font-size: 12px;
+        line-height: 14px;
         font-weight: 500;
         letter-spacing: 0.06em;
         color: var(--ink2);
@@ -96,18 +97,21 @@
 
       /* EN | ES, top right, as on the app's welcome screen. Real buttons
          with aria-pressed, 44px tall targets. */
+      /* eyebrow. */
       .lang {
         display: flex;
         align-items: center;
         font-family: var(--sans);
-        font-size: 13px;
+        font-size: 12px;
+        line-height: 14px;
         letter-spacing: 0.06em;
       }
       .lang button {
         background: none;
         border: 0;
         color: var(--ink2);
-        font-size: 13px;
+        font-size: 12px;
+        line-height: 14px;
         font-weight: 500;
         min-height: 44px;
         min-width: 44px;
@@ -162,8 +166,8 @@
       h1 {
         font-family: var(--serif);
         font-weight: 400;
-        font-size: 52px;
-        line-height: 1.2;
+        font-size: 44px;
+        line-height: 48px;
         letter-spacing: -0.02em;
         color: var(--ink);
         margin: 0 0 40px;
@@ -182,13 +186,15 @@
         max-width: 460px;
       }
 
+      /* bodyRegular. */
       input[type="email"] {
         flex: 1 1 220px;
         min-width: 0;
         font-family: var(--sans);
         /* 14px on desktop; the breakpoint below takes it back to 16px
            on phones. See that block for why. */
-        font-size: 14px;
+        font-size: 18px;
+        line-height: 24px;
         color: var(--ink);
         background: var(--paper);
         border: 1px solid var(--field-line);
@@ -206,9 +212,11 @@
         color: var(--muted);
       }
 
+      /* button. */
       button {
         font-family: var(--sans);
-        font-size: 14px;
+        font-size: 18px;
+        line-height: 20px;
         font-weight: 500;
         color: var(--paper);
         background: var(--ink);
@@ -226,7 +234,8 @@
       /* ink2, not muted: #b0a596 measured 2.2:1 on the paper, under the
          4.5:1 body text needs. muted stays for the placeholder only. */
       .note {
-        font-size: 14px;
+        font-size: 12px;
+        line-height: 14px;
         color: var(--ink2);
         margin: 20px 0 0;
       }
@@ -244,7 +253,8 @@
       }
 
       .error {
-        font-size: 14px;
+        font-size: 12px;
+        line-height: 14px;
         color: var(--ink2);
         margin: 12px 0 0;
       }
@@ -253,6 +263,7 @@
         display: none !important;
       }
 
+      /* eyebrow. */
       footer {
         padding: 24px 28px 28px;
         display: flex;
@@ -260,7 +271,8 @@
         justify-content: space-between;
         gap: 16px;
         text-align: left;
-        font-size: 13px;
+        font-size: 12px;
+        line-height: 14px;
         color: var(--ink2);
       }
       footer .lang button { color: var(--ink2); }
@@ -271,7 +283,8 @@
       footer a {
         color: var(--ink);
         text-decoration: none;
-        border-bottom: 1px solid rgba(122, 111, 98, 0.35);
+        /* No rule under them. Maru, 2026-09-26: the footer links never
+           carry one. The colour and the hover state say enough. */
       }
 
       footer a:hover {
@@ -295,10 +308,11 @@
       @media (max-width: 600px) {
         h1 {
           font-size: 36px;
+          line-height: 40px;
         }
 
         input[type="email"] {
-          font-size: 16px;
+          font-size: 18px;
         }
       }
 

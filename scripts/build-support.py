@@ -29,17 +29,23 @@ WORDMARK = SVG_SRC[_start:_end]
 EXTRA_CSS = """
       main { max-width: 720px; }
 
+      /* Lola's rungs, the same ones the frame lists. headingEditorial. */
       h1.page-title {
         font-family: var(--serif);
         font-weight: 400;
-        font-size: 40px;
-        line-height: 1.15;
+        font-size: 36px;
+        line-height: 40px;
         letter-spacing: -0.02em;
         margin: 0 0 12px;
         text-wrap: balance;
       }
+      /* contextualRegular: the line that sets up a page, in nidi's
+         contextual voice rather than a slightly larger body. */
       .lede {
-        font-size: 17px;
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 22px;
         color: var(--ink2);
         margin: 0 0 40px;
         max-width: 34em;
@@ -52,37 +58,45 @@ EXTRA_CSS = """
         margin: 0 0 48px;
       }
       .reach p { margin: 0 0 8px; }
+      /* headingPrompt. */
       .reach .mail {
         font-family: var(--serif);
-        font-size: 24px;
+        font-size: 22px;
+        line-height: 24px;
         letter-spacing: -0.01em;
       }
-      .reach .mail a { color: var(--ink); text-decoration: none;
-                       border-bottom: 1px solid var(--line); }
-      .reach .when { font-size: 14px; color: var(--ink2); margin: 12px 0 0; }
+      .reach .mail a { color: var(--ink); text-decoration: none; }
+      /* eyebrow. */
+      .reach .when { font-size: 12px; line-height: 14px;
+                     color: var(--ink2); margin: 12px 0 0; }
 
+      /* headingSection. */
       h2 {
-        font-family: var(--serif);
-        font-weight: 400;
-        font-size: 26px;
+        font-family: var(--sans);
+        font-weight: 300;
+        font-size: 30px;
+        line-height: 32px;
         letter-spacing: -0.01em;
         margin: 48px 0 20px;
       }
 
       .q { border-top: 1px solid var(--line); padding: 20px 0 4px; }
+      /* button: the same 18 as body, at the weight that makes a
+         question read as a question. */
       .q h3 {
         font-family: var(--sans);
-        font-weight: 600;
-        font-size: 16px;
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 24px;
         margin: 0 0 6px;
       }
       .q p { margin: 0 0 12px; color: var(--ink2); }
       .q a { color: var(--ink); }
 
       @media (max-width: 520px) {
-        h1.page-title { font-size: 32px; }
+        h1.page-title { font-size: 30px; line-height: 32px; }
         .reach { padding: 20px; }
-        .reach .mail { font-size: 20px; }
+        .reach .mail { font-size: 20px; line-height: 22px; }
       }
 """
 

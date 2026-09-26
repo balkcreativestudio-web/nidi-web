@@ -101,13 +101,13 @@ PAGE = """<!doctype html>
       </div>
     </main>
 
+    <!-- No way home in here: the wordmark at the top left is it
+         (Maru, 2026-09-26). -->
     <footer>
       <div class="foot-links">
         <a href="{privacy}">{privacylabel}</a>
         <span class="sep">·</span>
         <a href="{terms}">{termslabel}</a>
-        <span class="sep">·</span>
-        <a href="/">{homelabel}</a>
         <span class="sep">·</span>
         BALK Creative Studio
       </div>
@@ -130,7 +130,6 @@ EN = dict(
     navlabel='Language',
     privacy='/privacy/', privacylabel='Privacy',
     terms='/terms/', termslabel='Terms',
-    homelabel='nidi.life',
     paragraphs=[
         "I'm an Argentine mother in the Netherlands. When my daughter was "
         "born, my parents were 11,000 km away, and video calls with a baby "
@@ -166,7 +165,6 @@ ES = dict(
     navlabel='Idioma',
     privacy='/privacidad/', privacylabel='Privacidad',
     terms='/terminos/', termslabel='Términos',
-    homelabel='nidi.life',
     paragraphs=[
         'Soy una mamá argentina que vive en Holanda. Cuando nació mi hija, '
         'mis papás estaban a 11.000 kilómetros, y las videollamadas con un '
