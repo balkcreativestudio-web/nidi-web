@@ -30,28 +30,38 @@ _start = SVG_SRC.index('<svg class="wordmark"')
 _end = SVG_SRC.index('</svg>', _start) + len('</svg>')
 WORDMARK = SVG_SRC[_start:_end]
 
-# One column, larger type than the legal pages, and no headings inside:
-# it is four paragraphs and a signature, and anything else would make it
-# look like a document rather than someone talking.
+# Lola's type hierarchy, verbatim from the brand guidelines p. 26 and
+# canonical in nidi-app/constants/brand.ts:
+#
+#   headingEditorial   serif 36/40 regular
+#   bodyRegular        sans  18/24 light
+#
+# The first version of this page set the whole essay in serif at 20/32,
+# which Maru read as off-brand before anybody looked up why. It was: the
+# reading voice of nidi is Hanken Grotesk Light, and serif carries
+# titles and short emotional lines, not paragraphs.
 EXTRA_CSS = """
       main { max-width: 620px; }
 
+      /* headingEditorial: serif 36/40. */
       h1.page-title {
         font-family: var(--serif);
         font-weight: 400;
-        font-size: 40px;
-        line-height: 1.15;
+        font-size: 36px;
+        line-height: 40px;
         letter-spacing: -0.02em;
         margin: 0 0 32px;
         text-wrap: balance;
       }
 
+      /* bodyRegular: sans light 18/24. */
       .why p {
-        font-family: var(--serif);
-        font-size: 20px;
-        line-height: 1.6;
+        font-family: var(--sans);
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 24px;
         color: var(--ink);
-        margin: 0 0 28px;
+        margin: 0 0 24px;
       }
 
       /* The last two lines are one paragraph with a hard break in the
@@ -60,8 +70,7 @@ EXTRA_CSS = """
       .why p .turn { display: block; margin-top: 12px; }
 
       @media (max-width: 520px) {
-        h1.page-title { font-size: 32px; margin-bottom: 24px; }
-        .why p { font-size: 18px; margin-bottom: 24px; }
+        h1.page-title { font-size: 30px; line-height: 34px; margin-bottom: 24px; }
       }
 """
 

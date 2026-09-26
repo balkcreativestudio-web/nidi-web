@@ -43,14 +43,22 @@
         line-height: 1.6;
       }
 
+      /* At the page gutter, not in a centred box: index.html puts the
+         wordmark 28px from the left edge, and Maru caught it jumping
+         inwards when you moved between the home page and Why. The
+         content below still centres; the chrome does not. */
       header {
         padding: 24px 28px 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        max-width: 780px;
-        margin: 0 auto;
+        /* 24px of padding plus a 44pt tap target: the height the home
+           page's header takes anyway, held on every page so the wordmark
+           sits at the same y instead of riding 12px higher wherever the
+           header has nothing beside it. box-sizing is border-box here,
+           so this is the whole header, padding included. */
+        min-height: 68px;
       }
 
       .wordmark { display: block; height: 15px; width: auto; }
@@ -121,10 +129,6 @@
         justify-content: space-between;
         gap: 16px;
         text-align: left;
-        /* The same box the header sits in, so the credits line up under
-           the wordmark instead of starting 60px to its left. */
-        max-width: 780px;
-        margin: 0 auto;
       }
       footer .lang a { color: var(--ink2); }
       @media (max-width: 520px) {
