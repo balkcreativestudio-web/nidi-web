@@ -5,6 +5,11 @@ Maru's own text, in her own first person, about why nidi exists. The
 English and the Spanish are both hers; the Spanish is not a translation
 of the English and the two are deliberately not word-for-word.
 
+Nidi is capitalised in both languages here, and lowercase in the app's
+own voice and in the wordmark: Maru's rule is that the app is lowercase
+when it speaks as itself and capitalised when somebody speaks about it
+from outside. This page is somebody speaking about it.
+
 The frame (header, wordmark, language switch, footer, tokens) comes from
 scripts/build-legal.py the same way scripts/build-support.py takes it,
 so this does not look like a different website from the privacy policy.
@@ -154,7 +159,7 @@ EN = dict(
 ES = dict(
     slug='por-que', lang='es', title='Por qué',
     description=(
-        'Por qué hice nidi: una mamá argentina en Holanda, los abuelos a '
+        'Por qué hice Nidi: una mamá argentina en Holanda, los abuelos a '
         '11.000 kilómetros, y una hija que conoce sus voces.'
     ),
     navlabel='Idioma',
@@ -166,16 +171,16 @@ ES = dict(
         'Soy una mamá argentina que vive en Holanda. Cuando nació mi hija, '
         'mis papás estaban a 11.000 kilómetros, y las videollamadas con un '
         'bebé no funcionan. Yo quería que creciera conociendo la voz de sus '
-        'abuelos, no solo caras en una pantalla. Entonces hice nidi.',
+        'abuelos, no solo caras en una pantalla. Entonces hice Nidi.',
 
-        'nidi une dos casas: la del niño, y una que está en otro lugar. '
+        'Nidi une dos casas: la del niño, y una que está en otro lugar. '
         'Todos los días propone cosas chicas para hacer, cada uno en su casa '
         'y los dos juntos. Una abuela graba un buen día con su voz. Las dos '
         'casas sacan una foto del mismo cielo, o cocinan la misma receta. La '
         'pantalla lo lleva; el momento pasa afuera de ella. Todo queda en '
         'Recuerdos, un archivo que se queda con la familia.',
 
-        'nidi es silencioso a propósito. Voz, foto y texto. Algunas cosas '
+        'Nidi es silencioso a propósito. Voz, foto y texto. Algunas cosas '
         'por día, elegidas según la edad del niño, desde los primeros meses '
         'hasta los seis años. Nada para scrollear, nada que seguir. Solo lo '
         'que pasó hoy, guardado.',
