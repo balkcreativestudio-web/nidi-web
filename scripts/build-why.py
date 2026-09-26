@@ -59,17 +59,25 @@ EXTRA_CSS = """
          grandparents' voices" is the point of the ending. */
       .why p .turn { display: block; margin-top: 12px; }
 
-      .sign {
-        font-family: var(--serif);
-        font-style: italic;
-        font-size: 17px;
-        color: var(--ink2);
-        margin: 40px 0 0;
+      /* Maru, 2026-09-26: the language switch sits bottom right here,
+         not top right. The page is one column of prose and the header
+         holds nothing but the wordmark, so a control up there was the
+         only thing competing with the first line. */
+      footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        text-align: left;
       }
+      footer .lang a { color: var(--ink2); }
 
       @media (max-width: 520px) {
         h1.page-title { font-size: 32px; margin-bottom: 24px; }
         .why p { font-size: 18px; margin-bottom: 24px; }
+        /* Stacked, the links first and the switch under them, still
+           right of nothing rather than squeezed beside the credits. */
+        footer { flex-direction: column; align-items: flex-start; gap: 4px; }
       }
 """
 
@@ -91,11 +99,6 @@ PAGE = """<!doctype html>
   <body>
     <header>
       <a href="/" aria-label="nidi">{svg}</a>
-      <nav class="lang" aria-label="{navlabel}">
-        <a href="/why/" lang="en"{encurrent}>EN</a>
-        <span class="bar" aria-hidden="true"></span>
-        <a href="/por-que/" lang="es"{escurrent}>ES</a>
-      </nav>
     </header>
 
     <main>
@@ -103,17 +106,23 @@ PAGE = """<!doctype html>
       <div class="why">
 {body}
       </div>
-      <p class="sign">{sign}</p>
     </main>
 
     <footer>
-      <a href="{privacy}">{privacylabel}</a>
-      <span class="sep">·</span>
-      <a href="{terms}">{termslabel}</a>
-      <span class="sep">·</span>
-      <a href="/">{homelabel}</a>
-      <span class="sep">·</span>
-      BALK Creative Studio
+      <div class="foot-links">
+        <a href="{privacy}">{privacylabel}</a>
+        <span class="sep">·</span>
+        <a href="{terms}">{termslabel}</a>
+        <span class="sep">·</span>
+        <a href="/">{homelabel}</a>
+        <span class="sep">·</span>
+        BALK Creative Studio
+      </div>
+      <nav class="lang" aria-label="{navlabel}">
+        <a href="/why/" lang="en"{encurrent}>EN</a>
+        <span class="bar" aria-hidden="true"></span>
+        <a href="/por-que/" lang="es"{escurrent}>ES</a>
+      </nav>
     </footer>
   </body>
 </html>
@@ -129,7 +138,6 @@ EN = dict(
     privacy='/privacy/', privacylabel='Privacy',
     terms='/terms/', termslabel='Terms',
     homelabel='nidi.life',
-    sign='Maru, Haarlem',
     paragraphs=[
         "I'm an Argentine mother in the Netherlands. When my daughter was "
         "born, my parents were 11,000 km away, and video calls with a baby "
@@ -166,7 +174,6 @@ ES = dict(
     privacy='/privacidad/', privacylabel='Privacidad',
     terms='/terminos/', termslabel='Términos',
     homelabel='nidi.life',
-    sign='Maru, Haarlem',
     paragraphs=[
         'Soy una mamá argentina que vive en Holanda. Cuando nació mi hija, '
         'mis papás estaban a 11.000 kilómetros, y las videollamadas con un '
