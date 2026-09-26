@@ -137,6 +137,26 @@ TEMPLATE = """<!doctype html>
       }}
       .sep {{ padding: 0 8px; }}
 
+      /* Maru, 2026-09-26: EN | ES lives at the bottom right, on every
+         page. Up top it was the only control competing with the first
+         line of whatever the page had to say, and on the home page it
+         had started sharing that corner with the Why link. */
+      footer {{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        text-align: left;
+        /* The same box the header sits in, so the credits line up under
+           the wordmark instead of starting 60px to its left. */
+        max-width: 780px;
+        margin: 0 auto;
+      }}
+      footer .lang a {{ color: var(--ink2); }}
+      @media (max-width: 520px) {{
+        footer {{ flex-direction: column; align-items: flex-start; gap: 4px; }}
+      }}
+
       a:focus-visible {{ outline: 2px solid var(--ink); outline-offset: 2px; }}
 
       /* ── The embedded document ──────────────────────────────────── */
@@ -302,11 +322,6 @@ TEMPLATE = """<!doctype html>
   <body>
     <header>
       <a href="/" aria-label="nidi">{svg}</a>
-      <nav class="lang" aria-label="{navlabel}">
-        <a href="/{enslug}/" lang="en"{encurrent}>EN</a>
-        <span class="bar" aria-hidden="true"></span>
-        <a href="/{esslug}/" lang="es"{escurrent}>ES</a>
-      </nav>
     </header>
 
     <main>
@@ -317,11 +332,18 @@ TEMPLATE = """<!doctype html>
     </main>
 
     <footer>
-      <a href="{siblinghref}">{siblinglabel}</a>
-      <span class="sep">·</span>
-      <a href="/">{homelabel}</a>
-      <span class="sep">·</span>
-      BALK Creative Studio
+      <div class="foot-links">
+        <a href="{siblinghref}">{siblinglabel}</a>
+        <span class="sep">·</span>
+        <a href="/">{homelabel}</a>
+        <span class="sep">·</span>
+        BALK Creative Studio
+      </div>
+      <nav class="lang" aria-label="{navlabel}">
+        <a href="/{enslug}/" lang="en"{encurrent}>EN</a>
+        <span class="bar" aria-hidden="true"></span>
+        <a href="/{esslug}/" lang="es"{escurrent}>ES</a>
+      </nav>
     </footer>
   </body>
 </html>

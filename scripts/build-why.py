@@ -59,25 +59,9 @@ EXTRA_CSS = """
          grandparents' voices" is the point of the ending. */
       .why p .turn { display: block; margin-top: 12px; }
 
-      /* Maru, 2026-09-26: the language switch sits bottom right here,
-         not top right. The page is one column of prose and the header
-         holds nothing but the wordmark, so a control up there was the
-         only thing competing with the first line. */
-      footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        text-align: left;
-      }
-      footer .lang a { color: var(--ink2); }
-
       @media (max-width: 520px) {
         h1.page-title { font-size: 32px; margin-bottom: 24px; }
         .why p { font-size: 18px; margin-bottom: 24px; }
-        /* Stacked, the links first and the switch under them, still
-           right of nothing rather than squeezed beside the credits. */
-        footer { flex-direction: column; align-items: flex-start; gap: 4px; }
       }
 """
 

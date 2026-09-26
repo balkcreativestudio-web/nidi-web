@@ -104,11 +104,6 @@ PAGE = """<!doctype html>
   <body>
     <header>
       <a href="/" aria-label="nidi">{svg}</a>
-      <nav class="lang" aria-label="{navlabel}">
-        <a href="/support/" lang="en"{encurrent}>EN</a>
-        <span class="bar" aria-hidden="true"></span>
-        <a href="/soporte/" lang="es"{escurrent}>ES</a>
-      </nav>
     </header>
 
     <main>
@@ -126,13 +121,20 @@ PAGE = """<!doctype html>
     </main>
 
     <footer>
-      <a href="{privacy}">{privacylabel}</a>
-      <span class="sep">·</span>
-      <a href="{terms}">{termslabel}</a>
-      <span class="sep">·</span>
-      <a href="/">{homelabel}</a>
-      <span class="sep">·</span>
-      BALK Creative Studio
+      <div class="foot-links">
+        <a href="{privacy}">{privacylabel}</a>
+        <span class="sep">·</span>
+        <a href="{terms}">{termslabel}</a>
+        <span class="sep">·</span>
+        <a href="/">{homelabel}</a>
+        <span class="sep">·</span>
+        BALK Creative Studio
+      </div>
+      <nav class="lang" aria-label="{navlabel}">
+        <a href="/support/" lang="en"{encurrent}>EN</a>
+        <span class="bar" aria-hidden="true"></span>
+        <a href="/soporte/" lang="es"{escurrent}>ES</a>
+      </nav>
     </footer>
   </body>
 </html>
