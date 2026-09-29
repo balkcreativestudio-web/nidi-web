@@ -37,9 +37,10 @@
         --ink: #2a241d;
         --ink2: #7a6f62;
         --muted: #b0a596;
-        /* The input's hairline. Warmer and far lighter than ink, which
-           is what stops the form reading as a boxed control. */
-        --field-line: #e7dfd2;
+        /* The app's own line2: ink at 15%. The site used a warmer
+           #e7dfd2 of its own invention until Lola pointed out that the
+           two products' controls did not match (2026-09-29). */
+        --field-line: rgba(42, 36, 29, 0.15);
         --serif: Georgia, "Times New Roman", serif;
         --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
           sans-serif;
@@ -184,14 +185,20 @@
         gap: 10px;
         justify-content: center;
         width: 100%;
-        max-width: 400px;
+        max-width: 360px;
       }
 
-      /* bodyRegular. */
+      /* The app's own field, from nidi-app/app/(auth)/magic-link-sent
+         .tsx: paper, a hairline in line2, an 8px corner, 16px of
+         padding either side, and set in the SERIF — which is the part
+         that makes it read as nidi rather than as a web form. 52 tall,
+         and the button below matches it so the pair sits level; in the
+         app the two never appear side by side. */
       input[type="email"] {
         flex: 1 1 220px;
         min-width: 0;
-        font-family: var(--sans);
+        min-height: 52px;
+        font-family: var(--serif);
         /* 16px, not the scale's 18. Lola's rungs are measured on a
            phone held at arm's length; a browser sits twice as far from
            a control that is twice as wide, and 18 read as shouting
@@ -203,8 +210,8 @@
         color: var(--ink);
         background: var(--paper);
         border: 1px solid var(--field-line);
-        border-radius: 4px;
-        padding: 12px 14px;
+        border-radius: 8px;
+        padding: 12px 16px;
       }
 
       /* An address that cannot be sent: the field alone says so. */
@@ -217,8 +224,10 @@
         color: var(--muted);
       }
 
-      /* Same size as the field it sits beside, and the same height:
-         one control, not a button shouting over an input. */
+      /* The app's own button, from nidi-app/app/(auth)/welcome.tsx:
+         an ink pill, sans medium 16, 44 of padding either side of the
+         label. Its 48 becomes 52 here so it sits level with the field
+         beside it, which is a pairing the app never has to make. */
       button {
         font-family: var(--sans);
         font-size: 16px;
@@ -227,8 +236,9 @@
         color: var(--paper);
         background: var(--ink);
         border: 1px solid var(--ink);
-        border-radius: 4px;
-        padding: 12px 20px;
+        border-radius: 100px;
+        min-height: 52px;
+        padding: 14px 44px;
         cursor: pointer;
       }
 
