@@ -179,11 +179,22 @@
         text-wrap: balance;
       }
 
+      /* One column, both controls the same width.
+         Lola, and then Maru, on the stacked version where they were
+         not: two objects of different widths under one another read as
+         two unrelated things, which is exactly what it looked like.
+         Side by side was the other option and it is worse here — at
+         360 the pill's own width leaves about 140 for the field, which
+         is not enough for an email address, and a phone would have to
+         stack it anyway, so it would be two layouts to keep instead of
+         one. Equal width is one object: the field gets the whole width
+         for a long address, the button is an unmissable target, and
+         the phone and the desktop show the same thing. */
       form {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         gap: 10px;
-        justify-content: center;
+        align-items: stretch;
         width: 100%;
         max-width: 360px;
       }
@@ -195,7 +206,7 @@
          and the button below matches it so the pair sits level; in the
          app the two never appear side by side. */
       input[type="email"] {
-        flex: 1 1 220px;
+        width: 100%;
         min-width: 0;
         min-height: 52px;
         font-family: var(--serif);
@@ -239,6 +250,7 @@
         border-radius: 100px;
         min-height: 52px;
         padding: 14px 44px;
+        width: 100%;
         cursor: pointer;
       }
 
