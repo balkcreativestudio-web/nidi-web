@@ -58,12 +58,17 @@
          32, 34 and 40, none of them from here. Maru read it as off-brand
          on the Why page and she was right about the whole site. */
 
-      /* bodyRegular. */
+      /* bodyRegular, read on a browser: 16/26, not the scale's 18/24.
+         Lola's rungs are measured on a phone at arm's length; a page in
+         a browser sits further away and its column is wider, so the
+         same rung reads a size too big and the lines run long. Maru
+         called it twice (2026-09-26, 2026-09-29). The leading goes the
+         other way: reading text wants air an app screen does not. */
       body {
         font-family: var(--sans);
         font-weight: 300;
-        font-size: 18px;
-        line-height: 24px;
+        font-size: 16px;
+        line-height: 26px;
         -webkit-font-smoothing: antialiased;
       }
 
@@ -159,14 +164,31 @@
         text-align: left;
       }
       footer .lang a { color: var(--ink2); }
+
+      /* EN | ES keeps its 44px tap target and gives back the space
+         around it, so the switch sits on the links' own line and its S
+         lands on the page gutter rather than 12px inside it. Without
+         this the nav is a 44px block against a 14px line and reads as
+         dropped (Maru, 2026-09-29). */
+      footer .lang { margin: -15px -12px -15px 0; }
+      footer .lang a { min-width: 0; padding: 0 12px; }
+
+      /* On a phone the links plus the switch do not fit on one line, so
+         the studio credit takes the second line and the switch stays
+         beside the links at the right gutter. Stacking the switch under
+         Privacy was the old answer, and it read as dropped and out of
+         line. */
       @media (max-width: 520px) {
-        footer { flex-direction: column; align-items: flex-start; gap: 4px; }
+        h1.page-title { font-size: 26px; line-height: 30px; margin-bottom: 22px; }
+        footer { align-items: flex-start; }
+        .foot-links .sep-studio { display: none; }
+        .foot-links .studio { display: block; margin-top: 6px; }
       }
 
       a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
       /* ── The embedded document ──────────────────────────────────── */
-      .doc { font-size: 18px; color: var(--ink); }
+      .doc { font-size: 16px; color: var(--ink); }
 
       /* iubenda's own container and headings, re-dressed. Their
          stylesheet loads after this one, so these carry !important:
@@ -184,8 +206,13 @@
         color: var(--ink) !important;
       }
 
-      .doc h1, .doc h2, .doc h3,
-      .doc .iub_header h1, .doc .iub_header h2 {
+      /* html body in front of every one of these: iubenda's own
+         stylesheet carries rules more specific than .doc h1, so the
+         whole block below was losing silently. The Privacy title was
+         36px type on a 24px line and the two lines sat on top of each
+         other on a phone. */
+      html body .doc h1, html body .doc h2, html body .doc h3,
+      html body .doc .iub_header h1, html body .doc .iub_header h2 {
         font-family: var(--serif) !important;
         font-weight: 400 !important;
         color: var(--ink) !important;
@@ -194,22 +221,46 @@
       }
       /* headingSection, headingPrompt, bodyRegular: the document's own
          three levels on the three rungs under the page title. */
-      .doc h1 { font-size: 30px !important; line-height: 32px !important;
+      html body .doc h1 { font-size: 30px !important; line-height: 34px !important;
                  margin: 40px 0 16px !important; }
-      .doc h2 { font-size: 22px !important; line-height: 24px !important;
+      html body .doc h2 { font-size: 22px !important; line-height: 26px !important;
                  margin: 36px 0 12px !important; }
-      .doc h3 { font-size: 18px !important; line-height: 24px !important;
+      html body .doc h3 { font-size: 18px !important; line-height: 26px !important;
                  margin: 28px 0 10px !important; }
 
       .doc p, .doc li, .doc td, .doc th, .doc div {
         font-family: var(--sans) !important;
         font-weight: 300 !important;
-        font-size: 18px !important;
-        line-height: 24px !important;
+        font-size: 16px !important;
+        line-height: 26px !important;
         color: var(--ink) !important;
       }
 
       .doc a { color: var(--ink) !important; text-decoration: underline; }
+
+      /* The Terms carry a fill-in-the-blank line of 45 underscores
+         ("consumer(s):______"), which nothing will break: it made the
+         whole document 482px wide inside a 375px phone and pushed the
+         page sideways. anywhere, not break-word: only anywhere shrinks
+         the element's min-content width, which is what is doing the
+         pushing. */
+      .doc p, .doc li, .doc td, .doc th { overflow-wrap: anywhere; }
+
+      /* iubenda lays its own page out in flex rows that do not wrap: an
+         aside beside the document, and a credits block in its footer.
+         On a phone they pushed the whole page sideways, our own header
+         and footer with it. */
+      html body .doc footer,
+      html body .doc .footer__first-row { flex-wrap: wrap !important; gap: 12px !important;
+        box-sizing: border-box !important; max-width: 100% !important;
+        margin-left: 0 !important; margin-right: 0 !important;
+        padding: 16px !important; }
+      html body .doc .footer__first-row > * { max-width: 100% !important; }
+      html body .doc .aside-main-wrapper { display: block !important; }
+      /* And the accordion summaries, which are flex rows carrying a
+         block of text: at 320px their text spilled past the page. */
+      html body .doc summary { flex-wrap: wrap !important; }
+      html body .doc summary > * { min-width: 0 !important; max-width: 100% !important; }
 
       .doc ul, .doc ol { padding-left: 22px; }
       .doc li { margin: 6px 0; }
@@ -349,8 +400,8 @@
         <a href="/terminos/">Términos</a>
         <span class="sep">·</span>
         <a href="/">Inicio</a>
-        <span class="sep">·</span>
-        BALK Creative Studio
+        <span class="sep sep-studio">·</span>
+        <span class="studio">BALK Creative Studio</span>
       </div>
       <nav class="lang" aria-label="Idioma">
         <a href="/privacy/" lang="en">EN</a>

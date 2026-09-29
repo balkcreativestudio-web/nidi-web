@@ -90,7 +90,8 @@
         min-height: 44px;
         display: inline-flex;
         align-items: center;
-        padding: 0 8px;
+        padding: 0 12px;
+        margin-right: -12px;
       }
       .why-link:hover,
       .why-link:focus-visible { color: var(--ink); }
@@ -183,7 +184,7 @@
         gap: 10px;
         justify-content: center;
         width: 100%;
-        max-width: 460px;
+        max-width: 400px;
       }
 
       /* bodyRegular. */
@@ -191,15 +192,19 @@
         flex: 1 1 220px;
         min-width: 0;
         font-family: var(--sans);
-        /* 14px on desktop; the breakpoint below takes it back to 16px
-           on phones. See that block for why. */
-        font-size: 18px;
-        line-height: 24px;
+        /* 16px, not the scale's 18. Lola's rungs are measured on a
+           phone held at arm's length; a browser sits twice as far from
+           a control that is twice as wide, and 18 read as shouting
+           (Maru, 2026-09-29). 16 is also the floor: below it iOS
+           Safari zooms the page in when the field takes focus and
+           never zooms back out. */
+        font-size: 16px;
+        line-height: 22px;
         color: var(--ink);
         background: var(--paper);
         border: 1px solid var(--field-line);
         border-radius: 4px;
-        padding: 14px 16px;
+        padding: 12px 14px;
       }
 
       /* An address that cannot be sent: the field alone says so. */
@@ -212,17 +217,18 @@
         color: var(--muted);
       }
 
-      /* button. */
+      /* Same size as the field it sits beside, and the same height:
+         one control, not a button shouting over an input. */
       button {
         font-family: var(--sans);
-        font-size: 18px;
-        line-height: 20px;
+        font-size: 16px;
+        line-height: 22px;
         font-weight: 500;
         color: var(--paper);
         background: var(--ink);
         border: 1px solid var(--ink);
         border-radius: 4px;
-        padding: 14px 22px;
+        padding: 12px 20px;
         cursor: pointer;
       }
 
@@ -276,8 +282,30 @@
         color: var(--ink2);
       }
       footer .lang button { color: var(--ink2); }
+
+      /* EN | ES keeps its 44px tap target and gives back the space
+         around it, so the switch sits on the links' own line and its S
+         lands on the page gutter, not 12px inside it. Without this the
+         nav is a 44px block against a 14px line and reads as dropped.
+      */
+      footer .lang {
+        margin: -15px -12px -15px 0;
+      }
+      footer .lang button {
+        min-width: 0;
+        padding: 0 12px;
+      }
+
+      /* On a phone the three links plus the switch do not fit on one
+         line (338px of content in 319px of page), so the studio credit
+         takes the second line and the switch stays where it belongs:
+         beside the links, at the right gutter. Stacking the switch
+         under Privacy was the old answer and Maru read it as dropped
+         and out of line (2026-09-29). */
       @media (max-width: 520px) {
-        footer { flex-direction: column; align-items: flex-start; gap: 4px; }
+        footer { align-items: flex-start; }
+        .foot-links .sep-studio { display: none; }
+        .foot-links .studio { display: block; margin-top: 6px; }
       }
 
       footer a {
@@ -312,7 +340,7 @@
         }
 
         input[type="email"] {
-          font-size: 18px;
+          font-size: 16px;
         }
       }
 
@@ -381,8 +409,8 @@
         <a id="privacy" href="/privacy/" data-i18n="privacy">Privacy</a>
         <span class="sep">·</span>
         <a id="terms" href="/terms/" data-i18n="terms">Terms</a>
-        <span class="sep">·</span>
-        BALK Creative Studio
+        <span class="sep sep-studio">·</span>
+        <span class="studio">BALK Creative Studio</span>
       </div>
       <nav class="lang" aria-label="Language">
         <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>

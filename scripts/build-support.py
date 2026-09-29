@@ -27,14 +27,14 @@ _end = SVG_SRC.index('</svg>', _start) + len('</svg>')
 WORDMARK = SVG_SRC[_start:_end]
 
 EXTRA_CSS = """
-      main { max-width: 720px; }
+      main { max-width: 680px; }
 
       /* Lola's rungs, the same ones the frame lists. headingEditorial. */
       h1.page-title {
         font-family: var(--serif);
         font-weight: 400;
-        font-size: 36px;
-        line-height: 40px;
+        font-size: 32px;
+        line-height: 36px;
         letter-spacing: -0.02em;
         margin: 0 0 12px;
         text-wrap: balance;
@@ -44,8 +44,8 @@ EXTRA_CSS = """
       .lede {
         font-family: var(--serif);
         font-style: italic;
-        font-size: 20px;
-        line-height: 22px;
+        font-size: 19px;
+        line-height: 26px;
         color: var(--ink2);
         margin: 0 0 40px;
         max-width: 34em;
@@ -74,19 +74,19 @@ EXTRA_CSS = """
       h2 {
         font-family: var(--sans);
         font-weight: 300;
-        font-size: 30px;
-        line-height: 32px;
+        font-size: 26px;
+        line-height: 30px;
         letter-spacing: -0.01em;
         margin: 48px 0 20px;
       }
 
       .q { border-top: 1px solid var(--line); padding: 20px 0 4px; }
-      /* button: the same 18 as body, at the weight that makes a
-         question read as a question. */
+      /* The same size as the answer under it, at the weight that makes
+         a question read as a question. */
       .q h3 {
         font-family: var(--sans);
         font-weight: 500;
-        font-size: 18px;
+        font-size: 16px;
         line-height: 24px;
         margin: 0 0 6px;
       }
@@ -94,7 +94,9 @@ EXTRA_CSS = """
       .q a { color: var(--ink); }
 
       @media (max-width: 520px) {
-        h1.page-title { font-size: 30px; line-height: 32px; }
+        h1.page-title { font-size: 26px; line-height: 30px; }
+        h2 { font-size: 22px; line-height: 26px; margin: 40px 0 16px; }
+        .lede { font-size: 18px; line-height: 24px; }
         .reach { padding: 20px; }
         .reach .mail { font-size: 20px; line-height: 22px; }
       }
@@ -141,8 +143,8 @@ PAGE = """<!doctype html>
         <a href="{terms}">{termslabel}</a>
         <span class="sep">·</span>
         <a href="/">{homelabel}</a>
-        <span class="sep">·</span>
-        BALK Creative Studio
+        <span class="sep sep-studio">·</span>
+        <span class="studio">BALK Creative Studio</span>
       </div>
       <nav class="lang" aria-label="{navlabel}">
         <a href="/support/" lang="en"{encurrent}>EN</a>

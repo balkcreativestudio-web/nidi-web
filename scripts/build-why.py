@@ -41,27 +41,34 @@ WORDMARK = SVG_SRC[_start:_end]
 # reading voice of nidi is Hanken Grotesk Light, and serif carries
 # titles and short emotional lines, not paragraphs.
 EXTRA_CSS = """
-      main { max-width: 620px; }
+      /* ~70 characters a line at 16px, which is where running text is
+         read most easily. At 620px and 18px it was 78 and the column
+         was working against the size. */
+      main { max-width: 560px; }
 
-      /* headingEditorial: serif 36/40. */
       h1.page-title {
         font-family: var(--serif);
         font-weight: 400;
-        font-size: 36px;
-        line-height: 40px;
+        font-size: 32px;
+        line-height: 36px;
         letter-spacing: -0.02em;
-        margin: 0 0 32px;
+        margin: 0 0 28px;
         text-wrap: balance;
       }
 
-      /* bodyRegular: sans light 18/24. */
+      /* 16/26, not the scale's 18/24. Lola's rungs are measured on a
+         phone at arm's length; a browser sits further away and the
+         column is wider, so the same rung reads a size too big, which
+         is what Maru kept seeing (2026-09-26 and again 2026-09-29).
+         The leading goes the other way: an essay wants air between the
+         lines that an app screen does not. */
       .why p {
         font-family: var(--sans);
         font-weight: 300;
-        font-size: 18px;
-        line-height: 24px;
+        font-size: 16px;
+        line-height: 26px;
         color: var(--ink);
-        margin: 0 0 24px;
+        margin: 0 0 22px;
       }
 
       /* The last two lines are one paragraph with a hard break in the
@@ -70,7 +77,7 @@ EXTRA_CSS = """
       .why p .turn { display: block; margin-top: 12px; }
 
       @media (max-width: 520px) {
-        h1.page-title { font-size: 30px; line-height: 34px; margin-bottom: 24px; }
+        h1.page-title { font-size: 26px; line-height: 30px; margin-bottom: 22px; }
       }
 """
 
@@ -108,8 +115,8 @@ PAGE = """<!doctype html>
         <a href="{privacy}">{privacylabel}</a>
         <span class="sep">·</span>
         <a href="{terms}">{termslabel}</a>
-        <span class="sep">·</span>
-        BALK Creative Studio
+        <span class="sep sep-studio">·</span>
+        <span class="studio">BALK Creative Studio</span>
       </div>
       <nav class="lang" aria-label="{navlabel}">
         <a href="/why/" lang="en"{encurrent}>EN</a>
@@ -134,7 +141,8 @@ EN = dict(
         "I'm an Argentine mother in the Netherlands. When my daughter was "
         "born, my parents were 11,000 km away, and video calls with a baby "
         "don't work. I wanted her to grow up knowing her grandparents' "
-        "voices, not just faces on a screen. So I built Nidi.",
+        "voices, their stories, the small things they do every day. Not "
+        "just faces on a screen. So I built Nidi.",
 
         "Nidi connects two houses: the child's, and one far away. Every day "
         "it suggests small things to do, apart but together. A grandmother "
@@ -169,7 +177,8 @@ ES = dict(
         'Soy una mamá argentina que vive en Holanda. Cuando nació mi hija, '
         'mis papás estaban a 11.000 kilómetros, y las videollamadas con un '
         'bebé no funcionan. Yo quería que creciera conociendo la voz de sus '
-        'abuelos, no solo caras en una pantalla. Entonces hice Nidi.',
+        'abuelos, sus historias, las cosas chiquitas que hacen todos los '
+        'días. No solo caras en una pantalla. Entonces hice Nidi.',
 
         'Nidi une dos casas: la del niño, y una que está en otro lugar. '
         'Todos los días propone cosas chicas para hacer, cada uno en su casa '

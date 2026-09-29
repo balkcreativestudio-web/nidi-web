@@ -58,12 +58,17 @@
          32, 34 and 40, none of them from here. Maru read it as off-brand
          on the Why page and she was right about the whole site. */
 
-      /* bodyRegular. */
+      /* bodyRegular, read on a browser: 16/26, not the scale's 18/24.
+         Lola's rungs are measured on a phone at arm's length; a page in
+         a browser sits further away and its column is wider, so the
+         same rung reads a size too big and the lines run long. Maru
+         called it twice (2026-09-26, 2026-09-29). The leading goes the
+         other way: reading text wants air an app screen does not. */
       body {
         font-family: var(--sans);
         font-weight: 300;
-        font-size: 18px;
-        line-height: 24px;
+        font-size: 16px;
+        line-height: 26px;
         -webkit-font-smoothing: antialiased;
       }
 
@@ -159,34 +164,58 @@
         text-align: left;
       }
       footer .lang a { color: var(--ink2); }
+
+      /* EN | ES keeps its 44px tap target and gives back the space
+         around it, so the switch sits on the links' own line and its S
+         lands on the page gutter rather than 12px inside it. Without
+         this the nav is a 44px block against a 14px line and reads as
+         dropped (Maru, 2026-09-29). */
+      footer .lang { margin: -15px -12px -15px 0; }
+      footer .lang a { min-width: 0; padding: 0 12px; }
+
+      /* On a phone the links plus the switch do not fit on one line, so
+         the studio credit takes the second line and the switch stays
+         beside the links at the right gutter. Stacking the switch under
+         Privacy was the old answer, and it read as dropped and out of
+         line. */
       @media (max-width: 520px) {
-        footer { flex-direction: column; align-items: flex-start; gap: 4px; }
+        h1.page-title { font-size: 26px; line-height: 30px; margin-bottom: 22px; }
+        footer { align-items: flex-start; }
+        .foot-links .sep-studio { display: none; }
+        .foot-links .studio { display: block; margin-top: 6px; }
       }
 
       a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 
-      main { max-width: 620px; }
+      /* ~70 characters a line at 16px, which is where running text is
+         read most easily. At 620px and 18px it was 78 and the column
+         was working against the size. */
+      main { max-width: 560px; }
 
-      /* headingEditorial: serif 36/40. */
       h1.page-title {
         font-family: var(--serif);
         font-weight: 400;
-        font-size: 36px;
-        line-height: 40px;
+        font-size: 32px;
+        line-height: 36px;
         letter-spacing: -0.02em;
-        margin: 0 0 32px;
+        margin: 0 0 28px;
         text-wrap: balance;
       }
 
-      /* bodyRegular: sans light 18/24. */
+      /* 16/26, not the scale's 18/24. Lola's rungs are measured on a
+         phone at arm's length; a browser sits further away and the
+         column is wider, so the same rung reads a size too big, which
+         is what Maru kept seeing (2026-09-26 and again 2026-09-29).
+         The leading goes the other way: an essay wants air between the
+         lines that an app screen does not. */
       .why p {
         font-family: var(--sans);
         font-weight: 300;
-        font-size: 18px;
-        line-height: 24px;
+        font-size: 16px;
+        line-height: 26px;
         color: var(--ink);
-        margin: 0 0 24px;
+        margin: 0 0 22px;
       }
 
       /* The last two lines are one paragraph with a hard break in the
@@ -195,7 +224,7 @@
       .why p .turn { display: block; margin-top: 12px; }
 
       @media (max-width: 520px) {
-        h1.page-title { font-size: 30px; line-height: 34px; margin-bottom: 24px; }
+        h1.page-title { font-size: 26px; line-height: 30px; margin-bottom: 22px; }
       }
 
     </style>
@@ -208,7 +237,7 @@
     <main>
       <h1 class="page-title">Por qué</h1>
       <div class="why">
-        <p>Soy una mamá argentina que vive en Holanda. Cuando nació mi hija, mis papás estaban a 11.000 kilómetros, y las videollamadas con un bebé no funcionan. Yo quería que creciera conociendo la voz de sus abuelos, no solo caras en una pantalla. Entonces hice Nidi.</p>
+        <p>Soy una mamá argentina que vive en Holanda. Cuando nació mi hija, mis papás estaban a 11.000 kilómetros, y las videollamadas con un bebé no funcionan. Yo quería que creciera conociendo la voz de sus abuelos, sus historias, las cosas chiquitas que hacen todos los días. No solo caras en una pantalla. Entonces hice Nidi.</p>
         <p>Nidi une dos casas: la del niño, y una que está en otro lugar. Todos los días propone cosas chicas para hacer, cada uno en su casa y los dos juntos. Una abuela graba un buen día con su voz. Las dos casas sacan una foto del mismo cielo, o cocinan la misma receta. La pantalla lo lleva; el momento pasa afuera de ella. Todo queda en Recuerdos, un archivo que se queda con la familia.</p>
         <p>Nidi es silencioso a propósito. Voz, foto y texto. Algunas cosas por día, elegidas según la edad del niño, desde los primeros meses hasta los seis años. Nada para scrollear, nada que seguir. Solo lo que pasó hoy, guardado.</p>
         <p>Desde que empezamos a probarlo, mis papás le leyeron cuentos a mi hija antes de dormir, le cantaron en el desayuno, y le dejaron un buen día todos los días, grabado la noche anterior en Buenos Aires.<span class="turn">Mi hija todavía no cumplió dos. Conoce la voz de sus abuelos.</span></p>
@@ -222,8 +251,8 @@
         <a href="/privacidad/">Privacidad</a>
         <span class="sep">·</span>
         <a href="/terminos/">Términos</a>
-        <span class="sep">·</span>
-        BALK Creative Studio
+        <span class="sep sep-studio">·</span>
+        <span class="studio">BALK Creative Studio</span>
       </div>
       <nav class="lang" aria-label="Idioma">
         <a href="/why/" lang="en">EN</a>
