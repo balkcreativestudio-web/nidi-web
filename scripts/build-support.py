@@ -199,6 +199,13 @@ EN = dict(
          'Check that notifications are allowed for nidi in your iPhone '
          'settings, and that Quiet hours in the app are not covering the '
          'time you expect them. If it still happens, write to us.'),
+        ('What languages does nidi write down?',
+         'nidi writes down what you say in a voice note, and for now it '
+         'only listens in English and Spanish. If you record in another '
+         'language it will still send, and the words it wrote will be '
+         'wrong: clear them on the screen before you send and write what '
+         'you said yourself, in any alphabet. Only the words you have '
+         'read are ever printed.'),
         ('Can I use nidi in Spanish?',
          'Yes. nidi follows your phone. If your phone is in Spanish, so is '
          'nidi, and each of you reads in your own language even inside the '
@@ -256,6 +263,12 @@ ES = dict(
          'configuración del iPhone, y que las Horas de silencio de la app '
          'no estén tapando el horario en que las esperás. Si sigue '
          'pasando, escribinos.'),
+        ('¿En qué idiomas escribe nidi lo que decís?',
+         'nidi escribe lo que decís en una nota de voz, y por ahora solo '
+         'escucha en español y en inglés. Si grabás en otro idioma la nota '
+         'se manda igual, pero las palabras van a estar mal: borralas en '
+         'la pantalla antes de mandar y escribí vos lo que dijiste, en '
+         'cualquier alfabeto. Solo se imprime lo que vos leíste.'),
         ('¿Puedo usar nidi en español?',
          'Sí. nidi sigue el idioma de tu teléfono. Si tu teléfono está en '
          'español, nidi también, y cada uno lee en su propio idioma aunque '
