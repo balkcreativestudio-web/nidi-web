@@ -479,8 +479,7 @@
           copied: "Copied",
           copyFailed: "Select the code above and copy it, or write it down.",
           help: "Open nidi, tap “I was invited”, and put the code in.",
-          storeLive: "Get nidi. It's free.",
-          storeLink: "Get nidi. It's free.",
+          storeLink: "Get nidi",
           storeSoon: "nidi is coming to the App Store very soon.",
           missingTitle: "This page doesn't exist.",
           home: "Go to nidi.life",
@@ -501,8 +500,7 @@
           copied: "Copiado",
           copyFailed: "Seleccioná el código de arriba y copialo, o anotalo.",
           help: "Abrí nidi, tocá “Me invitaron”, y poné el código.",
-          storeLive: "Bajá nidi. Es gratis.",
-          storeLink: "Bajá nidi. Es gratis.",
+          storeLink: "Bajá nidi",
           storeSoon: "nidi llega al App Store muy pronto.",
           missingTitle: "Esta página no existe.",
           home: "Ir a nidi.life",
@@ -557,6 +555,28 @@
         // The one thing she has to do next, drawn as the one thing
         // she has to do next (2026-10-02). It used to be 12px grey
         // under a black button that cannot work for her.
+        //
+        // The label says what the button does and nothing else
+        // (2026-10-03). It read "Bajá nidi. Es gratis." / "Get nidi.
+        // It's free." Maru: "¿no es raro decir esto? es engañoso."
+        //
+        // It is not untrue — an invitee never sees a price, never meets
+        // the paywall and is never asked for a card (lib/trial.ts: "only
+        // the person who started the nidi ever sees prices", "invitees
+        // get full free access"). It was wrong for three other reasons.
+        // It answers a question she is not asking: she is not weighing a
+        // purchase, her daughter sent her a message. It is the one line
+        // on the page that changes register from an invitation to an
+        // advert. And nothing is free, so to somebody of seventy the
+        // word is the thing that starts the suspicion rather than
+        // settling it — especially since nidi does pause after three
+        // exchanges once the trial limit drops to 3, and she will meet
+        // "nidi está en pausa por ahora" with that word behind her.
+        //
+        // Nothing replaces it. Options that said the true thing about
+        // her ("no te va a pedir ninguna tarjeta") were offered and
+        // Maru chose none of them: a reassurance nobody asked for is
+        // still a sentence about money on a page about a grandchild.
         var store = document.getElementById("store");
         store.textContent = "";
         if (APP_LIVE) {
