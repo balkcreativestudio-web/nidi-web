@@ -310,19 +310,6 @@
         color: var(--ink);
         margin: 0 0 32px;
       }
-      .open {
-        display: block;
-        width: 100%;
-        text-align: center;
-        text-decoration: none;
-        font-family: var(--sans);
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--paper);
-        background: var(--ink);
-        border-radius: 999px;
-        padding: 16px 22px;
-      }
       .codebox {
         margin: 28px 0 0;
         padding: 18px 20px;
@@ -363,15 +350,53 @@
         color: var(--ink2);
         margin: 20px 0 0;
       }
-      /* eyebrow. */
-      .store {
-        font-size: 12px;
-        line-height: 14px;
-        color: var(--ink2);
-        margin: 24px 0 0;
+      /* Shown only when copying fails, which inside another app's
+         browser is ordinary rather than exceptional. */
+      .copyfail {
+        font-size: 15px;
+        line-height: 22px;
+        color: var(--sienna);
+        margin: 12px 0 0;
       }
-      .store a {
-        color: var(--ink);
+      /* The action, since downloading nidi is the only thing somebody
+         reading this page can actually do next. It was a 12px grey
+         line under a black button that cannot work for her. */
+      .store {
+        margin: 28px 0 0;
+      }
+      .storeAction,
+      .store.storeSoon {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+        text-decoration: none;
+        font-family: var(--sans);
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--paper);
+        background: var(--ink);
+        border-radius: 999px;
+        padding: 16px 22px;
+      }
+      /* Before the app is published there is nothing to tap, so the
+         same words sit on the page rather than pretending to be a
+         button. */
+      .store.storeSoon {
+        background: none;
+        color: var(--ink2);
+        font-weight: 400;
+        padding: 0;
+        text-align: left;
+      }
+      /* The old primary, kept for the one person it can still serve. */
+      .already {
+        font-size: 15px;
+        line-height: 22px;
+        margin: 22px 0 0;
+      }
+      .already a {
+        color: var(--ink2);
       }
       .home {
         color: var(--ink);
@@ -391,19 +416,29 @@
     <main>
       <section class="invite" id="invite" hidden>
         <h1 data-i18n="inviteTitle">You're invited to nidi.</h1>
-        <p class="lede" data-i18n="inviteLede">Open nidi and this invitation is waiting for you.</p>
+        <p class="lede" data-i18n="inviteLede">nidi is a way to stay close to a small child who lives far away, a little, every day.</p>
 
-        <a class="open" id="open" href="nidi://" data-i18n="open">Open in nidi</a>
-
+        <!-- The code first, and big. Whoever reads this page does not
+             have the app: that is the whole population of this page,
+             not its edge case, so the thing she will need in two
+             minutes goes at the top where she is looking. -->
         <div class="codebox">
           <p class="label" id="code-label" data-i18n="codeLabel">Your invite code</p>
           <p class="code" id="code" aria-labelledby="code-label"></p>
           <button class="copy" id="copy" type="button" data-i18n="copy">Copy code</button>
           <span class="sr-only" id="copied" role="status"></span>
+          <p class="copyfail" id="copyfail" hidden></p>
         </div>
 
-        <p class="help" data-i18n="help">If nidi doesn't open, open the app, tap “I have an invite code” and paste it.</p>
         <p class="store" id="store"></p>
+
+        <p class="help" data-i18n="help">Open nidi, tap “I was invited”, and put the code in.</p>
+
+        <!-- Kept, demoted. It cannot work for somebody without the app,
+             which is who this page is for — but somebody who already
+             installed and came back to the message lands here too, and
+             this is the only thing that takes her to the app. -->
+        <p class="already"><a id="open" href="nidi://" data-i18n="open">Already have nidi? Open it</a></p>
       </section>
 
       <section id="missing" hidden>
@@ -437,15 +472,16 @@
       var COPY = {
         en: {
           inviteTitle: "You're invited to nidi.",
-          inviteLede: "Open nidi and this invitation is waiting for you.",
-          open: "Open in nidi",
+          inviteLede: "nidi is a way to stay close to a small child who lives far away, a little, every day.",
+          open: "Already have nidi? Open it",
           codeLabel: "Your invite code",
           copy: "Copy code",
           copied: "Copied",
-          help: "If nidi doesn't open, open the app, tap “I have an invite code” and paste it.",
-          storeLive: "Don't have nidi yet? ",
-          storeLink: "Get it on the App Store",
-          storeSoon: "Don't have nidi yet? Coming soon to the App Store.",
+          copyFailed: "Select the code above and copy it, or write it down.",
+          help: "Open nidi, tap “I was invited”, and put the code in.",
+          storeLive: "Get nidi. It's free.",
+          storeLink: "Get nidi. It's free.",
+          storeSoon: "nidi is coming to the App Store very soon.",
           missingTitle: "This page doesn't exist.",
           home: "Go to nidi.life",
           privacy: "Privacy",
@@ -458,15 +494,16 @@
         },
         es: {
           inviteTitle: "Te invitaron a nidi.",
-          inviteLede: "Abrí nidi y esta invitación te está esperando.",
-          open: "Abrir en nidi",
+          inviteLede: "nidi es para estar cerca de una criatura que vive lejos, un poco, todos los días.",
+          open: "¿Ya tenés nidi? Abrilo",
           codeLabel: "Tu código de invitación",
           copy: "Copiar código",
           copied: "Copiado",
-          help: "Si nidi no se abre, abrí la app, tocá “Tengo un código de invitación” y pegalo.",
-          storeLive: "¿Todavía no tenés nidi? ",
-          storeLink: "Descargala en el App Store",
-          storeSoon: "¿Todavía no tenés nidi? Muy pronto en el App Store.",
+          copyFailed: "Seleccioná el código de arriba y copialo, o anotalo.",
+          help: "Abrí nidi, tocá “Me invitaron”, y poné el código.",
+          storeLive: "Bajá nidi. Es gratis.",
+          storeLink: "Bajá nidi. Es gratis.",
+          storeSoon: "nidi llega al App Store muy pronto.",
           missingTitle: "Esta página no existe.",
           home: "Ir a nidi.life",
           privacy: "Privacidad",
@@ -517,15 +554,20 @@
         document.getElementById("privacy").href = c.privacyUrl;
         document.getElementById("terms").href = c.termsUrl;
         document.querySelector(".lang").setAttribute("aria-label", c.nav);
+        // The one thing she has to do next, drawn as the one thing
+        // she has to do next (2026-10-02). It used to be 12px grey
+        // under a black button that cannot work for her.
         var store = document.getElementById("store");
+        store.textContent = "";
         if (APP_LIVE) {
-          store.textContent = c.storeLive;
           var a = document.createElement("a");
+          a.className = "storeAction";
           a.href = APP_STORE_URL;
           a.textContent = c.storeLink;
           store.appendChild(a);
         } else {
           store.textContent = noWidow(c.storeSoon);
+          store.className = "store storeSoon";
         }
         var buttons = document.querySelectorAll(".lang button");
         for (var j = 0; j < buttons.length; j++) {
@@ -565,8 +607,38 @@
             document.getElementById("copied").textContent = "";
           }, 2000);
         };
+        // The old version did nothing at all when the clipboard was
+        // unavailable, and swallowed a rejection with an empty
+        // function. Inside another app's browser both are ordinary,
+        // and she tapped a button and watched nothing happen.
+        var failed = function () {
+          var el = document.getElementById("copyfail");
+          el.textContent = COPY[lang].copyFailed;
+          el.hidden = false;
+        };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(code).then(done, function () {});
+          navigator.clipboard.writeText(code).then(done, legacyCopy);
+        } else {
+          legacyCopy();
+        }
+
+        function legacyCopy() {
+          try {
+            var ta = document.createElement("textarea");
+            ta.value = code;
+            ta.setAttribute("readonly", "");
+            ta.style.position = "absolute";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.select();
+            ta.setSelectionRange(0, code.length);
+            var ok = document.execCommand("copy");
+            document.body.removeChild(ta);
+            if (ok) done();
+            else failed();
+          } catch (e) {
+            failed();
+          }
         }
       });
     </script>
