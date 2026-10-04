@@ -342,5 +342,62 @@
         <a href="/soporte/" lang="es" aria-current="page">ES</a>
       </nav>
     </footer>
+      <!-- ── Arrivals ────────────────────────────────────────────────
+         One count, no cookie, no identifier (2026-10-04).
+
+         Maru wanted to know whether anybody reaches nidi.life and was
+         handed Google Tag Manager to paste. Every analytics product
+         records the URL, and nidi.life/join/<code> is a URL: an invite
+         code is a bearer secret that joins a family's nidi for ninety
+         days, so shipping them to a vendor as page paths was the one
+         thing not to do.
+
+         This sends the route and nothing else, and it does not get to
+         decide what is stored: supabase/functions/site-view matches
+         whatever arrives against a fixed list and writes '/join/:code'
+         for anything under /join/, and public.site_views carries the
+         same list as a CHECK constraint. The code never leaves the
+         browser.
+
+         No cookie and no localStorage, which is why the site still
+         needs no consent banner, and why this counts visits and can
+         never count people. Fired once on load, keepalive so it
+         survives the reader leaving immediately, and failures are
+         swallowed: nothing here is worth showing anybody. -->
+    <script>
+      (function () {
+        try {
+          var p = location.pathname;
+          var body = JSON.stringify({
+            // Trimmed here as well as on the server, so a code is not
+            // in flight even though the server would drop it.
+            path: p.indexOf("/join/") === 0 ? "/join/:code" : p,
+            referrer: document.referrer || null,
+            lang: document.documentElement.lang === "es" ? "es" : "en",
+          });
+          var url =
+            "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view";
+          // credentials: "omit" is the whole reason this is fetch and
+          // not sendBeacon (2026-10-04). Supabase sits behind
+          // Cloudflare, which answers with
+          // "set-cookie: __cf_bm=...; Domain=supabase.co" — a bot
+          // management cookie. sendBeacon sends with credentials
+          // included, so every visitor would have picked it up on
+          // every page. With credentials omitted the browser ignores
+          // Set-Cookie entirely, so "this site stores nothing on your
+          // device" stays literally true and the no-banner position
+          // holds. keepalive covers the reader who leaves at once,
+          // which is the only thing sendBeacon was buying us.
+          fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: body,
+            credentials: "omit",
+            keepalive: true,
+            mode: "cors",
+          }).catch(function () {});
+        } catch (e) {}
+      })();
+    </script>
   </body>
 </html>
