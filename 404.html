@@ -4,14 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- GitHub Pages serves this file for every path that does not exist,
-         which is how /join/<code> gets a page without a server. The script
-         shows the invitation when the path is /join/<code> and a plain
-         not-found otherwise. Invite links open the app directly on iOS
-         through /.well-known/apple-app-site-association; this page is for
-         when that does not happen (no app yet, or opened inside another
-         app's browser). -->
+         which is how /join gets a page without a server. The script shows
+         the invitation for /join (the share message's link since flow v4,
+         2026-10-06), /join/invitation (the invitation email's button) and
+         an old /join/<code>, and a plain not-found for anything else.
+         /join/* is in /.well-known/apple-app-site-association, so on an
+         iPhone with Nidi those two open the app; bare /join is not, and
+         always lands here. This page is for when the app does not open
+         (no app yet, or a link opened inside another app's browser). -->
     <title>nidi</title>
     <meta name="robots" content="noindex" />
+    <!-- Links out of an invitation page carry at most https://nidi.life/,
+         never the /join/<slug> path an old invitation link may hold. -->
+    <meta name="referrer" content="origin" />
     <meta name="theme-color" content="#FFFDF9" />
     <style>
       /* One screen, nothing below the fold. The page is a grid of three
@@ -93,19 +98,6 @@
         width: 1px;
         height: 14px;
         background: var(--field-line);
-      }
-
-      /* Visually hidden, still read aloud. */
-      .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-        white-space: nowrap;
-        border: 0;
       }
 
       /* The logotype, sized to the wordmark it replaces. It was Georgia
@@ -296,7 +288,7 @@
         outline-offset: 2px;
       }
 
-      /* ── The invitation page (/join/<code>) ─────────────────────── */
+      /* ── The invitation page (/join, /join/…) ───────────────────── */
       .invite {
         max-width: 440px;
         width: 100%;
@@ -310,53 +302,11 @@
         color: var(--ink);
         margin: 0 0 32px;
       }
-      .codebox {
-        margin: 28px 0 0;
-        padding: 18px 20px;
-        border: 1px solid var(--field-line);
-        border-radius: 12px;
-        text-align: center;
-      }
-      /* eyebrow. */
-      .codebox .label {
-        font-size: 12px;
-        line-height: 14px;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--ink2);
-        margin: 0 0 8px;
-      }
-      .codebox .code {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        font-size: 20px;
-        color: var(--ink);
-        margin: 0 0 12px;
-        word-break: break-all;
-      }
-      .copy {
-        font-family: var(--sans);
-        font-size: 16px;
-        color: var(--ink);
-        background: none;
-        border: 1px solid var(--field-line);
-        border-radius: 999px;
-        padding: 10px 18px;
-        min-height: 44px;
-        cursor: pointer;
-      }
       .help {
         font-size: 16px;
         line-height: 26px;
         color: var(--ink2);
         margin: 20px 0 0;
-      }
-      /* Shown only when copying fails, which inside another app's
-         browser is ordinary rather than exceptional. */
-      .copyfail {
-        font-size: 15px;
-        line-height: 22px;
-        color: var(--sienna);
-        margin: 12px 0 0;
       }
       /* The action, since downloading nidi is the only thing somebody
          reading this page can actually do next. It was a 12px grey
@@ -415,30 +365,29 @@
 
     <main>
       <section class="invite" id="invite" hidden>
-        <h1 data-i18n="inviteTitle">You're invited to nidi.</h1>
-        <p class="lede" data-i18n="inviteLede">nidi is a way to stay close to a small child who lives far away, a little, every day.</p>
-
-        <!-- The code first, and big. Whoever reads this page does not
-             have the app: that is the whole population of this page,
-             not its edge case, so the thing she will need in two
-             minutes goes at the top where she is looking. -->
-        <div class="codebox">
-          <p class="label" id="code-label" data-i18n="codeLabel">Your invite code</p>
-          <p class="code" id="code" aria-labelledby="code-label"></p>
-          <button class="copy" id="copy" type="button" data-i18n="copy">Copy code</button>
-          <span class="sr-only" id="copied" role="status"></span>
-          <p class="copyfail" id="copyfail" hidden></p>
-        </div>
+        <h1 data-i18n="inviteTitle">You're invited to Nidi.</h1>
+        <p class="lede" data-i18n="inviteLede">Nidi is a way to stay close to a small child who lives far away, a little, every day.</p>
 
         <p class="store" id="store"></p>
 
-        <p class="help" data-i18n="help">Open nidi, tap “I was invited”, and put the code in.</p>
+        <!-- The steps, in the invitation email's words (flow v4,
+             2026-10-06), so the page and the mail say the same thing.
+             No code here any more, and nothing to copy: since v4 the
+             only key is the email the invitation was sent to, a code
+             opens nothing, and the one she signs in with comes by email
+             once she asks for it in the app. The mail writes her
+             address out; this page does not know it, and must not. -->
+        <p class="help"><span data-i18n="help">Then: open Nidi, tap “I was invited” and enter the email your invitation came to.</span><br /><span data-i18n="codeComing">A code to come in will be on its way by email.</span></p>
 
         <!-- Kept, demoted. It cannot work for somebody without the app,
              which is who this page is for — but somebody who already
              installed and came back to the message lands here too, and
-             this is the only thing that takes her to the app. -->
-        <p class="already"><a id="open" href="nidi://" data-i18n="open">Already have nidi? Open it</a></p>
+             since bare /join is not in the AASA file, so does everybody
+             with Nidi who taps the share message's link. This is the
+             only thing that takes her to the app: nidi://join/invitation
+             is the app's join route, which opens Nidi at its front door,
+             where "Me invitaron" is. -->
+        <p class="already"><a id="open" href="nidi://join/invitation" data-i18n="open">Already have Nidi? Open it</a></p>
       </section>
 
       <section id="missing" hidden>
@@ -469,18 +418,26 @@
       var APP_LIVE = false;
       var APP_STORE_URL = "https://apps.apple.com/app/id6774968835";
 
+      // "Nidi" with a capital wherever the words mean the app
+      // (docs/voice.md in nidi-app), as in the share message and the
+      // invitation email that send people here (2026-10-06). The
+      // wordmark and the not-found title stay as they were.
+      //
+      // help and codeComing are the email's steps: "Después: abrí Nidi,
+      // tocá Me invitaron y escribí este email:" and "Te va a llegar un
+      // código para entrar." The page cannot write her address out, so
+      // it names it the way the support page does ("el email al que te
+      // llegó la invitación"), and says the code comes by email, which
+      // the mail could leave unsaid because she was reading one.
       var COPY = {
         en: {
-          inviteTitle: "You're invited to nidi.",
-          inviteLede: "nidi is a way to stay close to a small child who lives far away, a little, every day.",
-          open: "Already have nidi? Open it",
-          codeLabel: "Your invite code",
-          copy: "Copy code",
-          copied: "Copied",
-          copyFailed: "Select the code above and copy it, or write it down.",
-          help: "Open nidi, tap “I was invited”, and put the code in.",
-          storeLink: "Get nidi",
-          storeSoon: "nidi is coming to the App Store very soon.",
+          inviteTitle: "You're invited to Nidi.",
+          inviteLede: "Nidi is a way to stay close to a small child who lives far away, a little, every day.",
+          open: "Already have Nidi? Open it",
+          help: "Then: open Nidi, tap “I was invited” and enter the email your invitation came to.",
+          codeComing: "A code to come in will be on its way by email.",
+          storeLink: "Get Nidi",
+          storeSoon: "Nidi is coming to the App Store very soon.",
           missingTitle: "This page doesn't exist.",
           home: "Go to nidi.life",
           privacy: "Privacy",
@@ -488,20 +445,18 @@
           privacyUrl: "/privacy/",
           termsUrl: "/terms/",
           nav: "Language",
-          titleInvite: "You're invited to nidi",
+          titleInvite: "You're invited to Nidi",
           titleMissing: "nidi",
         },
         es: {
-          inviteTitle: "Te invitaron a nidi.",
-          inviteLede: "nidi es para estar cerca de una criatura que vive lejos, un poco, todos los días.",
-          open: "¿Ya tenés nidi? Abrilo",
-          codeLabel: "Tu código de invitación",
-          copy: "Copiar código",
-          copied: "Copiado",
-          copyFailed: "Seleccioná el código de arriba y copialo, o anotalo.",
-          help: "Abrí nidi, tocá “Me invitaron”, y poné el código.",
-          storeLink: "Bajá nidi",
-          storeSoon: "nidi llega al App Store muy pronto.",
+          inviteTitle: "Te invitaron a Nidi.",
+          inviteLede: "Nidi es para estar cerca de una criatura que vive lejos, un poco, todos los días.",
+          // "Abrila", la app, as Maru's share message has "Bajala".
+          open: "¿Ya tenés Nidi? Abrila",
+          help: "Después: abrí Nidi, tocá “Me invitaron” y escribí el email al que te llegó la invitación.",
+          codeComing: "Te va a llegar un código por email para entrar.",
+          storeLink: "Bajá Nidi",
+          storeSoon: "Nidi llega al App Store muy pronto.",
           missingTitle: "Esta página no existe.",
           home: "Ir a nidi.life",
           privacy: "Privacidad",
@@ -509,23 +464,21 @@
           privacyUrl: "/privacidad/",
           termsUrl: "/terminos/",
           nav: "Idioma",
-          titleInvite: "Te invitaron a nidi",
+          titleInvite: "Te invitaron a Nidi",
           titleMissing: "nidi",
         },
       };
 
-      // /join/<code>: codes are words, digits and hyphens
-      // (calm-meadow-5637). Anything else shows the not-found page.
-      var match = location.pathname.match(/^\/join\/([a-z0-9-]{3,64})\/?$/i);
-      var code = match ? match[1].toLowerCase() : null;
-      var isInvite = !!code;
+      // The invitation page: /join, /join/invitation, and an old
+      // /join/<code> from before v4, codes being words, digits and
+      // hyphens (calm-meadow-5637); "invitation" passes the same rule.
+      // What follows /join/ is tested and nothing more. It is not kept,
+      // shown, put in a link or sent anywhere: since v4 a code opens
+      // nothing, so the page has no use for one. Anything else shows the
+      // not-found page.
+      var isInvite = /^\/join(\/[a-z0-9-]{3,64})?\/?$/i.test(location.pathname);
 
       document.getElementById(isInvite ? "invite" : "missing").hidden = false;
-      if (isInvite) {
-        document.getElementById("code").textContent = code;
-        // The app's own route for invites (app/(auth)/join/[code]).
-        document.getElementById("open").href = "nidi://join/" + encodeURIComponent(code);
-      }
 
       var lang = "en";
 
@@ -616,51 +569,6 @@
           });
         }
       })();
-
-      document.getElementById("copy").addEventListener("click", function () {
-        var done = function () {
-          document.getElementById("copied").textContent = COPY[lang].copied;
-          var btn = document.getElementById("copy");
-          btn.textContent = COPY[lang].copied;
-          setTimeout(function () {
-            btn.textContent = COPY[lang].copy;
-            document.getElementById("copied").textContent = "";
-          }, 2000);
-        };
-        // The old version did nothing at all when the clipboard was
-        // unavailable, and swallowed a rejection with an empty
-        // function. Inside another app's browser both are ordinary,
-        // and she tapped a button and watched nothing happen.
-        var failed = function () {
-          var el = document.getElementById("copyfail");
-          el.textContent = COPY[lang].copyFailed;
-          el.hidden = false;
-        };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(code).then(done, legacyCopy);
-        } else {
-          legacyCopy();
-        }
-
-        function legacyCopy() {
-          try {
-            var ta = document.createElement("textarea");
-            ta.value = code;
-            ta.setAttribute("readonly", "");
-            ta.style.position = "absolute";
-            ta.style.left = "-9999px";
-            document.body.appendChild(ta);
-            ta.select();
-            ta.setSelectionRange(0, code.length);
-            var ok = document.execCommand("copy");
-            document.body.removeChild(ta);
-            if (ok) done();
-            else failed();
-          } catch (e) {
-            failed();
-          }
-        }
-      });
     </script>
       <!-- ── Arrivals ────────────────────────────────────────────────
          One count, no cookie, no identifier (2026-10-04).
@@ -677,7 +585,8 @@
          whatever arrives against a fixed list and writes '/join/:code'
          for anything under /join/, and public.site_views carries the
          same list as a CHECK constraint. The code never leaves the
-         browser.
+         browser. Since flow v4 (2026-10-06) a code opens nothing, but
+         old links still carry them, and the rule stays.
 
          No cookie and no localStorage, which is why the site still
          needs no consent banner, and why this counts visits and can
@@ -690,8 +599,12 @@
           var p = location.pathname;
           var body = JSON.stringify({
             // Trimmed here as well as on the server, so a code is not
-            // in flight even though the server would drop it.
-            path: p.indexOf("/join/") === 0 ? "/join/:code" : p,
+            // in flight even though the server would drop it. The
+            // server's own rule, case and all: /join, /join/ and
+            // anything under it (2026-10-06, when bare /join became the
+            // share message's link). The old indexOf("/join/") missed
+            // /join, and let a /JOIN/<code> go out as typed.
+            path: /^\/join(\/|$)/i.test(p) ? "/join/:code" : p,
             referrer: document.referrer || null,
             lang: document.documentElement.lang === "es" ? "es" : "en",
           });
