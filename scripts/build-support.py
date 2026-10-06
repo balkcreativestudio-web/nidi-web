@@ -158,7 +158,7 @@ PAGE = """<!doctype html>
 
 EN = dict(
     slug='support', lang='en', title='Support',
-    description='How to reach us about nidi, and answers to the questions people ask most.',
+    description='How to reach us about Nidi, and answers to the questions people ask most.',
     lede='Something not working, or a question about your nidi? Write to us. A person reads every message.',
     reachlabel='Write to us',
     reachwhen='We answer in English and Spanish, usually within two working days.',
@@ -168,49 +168,53 @@ EN = dict(
     homelabel='nidi.life', navlabel='Language',
     faq=[
         ('How do I invite the other person?',
-         'In the app, open You and then Your nidis, and send the invitation. '
-         'It arrives as a link to nidi.life and a short code. Whoever opens '
-         'the link gets the app and enters the code, and the two of you are '
-         'connected.'),
-        ('Someone sent me a code. What do I do with it?',
-         'Download nidi, sign in with your email, and there is a place to '
-         'enter the code on the first screen. You do not need an account '
-         'anywhere else.'),
-        ('What does nidi cost?',
-         'The first exchanges are free. After that, one membership keeps a '
-         'nidi going, and only one person pays it. The other side '
-         'never sees a payment screen.'),
+         'When you set up your nidi, you enter their name and email. Then '
+         'send them the link from Today, by WhatsApp or whatever you use, '
+         'and an invitation also reaches their inbox. They get Nidi, tap I '
+         'was invited, and come in with that email. Nobody else can.'),
+        ('I was invited. What do I do?',
+         'Get Nidi, tap I was invited and enter the email your invitation '
+         'came to. We send you a code to come in. There is no invitation '
+         'code to type.'),
+        ('Can someone else from my home join?',
+         'Yes, up to two adults per home. Tap your picture on Today, open '
+         'your nidi and choose Add someone who lives here. They come in '
+         'with the email you enter.'),
+        ('What does Nidi cost?',
+         'Each nidi starts with two free weeks, counted from the day the '
+         'other home comes in. After that it continues with a '
+         'subscription: one home subscribing is enough for both, and one '
+         'subscription covers up to three nidis.'),
         ('How do I cancel?',
-         'Memberships are handled by Apple, not by us. On your iPhone open '
+         'Subscriptions are handled by Apple, not by us. On your iPhone open '
          'Settings, tap your name, then Subscriptions, and cancel there. It '
          'stays active until the end of the period you already paid for.'),
-        ('What happens to our moments if the membership stops?',
+        ('What happens to our moments if the subscription stops?',
          'Nothing is deleted. Everything you have already sent each other '
          'stays in Memory and can still be opened and listened to. What '
-         'pauses is sending new ones, until someone starts the membership '
-         'again.'),
+         'pauses is sending new ones, until someone subscribes again.'),
         ('How do I delete my account?',
-         'In the app, open You, scroll to the bottom and choose Delete '
-         'account. We email you a code to make sure it is really you, and '
-         'nothing is deleted until you enter it.'),
+         'Tap your picture on Today, scroll to the bottom and choose Delete '
+         'account. To confirm, type DELETE. You choose whether everything '
+         'you shared goes too; if not, it stays in your family\'s Memory.'),
         ('Who can see what we send?',
          'Only the adults in that nidi. Photos and voice notes are '
          'stored privately and are not public, not searchable, and not '
          'shown to anyone else. We do not sell anything to anyone.'),
         ('I am not getting notifications.',
-         'Check that notifications are allowed for nidi in your iPhone '
+         'Check that notifications are allowed for Nidi in your iPhone '
          'settings, and that Quiet hours in the app are not covering the '
          'time you expect them. If it still happens, write to us.'),
-        ('What languages does nidi write down?',
-         'nidi writes down what you say in a voice note, and for now it '
+        ('What languages does Nidi write down?',
+         'Nidi writes down what you say in a voice note, and for now it '
          'only listens in English and Spanish. If you record in another '
          'language it will still send, and the words it wrote will be '
          'wrong: clear them on the screen before you send and write what '
          'you said yourself, in any alphabet. Only the words you have '
          'read are ever printed.'),
-        ('Can I use nidi in Spanish?',
-         'Yes. nidi follows your phone. If your phone is in Spanish, so is '
-         'nidi, and each of you reads in your own language even inside the '
+        ('Can I use Nidi in Spanish?',
+         'Yes. Nidi follows your phone. If your phone is in Spanish, so is '
+         'Nidi, and each of you reads in your own language even inside the '
          'same nidi.'),
         ('Something is broken.',
          'Write to us and say what you were doing when it happened. If you '
@@ -220,7 +224,7 @@ EN = dict(
 
 ES = dict(
     slug='soporte', lang='es', title='Soporte',
-    description='Cómo escribirnos por nidi, y las respuestas a lo que más nos preguntan.',
+    description='Cómo escribirnos por Nidi, y las respuestas a lo que más nos preguntan.',
     lede='¿Algo no funciona, o tenés una duda sobre tu nidi? Escribinos. Los mensajes los lee una persona.',
     reachlabel='Escribinos',
     reachwhen='Respondemos en español y en inglés, normalmente dentro de los dos días hábiles.',
@@ -230,51 +234,57 @@ ES = dict(
     homelabel='nidi.life', navlabel='Idioma',
     faq=[
         ('¿Cómo invito a la otra persona?',
-         'En la app, entrá a Vos y después a Tus nidis, y mandá la '
-         'invitación. Llega como un link a nidi.life y un código corto. '
-         'Quien abre el link baja la app, pone el código, y quedan '
-         'conectados.'),
-        ('Me mandaron un código. ¿Qué hago?',
-         'Bajá nidi, entrá con tu correo, y en la primera pantalla hay un '
-         'lugar para poner el código. No necesitás cuenta en ningún otro '
-         'lado.'),
-        ('¿Cuánto cuesta nidi?',
-         'Los primeros intercambios son gratis. Después, una membresía '
-         'mantiene el nidi andando, y la paga una sola persona. '
-         'La otra nunca ve una pantalla de pago.'),
-        ('¿Cómo doy de baja la membresía?',
-         'Las membresías las maneja Apple, no nosotros. En tu iPhone entrá '
-         'a Configuración, tocá tu nombre, después Suscripciones, y '
+         'Cuando armás tu nidi, escribís su nombre y su email. Después le '
+         'mandás el link desde Hoy, por WhatsApp o por donde quieras, y '
+         'además le llega una invitación por email. Baja Nidi, toca Me '
+         'invitaron y entra con ese email. Nadie más puede.'),
+        ('Me invitaron. ¿Qué hago?',
+         'Bajá Nidi, tocá Me invitaron y escribí el email al que te llegó '
+         'la invitación. Te mandamos un código para entrar. No hay ningún '
+         'código de invitación para escribir.'),
+        ('¿Puede sumarse alguien más de mi casa?',
+         'Sí, hasta dos personas adultas por casa. Tocá tu foto en Hoy, '
+         'entrá a tu nidi y elegí Sumar a alguien que vive acá. Entra con '
+         'el email que escribas.'),
+        ('¿Cuánto cuesta Nidi?',
+         'Cada nidi empieza con dos semanas gratis, desde el día en que '
+         'entra la otra casa. Después sigue con una suscripción: con que '
+         'una de las dos casas se suscriba alcanza para las dos, y una '
+         'suscripción cubre hasta tres nidis.'),
+        ('¿Cómo doy de baja la suscripción?',
+         'Las suscripciones las maneja Apple, no nosotros. En tu iPhone '
+         'entrá a Configuración, tocá tu nombre, después Suscripciones, y '
          'cancelá ahí. Sigue activa hasta que termine el período que ya '
          'pagaste.'),
-        ('¿Qué pasa con nuestros momentos si se corta la membresía?',
-         'No se borra nada. Todo lo que ya se mandaron queda en Memoria y '
-         'se puede seguir abriendo y escuchando. Lo que se pausa es mandar '
-         'cosas nuevas, hasta que alguien retome la membresía.'),
+        ('¿Qué pasa con nuestros momentos si se corta la suscripción?',
+         'No se borra nada. Todo lo que ya se mandaron queda en Recuerdos '
+         'y se puede seguir abriendo y escuchando. Lo que se pausa es '
+         'mandar cosas nuevas, hasta que alguien vuelva a suscribirse.'),
         ('¿Cómo borro mi cuenta?',
-         'En la app, entrá a Vos, bajá hasta el final y elegí Borrar '
-         'cuenta. Te mandamos un código por correo para confirmar que sos '
-         'vos, y no se borra nada hasta que lo pongas.'),
+         'Tocá tu foto en Hoy, bajá hasta el final y elegí Eliminar '
+         'cuenta. Para confirmar, escribís BORRAR. Vos elegís si también se '
+         'borra todo lo que compartiste; si no, queda en los Recuerdos de '
+         'tu familia.'),
         ('¿Quién puede ver lo que nos mandamos?',
          'Solo los adultos de ese nidi. Las fotos y los audios se '
          'guardan de forma privada: no son públicos, no aparecen en '
          'búsquedas y no se le muestran a nadie más. No le vendemos nada a '
          'nadie.'),
         ('No me llegan las notificaciones.',
-         'Fijate que nidi tenga permitidas las notificaciones en la '
+         'Fijate que Nidi tenga permitidas las notificaciones en la '
          'configuración del iPhone, y que las Horas de silencio de la app '
          'no estén tapando el horario en que las esperás. Si sigue '
          'pasando, escribinos.'),
-        ('¿En qué idiomas escribe nidi lo que decís?',
-         'nidi escribe lo que decís en una nota de voz, y por ahora solo '
+        ('¿En qué idiomas escribe Nidi lo que decís?',
+         'Nidi escribe lo que decís en una nota de voz, y por ahora solo '
          'escucha en español y en inglés. Si grabás en otro idioma la nota '
          'se manda igual, pero las palabras van a estar mal: borralas en '
          'la pantalla antes de mandar y escribí vos lo que dijiste, en '
          'cualquier alfabeto. Solo se imprime lo que vos leíste.'),
-        ('¿Puedo usar nidi en español?',
-         'Sí. nidi sigue el idioma de tu teléfono. Si tu teléfono está en '
-         'español, nidi también, y cada uno lee en su propio idioma aunque '
-         'estén en el mismo nidi.'),
+        ('¿Puedo usar Nidi en español?',
+         'Sí. Nidi sigue el idioma de tu teléfono. Si tu teléfono está en '
+         'español, Nidi también, y cada persona lee en su propio idioma '
+         'aunque estén en el mismo nidi.'),
         ('Algo se rompió.',
          'Escribinos contando qué estabas haciendo cuando pasó. Si podés, '
          'sumá una captura de pantalla. Es la forma más rápida de que lo '

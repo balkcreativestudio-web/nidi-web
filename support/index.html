@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Support · nidi</title>
-    <meta name="description" content="How to reach us about nidi, and answers to the questions people ask most." />
+    <meta name="description" content="How to reach us about Nidi, and answers to the questions people ask most." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://nidi.life/support/" />
     <link rel="alternate" hreflang="en" href="https://nidi.life/support/" />
@@ -282,27 +282,31 @@
       <h2>The questions people ask</h2>
       <div class="q">
         <h3>How do I invite the other person?</h3>
-        <p>In the app, open You and then Your nidis, and send the invitation. It arrives as a link to nidi.life and a short code. Whoever opens the link gets the app and enters the code, and the two of you are connected.</p>
+        <p>When you set up your nidi, you enter their name and email. Then send them the link from Today, by WhatsApp or whatever you use, and an invitation also reaches their inbox. They get Nidi, tap I was invited, and come in with that email. Nobody else can.</p>
       </div>
       <div class="q">
-        <h3>Someone sent me a code. What do I do with it?</h3>
-        <p>Download nidi, sign in with your email, and there is a place to enter the code on the first screen. You do not need an account anywhere else.</p>
+        <h3>I was invited. What do I do?</h3>
+        <p>Get Nidi, tap I was invited and enter the email your invitation came to. We send you a code to come in. There is no invitation code to type.</p>
       </div>
       <div class="q">
-        <h3>What does nidi cost?</h3>
-        <p>The first exchanges are free. After that, one membership keeps a nidi going, and only one person pays it. The other side never sees a payment screen.</p>
+        <h3>Can someone else from my home join?</h3>
+        <p>Yes, up to two adults per home. Tap your picture on Today, open your nidi and choose Add someone who lives here. They come in with the email you enter.</p>
+      </div>
+      <div class="q">
+        <h3>What does Nidi cost?</h3>
+        <p>Each nidi starts with two free weeks, counted from the day the other home comes in. After that it continues with a subscription: one home subscribing is enough for both, and one subscription covers up to three nidis.</p>
       </div>
       <div class="q">
         <h3>How do I cancel?</h3>
-        <p>Memberships are handled by Apple, not by us. On your iPhone open Settings, tap your name, then Subscriptions, and cancel there. It stays active until the end of the period you already paid for.</p>
+        <p>Subscriptions are handled by Apple, not by us. On your iPhone open Settings, tap your name, then Subscriptions, and cancel there. It stays active until the end of the period you already paid for.</p>
       </div>
       <div class="q">
-        <h3>What happens to our moments if the membership stops?</h3>
-        <p>Nothing is deleted. Everything you have already sent each other stays in Memory and can still be opened and listened to. What pauses is sending new ones, until someone starts the membership again.</p>
+        <h3>What happens to our moments if the subscription stops?</h3>
+        <p>Nothing is deleted. Everything you have already sent each other stays in Memory and can still be opened and listened to. What pauses is sending new ones, until someone subscribes again.</p>
       </div>
       <div class="q">
         <h3>How do I delete my account?</h3>
-        <p>In the app, open You, scroll to the bottom and choose Delete account. We email you a code to make sure it is really you, and nothing is deleted until you enter it.</p>
+        <p>Tap your picture on Today, scroll to the bottom and choose Delete account. To confirm, type DELETE. You choose whether everything you shared goes too; if not, it stays in your family's Memory.</p>
       </div>
       <div class="q">
         <h3>Who can see what we send?</h3>
@@ -310,15 +314,15 @@
       </div>
       <div class="q">
         <h3>I am not getting notifications.</h3>
-        <p>Check that notifications are allowed for nidi in your iPhone settings, and that Quiet hours in the app are not covering the time you expect them. If it still happens, write to us.</p>
+        <p>Check that notifications are allowed for Nidi in your iPhone settings, and that Quiet hours in the app are not covering the time you expect them. If it still happens, write to us.</p>
       </div>
       <div class="q">
-        <h3>What languages does nidi write down?</h3>
-        <p>nidi writes down what you say in a voice note, and for now it only listens in English and Spanish. If you record in another language it will still send, and the words it wrote will be wrong: clear them on the screen before you send and write what you said yourself, in any alphabet. Only the words you have read are ever printed.</p>
+        <h3>What languages does Nidi write down?</h3>
+        <p>Nidi writes down what you say in a voice note, and for now it only listens in English and Spanish. If you record in another language it will still send, and the words it wrote will be wrong: clear them on the screen before you send and write what you said yourself, in any alphabet. Only the words you have read are ever printed.</p>
       </div>
       <div class="q">
-        <h3>Can I use nidi in Spanish?</h3>
-        <p>Yes. nidi follows your phone. If your phone is in Spanish, so is nidi, and each of you reads in your own language even inside the same nidi.</p>
+        <h3>Can I use Nidi in Spanish?</h3>
+        <p>Yes. Nidi follows your phone. If your phone is in Spanish, so is Nidi, and each of you reads in your own language even inside the same nidi.</p>
       </div>
       <div class="q">
         <h3>Something is broken.</h3>
@@ -342,62 +346,5 @@
         <a href="/soporte/" lang="es">ES</a>
       </nav>
     </footer>
-      <!-- ── Arrivals ────────────────────────────────────────────────
-         One count, no cookie, no identifier (2026-10-04).
-
-         Maru wanted to know whether anybody reaches nidi.life and was
-         handed Google Tag Manager to paste. Every analytics product
-         records the URL, and nidi.life/join/<code> is a URL: an invite
-         code is a bearer secret that joins a family's nidi for ninety
-         days, so shipping them to a vendor as page paths was the one
-         thing not to do.
-
-         This sends the route and nothing else, and it does not get to
-         decide what is stored: supabase/functions/site-view matches
-         whatever arrives against a fixed list and writes '/join/:code'
-         for anything under /join/, and public.site_views carries the
-         same list as a CHECK constraint. The code never leaves the
-         browser.
-
-         No cookie and no localStorage, which is why the site still
-         needs no consent banner, and why this counts visits and can
-         never count people. Fired once on load, keepalive so it
-         survives the reader leaving immediately, and failures are
-         swallowed: nothing here is worth showing anybody. -->
-    <script>
-      (function () {
-        try {
-          var p = location.pathname;
-          var body = JSON.stringify({
-            // Trimmed here as well as on the server, so a code is not
-            // in flight even though the server would drop it.
-            path: p.indexOf("/join/") === 0 ? "/join/:code" : p,
-            referrer: document.referrer || null,
-            lang: document.documentElement.lang === "es" ? "es" : "en",
-          });
-          var url =
-            "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view";
-          // credentials: "omit" is the whole reason this is fetch and
-          // not sendBeacon (2026-10-04). Supabase sits behind
-          // Cloudflare, which answers with
-          // "set-cookie: __cf_bm=...; Domain=supabase.co" — a bot
-          // management cookie. sendBeacon sends with credentials
-          // included, so every visitor would have picked it up on
-          // every page. With credentials omitted the browser ignores
-          // Set-Cookie entirely, so "this site stores nothing on your
-          // device" stays literally true and the no-banner position
-          // holds. keepalive covers the reader who leaves at once,
-          // which is the only thing sendBeacon was buying us.
-          fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: body,
-            credentials: "omit",
-            keepalive: true,
-            mode: "cors",
-          }).catch(function () {});
-        } catch (e) {}
-      })();
-    </script>
   </body>
 </html>
