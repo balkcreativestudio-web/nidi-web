@@ -452,7 +452,7 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow">[[A shared space for two homes ||| Un espacio compartido entre dos casas]]</p>
             <h1>[[Grow close. From&nbsp;*anywhere.* ||| Crecé cerca. Desde *donde&nbsp;estés.*]]</h1>
-            <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. A few small things a day, kept in one quiet place. ||| Nidi une dos casas: la donde crece un niño o una niña, y una que está lejos. Algunas cosas chicas por día, guardadas en un solo lugar tranquilo.]]</p>
+            <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. Made for children from 0 to 6: a few small things a day, kept in one quiet place. ||| Nidi une dos casas: la donde crece un niño o una niña, y una que está lejos. Pensada para chicos de 0 a 6 años: algunas cosas chicas por día, guardadas en un solo lugar tranquilo.]]</p>
             <div class="cta">
               @@FORM:hero@@
             </div>
@@ -648,7 +648,7 @@ TEMPLATE = r'''<!doctype html>
           <p class="eyebrow rv">[[Who it is for ||| Para quién es]]</p>
           <h2 class="rv" style="max-width: 15em">[[Two homes that love the same&nbsp;*child.* ||| Dos casas que quieren al mismo&nbsp;*niño o niña.*]]</h2>
           <div class="who-grid">
-            <div class="who rv"><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
+            <div class="who rv"><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents of children from 0 to 6 who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres de chicos de 0 a 6 años que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
             <div class="who rv" style="--d:.1s"><h4>[[The home far away ||| La casa que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents. Nothing to learn and nothing to keep up with: just a way to be there, in your own voice. ||| Abuelos, tíos, padrinos. Nada que aprender y nada que seguir: solo una forma de estar, con tu propia voz.]]</p></div>
             <div class="who rv" style="--d:.2s"><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo uno con cada lado de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
           </div>
