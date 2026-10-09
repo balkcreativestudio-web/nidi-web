@@ -548,7 +548,7 @@ TEMPLATE = r'''<!doctype html>
       <!-- 5b. LESS SCREEN ─────────────────────────────────────── -->
       <section class="bg-ink" id="less-screen">
         <div class="wrap split flip">
-          <div class="photo rv"><img src="/assets/photos/hands-hold.jpg" width="1400" height="933" loading="lazy" alt="" /></div>
+          <div class="photo rv"><img src="/assets/photos/child-garden.jpg" width="1400" height="934" loading="lazy" alt="" /></div>
           <div>
             <p class="eyebrow rv">[[Less screen, more together ||| Menos pantalla, más juntos]]</p>
             <h2 class="rv">[[Let children be&nbsp;*children.* ||| Dejemos que los chicos sean&nbsp;*chicos.*]]</h2>
@@ -596,7 +596,7 @@ TEMPLATE = r'''<!doctype html>
                 <p class="m-title mem-title">[[The moments worth keeping ||| Los momentos que vale la pena guardar.]]</p>
                 <p class="mem-sub">[[Take a look back at what you've shared ||| Lo que fueron guardando entre las dos casas.]]</p>
                 <div class="m-av" aria-hidden="true">A</div>
-                <div class="print p3"><img src="/assets/photos/mem-garden.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                <div class="print p3"><img src="/assets/photos/mem-hands.jpg" alt="" width="520" height="780" loading="lazy" /></div>
                 <div class="print p2"><img src="/assets/photos/mem-window.jpg" alt="" width="520" height="780" loading="lazy" /></div>
                 <div class="print p1"><img src="/assets/photos/mem-sky.jpg" alt="" width="520" height="780" loading="lazy" /></div>
               </div>
