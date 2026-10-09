@@ -555,8 +555,9 @@
               <div class="p-track"><span id="playFill"></span></div>
               <div class="p-times"><span id="tEl">0:00</span><span id="tRem">-0:15</span></div>
               <div class="p-words" id="pWords" aria-live="off">
-                <span><span lang="en">Good morning, love.</span><span lang="es">Buen día, mi amor.</span></span>
-                <span><span lang="en">I looked up and thought of you.</span><span lang="es">Miré para arriba y pensé en vos.</span></span>
+                <span><span lang="en">Good morning, Teo.</span><span lang="es">Buen día, Teo.</span></span>
+                <span><span lang="en">I saw a little bird today,</span><span lang="es">Hoy vi un pajarito,</span></span>
+                <span><span lang="en">and I thought of you.</span><span lang="es">y pensé en vos.</span></span>
                 <span><span lang="en">It's the same sky.</span><span lang="es">Es el mismo cielo.</span></span>
               </div>
             </div>
@@ -840,7 +841,7 @@
         var lines = document.querySelectorAll("#pWords > span");
         function paint() {
           fill.style.width = (pos / DUR * 100) + "%"; tEl.textContent = fmt(pos); tRem.textContent = "-" + fmt(DUR - pos);
-          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= i * 3500); });
+          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= i * 2600); });
         }
         function tick(now) {
           pos = Math.min(DUR, pos + (now - last)); last = now; paint();

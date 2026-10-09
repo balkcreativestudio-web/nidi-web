@@ -581,8 +581,9 @@ TEMPLATE = r'''<!doctype html>
               <div class="p-track"><span id="playFill"></span></div>
               <div class="p-times"><span id="tEl">0:00</span><span id="tRem">-0:15</span></div>
               <div class="p-words" id="pWords" aria-live="off">
-                <span>[[Good morning, love. ||| Buen día, mi amor.]]</span>
-                <span>[[I looked up and thought of you. ||| Miré para arriba y pensé en vos.]]</span>
+                <span>[[Good morning, Teo. ||| Buen día, Teo.]]</span>
+                <span>[[I saw a little bird today, ||| Hoy vi un pajarito,]]</span>
+                <span>[[and I thought of you. ||| y pensé en vos.]]</span>
                 <span>[[It's the same sky. ||| Es el mismo cielo.]]</span>
               </div>
             </div>
@@ -855,7 +856,7 @@ TEMPLATE = r'''<!doctype html>
         var lines = document.querySelectorAll("#pWords > span");
         function paint() {
           fill.style.width = (pos / DUR * 100) + "%"; tEl.textContent = fmt(pos); tRem.textContent = "-" + fmt(DUR - pos);
-          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= i * 3500); });
+          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= i * 2600); });
         }
         function tick(now) {
           pos = Math.min(DUR, pos + (now - last)); last = now; paint();
