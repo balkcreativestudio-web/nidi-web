@@ -310,7 +310,7 @@ TEMPLATE = r'''<!doctype html>
       .screen.compose { background: linear-gradient(180deg, #e2a75a 0%, #e8bb82 45%, #ebcc9f 100%); }
       .m-print { position: absolute; left: 14.5cqw; right: 14.5cqw; top: 76cqw; background: var(--paper); padding: 2.8cqw; border-radius: 1cqw; box-shadow: 0 2cqw 5cqw rgba(42, 36, 29, 0.14); }
       .m-print img { width: 100%; aspect-ratio: 1; object-fit: cover; }
-      .m-field { position: absolute; left: 6cqw; right: 6cqw; top: 148cqw; padding: 3.3cqw 4cqw; text-align: center; border: 0.35cqw solid rgba(42, 36, 29, 0.75); border-radius: 2cqw; background: rgba(255, 254, 248, 0.36); font-family: var(--serif); font-style: italic; font-size: 5cqw; }
+      .m-field { position: absolute; left: 14.5cqw; right: 14.5cqw; top: 153cqw; padding: 3.3cqw 4cqw; text-align: center; border: 0.35cqw solid rgba(42, 36, 29, 0.75); border-radius: 2cqw; background: rgba(255, 254, 248, 0.36); font-family: var(--serif); font-style: italic; font-size: 5cqw; }
       .m-send { position: absolute; left: 25cqw; right: 25cqw; top: 177cqw; height: 13.4cqw; border-radius: 99px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 500; font-size: 5.2cqw; }
       .m-pick { position: absolute; left: 0; right: 0; top: 196cqw; text-align: center; font-weight: 500; font-size: 4cqw; }
       .screen.recv { background: linear-gradient(180deg, #87995b 0%, color-mix(in srgb, var(--paper) 22%, var(--olive)) 38%, color-mix(in srgb, var(--paper) 78%, var(--olive)) 72%, var(--paper) 100%); color: var(--ink); }
