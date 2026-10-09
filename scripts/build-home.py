@@ -264,8 +264,8 @@ TEMPLATE = r'''<!doctype html>
       .av { width: 34px; height: 34px; border-radius: 50%; background: var(--honey); box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--honey); display: grid; place-items: center; color: var(--paper); font-size: 15px; font-weight: 500; flex: none; }
       .gr { font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.2; max-width: 11em; }
       .p-tabs { position: absolute; left: 14px; right: 14px; bottom: 14px; height: 50px; border-radius: 999px; background: var(--paper); box-shadow: 0 6px 14px rgba(42, 36, 29, 0.08), 0 0 0 1px var(--hair); display: flex; align-items: center; justify-content: space-between; padding: 0 5px; font-size: 12px; font-weight: 500; }
-      .p-tabs span { flex: 1; text-align: center; }
-      .p-tabs b { flex: none; background: var(--ink); color: var(--paper); border-radius: 999px; padding: 0 16px; height: 40px; display: grid; place-items: center; font-weight: 500; }
+      .p-tabs span, .p-tabs b { flex: 1 1 0; min-width: 0; text-align: center; }
+      .p-tabs b { background: var(--ink); color: var(--paper); border-radius: 999px; height: 40px; display: grid; place-items: center; font-weight: 500; }
       .p-whisper { margin-top: 26px; font-size: 28px; line-height: 1.08; letter-spacing: -0.045em; max-width: 9em; }
       .p-label { margin-top: 26px; font-weight: 500; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink2); }
       .p-orb { position: absolute; left: 50%; top: 58%; width: 62%; aspect-ratio: 1; margin: -31% 0 0 -31%; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 50%; }
@@ -291,14 +291,20 @@ TEMPLATE = r'''<!doctype html>
          and no reply card on this screen in V1. */
       .p-open { color: var(--paper); padding: 66px 22px 22px; align-items: stretch; }
       .p-meta { text-align: center; opacity: 0; transition: opacity 0.8s var(--ease-out) 0.9s; }
-      .phone[data-state="open"] .p-meta, .phone[data-state="open"] .p-playbtn, .phone[data-state="open"] .p-track, .phone[data-state="open"] .p-times { opacity: 1; }
-      .p-playbtn { align-self: center; margin-top: 22%; width: 96px; height: 96px; border-radius: 50%; border: 1px solid rgba(42, 36, 29, 0.35); background: rgba(42, 36, 29, 0.10); color: var(--ink); display: grid; place-items: center; cursor: pointer; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.2s, background 0.3s; padding: 0; }
+      .phone[data-state="open"] .p-meta, .phone[data-state="open"] .p-playbtn, .phone[data-state="open"] .p-track, .phone[data-state="open"] .p-times, .phone[data-state="open"] .p-words { opacity: 1; }
+      .p-playbtn { align-self: center; margin-top: 14%; width: 96px; height: 96px; border-radius: 50%; border: 1px solid rgba(42, 36, 29, 0.35); background: rgba(42, 36, 29, 0.10); color: var(--ink); display: grid; place-items: center; cursor: pointer; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.2s, background 0.3s; padding: 0; }
       .p-playbtn:hover { background: rgba(42, 36, 29, 0.16); }
       .p-playbtn .tri { width: 0; height: 0; border-left: 22px solid var(--ink); border-top: 13px solid transparent; border-bottom: 13px solid transparent; margin-left: 7px; }
       .p-playbtn.on { background: rgba(42, 36, 29, 0.18); }
       .p-playbtn.on .tri { width: 20px; height: 24px; border: 0; margin: 0; background: linear-gradient(90deg, var(--ink) 0 35%, transparent 35% 65%, var(--ink) 65% 100%); }
       .p-track { margin-top: 34px; height: 3px; border-radius: 2px; background: rgba(42, 36, 29, 0.20); overflow: hidden; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.5s; }
       .p-track span { display: block; height: 100%; width: 0; background: var(--ink); }
+      /* Lola's transcription card (p.54): frosted, one light stroke, Lora italic,
+         each line coming up as the voice reaches it. */
+      .p-words { margin-top: 24px; padding: 18px 20px; border-radius: 22px; background: rgba(255, 254, 248, 0.22); border: 1px solid rgba(255, 254, 248, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.4; color: var(--ink); opacity: 0; transition: opacity 0.9s var(--ease-out) 1.8s; }
+      .p-words span { display: block; opacity: 0; transform: translateY(4px); transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); }
+      .p-words span:first-child { opacity: 0.4; transform: none; }
+      .p-words span.on { opacity: 1; transform: none; }
       .p-times { margin-top: 8px; display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 0.03em; color: var(--ink); font-variant-numeric: tabular-nums; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.5s; }
       /* ── The app, one screen at a time ───────────────────────────── */
       .tour-head { max-width: 760px; }
@@ -574,6 +580,11 @@ TEMPLATE = r'''<!doctype html>
               <button class="p-playbtn" id="playBtn" type="button" aria-label="[[Play ||| Reproducir]]" tabindex="-1"><i class="tri"></i></button>
               <div class="p-track"><span id="playFill"></span></div>
               <div class="p-times"><span id="tEl">0:00</span><span id="tRem">-0:24</span></div>
+              <div class="p-words" id="pWords" aria-live="off">
+                <span>[[Good morning, love. ||| Buen día, mi amor.]]</span>
+                <span>[[The sun came out here, ||| Salió el sol acá,]]</span>
+                <span>[[so I thought of you. ||| y me acordé de vos.]]</span>
+              </div>
             </div>
             <button class="p-close" id="closeBtn" type="button" aria-label="[[Close ||| Cerrar]]" tabindex="-1">×</button>
           </div>
@@ -840,7 +851,11 @@ TEMPLATE = r'''<!doctype html>
             tEl = document.getElementById("tEl"), tRem = document.getElementById("tRem");
         var DUR = 24000, pos = 0, last = 0, raf = 0, playing = false;
         function fmt(ms) { var t = Math.floor(ms / 1000); return Math.floor(t / 60) + ":" + ("0" + (t % 60)).slice(-2); }
-        function paint() { fill.style.width = (pos / DUR * 100) + "%"; tEl.textContent = fmt(pos); tRem.textContent = "-" + fmt(DUR - pos); }
+        var lines = document.querySelectorAll("#pWords span");
+        function paint() {
+          fill.style.width = (pos / DUR * 100) + "%"; tEl.textContent = fmt(pos); tRem.textContent = "-" + fmt(DUR - pos);
+          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= i * 8000); });
+        }
         function tick(now) {
           pos = Math.min(DUR, pos + (now - last)); last = now; paint();
           if (pos >= DUR) { stop(true); return; }
