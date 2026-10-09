@@ -502,7 +502,7 @@ TEMPLATE = r'''<!doctype html>
       <!-- 3. THE MOMENT ─────────────────────────────────────────── -->
       <section class="bg-paper" id="moment">
         <div class="wrap split">
-          <div class="photo rv"><img src="/assets/photos/hands-hold.jpg" width="1600" height="1067" loading="lazy" alt="" /></div>
+          <div class="photo rv"><img src="/assets/photos/hand-laptop.jpg" width="1600" height="1025" loading="lazy" alt="" /></div>
           <div>
             <p class="eyebrow rv">[[The moment ||| El momento]]</p>
             <h2 class="rv">[[Video calls with a baby don't&nbsp;*work.* ||| Las videollamadas con un bebé no&nbsp;*funcionan.*]]</h2>
