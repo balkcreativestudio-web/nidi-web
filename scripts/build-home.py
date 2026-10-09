@@ -494,8 +494,7 @@ TEMPLATE = r'''<!doctype html>
       <!-- 2b. HER WORDS ────────────────────────────────────────── -->
       <section class="bg-cream stand" id="words">
         <div class="wrap">
-          <blockquote class="rv">[[I wanted her to grow up knowing her grandparents' voices, not just their faces on a&nbsp;screen. ||| Yo quería que creciera conociendo la voz de sus abuelos, no solo sus caras en una&nbsp;pantalla.]]</blockquote>
-          <p class="rv stand-by"><a href="#why">[[Read why I made Nidi ||| Leé por qué hice Nidi]]</a></p>
+          <blockquote class="rv">[[Growing up far apart does not mean growing&nbsp;apart. ||| Crecer lejos no significa crecer&nbsp;distanciados.]]</blockquote>
         </div>
       </section>
 
