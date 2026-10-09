@@ -352,7 +352,9 @@ TEMPLATE = r'''<!doctype html>
 
       /* ── For whom ─────────────────────────────────────────────────── */
       .who-grid { margin-top: 56px; display: grid; gap: 0; }
-      .who { padding: 28px 0; border-top: 1px solid var(--line); }
+      .who { padding: 0; }
+      .who .photo { margin-bottom: 26px; }
+      .who .photo img { aspect-ratio: 4 / 5; object-fit: cover; }
       .who h4 { margin-bottom: 10px; }
       .who p { color: var(--ink2); max-width: 24em; }
       @media (min-width: 900px) { .who-grid { grid-template-columns: repeat(3, 1fr); gap: 56px; } }
@@ -546,7 +548,7 @@ TEMPLATE = r'''<!doctype html>
       <!-- 5b. LESS SCREEN ─────────────────────────────────────── -->
       <section class="bg-ink" id="less-screen">
         <div class="wrap split flip">
-          <div class="photo rv"><img src="/assets/photos/hand-heart.jpg" width="1400" height="788" loading="lazy" alt="" /></div>
+          <div class="photo rv"><img src="/assets/photos/hands-hold.jpg" width="1400" height="933" loading="lazy" alt="" /></div>
           <div>
             <p class="eyebrow rv">[[Less screen, more together ||| Menos pantalla, más juntos]]</p>
             <h2 class="rv">[[Let children be&nbsp;*children.* ||| Dejemos que los chicos sean&nbsp;*chicos.*]]</h2>
@@ -594,9 +596,9 @@ TEMPLATE = r'''<!doctype html>
                 <p class="m-title mem-title">[[The moments worth keeping ||| Los momentos que vale la pena guardar.]]</p>
                 <p class="mem-sub">[[Take a look back at what you've shared ||| Lo que fueron guardando entre las dos casas.]]</p>
                 <div class="m-av" aria-hidden="true">A</div>
-                <div class="print p3"><img src="/assets/photos/print-3.jpg" alt="" width="520" height="780" loading="lazy" /></div>
-                <div class="print p2"><img src="/assets/photos/print-1.jpg" alt="" width="520" height="780" loading="lazy" /></div>
-                <div class="print p1"><img src="/assets/photos/print-2.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                <div class="print p3"><img src="/assets/photos/mem-garden.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                <div class="print p2"><img src="/assets/photos/mem-window.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                <div class="print p1"><img src="/assets/photos/mem-sky.jpg" alt="" width="520" height="780" loading="lazy" /></div>
               </div>
             </div>
           </div>
@@ -641,9 +643,9 @@ TEMPLATE = r'''<!doctype html>
           <p class="eyebrow rv">[[Who it is for ||| Para quién es]]</p>
           <h2 class="rv" style="max-width: 15em">[[Two homes that love the same&nbsp;*child.* ||| Dos casas que quieren al mismo&nbsp;*niño o niña.*]]</h2>
           <div class="who-grid">
-            <div class="who rv"><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents of children from 0 to 6 who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres de chicos de 0 a 6 años que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
-            <div class="who rv" style="--d:.1s"><h4>[[The home far away ||| La casa que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents. Nothing to learn and nothing to keep up with: just a way to be there, in your own voice. ||| Abuelos, tíos, padrinos. Nada que aprender y nada que seguir: solo una forma de estar, con tu propia voz.]]</p></div>
-            <div class="who rv" style="--d:.2s"><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo uno con cada lado de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
+            <div class="who rv"><div class="photo"><img src="/assets/photos/who-home.jpg" width="900" height="1125" loading="lazy" alt="" /></div><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents of children from 0 to 6 who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres de chicos de 0 a 6 años que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
+            <div class="who rv" style="--d:.1s"><div class="photo"><img src="/assets/photos/who-far.jpg" width="900" height="1125" loading="lazy" alt="" /></div><h4>[[The home far away ||| La casa que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents. Nothing to learn and nothing to keep up with: just a way to be there, in your own voice. ||| Abuelos, tíos, padrinos. Nada que aprender y nada que seguir: solo una forma de estar, con tu propia voz.]]</p></div>
+            <div class="who rv" style="--d:.2s"><div class="photo"><img src="/assets/photos/who-many.jpg" width="900" height="1125" loading="lazy" alt="" /></div><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo uno con cada lado de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
           </div>
         </div>
       </section>
@@ -720,6 +722,7 @@ TEMPLATE = r'''<!doctype html>
           <a id="terms" href="/terms/">[[Terms ||| Términos]]</a>
           <a id="support" href="/support/">[[Support ||| Soporte]]</a>
           <span>BALK Creative Studio</span>
+          <span>[[Photos via Unsplash and Pexels ||| Fotos de Unsplash y Pexels]]</span>
         </div>
         <nav class="lang" aria-label="Language">
           <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
