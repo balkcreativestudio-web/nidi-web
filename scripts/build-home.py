@@ -501,8 +501,8 @@ TEMPLATE = r'''<!doctype html>
           <span class="sep" aria-hidden="true"></span>
           <a href="/es/" hreflang="es" lang="es" data-pick="es" @@CUR_ES@@>ES</a>
         </nav>
-        <a class="btn btn-sm soon-only" href="#start">[[Stay close. ||| Avisame.]]</a>
-        <a class="btn btn-sm live-only" href="@@STORE@@">[[Take a look ||| Mirá cómo es]]</a>
+        <a class="btn btn-sm soon-only" href="#start">[[Stay close. ||| Avísame.]]</a>
+        <a class="btn btn-sm live-only" href="@@STORE@@">[[Take a look ||| Mira cómo es]]</a>
       </div>
     </header>
 
@@ -514,8 +514,8 @@ TEMPLATE = r'''<!doctype html>
         <div class="wrap hero-grid">
           <div>
             <p class="eyebrow">[[A shared space for two homes ||| Un espacio compartido entre dos casas]]</p>
-            <h1>[[Grow close. From&nbsp;*anywhere.* ||| Crecé cerca. Desde&nbsp;*donde&nbsp;estés.*]]</h1>
-            <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. Share a voice, a photo or a few words, and do small things together. Made for children from 0 to 6. ||| Nidi une dos casas: la de un chico que crece y otra que está lejos. Compartí una voz, una foto o unas palabras, y hagan cosas chicas juntos. Pensada para chicos de 0 a 6 años.]]</p>
+            <h1>[[Grow close. From&nbsp;*anywhere.* ||| Crece cerca. Desde&nbsp;*donde&nbsp;estés.*]]</h1>
+            <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. Share a voice, a photo or a few words, and do small things together. Made for children from 0 to 6. ||| Nidi une dos casas: la de un niño que crece y otra que está lejos. Comparte una voz, una foto o unas palabras, y hagan cosas simples juntos. Pensada para niños de 0 a 6 años.]]</p>
             <div class="cta">
               @@FORM:hero@@
             </div>
@@ -536,7 +536,7 @@ TEMPLATE = r'''<!doctype html>
       <!-- 2. THREE PILLARS ──────────────────────────────────────── -->
       <section class="pillars" aria-label="[[What Nidi is ||| Qué es Nidi]]">
         <div class="wrap pillar-grid">
-          <div class="pillar rv"><p class="eyebrow">[[Voice, photo and text ||| Voz, foto y texto]]</p><p>[[A few things a day, and nothing to scroll. ||| Algunas cosas por día, y nada para scrollear.]]</p></div>
+          <div class="pillar rv"><p class="eyebrow">[[Voice, photo and text ||| Voz, foto y texto]]</p><p>[[A few things a day, and nothing to scroll. |||Algunas cosas por día, y nada que revisar.]]</p></div>
           <div class="pillar rv" style="--d:.12s"><p class="eyebrow">[[Only your family ||| Solo tu familia]]</p><p>[[Seen by the people in your nidi, and no one else. ||| Lo ven las personas de tu nidi, y nadie más.]]</p></div>
           <div class="pillar rv" style="--d:.24s"><p class="eyebrow">[[Free to start ||| Gratis para empezar]]</p><p>[[Two free weeks, no payment details needed. ||| Dos semanas gratis, sin necesidad de medio de pago.]]</p></div>
         </div>
@@ -555,15 +555,15 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow rv">[[When something arrives ||| Cuando algo llega]]</p>
             <h2 class="rv">[[It arrives quietly. *Whenever you're ready.* ||| Llega sin hacer ruido. *Cuando quieras.*]]</h2>
-            <p class="lead rv">[[A soft bubble in the colour of the person who sent it breathes until you open it. Then their colour fills the room, and you press play. ||| Una burbuja suave, del color de quien la mandó, respira hasta que la abrís. Entonces su color llena la pantalla y le das play.]]</p>
-            <p class="hint rv">[[Try it: touch the bubble. ||| Probalo: tocá la burbuja.]]</p>
+            <p class="lead rv">[[A soft bubble in the colour of the person who sent it breathes until you open it. Then their colour fills the room, and you press play. ||| Una burbuja suave, del color de quien la mandó, respira hasta que la abres. Entonces su color llena la pantalla y le das play.]]</p>
+            <p class="hint rv">[[Try it: touch the bubble. ||| Pruébalo: toca la burbuja.]]</p>
           </div>
           <div class="phone rv" id="phone" data-state="idle">
             <div class="p-idle">
               <div class="p-status" aria-hidden="true"><span>15:03</span><i></i></div>
               <div class="p-greet"><span class="av" aria-hidden="true">A</span><span class="gr">[[Good afternoon, Ana. ||| Buenas tardes, Ana.]]</span></div>
               <p class="p-whisper">[[Mid morning for Bea in Buenos Aires. ||| Media mañana para Bea en Buenos Aires.]]</p>
-              <p class="p-label">[[Something arrived for you ||| Algo llegó para vos]]</p>
+              <p class="p-label">[[Something arrived for you ||| Algo llegó para ti]]</p>
               <div class="p-tabs" aria-hidden="true"><b>[[Today ||| Hoy]]</b><span>[[Activities ||| Actividades]]</span><span>[[Memory ||| Recuerdos]]</span></div>
             </div>
             <div class="p-grow" aria-hidden="true"><div class="orb"></div></div>
@@ -577,7 +577,7 @@ TEMPLATE = r'''<!doctype html>
               <div class="p-words" id="pWords" aria-live="off">
                 <span>[[Good morning, Teo. ||| Buen día, Teo.]]</span>
                 <span>[[I saw a little bird today, ||| Hoy vi un pajarito,]]</span>
-                <span>[[and I thought of you. ||| y pensé en vos.]]</span>
+                <span>[[and I thought of you. ||| y pensé en ti.]]</span>
                 <span>[[It's the same sky. ||| Es el mismo cielo.]]</span>
               </div>
             </div>
@@ -609,9 +609,9 @@ TEMPLATE = r'''<!doctype html>
             <div class="scenes">
               <div class="scene rv"><p class="eyebrow">[[Far away ||| Lejos]]</p><p>[[A grandmother an ocean away, who still wants to say good morning. ||| Una abuela al otro lado del océano, que igual quiere decir buenos días.]]</p></div>
               <div class="scene rv"><p class="eyebrow">[[Travelling ||| De viaje]]</p><p>[[A parent away for work, who wants to be part of today and not only call at the end of it. ||| Un papá o una mamá de viaje por trabajo, que quiere ser parte del día y no solo llamar al final.]]</p></div>
-              <div class="scene rv"><p class="eyebrow">[[Another city ||| Otra ciudad]]</p><p>[[An aunt, an uncle, a godparent: someone who loves the child and lives somewhere else. ||| Una tía, un tío, un padrino: alguien que quiere a un chico y vive en otro lugar.]]</p></div>
+              <div class="scene rv"><p class="eyebrow">[[Another city ||| Otra ciudad]]</p><p>[[An aunt, an uncle, a godparent: someone who loves the child and lives somewhere else. ||| Una tía, un tío, un padrino: alguien que quiere a un niño y vive en otro lugar.]]</p></div>
             </div>
-            <p class="resolve rv">[[Nidi gives them something small to do together, every day. ||| Nidi les da algo chico para hacer juntos, todos los días.]]</p>
+            <p class="resolve rv">[[Nidi gives them something small to do together, every day. ||| Nidi les da algo simple para hacer juntos, todos los días.]]</p>
           </div>
         </div>
       </section>
@@ -619,11 +619,11 @@ TEMPLATE = r'''<!doctype html>
       <!-- 5b. LESS SCREEN ─────────────────────────────────────── -->
       <section class="bg-ink" id="less-screen">
         <div class="wrap split flip">
-          <div class="photo rv"><img src="/assets/photos/child-garden.jpg" width="1400" height="934" loading="lazy" alt="[[A toddler watering a vegetable garden with a metal watering can. ||| Un nene regando una huerta con una regadera de metal.]]" /></div>
+          <div class="photo rv"><img src="/assets/photos/child-garden.jpg" width="1400" height="934" loading="lazy" alt="[[A toddler watering a vegetable garden with a metal watering can. ||| Un niño pequeño regando una huerta con una regadera de metal.]]" /></div>
           <div>
             <p class="eyebrow rv">[[Less screen, more together ||| Menos pantalla, más juntos]]</p>
-            <h2 class="rv">[[Let children be&nbsp;*children.* ||| Dejemos que los chicos sean&nbsp;*chicos.*]]</h2>
-            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi gives you ideas for small things to do together, each in your own home, and a way to share them afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un chico de dos años no se queda frente a una pantalla. Por eso Nidi te da ideas de cosas chicas para hacer juntos, cada uno en su casa, y una forma de compartirlas después.]]</p>
+            <h2 class="rv">[[Let children be&nbsp;*children.* ||| Dejemos que los niños sean&nbsp;*niños.*]]</h2>
+            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi gives you ideas for small things to do together, each in your own home, and a way to share them afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un niño de dos años no se queda frente a una pantalla. Por eso Nidi te da ideas de cosas simples para hacer juntos, cada uno en su casa, y una forma de compartirlas después.]]</p>
           </div>
         </div>
       </section>
@@ -636,9 +636,9 @@ TEMPLATE = r'''<!doctype html>
             <p class="eyebrow rv">[[How it works ||| Cómo funciona]]</p>
             <h2 class="rv">[[Three steps, and then it's&nbsp;*every day.* ||| Tres pasos, y después es&nbsp;*todos los días.*]]</h2>
             <div class="steps">
-              <div class="step rv"><p class="eyebrow">[[First ||| Primero]]</p><h3>[[Start your nidi ||| Empezá tu nidi]]</h3><p>[[Tell Nidi a little about yourself and the child, and pick the colour that will stand for you. ||| Contale a Nidi un poco sobre vos y sobre el chico, y elegí el color que va a ser tuyo.]]</p></div>
-              <div class="step rv"><p class="eyebrow">[[Then ||| Después]]</p><h3>[[Invite the other home ||| Invitá a la otra casa]]</h3><p>[[Send an invitation to someone far away. They join free and never pay for it. ||| Mandá una invitación a alguien que está lejos. Se suma gratis y nunca paga.]]</p></div>
-              <div class="step rv"><p class="eyebrow">[[Every day ||| Todos los días]]</p><h3>[[Do something small ||| Hagan algo chico]]</h3><p>[[Photograph the same sky. Cook the same recipe. Leave a good morning in your own voice. ||| Sacá una foto del mismo cielo. Cociná la misma receta. Dejá un buen día con tu propia voz.]]</p></div>
+              <div class="step rv"><p class="eyebrow">[[First ||| Primero]]</p><h3>[[Start your nidi ||| Empieza tu nidi]]</h3><p>[[Tell Nidi a little about yourself and the child, and pick the colour that will stand for you. ||| Cuéntale a Nidi un poco sobre ti y sobre el niño, y elige el color que va a ser tuyo.]]</p></div>
+              <div class="step rv"><p class="eyebrow">[[Then ||| Después]]</p><h3>[[Invite the other home ||| Invita a la otra casa]]</h3><p>[[Send an invitation to someone far away. They join free and never pay for it. ||| Envía una invitación a alguien que está lejos. Se suma gratis y nunca paga.]]</p></div>
+              <div class="step rv"><p class="eyebrow">[[Every day ||| Todos los días]]</p><h3>[[Do something small ||| Hagan algo sencillo, simple.]]</h3><p>[[Photograph the same sky. Cook the same recipe. Leave a good morning in your own voice. ||| Toma una foto del mismo cielo. Cocina la misma receta. Deja un buen día con tu propia voz.]]</p></div>
             </div>
           </div>
         </div>
@@ -653,23 +653,23 @@ TEMPLATE = r'''<!doctype html>
           </div>
           <div class="rows">
             <div class="row">
-              <div class="copy"><p class="eyebrow rv">[[Today ||| Hoy]]</p><h3 class="rv">[[A line about the *other* home. ||| Una línea sobre la *otra* casa.]]</h3><p class="rv">[[Today opens with what it is like where they are: their time, their sky. Then, whenever you like, you send something from your day. ||| Hoy empieza con cómo es el día donde están ellos: su hora, su cielo. Y cuando quieras, mandás algo de tu día.]]</p></div>
-              <div class="screen rv">[[<img src="/assets/screens/en-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="Nidi's Today screen: a line about the other home, and a soft green orb waiting to be opened." /> ||| <img src="/assets/screens/es-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="La pantalla Hoy de Nidi: una línea sobre la otra casa y una esfera verde esperando que la abras." />]]</div>
+              <div class="copy"><p class="eyebrow rv">[[Today ||| Hoy]]</p><h3 class="rv">[[A line about the *other* home. ||| Una línea sobre la *otra* casa.]]</h3><p class="rv">[[Today opens with what it is like where they are: their time, their sky. Then, whenever you like, you send something from your day. ||| Hoy empieza con cómo es el día donde están ellos: su hora, su cielo. Y cuando quieras, envías algo de tu día.]]</p></div>
+              <div class="screen rv">[[<img src="/assets/screens/en-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="Nidi's Today screen: a line about the other home, and a soft green orb waiting to be opened." /> ||| <img src="/assets/screens/es-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="La pantalla Hoy de Nidi: una línea sobre la otra casa y una burbuja verde esperando que la abras." />]]</div>
             </div>
             <div class="row flip">
-              <div class="copy"><p class="eyebrow rv">[[Activities ||| Actividades]]</p><h3 class="rv">[[Small things, chosen for *their age.* ||| Cosas chicas, elegidas para *su edad.*]]</h3><p class="rv">[[Some you do on your own, some are the same thing done in each home, and some are for your next call. ||| Algunas son para hacer por tu cuenta, otras se hacen igual en cada casa y otras, para la próxima llamada.]]</p></div>
+              <div class="copy"><p class="eyebrow rv">[[Activities ||| Actividades]]</p><h3 class="rv">[[Small things, chosen for *their age.* ||| Cosas simples, elegidas para *su edad.*]]</h3><p class="rv">[[Some you do on your own, some are the same thing done in each home, and some are for your next call. ||| Algunas son para hacer por tu cuenta, otras se hacen igual en cada casa y otras, para la próxima llamada.]]</p></div>
               <div class="screen rv">[[<img src="/assets/screens/en-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Nidi's activities: cards such as Read the same page, with a label above each." /> ||| <img src="/assets/screens/es-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Las actividades de Nidi: tarjetas como Leer la misma página, con una etiqueta arriba de cada una." />]]</div>
             </div>
             <div class="row">
               <div class="copy"><p class="eyebrow rv">[[Sharing ||| Compartir]]</p><h3 class="rv">[[A photo, a voice, or a few *words.* ||| Una foto, una voz o unas *palabras.*]]</h3><p class="rv">[[Voice notes in English or Spanish can arrive written out too, so the other home can read along. Whoever recorded sees the words before sending, and can correct them. ||| Los audios en español o en inglés pueden llegar también escritos, para que en la otra casa se puedan leer. Quien grabó ve las palabras antes de mandar y las puede corregir.]]</p></div>
               <div class="pair rv">
-                <div class="screen mock recv back" role="img" aria-label="[[A photo from Bea of a grandfather's hand holding a baby's, with a line under it ||| Una foto de Bea de la mano de un abuelo agarrando la de un bebé, con una línea debajo]]">
+                <div class="screen mock recv back" role="img" aria-label="[[A photo from Bea of a grandfather's hand holding a baby's, with a line under it ||| Una foto de Bea de la mano de un abuelo tomando la de un bebé, con una línea debajo]]">
                   <div class="m-status"><span>15:04</span><i></i></div>
                   <span class="m-x" aria-hidden="true">×</span>
                   <p class="m-meta">[[From Bea · Today at 3:03 PM ||| De Bea · Hoy a las 15:03]]</p>
                   <div class="m-photo"><img src="/assets/photos/recv-hands.jpg" alt="" width="700" height="875" loading="lazy" /></div>
                   <p class="m-line">[[grandpa and his favourite hand. ||| el abuelo y su mano favorita.]]</p>
-                  <div class="m-reply"><span>[[Whenever you're ready, reply. ||| Cuando quieras, contestale.]]</span><b aria-hidden="true">→</b></div>
+                  <div class="m-reply"><span>[[Whenever you're ready, reply. ||| Cuando quieras, contéstale.]]</span><b aria-hidden="true">→</b></div>
                 </div>
                 <div class="screen mock compose front" role="img" aria-label="[[Sending a photo of a dog asleep in a sunny armchair, with a line written under it ||| Mandando la foto de una perra dormida en un sillón al sol, con una línea escrita debajo]]">
                   <div class="m-status"><span>15:24</span><i></i></div>
@@ -683,7 +683,7 @@ TEMPLATE = r'''<!doctype html>
               </div>
             </div>
             <div class="row flip">
-              <div class="copy"><p class="eyebrow rv">[[Memory ||| Recuerdos]]</p><h3 class="rv">[[Everything lands in *Memory.* ||| Todo queda en *Recuerdos.*]]</h3><p class="rv">[[By date, from both homes: photos, voice notes and messages. Reply to any of it, and keep all of it. ||| Por fecha, de las dos casas: fotos, audios y mensajes. A todo le podés contestar, y todo se queda.]]</p></div>
+              <div class="copy"><p class="eyebrow rv">[[Memory ||| Recuerdos]]</p><h3 class="rv">[[Everything lands in *Memory.* ||| Todo queda en *Recuerdos.*]]</h3><p class="rv">[[By date, from both homes: photos, voice notes and messages. Reply to any of it, and keep all of it. ||| Por fecha, de las dos casas: fotos, audios y mensajes. A todo le puedes contestar, y todo se queda.]]</p></div>
               <div class="screen mock mem rv" role="img" aria-label="[[Memory: the moments worth keeping, three printed photos stacked one over another ||| Recuerdos: los momentos que vale la pena guardar, tres fotos impresas, una sobre otra]]">
                 <div class="m-status"><span>15:21</span><i></i></div>
                 <p class="m-title mem-title">[[The moments worth keeping ||| Los momentos que vale la pena guardar.]]</p>
@@ -706,7 +706,7 @@ TEMPLATE = r'''<!doctype html>
           <div class="quiet-grid">
             <div class="q rv"><p class="eyebrow">[[Private ||| Privado]]</p><p>[[Photos and voice notes are stored privately: never public and never searchable. ||| Las fotos y los audios se guardan de forma privada: no son públicos ni aparecen en búsquedas.]]</p></div>
             <div class="q rv" style="--d:.1s"><p class="eyebrow">[[Calm ||| Tranquilo]]</p><p>[[No ads, no feed, no counting. A few things a day, and then it lets you go. ||| Sin publicidad, sin feed, sin contadores. Algunas cosas por día, y después te deja ir.]]</p></div>
-            <div class="q rv" style="--d:.2s"><p class="eyebrow">[[Simple ||| Simple]]</p><p>[[You sign in with a code sent to your email. No password to remember. ||| Entrás con un código que te llega por email. Sin contraseña que recordar.]]</p></div>
+            <div class="q rv" style="--d:.2s"><p class="eyebrow">[[Simple ||| Simple]]</p><p>[[You sign in with a code sent to your email. No password to remember. ||| Entras con un código que te llega por email. Sin contraseña que recordar.]]</p></div>
             
           </div>
         </div>
@@ -716,7 +716,7 @@ TEMPLATE = r'''<!doctype html>
       <section class="bg-paper" id="who">
         <div class="wrap">
           <p class="eyebrow rv">[[Who it is for ||| Para quién es]]</p>
-          <h2 class="rv" style="max-width: 15em">[[Two homes that love the same&nbsp;*child.* ||| Dos casas que quieren al mismo&nbsp;*chico.*]]</h2>
+          <h2 class="rv" style="max-width: 15em">[[Two homes that love the same&nbsp;*child.* ||| Dos casas que quieren al mismo&nbsp;*niño.*]]</h2>
           <div class="who-grid">
             <div class="who rv"><div class="photo"><img src="/assets/photos/who-home.jpg" width="900" height="1125" loading="lazy" alt="[[A baby playing near a bookshelf and plants, at home. ||| Un bebé jugando junto a un estante de libros y plantas, en casa.]]" /><i class="tape honey l" style="--t:-44deg"></i></div><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
             <div class="who rv" style="--d:.1s"><div class="photo"><img src="/assets/photos/who-far.jpg" width="900" height="1125" loading="lazy" alt="[[An older person's hands cooking at a stove. ||| Las manos de una persona mayor cocinando.]]" /><i class="tape olive r" style="--t:40deg"></i></div><h4>[[The home far away ||| La casa que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents: a way to be there, in your own voice. ||| Abuelos, tíos, padrinos: una forma de estar, con tu propia voz.]]</p></div>
@@ -730,12 +730,12 @@ TEMPLATE = r'''<!doctype html>
         <div class="wrap free-grid">
           <div>
             <p class="eyebrow rv">[[Free to start ||| Gratis para empezar]]</p>
-            <h2 class="rv">[[Try it for two weeks, with nothing to&nbsp;*pay.* ||| Probala dos semanas, sin pagar&nbsp;*nada.*]]</h2>
+            <h2 class="rv">[[Try it for two weeks, with nothing to&nbsp;*pay.* ||| Pruébala dos semanas, sin pagar&nbsp;*nada.*]]</h2>
           </div>
           <div class="free-list">
-            <div class="free-item rv"><h4>[[Two free weeks ||| Dos semanas gratis]]</h4><p>[[Your first nidi starts with two weeks, counted from the day the other home joins. No payment details, and nothing is charged when it ends. ||| El primer nidi que empezás tiene dos semanas, que se cuentan desde el día en que entra la otra casa. Sin medio de pago, y no se cobra nada cuando terminan.]]</p></div>
+            <div class="free-item rv"><h4>[[Two free weeks ||| Dos semanas gratis]]</h4><p>[[Your first nidi starts with two weeks, counted from the day the other home joins. No payment details, and nothing is charged when it ends. ||| El primer nidi que empiezas tiene dos semanas, que se cuentan desde el día en que entra la otra casa. Sin medio de pago, y no se cobra nada cuando terminan.]]</p></div>
             <div class="free-item rv"><h4>[[Then, a subscription ||| Después, una suscripción]]</h4><p>[[To keep sharing, the person who started the nidi chooses a monthly or yearly subscription. One covers up to three nidis. Options and prices are shown in the app before anything is charged. ||| Para seguir compartiendo, quien empezó el nidi elige una suscripción mensual o anual. Una cubre hasta tres nidis. Las opciones y los precios se ven en la app antes de que se cobre nada.]]</p></div>
-            <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[The people you invite join free and never pay for it. ||| Las personas que invitás se suman gratis y nunca pagan.]]</p></div>
+            <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[The people you invite join free and never pay for it. ||| Las personas que invitas se suman gratis y nunca pagan.]]</p></div>
           </div>
         </div>
       </section>
@@ -747,7 +747,7 @@ TEMPLATE = r'''<!doctype html>
           <h2 class="rv">[[Why I made&nbsp;*Nidi.* ||| Por qué hice&nbsp;*Nidi.*]]</h2>
           <div class="why-body">
             <p class="rv">[[I'm an Argentine mother in the Netherlands. When my daughter was born, my parents were 11,000 km away, and video calls with a baby don't work. I wanted her to grow up knowing her grandparents' voices, their stories, the small things they do every day. Not just faces on a screen. So I built Nidi. ||| Soy una mamá argentina que vive en Países Bajos. Cuando nació mi hija, mis papás estaban a 11.000 kilómetros, y las videollamadas con un bebé no funcionan. Yo quería que creciera conociendo la voz de sus abuelos, sus historias, las cosas chiquitas que hacen todos los días. No solo caras en una pantalla. Entonces hice Nidi.]]</p>
-            <p class="rv">[[Nidi connects two houses: the child's, and one far away. Every day it suggests small things to do, apart but together. A grandmother records a good morning in her voice. Both houses photograph the same sky, or cook the same recipe. The screen carries it; the moment happens off it. It all lands in Memory, an archive that stays with the&nbsp;family. ||| Nidi une dos casas: la del niño, y una que está en otro lugar. Todos los días propone cosas chicas para hacer, cada uno en su casa y los dos juntos. Una abuela graba un buen día con su voz. Las dos casas sacan una foto del mismo cielo, o cocinan la misma receta. La pantalla lo lleva; el momento pasa afuera de ella. Todo queda en Recuerdos, un archivo que se queda con la&nbsp;familia.]]</p>
+            <p class="rv">[[Nidi connects two houses: the child's, and one far away. Every day it suggests small things to do, apart but together. A grandmother records a good morning in her voice. Both houses photograph the same sky, or cook the same recipe. The screen carries it; the moment happens off it. It all lands in Memory, an archive that stays with the&nbsp;family. ||| Nidi une dos casas: la del niño, y una que está en otro lugar. Todos los días propone cosas simples para hacer, cada uno en su casa y los dos juntos. Una abuela graba un buen día con su voz. Las dos casas toman una foto del mismo cielo, o cocinan la misma receta. La pantalla lo lleva; el momento pasa afuera de ella. Todo queda en Recuerdos, un archivo que se queda con la&nbsp;familia.]]</p>
             <p class="rv">[[Since we started testing, my parents have read my daughter bedtime stories, sung to her at breakfast, and left a good morning every day, recorded the night before in Buenos Aires. ||| Desde que empezamos a probarlo, mis papás le leyeron cuentos a mi hija antes de dormir, le cantaron en el desayuno, y le dejaron un buen día todos los días, grabado la noche anterior en Buenos Aires.]]</p>
           </div>
           <div class="why-turn">
@@ -772,8 +772,8 @@ TEMPLATE = r'''<!doctype html>
             <details><summary>[[Who can see what we share? ||| ¿Quién ve lo que compartimos?]]</summary><div>[[Only the people in your nidi. Nothing is public or searchable. ||| Solo las personas de tu nidi. Nada es público ni aparece en búsquedas.]]</div></details>
             <details><summary>[[What languages does it speak? ||| ¿En qué idiomas está?]]</summary><div>[[English and Spanish, each person in their own language. Voice notes in either can arrive written out. ||| Español e inglés, cada persona en su idioma. Los audios en cualquiera de los dos pueden llegar también escritos.]]</div></details>
             <details><summary>[[How old is the child? ||| ¿Para qué edades es?]]</summary><div>[[From the first months to six years old, with activities chosen for their age. Up to three, the home where the child lives also keeps their firsts. ||| Desde los primeros meses hasta los seis años, con actividades elegidas para cada edad. Hasta los tres, la casa donde crece también guarda sus primeras veces.]]</div></details>
-            <details><summary>[[What happens if we stop the subscription? ||| ¿Qué pasa si dejamos la suscripción?]]</summary><div>[[The nidi pauses for now and nothing new can be added, but everything already shared stays in Memory for anyone in it. You can manage or cancel a subscription anytime in your iPhone's Settings. ||| El nidi queda en pausa, por ahora, y no se puede sumar nada nuevo, pero todo lo compartido sigue en Recuerdos para cualquiera del nidi. La suscripción la manejás o la cancelás cuando quieras en Ajustes del iPhone.]]</div></details>
-            <details><summary>[[Is there an Android version? ||| ¿Hay versión para Android?]]</summary><div>[[Not yet. Nidi comes first to iPhone, and Android is on its way. Leave your email and we will write when it is ready. ||| Todavía no. Nidi sale primero para iPhone, y Android viene en camino. Dejá tu email y te escribimos cuando esté listo.]]</div></details>
+            <details><summary>[[What happens if we stop the subscription? ||| ¿Qué pasa si dejamos la suscripción?]]</summary><div>[[The nidi pauses for now and nothing new can be added, but everything already shared stays in Memory for anyone in it. You can manage or cancel a subscription anytime in your iPhone's Settings. ||| El nidi queda en pausa, por ahora, y no se puede sumar nada nuevo, pero todo lo compartido sigue en Recuerdos para cualquiera del nidi. La suscripción la manejas o la cancelas cuando quieras en Ajustes del iPhone.]]</div></details>
+            <details><summary>[[Is there an Android version? ||| ¿Hay versión para Android?]]</summary><div>[[Not yet. Nidi comes first to iPhone, and Android is on its way. Leave your email and we will write when it is ready. ||| Todavía no. Nidi sale primero para iPhone, y Android viene en camino. Deja tu email y te escribimos cuando esté listo.]]</div></details>
           </div>
         </div>
       </section>
@@ -782,7 +782,7 @@ TEMPLATE = r'''<!doctype html>
       <section class="bg-ink finale" id="join">
         <div class="wrap" style="position: relative">
           @@WORDMARK_CTA@@
-          <h2 class="rv">[[Small moments can mean&nbsp;*everything.* ||| Los momentos chicos pueden ser&nbsp;*todo.*]]</h2>
+          <h2 class="rv">[[Small moments can mean&nbsp;*everything.* ||| Los momentos pequeños pueden serlo&nbsp;*todo.*]]</h2>
           <div class="cta">
             @@FORM:end@@
           </div>
@@ -814,7 +814,7 @@ TEMPLATE = r'''<!doctype html>
       var lang = "@@LANG@@";
       var T = {
         en: { invalid: "Check the email address.", failed: "We couldn't add you just now. Try again in a moment." },
-        es: { invalid: "Revisá el email.", failed: "No pudimos anotarte ahora. Probá de nuevo en un momento." }
+        es: { invalid: "Revisa el email.", failed: "No pudimos anotarte ahora. Prueba de nuevo en un momento." }
       };
       document.querySelectorAll("form.wl input[type=email]").forEach(function (i) { i.placeholder = lang === "es" ? "Tu email" : "Your email"; });
       // Remember a language chosen with the EN / ES links.
@@ -955,12 +955,12 @@ FORM = '''<div class="wl-wrap">
               <form class="wl soon-only" id="form-@@ID@@" novalidate>
                 <label for="email-@@ID@@" class="sr-only">[[Your email ||| Tu email]]</label>
                 <input id="email-@@ID@@" type="email" name="email" placeholder="Your email" autocomplete="email" inputmode="email" required />
-                <button class="btn" type="submit">[[Stay close. ||| Avisame.]]</button>
+                <button class="btn" type="submit">[[Stay close. ||| Avísame.]]</button>
               </form>
               <p class="wl-done" hidden role="status">[[You're in. We'll write when Nidi is ready. ||| Listo. Te escribimos cuando Nidi esté disponible.]]</p>
               <p class="wl-error" hidden role="alert"></p>
               <p class="wl-note soon-only">[[Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks. ||| Muy pronto en el App Store, para iPhone. Android viene en camino. Dos semanas gratis.]]</p>
-              <a class="btn live-only" href="@@STORE@@">[[Take a look ||| Mirá cómo es]]</a>
+              <a class="btn live-only" href="@@STORE@@">[[Take a look ||| Mira cómo es]]</a>
               <p class="wl-note live-only">[[On the App Store, for iPhone. Free for two weeks. ||| En el App Store, para iPhone. Dos semanas gratis.]]</p>
             </div>'''
 
@@ -1020,9 +1020,9 @@ META = {
         og_locale='en_GB', og_alt='Nidi: Grow close. From anywhere.',
         path='/', privacy='/privacy/', terms='/terms/', support='/support/'),
     'es': dict(
-        title='Nidi. Crecé cerca. Desde donde estés.',
-        desc='Nidi une dos casas: la de un chico que crece y otra que está lejos. Voz, foto y texto, y cosas chicas para hacer juntos, guardadas en Recuerdos.',
-        og_locale='es_AR', og_alt='Nidi: Crecé cerca. Desde donde estés.',
+        title='Nidi. Crece cerca. Desde donde estés.',
+        desc='Nidi une dos casas: la de un niño que crece y otra que está lejos. Voz, foto y texto, y cosas simples para hacer juntos, guardadas en Recuerdos.',
+        og_locale='es_AR', og_alt='Nidi: Crece cerca. Desde donde estés.',
         path='/es/', privacy='/privacidad/', terms='/terminos/', support='/soporte/'),
 }
 
