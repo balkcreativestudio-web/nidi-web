@@ -226,7 +226,8 @@ TEMPLATE = r'''<!doctype html>
 
       /* ── Her words, up where they are felt ───────────────────────── */
       .stand { padding-block: clamp(72px, 9vw, 128px); }
-      .stand blockquote { margin: 0; max-width: 17em; font-family: var(--serif); font-style: italic; font-size: clamp(30px, 4.4vw, 54px); line-height: 1.18; text-wrap: balance; }
+      .stand { text-align: center; padding-block: clamp(96px, 12vw, 176px); }
+      .stand blockquote { margin: 0 auto; max-width: 15em; font-family: var(--serif); font-style: normal; font-size: clamp(32px, 4.8vw, 64px); line-height: 1.14; letter-spacing: -0.008em; text-wrap: balance; }
       .stand-by { margin-top: 32px; max-width: 34em; font-size: 17px; color: var(--ink2); }
       .stand-by a { color: var(--ink); text-underline-offset: 4px; text-decoration-thickness: 1px; white-space: nowrap; }
       /* ── The moment ───────────────────────────────────────────────── */
@@ -492,9 +493,9 @@ TEMPLATE = r'''<!doctype html>
       </section>
 
       <!-- 2b. HER WORDS ────────────────────────────────────────── -->
-      <section class="bg-cream stand" id="words">
+      <section class="bg-ink stand" id="words">
         <div class="wrap">
-          <blockquote class="rv">[[Growing up far apart does not mean growing&nbsp;apart. ||| Crecer lejos no significa crecer&nbsp;distanciados.]]</blockquote>
+          <blockquote class="rv">[[A world where growing up far apart does not mean *growing&nbsp;apart.* ||| Un mundo donde crecer lejos no significa *crecer&nbsp;distanciados.*]]</blockquote>
         </div>
       </section>
 
