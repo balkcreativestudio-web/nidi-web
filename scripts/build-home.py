@@ -480,7 +480,7 @@ TEMPLATE = r'''<!doctype html>
       <!-- 3. THE MOMENT ─────────────────────────────────────────── -->
       <section class="bg-paper" id="moment">
         <div class="wrap split">
-          <div class="photo rv"><img src="/assets/photos/window-mug.jpg" width="1600" height="900" loading="lazy" alt="" /></div>
+          <div class="photo rv"><img src="/assets/photos/hands-hold.jpg" width="1600" height="1067" loading="lazy" alt="" /></div>
           <div>
             <p class="eyebrow rv">[[The moment ||| El momento]]</p>
             <h2 class="rv">[[Video calls with a baby don't&nbsp;*work.* ||| Las videollamadas con un bebé no&nbsp;*funcionan.*]]</h2>
@@ -596,7 +596,7 @@ TEMPLATE = r'''<!doctype html>
                 <p class="m-title mem-title">[[The moments worth keeping ||| Los momentos que vale la pena guardar.]]</p>
                 <p class="mem-sub">[[Take a look back at what you've shared ||| Lo que fueron guardando entre las dos casas.]]</p>
                 <div class="m-av" aria-hidden="true">A</div>
-                <div class="print p3"><img src="/assets/photos/mem-hands.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                <div class="print p3"><img src="/assets/photos/mem-canal.jpg" alt="" width="520" height="780" loading="lazy" /></div>
                 <div class="print p2"><img src="/assets/photos/mem-window.jpg" alt="" width="520" height="780" loading="lazy" /></div>
                 <div class="print p1"><img src="/assets/photos/mem-sky.jpg" alt="" width="520" height="780" loading="lazy" /></div>
               </div>
