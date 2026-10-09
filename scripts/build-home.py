@@ -313,17 +313,20 @@ TEMPLATE = r'''<!doctype html>
       .m-field { position: absolute; left: 6cqw; right: 6cqw; top: 148cqw; padding: 3.3cqw 4cqw; text-align: center; border: 0.35cqw solid rgba(42, 36, 29, 0.75); border-radius: 2cqw; background: rgba(255, 254, 248, 0.36); font-family: var(--serif); font-style: italic; font-size: 5cqw; }
       .m-send { position: absolute; left: 25cqw; right: 25cqw; top: 177cqw; height: 13.4cqw; border-radius: 99px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 500; font-size: 5.2cqw; }
       .m-pick { position: absolute; left: 0; right: 0; top: 196cqw; text-align: center; font-weight: 500; font-size: 4cqw; }
-      .mem-title { top: 40cqw; font-size: 8.8cqw; }
-      .mem-sub { position: absolute; left: 0; right: 0; top: 70cqw; text-align: center; font-family: var(--serif); font-style: italic; font-size: 4.2cqw; padding: 0 8cqw; }
-      .print { position: absolute; width: 50cqw; background: var(--paper); padding: 3cqw 3cqw 9cqw; border-radius: 0.6cqw; box-shadow: 0 2cqw 5cqw rgba(42, 36, 29, 0.16), 0 0.4cqw 1cqw rgba(42, 36, 29, 0.1); transform: rotate(var(--r)); }
+      /* Memory's entry screen, to Lola's own canvas (440 wide): the same
+         title, the same three slots and rotations, the same polaroid. */
+      .mem { --u: calc(100cqw / 440); }
+      .m-av { position: absolute; left: calc(var(--u) * 24); top: calc(var(--u) * 77); width: calc(var(--u) * 50); height: calc(var(--u) * 50); border-radius: 50%; background: var(--honey); box-shadow: 0 0 0 calc(var(--u) * 2) var(--cream), 0 0 0 calc(var(--u) * 4) var(--honey); display: grid; place-items: center; color: var(--paper); font-size: calc(var(--u) * 20); font-weight: 500; }
+      .mem-title { left: calc(var(--u) * 24); right: calc(var(--u) * 24); top: calc(var(--u) * 170); font-size: calc(var(--u) * 38); line-height: 1.1; }
+      .mem-sub { position: absolute; left: 0; right: 0; top: calc(var(--u) * 282); text-align: center; font-family: var(--serif); font-style: italic; font-size: calc(var(--u) * 19); padding: 0 calc(var(--u) * 24); }
+      .print { position: absolute; width: calc(var(--u) * 231); padding: calc(var(--u) * 14) calc(var(--u) * 13) calc(var(--u) * 43); background: #e8eae7; border-radius: calc(var(--u) * 2); box-shadow: 0 calc(var(--u) * 8) calc(var(--u) * 20) rgba(42, 36, 29, 0.14), 0 calc(var(--u) * 1) calc(var(--u) * 3) rgba(42, 36, 29, 0.12); transform: rotate(var(--r)); }
       .print img { width: 100%; aspect-ratio: 1; object-fit: cover; }
-      .tape { position: absolute; top: -2.6cqw; left: 50%; width: 17cqw; height: 5cqw; margin-left: -8.5cqw; transform: rotate(var(--t, -2deg)); opacity: 0.85; }
-      .p2 .tape { --t: 2deg; } .p3 .tape { --t: -1deg; }
-      .tape.honey { background: var(--honey); } .tape.olive { background: var(--olive); }
-      .p1 { --r: -5deg; left: 6cqw; top: 98cqw; } .p2 { --r: 4deg; right: 6cqw; top: 126cqw; } .p3 { --r: -2deg; left: 22cqw; top: 158cqw; }
+      .p3 { --r: 5deg; left: calc(var(--u) * (295.7 - 115.5)); top: calc(var(--u) * (510.8 - 134.9)); }
+      .p2 { --r: -5deg; left: calc(var(--u) * (147.3 - 115.5)); top: calc(var(--u) * (560.1 - 134.9)); }
+      .p1 { --r: 0deg; left: calc(var(--u) * (218 - 115.5)); top: calc(var(--u) * (653.05 - 134.9)); }
       .js .mem .print { opacity: 0; translate: 0 -3cqw; transition: opacity 1s var(--ease-out), translate 1.1s var(--ease-out); }
       .js .mem.in .print { opacity: 1; translate: 0 0; }
-      .js .mem.in .p2 { transition-delay: 0.45s; } .js .mem.in .p3 { transition-delay: 0.9s; }
+      .js .mem.in .p2 { transition-delay: 0.45s; } .js .mem.in .p1 { transition-delay: 0.9s; }
       /* Sharing: the sky that arrived, and a photo going out with its line. */
       .pair { position: relative; width: min(430px, 90vw); aspect-ratio: 100 / 150; margin-inline: auto; }
       .pair .screen { position: absolute; width: 62%; margin: 0; }
@@ -586,13 +589,14 @@ TEMPLATE = r'''<!doctype html>
             </div>
             <div class="row flip">
               <div class="copy"><p class="eyebrow rv">[[Memory ||| Recuerdos]]</p><h3 class="rv">[[Everything lands in *Memory.* ||| Todo queda en *Recuerdos.*]]</h3><p class="rv">[[By date, from both homes: photos, voice notes and messages. Nothing gets deleted by accident, you can reply to any of it, and it stays with the family. ||| Por fecha, de las dos casas: fotos, audios y mensajes. Nada se borra sin querer, a todo le podés contestar, y se queda con la familia.]]</p></div>
-              <div class="screen mock mem rv" role="img" aria-label="[[Memory: the moments worth keeping, three printed photos taped one over another ||| Recuerdos: los momentos que vale la pena guardar, tres fotos impresas con cinta, una sobre otra]]">
+              <div class="screen mock mem rv" role="img" aria-label="[[Memory: the moments worth keeping, three printed photos stacked one over another ||| Recuerdos: los momentos que vale la pena guardar, tres fotos impresas, una sobre otra]]">
                 <div class="m-status"><span>15:21</span><i></i></div>
                 <p class="m-title mem-title">[[The moments worth keeping ||| Los momentos que vale la pena guardar.]]</p>
                 <p class="mem-sub">[[Take a look back at what you've shared ||| Lo que fueron guardando entre las dos casas.]]</p>
-                <div class="print p1"><img src="/assets/photos/print-1.jpg" alt="" width="520" height="780" loading="lazy" /><i class="tape honey"></i></div>
-                <div class="print p2"><img src="/assets/photos/print-3.jpg" alt="" width="520" height="780" loading="lazy" /><i class="tape olive"></i></div>
-                <div class="print p3"><img src="/assets/photos/print-2.jpg" alt="" width="520" height="780" loading="lazy" /><i class="tape honey"></i></div>
+                <div class="m-av" aria-hidden="true">A</div>
+                <div class="print p3"><img src="/assets/photos/print-3.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                <div class="print p2"><img src="/assets/photos/print-1.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                <div class="print p1"><img src="/assets/photos/print-2.jpg" alt="" width="520" height="780" loading="lazy" /></div>
               </div>
             </div>
           </div>
