@@ -379,7 +379,7 @@ TEMPLATE = r'''<!doctype html>
          label on a box, which is why the app moved it to a corner. Its
          colour is a person's (Lola p.35): one home, one colour. */
       .who { container-type: inline-size; }
-      .who .photo { position: relative; }
+      .who .photo { position: relative; overflow: visible; }
       .who .tape { position: absolute; width: 34cqw; aspect-ratio: 90 / 26; top: calc(12cqw - 4.9cqw); opacity: 0.85; }
       .who .tape.l { left: calc(12cqw - 17cqw); transform: rotate(var(--t, -42deg)); }
       .who .tape.r { left: calc(88cqw - 17cqw); transform: rotate(var(--t, 42deg)); }
