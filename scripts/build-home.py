@@ -911,6 +911,7 @@ TEMPLATE = r'''<!doctype html>
     <script>
       (function () {
         try {
+          if (location.hostname.replace(/^www\./, "") !== "nidi.life") return;
           var p = location.pathname;
           var body = JSON.stringify({ path: p.indexOf("/join/") === 0 ? "/join/:code" : p, referrer: document.referrer || null, lang: document.documentElement.lang === "es" ? "es" : "en" });
           fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: body, credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});

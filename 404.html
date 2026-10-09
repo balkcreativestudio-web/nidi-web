@@ -596,6 +596,7 @@
     <script>
       (function () {
         try {
+          if (location.hostname.replace(/^www\./, "") !== "nidi.life") return;
           var p = location.pathname;
           var body = JSON.stringify({
             // Trimmed here as well as on the server, so a code is not
