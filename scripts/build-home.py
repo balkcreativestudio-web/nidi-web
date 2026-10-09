@@ -86,6 +86,7 @@ TEMPLATE = r'''<!doctype html>
            pair Lola chose to introduce the brand. */
         --olive: #87995b;
         --lavender: #9890b0;
+        --honey: #e2a75a;
         --serif: "Lora", Georgia, "Times New Roman", serif;
         --sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         --gutter: max(24px, calc((100vw - 1160px) / 2));
@@ -118,7 +119,7 @@ TEMPLATE = r'''<!doctype html>
 
       /* ── Type (Lola p.26, scaled for a browser) ─────────────────── */
       h1, h2, h3, h4 { margin: 0; font-family: var(--serif); font-weight: 400; text-wrap: balance; }
-      h1 { font-size: clamp(40px, 7.4vw, 96px); line-height: 1.06; letter-spacing: -0.012em; }
+      h1 { font-size: clamp(34px, 6.1vw, 84px); line-height: 1.06; letter-spacing: -0.012em; }
       h2 { font-size: clamp(34px, 4.7vw, 62px); line-height: 1.1; letter-spacing: -0.008em; }
       h3 { font-size: clamp(27px, 3.1vw, 40px); line-height: 1.15; }
       h4 { font-size: 22px; line-height: 1.25; }
@@ -138,6 +139,7 @@ TEMPLATE = r'''<!doctype html>
       .btn:hover { background: #3d352b; }
       .btn:active { transform: scale(0.985); }
       .btn:disabled { opacity: 0.55; cursor: default; }
+      .btn { white-space: nowrap; }
       .btn-sm { min-height: 44px; padding: 0 20px; font-size: 15px; }
       .btn-light { background: var(--cream); color: var(--ink); }
       .btn-light:hover { background: #fff; }
@@ -191,28 +193,35 @@ TEMPLATE = r'''<!doctype html>
       /* ── Hero ─────────────────────────────────────────────────────── */
       .hero { background: var(--cream); padding-block: clamp(40px, 6vw, 88px) clamp(72px, 9vw, 130px); overflow: hidden; }
       .hero-grid { display: grid; gap: 56px; align-items: center; }
-      @media (min-width: 940px) { .hero-grid { grid-template-columns: 1.08fr 1fr; gap: 40px; } }
+      @media (min-width: 940px) { .hero-grid { grid-template-columns: 1.3fr 0.8fr; gap: 48px; } }
       .hero .lead { margin-top: 28px; }
       .hero .cta { margin-top: 36px; }
       /* A window's shadow drifting over paper: time passing in another house. */
       .light { position: absolute; inset: -20% -10%; pointer-events: none; background: linear-gradient(104deg, transparent 32%, rgba(255, 254, 248, 0.62) 46%, rgba(255, 254, 248, 0.0) 60%); animation: drift 16s ease-in-out infinite alternate; }
       @keyframes drift { from { transform: translateX(-14%); } to { transform: translateX(14%); } }
       .hero > .wrap { position: relative; }
-      .homes { position: relative; min-height: clamp(420px, 52vw, 560px); }
-      .home { position: absolute; display: flex; flex-direction: column; gap: 18px; }
-      .home p { font-size: clamp(18px, 1.8vw, 22px); line-height: 1.25; max-width: 11em; opacity: 0; animation: arrive 1.1s var(--ease-out) forwards; }
-      .home-a { left: 0; bottom: 0; }
-      .home-a .orb { --size: clamp(220px, 28vw, 330px); }
+      .homes { position: relative; min-height: clamp(360px, 38vw, 470px); }
+      .home { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+      .home p { font-size: clamp(17px, 1.7vw, 21px); line-height: 1.25; max-width: 10.5em; text-wrap: balance; letter-spacing: -0.01em; opacity: 0; animation: arrive 1.1s var(--ease-out) forwards; }
+      .home-a { left: 4%; bottom: 0; }
+      .home-a .orb { --size: clamp(170px, 19vw, 240px); }
       .home-a p { animation-delay: 0.9s; }
-      .home-b { right: 0; top: 0; align-items: flex-start; }
-      .home-b .orb { --size: clamp(120px, 15vw, 172px); }
+      .home-b { right: 2%; top: 0; }
+      .home-b .orb { --size: clamp(92px, 10vw, 128px); }
       .home-b p { animation-delay: 1.9s; }
+      /* One line between the two homes, drawn the way Lola's crayon doodles
+         are: loose, ink, small. It is drawn on arrival, then it rests. */
+      .link { position: absolute; left: 30%; top: 17%; width: 36%; height: 34%; overflow: visible; pointer-events: none; }
+      .link path { fill: none; stroke: var(--ink); stroke-opacity: 0.5; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; animation: sketch 1.6s var(--ease-out) 2.6s forwards; }
+      .link path.head { animation-delay: 4s; animation-duration: 0.6s; }
+      @keyframes sketch { to { stroke-dashoffset: 0; } }
+      @media (max-width: 939px) { .link { display: none; } }
       .drifts-a { animation: float 11s ease-in-out infinite alternate; }
       .drifts-b { animation: float 13s ease-in-out -4s infinite alternate; }
       @keyframes float { from { transform: translate(0, 0); } to { transform: translate(8px, -12px); } }
       /* Words arrive from a third of their strength, never from nothing. */
       @keyframes arrive { from { opacity: 0.0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-      @media (max-width: 939px) { .homes { min-height: 400px; } .home-a .orb { --size: 210px; } .home-b .orb { --size: 110px; } }
+      @media (max-width: 939px) { .homes { min-height: 380px; } .home-a .orb { --size: 190px; } .home-b .orb { --size: 104px; } }
 
       /* ── Pillars ──────────────────────────────────────────────────── */
       .pillars { padding-block: 0; background: var(--paper); border-bottom: 1px solid var(--hair); }
@@ -226,6 +235,7 @@ TEMPLATE = r'''<!doctype html>
       .split { display: grid; gap: 48px; align-items: center; }
       @media (min-width: 900px) { .split { grid-template-columns: 1fr 1fr; gap: 88px; } .split.flip > :first-child { order: 2; } }
       .photo { border-radius: 4px; overflow: hidden; background: var(--cream); }
+      .bg-ink .photo { background: #3a322a; }
       .photo img { width: 100%; height: auto; }
       .scenes { margin-top: 40px; display: grid; gap: 0; }
       .scene { padding: 22px 0; border-top: 1px solid var(--hair); }
@@ -248,15 +258,23 @@ TEMPLATE = r'''<!doctype html>
       .arrival .lead { margin-top: 24px; }
       .hint { margin-top: 28px; font-size: 14px; color: var(--ink2); letter-spacing: 0.02em; }
       .phone { position: relative; width: min(340px, 82vw); aspect-ratio: 9 / 18.4; border-radius: 46px; overflow: hidden; background: var(--paper); box-shadow: 0 30px 70px rgba(42, 36, 29, 0.16), 0 0 0 1px var(--hair); margin-inline: auto; isolation: isolate; }
-      .p-idle { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 64px 26px 0; transition: opacity 0.7s var(--ease-out); }
-      .p-whisper { font-size: 28px; line-height: 1.08; letter-spacing: -0.045em; max-width: 9em; }
-      .p-label { margin-top: 38px; font-weight: 500; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink2); }
-      .p-orb { position: absolute; left: 50%; top: 52%; width: 62%; aspect-ratio: 1; margin: -31% 0 0 -31%; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 50%; }
+      .p-idle { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 24px; transition: opacity 0.7s var(--ease-out); }
+      .p-status { position: absolute; left: 0; right: 0; top: 0; height: 52px; display: flex; align-items: center; padding: 6px 30px 0; font-weight: 500; font-size: 14px; }
+      .p-status i { position: absolute; left: 50%; top: 12px; width: 92px; height: 27px; margin-left: -46px; border-radius: 99px; background: #0b0a09; }
+      .p-greet { margin-top: 62px; display: flex; align-items: center; gap: 12px; }
+      .av { width: 34px; height: 34px; border-radius: 50%; background: var(--honey); box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--honey); display: grid; place-items: center; color: var(--paper); font-size: 15px; font-weight: 500; flex: none; }
+      .gr { font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.2; max-width: 11em; }
+      .p-tabs { position: absolute; left: 14px; right: 14px; bottom: 14px; height: 50px; border-radius: 999px; background: var(--paper); box-shadow: 0 6px 14px rgba(42, 36, 29, 0.08), 0 0 0 1px var(--hair); display: flex; align-items: center; justify-content: space-between; padding: 0 5px; font-size: 12px; font-weight: 500; }
+      .p-tabs span { flex: 1; text-align: center; }
+      .p-tabs b { flex: none; background: var(--ink); color: var(--paper); border-radius: 999px; padding: 0 16px; height: 40px; display: grid; place-items: center; font-weight: 500; }
+      .p-whisper { margin-top: 26px; font-size: 28px; line-height: 1.08; letter-spacing: -0.045em; max-width: 9em; }
+      .p-label { margin-top: 26px; font-weight: 500; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink2); }
+      .p-orb { position: absolute; left: 50%; top: 58%; width: 62%; aspect-ratio: 1; margin: -31% 0 0 -31%; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 50%; }
       .p-orb .orb { --size: 100%; width: 100%; height: 100%; }
-      .p-grow { position: absolute; left: 50%; top: 52%; width: 62%; aspect-ratio: 1; margin: -31% 0 0 -31%; transform: scale(0.0001); pointer-events: none; z-index: 1; }
+      .p-grow { position: absolute; left: 50%; top: 58%; width: 62%; aspect-ratio: 1; margin: -31% 0 0 -31%; transform: scale(0.0001); pointer-events: none; z-index: 1; }
       .p-grow .orb { --size: 100%; width: 100%; height: 100%; }
       .p-wash { position: absolute; inset: 0; z-index: 2; opacity: 0; pointer-events: none; background: linear-gradient(180deg, color-mix(in srgb, var(--olive) 100%, var(--paper)) 0%, color-mix(in srgb, var(--paper) 22%, var(--olive)) 38%, color-mix(in srgb, var(--paper) 78%, var(--olive)) 72%, var(--paper) 100%); transition: opacity 1.1s var(--ease-out) 0.35s; }
-      .p-open { position: absolute; inset: 0; z-index: 3; padding: 64px 22px 22px; display: flex; flex-direction: column; opacity: 0; pointer-events: none; color: var(--paper); }
+      .p-open { position: absolute; inset: 0; z-index: 3; padding: 66px 22px 22px; display: flex; flex-direction: column; opacity: 0; pointer-events: none; color: var(--paper); }
       .p-meta { font-weight: 500; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0; transition: opacity 0.8s var(--ease-out) 0.9s; }
       .p-quote { margin-top: 26px; padding: 20px 20px 18px; border-radius: 22px; background: rgba(255, 254, 248, 0.2); border: 1px solid rgba(255, 254, 248, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-family: var(--serif); font-style: italic; font-size: 19px; line-height: 1.4; }
       .p-quote span { display: block; opacity: 0; transform: translateY(6px); transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); }
@@ -288,6 +306,36 @@ TEMPLATE = r'''<!doctype html>
       .row .copy p { margin-top: 20px; color: var(--ink2); max-width: 26em; font-size: 19px; }
       .screen { width: min(320px, 78vw); margin-inline: auto; border-radius: 44px; overflow: hidden; box-shadow: 0 26px 60px rgba(42, 36, 29, 0.16), 0 8px 18px rgba(42, 36, 29, 0.08), 0 0 0 1px var(--hair); background: var(--cream); }
       .screen img { width: 100%; height: auto; }
+
+
+      /* ── Screens built in code from the app's own design ─────────── */
+      .screen.mock { aspect-ratio: 1206 / 2622; position: relative; container-type: inline-size; background: var(--cream); }
+      .m-status { position: absolute; left: 0; right: 0; top: 0; height: 16cqw; display: flex; align-items: center; padding: 2cqw 9cqw 0; font-weight: 500; font-size: 4.4cqw; }
+      .m-status i { position: absolute; left: 50%; top: 3.8cqw; width: 28.6cqw; height: 8.4cqw; margin-left: -14.3cqw; border-radius: 99px; background: #0b0a09; }
+      .m-eyebrow { position: absolute; left: 0; right: 0; top: 29cqw; text-align: center; font-weight: 500; font-size: 3.3cqw; letter-spacing: 0.12em; text-transform: uppercase; }
+      .m-title { position: absolute; left: 8cqw; right: 8cqw; top: 38cqw; text-align: center; font-family: var(--serif); font-size: 8.1cqw; line-height: 1.12; text-wrap: balance; }
+      .screen.compose { background: linear-gradient(180deg, #e2a75a 0%, #e8bb82 45%, #ebcc9f 100%); }
+      .m-print { position: absolute; left: 14.5cqw; right: 14.5cqw; top: 76cqw; background: var(--paper); padding: 2.8cqw; border-radius: 1cqw; box-shadow: 0 2cqw 5cqw rgba(42, 36, 29, 0.14); }
+      .m-print img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+      .m-field { position: absolute; left: 6cqw; right: 6cqw; top: 148cqw; padding: 3.3cqw 4cqw; text-align: center; border: 0.35cqw solid rgba(42, 36, 29, 0.75); border-radius: 2cqw; background: rgba(255, 254, 248, 0.36); font-family: var(--serif); font-style: italic; font-size: 5cqw; }
+      .m-send { position: absolute; left: 25cqw; right: 25cqw; top: 177cqw; height: 13.4cqw; border-radius: 99px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 500; font-size: 5.2cqw; }
+      .m-pick { position: absolute; left: 0; right: 0; top: 196cqw; text-align: center; font-weight: 500; font-size: 4cqw; }
+      .mem-title { top: 40cqw; font-size: 8.8cqw; }
+      .mem-sub { position: absolute; left: 0; right: 0; top: 70cqw; text-align: center; font-family: var(--serif); font-style: italic; font-size: 4.2cqw; padding: 0 8cqw; }
+      .print { position: absolute; width: 50cqw; background: var(--paper); padding: 3cqw 3cqw 9cqw; border-radius: 0.6cqw; box-shadow: 0 2cqw 5cqw rgba(42, 36, 29, 0.16), 0 0.4cqw 1cqw rgba(42, 36, 29, 0.1); transform: rotate(var(--r)); }
+      .print img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+      .tape { position: absolute; top: -2.2cqw; left: -4cqw; width: 17cqw; height: 5cqw; transform: rotate(-38deg); opacity: 0.85; }
+      .tape.honey { background: var(--honey); } .tape.olive { background: var(--olive); }
+      .p1 { --r: -5deg; left: 6cqw; top: 98cqw; } .p2 { --r: 4deg; right: 6cqw; top: 126cqw; } .p3 { --r: -2deg; left: 22cqw; top: 158cqw; }
+      .js .mem .print { opacity: 0; translate: 0 -3cqw; transition: opacity 1s var(--ease-out), translate 1.1s var(--ease-out); }
+      .js .mem.in .print { opacity: 1; translate: 0 0; }
+      .js .mem.in .p2 { transition-delay: 0.45s; } .js .mem.in .p3 { transition-delay: 0.9s; }
+      /* Sharing: the sky that arrived, and a photo going out with its line. */
+      .pair { position: relative; width: min(430px, 90vw); aspect-ratio: 100 / 150; margin-inline: auto; }
+      .pair .screen { position: absolute; width: 62%; margin: 0; }
+      .pair .back { right: 0; top: 0; }
+      .pair .front { left: 0; top: 14%; }
+      .pair .screen { transform: none; }
 
       /* ── Things to do ─────────────────────────────────────────────── */
       .things-head { max-width: 720px; }
@@ -363,13 +411,12 @@ TEMPLATE = r'''<!doctype html>
       /* ── Reveal: a quiet settle, only for what is below the fold ── */
       .js .rv { opacity: 0; transform: translateY(18px); transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); transition-delay: var(--d, 0s); }
       .js .rv.in { opacity: 1; transform: none; }
-      .js .settle { opacity: 0; transform: translateY(-14px) rotate(var(--r, -1.5deg)); transition: opacity 1s var(--ease-out), transform 1.1s var(--ease-out); }
-      .js .settle.in { opacity: 1; transform: rotate(calc(var(--r, -1.5deg) / 3)); }
-
+      
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
         *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; transition-delay: 0s !important; }
         .home p { opacity: 1; }
+        .link path { stroke-dashoffset: 0; }
         .light { display: none; }
       }
     </style>
@@ -411,12 +458,16 @@ TEMPLATE = r'''<!doctype html>
             </div>
           </div>
           <div class="homes" aria-label="[[Two homes, two skies ||| Dos casas, dos cielos]]">
+            <svg class="link" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <path pathLength="1" d="M 4 6 C 22 2, 52 8, 74 44 C 80 54, 84 62, 88 72" />
+              <path class="head" pathLength="1" d="M 76 66 C 82 68, 86 70, 88 72 C 89 66, 90 60, 91 55" />
+            </svg>
             <div class="home home-a drifts-a">
               <div class="orb on-cream breathes"></div>
-              <p>[[Mid afternoon for Bea in Buenos&nbsp;Aires. ||| Es media tarde para Bea en Buenos&nbsp;Aires.]]</p>
+              <p>[[Mid morning for Bea in Buenos&nbsp;Aires. ||| Media mañana para Bea en Buenos&nbsp;Aires.]]</p>
             </div>
             <div class="home home-b drifts-b">
-              <p>[[Late in the day for Teo in Madrid. ||| Final de la tarde para Teo en Madrid.]]</p>
+              <p>[[Mid afternoon for Teo in Madrid. ||| Es media tarde para Teo en Madrid.]]</p>
               <div class="orb on-cream lav breathes" style="animation-delay: -1.1s"></div>
             </div>
           </div>
@@ -476,8 +527,11 @@ TEMPLATE = r'''<!doctype html>
           </div>
           <div class="phone rv" id="phone" data-state="idle">
             <div class="p-idle">
-              <p class="p-whisper">[[Mid afternoon for Bea in Buenos Aires. ||| Es media tarde para Bea en Buenos Aires.]]</p>
+              <div class="p-status" aria-hidden="true"><span>15:03</span><i></i></div>
+              <div class="p-greet"><span class="av" aria-hidden="true">A</span><span class="gr">[[Good afternoon, Ana. ||| Buenas tardes, Ana.]]</span></div>
+              <p class="p-whisper">[[Mid morning for Bea in Buenos Aires. ||| Media mañana para Bea en Buenos Aires.]]</p>
               <p class="p-label">[[Something arrived for you ||| Algo llegó para vos]]</p>
+              <div class="p-tabs" aria-hidden="true"><b>[[Today ||| Hoy]]</b><span>[[Activities ||| Actividades]]</span><span>[[Memory ||| Recuerdos]]</span></div>
             </div>
             <div class="p-grow" aria-hidden="true"><div class="orb"></div></div>
             <button class="p-orb" id="orbBtn" type="button" aria-label="[[Open what Bea sent ||| Abrir lo que mandó Bea]]" aria-expanded="false"><div class="orb breathes"></div></button>
@@ -497,6 +551,19 @@ TEMPLATE = r'''<!doctype html>
         </div>
       </section>
 
+      <!-- 5b. LESS SCREEN ─────────────────────────────────────── -->
+      <section class="bg-ink" id="less-screen">
+        <div class="wrap split flip">
+          <div class="photo rv"><img src="/assets/photos/hand-heart.jpg" width="1400" height="788" loading="lazy" alt="" /></div>
+          <div>
+            <p class="eyebrow rv">[[Less screen, more together ||| Menos pantalla, más juntos]]</p>
+            <h2 class="rv">[[The screen carries it. The moment happens&nbsp;*off it.* ||| La pantalla lo lleva. El momento pasa&nbsp;*afuera de ella.*]]</h2>
+            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We know video calls are necessary, and sometimes they are all you have. Keep them. But for everything in between, there is a gentler way: do something small together, each in your own home, and share it through Nidi. ||| Sabemos que las videollamadas son necesarias, y a veces son todo lo que hay. Mantenelas. Pero para todo lo que pasa en el medio, hay una forma más tranquila: hacer algo chico juntos, cada uno en su casa, y compartirlo a través de Nidi.]]</p>
+            <p class="rv muted" style="margin-top: 22px; max-width: 30em">[[Nidi is made for the adults. The child doesn't need a screen: they are busy doing the thing, at the table, at the window, in the kitchen. ||| Nidi es para los adultos. Quien está creciendo no necesita una pantalla: está ocupado haciendo lo suyo, en la mesa, en la ventana, en la cocina.]]</p>
+          </div>
+        </div>
+      </section>
+
       <!-- 6. THE APP ────────────────────────────────────────────── -->
       <section class="bg-paper" id="app">
         <div class="wrap">
@@ -507,19 +574,37 @@ TEMPLATE = r'''<!doctype html>
           <div class="rows">
             <div class="row">
               <div class="copy"><p class="eyebrow rv">[[Today ||| Hoy]]</p><h3 class="rv">[[A line about the *other* home. ||| Una línea sobre la *otra* casa.]]</h3><p class="rv">[[Today opens with what it is like where they are: their time, their sky. Then, whenever you like, you send something from your day. ||| Hoy empieza con cómo es el día donde están ellos: su hora, su cielo. Y cuando quieras, mandás algo de tu día.]]</p></div>
-              <div class="screen settle" style="--r:-2deg"><img lang="en" src="/assets/screens/en-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="Nidi's Today screen: a line about the other home, and a soft green orb waiting to be opened." /><img lang="es" src="/assets/screens/es-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="La pantalla Hoy de Nidi: una línea sobre la otra casa y una esfera verde esperando que la abras." /></div>
+              <div class="screen rv"><img lang="en" src="/assets/screens/en-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="Nidi's Today screen: a line about the other home, and a soft green orb waiting to be opened." /><img lang="es" src="/assets/screens/es-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="La pantalla Hoy de Nidi: una línea sobre la otra casa y una esfera verde esperando que la abras." /></div>
             </div>
             <div class="row flip">
               <div class="copy"><p class="eyebrow rv">[[Activities ||| Actividades]]</p><h3 class="rv">[[Small things, chosen for *their age.* ||| Cosas chicas, elegidas para *su edad.*]]</h3><p class="rv">[[From the first months to six years old. Some you do on your own, some are the same thing done in each home, and some are for your next call. ||| Desde los primeros meses hasta los seis años. Algunas son para hacer por tu cuenta, otras se hacen igual en cada casa y otras son para la próxima llamada.]]</p></div>
-              <div class="screen settle" style="--r:2deg"><img lang="en" src="/assets/screens/en-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Nidi's activities: cards such as Read the same page, with a label above each." /><img lang="es" src="/assets/screens/es-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Las actividades de Nidi: tarjetas como Leer la misma página, con una etiqueta arriba de cada una." /></div>
+              <div class="screen rv"><img lang="en" src="/assets/screens/en-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Nidi's activities: cards such as Read the same page, with a label above each." /><img lang="es" src="/assets/screens/es-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Las actividades de Nidi: tarjetas como Leer la misma página, con una etiqueta arriba de cada una." /></div>
             </div>
             <div class="row">
               <div class="copy"><p class="eyebrow rv">[[Sharing ||| Compartir]]</p><h3 class="rv">[[A photo, a voice, or a few *words.* ||| Una foto, una voz o unas *palabras.*]]</h3><p class="rv">[[Voice notes in English or Spanish can arrive written out too, so the other home can read along. Whoever recorded sees the words before sending, and can correct them. ||| Los audios en español o en inglés pueden llegar también escritos, para que en la otra casa se puedan leer. Quien grabó ve las palabras antes de mandar y las puede corregir.]]</p></div>
-              <div class="screen settle" style="--r:-2deg"><img lang="en" src="/assets/screens/en-ana-receive-sky.jpg" width="720" height="1566" loading="lazy" alt="A photo of a sky from Bea, opened in full colour." /><img lang="es" src="/assets/screens/es-ana-receive-sky.jpg" width="720" height="1566" loading="lazy" alt="Una foto de un cielo que mandó Bea, abierta a todo color." /></div>
+              <div class="pair rv">
+                <div class="screen back"><img lang="en" src="/assets/screens/en-ana-receive-sky.jpg" width="720" height="1566" loading="lazy" alt="A photo of a sky from Bea, opened in full colour." /><img lang="es" src="/assets/screens/es-ana-receive-sky.jpg" width="720" height="1566" loading="lazy" alt="Una foto de un cielo que mandó Bea, abierta a todo color." /></div>
+                <div class="screen mock compose front" role="img" aria-label="[[Sending a photo of a plate of lunch, with a line written under it ||| Mandando la foto de un plato de comida, con una línea escrita debajo]]">
+                  <div class="m-status"><span>15:24</span><i></i></div>
+                  <p class="m-eyebrow">[[Anytime ||| Cuando quieras]]</p>
+                  <p class="m-title">[[Anything you feel like sharing. ||| Lo que tengas ganas de compartir.]]</p>
+                  <div class="m-print"><img src="/assets/photos/print-2.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                  <div class="m-field">[[he ate the mushrooms, finally. ||| se comió los hongos, por fin.]]</div>
+                  <div class="m-send">[[Send ||| Enviar]]</div>
+                  <p class="m-pick">[[Pick another ||| Elegir otra]]</p>
+                </div>
+              </div>
             </div>
             <div class="row flip">
               <div class="copy"><p class="eyebrow rv">[[Memory ||| Recuerdos]]</p><h3 class="rv">[[Everything lands in *Memory.* ||| Todo queda en *Recuerdos.*]]</h3><p class="rv">[[By date, from both homes: photos, voice notes and messages. Nothing gets deleted by accident, you can reply to any of it, and it stays with the family. ||| Por fecha, de las dos casas: fotos, audios y mensajes. Nada se borra sin querer, a todo le podés contestar, y se queda con la familia.]]</p></div>
-              <div class="screen settle" style="--r:2deg"><img lang="en" src="/assets/screens/en-ana-memory-entry.jpg" width="720" height="1566" loading="lazy" alt="Memory: The moments worth keeping, with two printed photos of the same sky." /><img lang="es" src="/assets/screens/es-ana-memory-entry.jpg" width="720" height="1566" loading="lazy" alt="Recuerdos: los momentos que vale la pena guardar, con dos fotos impresas del mismo cielo." /></div>
+              <div class="screen mock mem rv" role="img" aria-label="[[Memory: the moments worth keeping, three printed photos taped one over another ||| Recuerdos: los momentos que vale la pena guardar, tres fotos impresas con cinta, una sobre otra]]">
+                <div class="m-status"><span>15:21</span><i></i></div>
+                <p class="m-title mem-title">[[The moments worth keeping ||| Los momentos que vale la pena guardar.]]</p>
+                <p class="mem-sub">[[Take a look back at what you've shared ||| Lo que fueron guardando entre las dos casas.]]</p>
+                <div class="print p1"><img src="/assets/photos/print-1.jpg" alt="" width="520" height="780" loading="lazy" /><i class="tape honey"></i></div>
+                <div class="print p2"><img src="/assets/photos/print-3.jpg" alt="" width="520" height="780" loading="lazy" /><i class="tape olive"></i></div>
+                <div class="print p3"><img src="/assets/photos/print-2.jpg" alt="" width="520" height="780" loading="lazy" /><i class="tape honey"></i></div>
+              </div>
             </div>
           </div>
         </div>
@@ -618,7 +703,7 @@ TEMPLATE = r'''<!doctype html>
             <details><summary>[[What languages does it speak? ||| ¿En qué idiomas está?]]</summary><div>[[English and Spanish. Everyone reads Nidi in their own language, even inside the same nidi, and voice notes in either language can arrive written out. ||| En español y en inglés. Cada persona usa Nidi en su idioma, aunque estén en el mismo nidi, y los audios en cualquiera de los dos idiomas pueden llegar también escritos.]]</div></details>
             <details><summary>[[How old is the child? ||| ¿Qué edad tiene que tener el niño o la niña?]]</summary><div>[[Activities are chosen for the child's age, from the first months to six years old. Up to age three, the home where the child lives also has a place to keep their firsts. ||| Las actividades se eligen según la edad, desde los primeros meses hasta los seis años. Y hasta los tres años, la casa donde crece tiene un lugar para guardar las primeras veces.]]</div></details>
             <details><summary>[[What happens if we stop the subscription? ||| ¿Qué pasa si dejamos la suscripción?]]</summary><div>[[Nothing is deleted. Everything already shared stays in Memory. You can manage or cancel a subscription at any time in your iPhone's Settings. ||| No se borra nada. Todo lo que ya compartieron sigue en Recuerdos. La suscripción la manejás o la cancelás cuando quieras en Ajustes del iPhone.]]</div></details>
-            <details><summary>[[Is there an Android version? ||| ¿Hay versión para Android?]]</summary><div>[[Not yet. Nidi comes first to iPhone. Leave your email above and we will write when there is news. ||| Todavía no. Nidi sale primero para iPhone. Dejá tu email arriba y te escribimos cuando haya novedades.]]</div></details>
+            <details><summary>[[Is there an Android version? ||| ¿Hay versión para Android?]]</summary><div>[[Not yet. Nidi comes first to iPhone, and Android is on its way. Leave your email and we will write when it is ready. ||| Todavía no. Nidi sale primero para iPhone, y Android viene en camino. Dejá tu email y te escribimos cuando esté listo.]]</div></details>
           </div>
         </div>
       </section>
@@ -700,6 +785,17 @@ TEMPLATE = r'''<!doctype html>
         input.addEventListener("input", function () { if (input.getAttribute("aria-invalid") === "true") { input.removeAttribute("aria-invalid"); error.hidden = true; } });
       });
 
+      // ── "Stay close." goes to the nearest email field ─────────────
+      document.querySelectorAll('a.btn[href="#start"]').forEach(function (a) {
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
+          var nearTop = window.scrollY < window.innerHeight * 0.6;
+          var input = document.getElementById(nearTop ? "email-hero" : "email-end");
+          input.scrollIntoView({ behavior: "smooth", block: nearTop ? "center" : "center" });
+          setTimeout(function () { input.focus({ preventScroll: true }); }, nearTop ? 50 : 650);
+        });
+      });
+
       // ── The orb, opened ───────────────────────────────────────────
       (function () {
         var phone = document.getElementById("phone"), orb = document.getElementById("orbBtn"),
@@ -721,7 +817,7 @@ TEMPLATE = r'''<!doctype html>
         function onScroll() { bar.classList.toggle("scrolled", window.scrollY > 8); }
         window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
         if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        var els = document.querySelectorAll(".rv, .settle, .draws");
+        var els = document.querySelectorAll(".rv, .draws");
         var h = window.innerHeight;
         document.documentElement.classList.add("js");
         els.forEach(function (el) { if (el.getBoundingClientRect().top < h * 0.92) el.classList.add("in"); });
@@ -758,7 +854,7 @@ FORM = '''<div class="wl-wrap">
               </form>
               <p class="wl-done" hidden role="status">[[You're in. We'll write when Nidi is ready. ||| Listo. Te escribimos cuando Nidi esté disponible.]]</p>
               <p class="wl-error" hidden role="alert"></p>
-              <p class="wl-note soon-only">[[Coming soon to the App Store. Free for two weeks. ||| Muy pronto en el App Store. Dos semanas gratis.]]</p>
+              <p class="wl-note soon-only">[[Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks. ||| Muy pronto en el App Store, para iPhone. Android viene en camino. Dos semanas gratis.]]</p>
               <a class="btn live-only" href="@@STORE@@">[[Take a look ||| Mirá cómo es]]</a>
               <p class="wl-note live-only">[[On the App Store, for iPhone. Free for two weeks. ||| En el App Store, para iPhone. Dos semanas gratis.]]</p>
             </div>'''
