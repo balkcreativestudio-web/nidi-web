@@ -275,28 +275,31 @@ TEMPLATE = r'''<!doctype html>
       .p-wash { position: absolute; inset: 0; z-index: 2; opacity: 0; pointer-events: none; background: linear-gradient(180deg, color-mix(in srgb, var(--olive) 100%, var(--paper)) 0%, color-mix(in srgb, var(--paper) 22%, var(--olive)) 38%, color-mix(in srgb, var(--paper) 78%, var(--olive)) 72%, var(--paper) 100%); transition: opacity 1.1s var(--ease-out) 0.35s; }
       .p-open { position: absolute; inset: 0; z-index: 3; padding: 66px 22px 22px; display: flex; flex-direction: column; opacity: 0; pointer-events: none; color: var(--paper); }
       .p-meta { font-weight: 500; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0; transition: opacity 0.8s var(--ease-out) 0.9s; }
-      .p-quote { margin-top: 26px; padding: 20px 20px 18px; border-radius: 22px; background: rgba(255, 254, 248, 0.2); border: 1px solid rgba(255, 254, 248, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-family: var(--serif); font-style: italic; font-size: 19px; line-height: 1.4; }
-      .p-quote span { display: block; opacity: 0; transform: translateY(6px); transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); }
-      .p-play { margin: 22px 0 0 2px; width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid rgba(255, 254, 248, 0.9); background: rgba(255, 254, 248, 0.2); display: grid; place-items: center; opacity: 0; transition: opacity 0.8s var(--ease-out) 1.0s; }
-      .p-play i { width: 0; height: 0; border-left: 13px solid var(--paper); border-top: 8px solid transparent; border-bottom: 8px solid transparent; margin-left: 4px; }
-      .p-reply { margin-top: auto; background: var(--paper); color: var(--ink); border-radius: 20px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; opacity: 0; transform: translateY(10px); transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); }
-      .p-reply b { width: 38px; height: 38px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 300; font-size: 18px; }
       .p-close { position: absolute; top: 18px; right: 18px; z-index: 5; width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; color: var(--paper); font-size: 24px; line-height: 1; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.6s var(--ease-out) 0.9s; }
       /* Opened */
       .phone[data-state="open"] .p-idle { opacity: 0; pointer-events: none; }
       .phone[data-state="open"] .p-grow { transform: scale(9); transition: transform 1.3s var(--ease-out); }
       .phone[data-state="open"] .p-wash { opacity: 1; }
       .phone[data-state="open"] .p-open { opacity: 1; pointer-events: auto; transition: opacity 0.4s 0.5s; }
-      .phone[data-state="open"] .p-meta, .phone[data-state="open"] .p-play { opacity: 1; }
       .phone[data-state="open"] .p-close { opacity: 1; pointer-events: auto; }
-      .phone[data-state="open"] .p-quote span { opacity: 1; transform: none; }
-      .phone[data-state="open"] .p-quote span:nth-child(1) { transition-delay: 1.3s; }
-      .phone[data-state="open"] .p-quote span:nth-child(2) { transition-delay: 2.5s; }
-      .phone[data-state="open"] .p-quote span:nth-child(3) { transition-delay: 3.7s; }
-      .phone[data-state="open"] .p-reply { opacity: 1; transform: none; transition-delay: 4.6s; }
       .phone[data-state="closing"] .p-grow { transition: transform 0.7s var(--ease-out); }
       .p-orb:focus-visible { outline-offset: 6px; }
 
+      /* The opened voice, as receive/[id].tsx draws it: the sender's colour
+         ground, paper meta line, a 96pt translucent ink disc, a 3pt scrubber
+         with elapsed on the left and remaining on the right. No transcript
+         and no reply card on this screen in V1. */
+      .p-open { color: var(--paper); padding: 66px 22px 22px; align-items: stretch; }
+      .p-meta { text-align: center; opacity: 0; transition: opacity 0.8s var(--ease-out) 0.9s; }
+      .phone[data-state="open"] .p-meta, .phone[data-state="open"] .p-playbtn, .phone[data-state="open"] .p-track, .phone[data-state="open"] .p-times { opacity: 1; }
+      .p-playbtn { align-self: center; margin-top: 22%; width: 96px; height: 96px; border-radius: 50%; border: 1px solid rgba(42, 36, 29, 0.35); background: rgba(42, 36, 29, 0.10); color: var(--ink); display: grid; place-items: center; cursor: pointer; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.2s, background 0.3s; padding: 0; }
+      .p-playbtn:hover { background: rgba(42, 36, 29, 0.16); }
+      .p-playbtn .tri { width: 0; height: 0; border-left: 22px solid var(--ink); border-top: 13px solid transparent; border-bottom: 13px solid transparent; margin-left: 7px; }
+      .p-playbtn.on { background: rgba(42, 36, 29, 0.18); }
+      .p-playbtn.on .tri { width: 20px; height: 24px; border: 0; margin: 0; background: linear-gradient(90deg, var(--ink) 0 35%, transparent 35% 65%, var(--ink) 65% 100%); }
+      .p-track { margin-top: 34px; height: 3px; border-radius: 2px; background: rgba(42, 36, 29, 0.20); overflow: hidden; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.5s; }
+      .p-track span { display: block; height: 100%; width: 0; background: var(--ink); }
+      .p-times { margin-top: 8px; display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 0.03em; color: var(--ink); font-variant-numeric: tabular-nums; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.5s; }
       /* ── The app, one screen at a time ───────────────────────────── */
       .tour-head { max-width: 760px; }
       .rows { margin-top: clamp(56px, 8vw, 104px); display: grid; gap: clamp(72px, 10vw, 128px); }
@@ -552,7 +555,7 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow rv">[[When something arrives ||| Cuando algo llega]]</p>
             <h2 class="rv">[[It arrives quietly. *Whenever you're ready.* ||| Llega sin hacer ruido. *Cuando quieras.*]]</h2>
-            <p class="lead rv">[[There is no badge, no feed, no pressure. A soft orb in the colour of the person who sent it breathes until you open it. Then their colour fills the room, and their words arrive. ||| Sin globitos rojos, sin feed, sin apuro. Una esfera suave, del color de quien la mandó, respira hasta que la abrís. Entonces su color llena la pantalla y llegan sus palabras.]]</p>
+            <p class="lead rv">[[There is no badge, no feed, no pressure. A soft orb in the colour of the person who sent it breathes until you open it. Then their colour fills the room, and you press play when you're ready. ||| Sin globitos rojos, sin feed, sin apuro. Una esfera suave, del color de quien la mandó, respira hasta que la abrís. Entonces su color llena la pantalla y le das play cuando quieras.]]</p>
             <p class="hint rv">[[Try it: touch the orb. ||| Probalo: tocá la esfera.]]</p>
           </div>
           <div class="phone rv" id="phone" data-state="idle">
@@ -568,13 +571,9 @@ TEMPLATE = r'''<!doctype html>
             <div class="p-wash" aria-hidden="true"></div>
             <div class="p-open" id="pOpen" aria-hidden="true">
               <p class="p-meta">[[From Bea · Today at 3:03 PM ||| De Bea · Hoy a las 15:03]]</p>
-              <div class="p-quote" aria-live="polite">
-                <span>[[Good morning, love. ||| Buen día, mi amor.]]</span>
-                <span>[[The sun came out here, ||| Salió el sol acá,]]</span>
-                <span>[[so I thought of you. ||| y me acordé de vos.]]</span>
-              </div>
-              <div class="p-play" aria-hidden="true"><i></i></div>
-              <div class="p-reply"><span>[[Whenever you're ready, reply. ||| Cuando quieras, contestale.]]</span><b aria-hidden="true">→</b></div>
+              <button class="p-playbtn" id="playBtn" type="button" aria-label="[[Play ||| Reproducir]]" tabindex="-1"><i class="tri"></i></button>
+              <div class="p-track"><span id="playFill"></span></div>
+              <div class="p-times"><span id="tEl">0:00</span><span id="tRem">-0:24</span></div>
             </div>
             <button class="p-close" id="closeBtn" type="button" aria-label="[[Close ||| Cerrar]]" tabindex="-1">×</button>
           </div>
@@ -835,8 +834,31 @@ TEMPLATE = r'''<!doctype html>
           openPane.setAttribute("aria-hidden", isOpen ? "false" : "true");
           close.tabIndex = isOpen ? 0 : -1;
         }
-        orb.addEventListener("click", function () { set("open"); setTimeout(function () { close.focus({ preventScroll: true }); }, 600); });
-        close.addEventListener("click", function () { set("closing"); setTimeout(function () { set("idle"); orb.focus({ preventScroll: true }); }, 50); });
+        // A pretend 0:24 voice: the scrubber fills in ink and the times count,
+        // as in the app. Nothing is played; there is no audio on this page.
+        var btn = document.getElementById("playBtn"), fill = document.getElementById("playFill"),
+            tEl = document.getElementById("tEl"), tRem = document.getElementById("tRem");
+        var DUR = 24000, pos = 0, last = 0, raf = 0, playing = false;
+        function fmt(ms) { var t = Math.floor(ms / 1000); return Math.floor(t / 60) + ":" + ("0" + (t % 60)).slice(-2); }
+        function paint() { fill.style.width = (pos / DUR * 100) + "%"; tEl.textContent = fmt(pos); tRem.textContent = "-" + fmt(DUR - pos); }
+        function tick(now) {
+          pos = Math.min(DUR, pos + (now - last)); last = now; paint();
+          if (pos >= DUR) { stop(true); return; }
+          raf = requestAnimationFrame(tick);
+        }
+        function stop(reset) {
+          playing = false; cancelAnimationFrame(raf); btn.classList.remove("on");
+          btn.setAttribute("aria-label", lang === "es" ? "Reproducir" : "Play");
+          if (reset) { pos = 0; paint(); }
+        }
+        btn.addEventListener("click", function () {
+          if (playing) { stop(false); return; }
+          playing = true; btn.classList.add("on");
+          btn.setAttribute("aria-label", lang === "es" ? "Pausar" : "Pause");
+          last = performance.now(); raf = requestAnimationFrame(tick);
+        });
+        orb.addEventListener("click", function () { set("open"); btn.tabIndex = 0; setTimeout(function () { close.focus({ preventScroll: true }); }, 600); });
+        close.addEventListener("click", function () { stop(true); btn.tabIndex = -1; set("closing"); setTimeout(function () { set("idle"); orb.focus({ preventScroll: true }); }, 50); });
       })();
 
       // ── Quiet reveals, only for what is below the fold ────────────
