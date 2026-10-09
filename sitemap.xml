@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://nidi.life/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nidi.life/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://nidi.life/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nidi.life/"/></url>
+  <url><loc>https://nidi.life/es/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nidi.life/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://nidi.life/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nidi.life/"/></url>
+  <url><loc>https://nidi.life/privacy/</loc></url>
+  <url><loc>https://nidi.life/privacidad/</loc></url>
+  <url><loc>https://nidi.life/terms/</loc></url>
+  <url><loc>https://nidi.life/terminos/</loc></url>
+  <url><loc>https://nidi.life/support/</loc></url>
+  <url><loc>https://nidi.life/soporte/</loc></url>
+</urlset>

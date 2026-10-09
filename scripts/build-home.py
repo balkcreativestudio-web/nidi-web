@@ -36,35 +36,58 @@ WORDMARK_CTA = WORDMARK.replace('class="wordmark"', 'class="wordmark wordmark-cr
                        .replace('role="img" aria-label="nidi" ', '')
 
 TEMPLATE = r'''<!doctype html>
-<html lang="en" data-l="en" data-live="@@LIVE@@">
+<html lang="@@LANG@@" data-live="@@LIVE@@">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Nidi. Grow close. From anywhere.</title>
-    <meta name="description" content="Nidi connects two homes: the one where a child is growing up, and one far away. Voice, photo and text, a few small things a day, kept in Memory." />
+    <title>@@TITLE@@</title>
+    <meta name="description" content="@@DESC@@" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://nidi.life@@PATH@@" />
+    <link rel="alternate" hreflang="en" href="https://nidi.life/" />
+    <link rel="alternate" hreflang="es" href="https://nidi.life/es/" />
+    <link rel="alternate" hreflang="x-default" href="https://nidi.life/" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Nidi. Grow close. From anywhere." />
-    <meta property="og:description" content="Nidi connects two homes: the one where a child is growing up, and one far away." />
-    <meta property="og:url" content="https://nidi.life" />
+    <meta property="og:site_name" content="Nidi" />
+    <meta property="og:locale" content="@@OGLOCALE@@" />
+    <meta property="og:title" content="@@TITLE@@" />
+    <meta property="og:description" content="@@DESC@@" />
+    <meta property="og:url" content="https://nidi.life@@PATH@@" />
     <meta property="og:image" content="https://nidi.life/assets/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="@@OGALT@@" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@@TITLE@@" />
+    <meta name="twitter:description" content="@@DESC@@" />
     <meta name="twitter:image" content="https://nidi.life/assets/og.png" />
-    <link rel="canonical" href="https://nidi.life" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
     <meta name="theme-color" content="#F4EFE7" />
     <meta name="color-scheme" content="light" />
     <link rel="preload" href="/assets/fonts/Lora-Regular.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="/assets/fonts/HankenGrotesk-Light.ttf" as="font" type="font/ttf" crossorigin />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@graph":[
+        {"@type":"Organization","@id":"https://nidi.life/#org","name":"Nidi","url":"https://nidi.life/","logo":"https://nidi.life/assets/favicon.svg","parentOrganization":{"@type":"Organization","name":"BALK Creative Studio"}},
+        {"@type":"WebSite","@id":"https://nidi.life/#site","url":"https://nidi.life/","name":"Nidi","inLanguage":["en","es"],"publisher":{"@id":"https://nidi.life/#org"}},
+        {"@type":"WebPage","url":"https://nidi.life@@PATH@@","name":"@@TITLE@@","description":"@@DESC@@","inLanguage":"@@LANG@@","isPartOf":{"@id":"https://nidi.life/#site"}}
+      ]}
+    </script>
     <script>
-      // Language is settled before first paint so the page never flashes
-      // the wrong one. ?lang=es links straight to Spanish.
+      // One URL per language. On the English address, a first visit from a
+      // browser set to Spanish goes to /es/ once, and a choice made with the
+      // EN / ES links is kept. The Spanish address is never moved unless the
+      // link says ?lang=en, so a shared Spanish link stays Spanish.
       (function () {
-        var l = new URLSearchParams(location.search).get("lang");
-        try { l = l || localStorage.getItem("nidi-lang"); } catch (e) {}
-        l = l || ((navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en");
-        l = l === "es" ? "es" : "en";
-        document.documentElement.lang = l;
-        document.documentElement.setAttribute("data-l", l);
+        var here = "@@LANG@@", q = new URLSearchParams(location.search).get("lang"), stored = null;
+        try { stored = localStorage.getItem("nidi-lang"); } catch (e) {}
+        var go = null;
+        if (here === "en") {
+          var wantEs = q ? q === "es" : stored ? stored === "es" : (navigator.language || "").toLowerCase().indexOf("es") === 0;
+          if (wantEs) go = "/es/";
+        } else if (q === "en") go = "/";
+        if (go) location.replace(go + location.hash);
+        else if (q) history.replaceState(null, "", location.pathname + location.hash);
       })();
     </script>
     <style>
@@ -94,7 +117,6 @@ TEMPLATE = r'''<!doctype html>
       }
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-      html[data-l="en"] [lang="es"]:not(html):not(button), html[data-l="es"] [lang="en"]:not(html):not(button) { display: none !important; }
       body {
         margin: 0;
         background: var(--paper);
@@ -161,6 +183,7 @@ TEMPLATE = r'''<!doctype html>
       header.top { position: sticky; top: 0; z-index: 50; background: rgba(244, 239, 231, 0.88); backdrop-filter: saturate(1.2) blur(14px); -webkit-backdrop-filter: saturate(1.2) blur(14px); border-bottom: 1px solid transparent; transition: border-color 0.4s var(--ease-out); }
       header.top.scrolled { border-bottom-color: var(--hair); }
       .bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 68px; }
+      #home { display: inline-flex; align-items: center; min-height: 44px; }
       .wordmark { height: 30px; width: auto; animation: appear 0.8s var(--ease-out) both; }
       .wordmark path { fill: currentColor; }
       .wordmark-cream { color: var(--cream); }
@@ -168,8 +191,8 @@ TEMPLATE = r'''<!doctype html>
       nav.links a { font-size: 15px; font-weight: 500; text-decoration: none; color: var(--ink2); padding: 10px 14px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px; transition: color 0.3s; }
       nav.links a:hover { color: var(--ink); }
       .lang { display: flex; align-items: center; font-size: 12px; letter-spacing: 0.06em; }
-      .lang button { background: none; border: 0; font: inherit; font-weight: 500; color: var(--ink2); min-height: 44px; min-width: 40px; padding: 0 6px; cursor: pointer; }
-      .lang button[aria-pressed="true"] { color: var(--ink); }
+      .lang a { font-weight: 500; color: var(--ink2); min-height: 44px; min-width: 40px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+      .lang a[aria-current="true"] { color: var(--ink); }
       .lang .sep { width: 1px; height: 14px; background: var(--line); }
       @media (max-width: 880px) { nav.links { display: none; } .bar { gap: 8px; } .bar .lang { margin-left: auto; } }
       @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
@@ -226,6 +249,9 @@ TEMPLATE = r'''<!doctype html>
 
       /* ── Her words, up where they are felt ───────────────────────── */
       .stand { padding-block: clamp(72px, 9vw, 128px); }
+      .mid { padding-block: clamp(56px, 7vw, 96px); }
+      .mid-grid { display: grid; gap: 28px; align-items: center; }
+      @media (min-width: 900px) { .mid-grid { grid-template-columns: 1fr 1fr; gap: 80px; } }
       .stand { text-align: center; padding-block: clamp(96px, 12vw, 176px); }
       .stand blockquote { margin: 0 auto; max-width: 15em; font-family: var(--serif); font-style: normal; font-size: clamp(32px, 4.8vw, 64px); line-height: 1.14; letter-spacing: -0.008em; text-wrap: balance; }
       .stand-by { margin-top: 32px; max-width: 34em; font-size: 17px; color: var(--ink2); }
@@ -437,11 +463,11 @@ TEMPLATE = r'''<!doctype html>
       /* ── Footer ───────────────────────────────────────────────────── */
       footer { background: var(--ink); color: rgba(244, 239, 231, 0.62); padding: 0 0 36px; font-size: 14px; }
       .foot { border-top: 1px solid rgba(244, 239, 231, 0.16); padding-top: 26px; display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; justify-content: space-between; }
-      .foot a { color: inherit; text-decoration: none; padding: 10px 0; display: inline-block; }
+      .foot a { color: inherit; text-decoration: none; padding: 14px 4px; min-height: 44px; display: inline-flex; align-items: center; }
       .foot a:hover { color: var(--cream); }
       .foot .links2 { display: flex; flex-wrap: wrap; gap: 4px 22px; align-items: center; }
-      footer .lang button { color: rgba(244, 239, 231, 0.62); }
-      footer .lang button[aria-pressed="true"] { color: var(--cream); }
+      footer .lang a { color: rgba(244, 239, 231, 0.62); }
+      footer .lang a[aria-current="true"] { color: var(--cream); }
       footer .lang .sep { background: rgba(244, 239, 231, 0.2); }
 
       /* ── Reveal: a quiet settle, only for what is below the fold ── */
@@ -469,10 +495,10 @@ TEMPLATE = r'''<!doctype html>
           <a href="#why">[[Why ||| Por qué]]</a>
           <a href="#questions">[[Questions ||| Preguntas]]</a>
         </nav>
-        <nav class="lang" aria-label="Language">
-          <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+        <nav class="lang" aria-label="[[Language ||| Idioma]]">
+          <a href="/" hreflang="en" lang="en" data-pick="en" @@CUR_EN@@>EN</a>
           <span class="sep" aria-hidden="true"></span>
-          <button type="button" data-lang="es" lang="es" aria-pressed="false">ES</button>
+          <a href="/es/" hreflang="es" lang="es" data-pick="es" @@CUR_ES@@>ES</a>
         </nav>
         <a class="btn btn-sm soon-only" href="#start">[[Stay close. ||| Avisame.]]</a>
         <a class="btn btn-sm live-only" href="@@STORE@@">[[Take a look ||| Mirá cómo es]]</a>
@@ -488,7 +514,7 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow">[[A shared space for two homes ||| Un espacio compartido entre dos casas]]</p>
             <h1>[[Grow close. From&nbsp;*anywhere.* ||| Crecé cerca. Desde *donde&nbsp;estés.*]]</h1>
-            <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. Made for children from 0 to 6. ||| Nidi une dos casas: la donde crece un niño o una niña, y una que está lejos. Pensada para chicos de 0 a 6 años.]]</p>
+            <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. Share a voice, a photo or a few words, and do small things together. Made for children from 0 to 6. ||| Nidi une dos casas: la de un chico que crece y otra que está lejos. Compartí una voz, una foto o unas palabras, y hagan cosas chicas juntos. Pensada para chicos de 0 a 6 años.]]</p>
             <div class="cta">
               @@FORM:hero@@
             </div>
@@ -519,39 +545,6 @@ TEMPLATE = r'''<!doctype html>
       <section class="bg-ink stand" id="words">
         <div class="wrap">
           <blockquote class="rv">[[A world where growing up far apart does not mean *growing&nbsp;apart.* ||| Un mundo donde crecer lejos no significa *crecer&nbsp;distanciados.*]]</blockquote>
-        </div>
-      </section>
-
-      <!-- 3. THE MOMENT ─────────────────────────────────────────── -->
-      <section class="bg-paper" id="moment">
-        <div class="wrap split">
-          <div class="photo rv"><img src="/assets/photos/hand-laptop.jpg" width="1600" height="1025" loading="lazy" alt="" /></div>
-          <div>
-            <p class="eyebrow rv">[[The moment ||| El momento]]</p>
-            <h2 class="rv">[[Video calls with a baby don't&nbsp;*work.* ||| Las videollamadas con un bebé no&nbsp;*funcionan.*]]</h2>
-            <div class="scenes">
-              <div class="scene rv"><p class="eyebrow">[[Far away ||| Lejos]]</p><p>[[A grandmother an ocean away, who still wants to say good morning. ||| Una abuela al otro lado del océano, que igual quiere decir buenos días.]]</p></div>
-              <div class="scene rv"><p class="eyebrow">[[Travelling ||| De viaje]]</p><p>[[A parent away for work, who wants to be part of today and not only call at the end of it. ||| Un papá o una mamá de viaje por trabajo, que quiere ser parte del día y no solo llamar al final.]]</p></div>
-              <div class="scene rv"><p class="eyebrow">[[Another city ||| Otra ciudad]]</p><p>[[An aunt, an uncle, a godparent: someone who loves the child and lives somewhere else. ||| Una tía, un tío, un padrino: alguien que quiere al niño o a la niña y vive en otro lugar.]]</p></div>
-            </div>
-            <p class="resolve rv">[[Nidi gives them something small to do together, every day. ||| Nidi les da algo chico para hacer juntos, todos los días.]]</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 4. HOW IT WORKS ───────────────────────────────────────── -->
-      <section class="bg-cream" id="how">
-        <div class="wrap split flip">
-          <div class="photo tall rv"><img src="/assets/photos/hands-flour.jpg" width="1000" height="1896" loading="lazy" alt="" /></div>
-          <div>
-            <p class="eyebrow rv">[[How it works ||| Cómo funciona]]</p>
-            <h2 class="rv">[[Three steps, and then it's&nbsp;*every day.* ||| Tres pasos, y después es&nbsp;*todos los días.*]]</h2>
-            <div class="steps">
-              <div class="step rv"><p class="eyebrow">[[First ||| Primero]]</p><h3>[[Start your nidi ||| Empezá tu nidi]]</h3><p>[[Tell Nidi a little about yourself and the child, and pick the colour that will stand for you. ||| Contale a Nidi un poco sobre vos y sobre el niño o la niña, y elegí el color que va a ser tuyo.]]</p></div>
-              <div class="step rv"><p class="eyebrow">[[Then ||| Después]]</p><h3>[[Invite the other home ||| Invitá a la otra casa]]</h3><p>[[Send an invitation to someone far away. They join free and never pay for it. ||| Mandá una invitación a alguien que está lejos. Entra gratis y nunca paga por esto.]]</p></div>
-              <div class="step rv"><p class="eyebrow">[[Every day ||| Todos los días]]</p><h3>[[Do something small ||| Hagan algo chico]]</h3><p>[[Photograph the same sky. Cook the same recipe. Leave a good morning in your own voice. ||| Sacá una foto del mismo cielo. Cociná la misma receta. Dejá un buen día con tu propia voz.]]</p></div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -592,15 +585,60 @@ TEMPLATE = r'''<!doctype html>
         </div>
       </section>
 
+      <!-- 5a. A WAY IN, HALF WAY DOWN ───────────────────────────── -->
+      <section class="bg-paper mid" id="mid">
+        <div class="wrap mid-grid">
+          <div>
+            <p class="eyebrow">[[Coming soon ||| Muy pronto]]</p>
+            <h2>[[We'll write when it's&nbsp;*ready.* ||| Te escribimos cuando esté&nbsp;*listo.*]]</h2>
+          </div>
+          <div class="cta">
+            @@FORM:mid@@
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. THE MOMENT ─────────────────────────────────────────── -->
+      <section class="bg-paper" id="moment">
+        <div class="wrap split">
+          <div class="photo rv"><img src="/assets/photos/hand-laptop.jpg" width="1600" height="1025" loading="lazy" alt="[[A baby's hand resting on a laptop trackpad. ||| La mano de un bebé apoyada en el trackpad de una computadora.]]" /></div>
+          <div>
+            <p class="eyebrow rv">[[The moment ||| El momento]]</p>
+            <h2 class="rv">[[Video calls with a baby don't&nbsp;*work.* ||| Las videollamadas con un bebé no&nbsp;*funcionan.*]]</h2>
+            <div class="scenes">
+              <div class="scene rv"><p class="eyebrow">[[Far away ||| Lejos]]</p><p>[[A grandmother an ocean away, who still wants to say good morning. ||| Una abuela al otro lado del océano, que igual quiere decir buenos días.]]</p></div>
+              <div class="scene rv"><p class="eyebrow">[[Travelling ||| De viaje]]</p><p>[[A parent away for work, who wants to be part of today and not only call at the end of it. ||| Un papá o una mamá de viaje por trabajo, que quiere ser parte del día y no solo llamar al final.]]</p></div>
+              <div class="scene rv"><p class="eyebrow">[[Another city ||| Otra ciudad]]</p><p>[[An aunt, an uncle, a godparent: someone who loves the child and lives somewhere else. ||| Una tía, un tío, un padrino: alguien que quiere a un chico y vive en otro lugar.]]</p></div>
+            </div>
+            <p class="resolve rv">[[Nidi gives them something small to do together, every day. ||| Nidi les da algo chico para hacer juntos, todos los días.]]</p>
+          </div>
+        </div>
+      </section>
+
       <!-- 5b. LESS SCREEN ─────────────────────────────────────── -->
       <section class="bg-ink" id="less-screen">
         <div class="wrap split flip">
-          <div class="photo rv"><img src="/assets/photos/child-garden.jpg" width="1400" height="934" loading="lazy" alt="" /></div>
+          <div class="photo rv"><img src="/assets/photos/child-garden.jpg" width="1400" height="934" loading="lazy" alt="[[A toddler watering a vegetable garden with a metal watering can. ||| Un nene regando una huerta con una regadera de metal.]]" /></div>
           <div>
             <p class="eyebrow rv">[[Less screen, more together ||| Menos pantalla, más juntos]]</p>
             <h2 class="rv">[[Let children be&nbsp;*children.* ||| Dejemos que los chicos sean&nbsp;*chicos.*]]</h2>
             <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi gives you ideas for small things to do together, each in your own home, and a way to share them afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un chico de dos años no se queda frente a una pantalla. Por eso Nidi te da ideas de cosas chicas para hacer juntos, cada uno en su casa, y una forma de compartirlas después.]]</p>
-            <p class="rv muted" style="margin-top: 22px; max-width: 30em">[[Nidi is for the adults. The children keep doing what children do, with you, however far apart you are. ||| Nidi es para los adultos. Los chicos hacen lo que hacen los chicos, con vos, no importa la distancia.]]</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. HOW IT WORKS ───────────────────────────────────────── -->
+      <section class="bg-cream" id="how">
+        <div class="wrap split flip">
+          <div class="photo tall rv"><img src="/assets/photos/hands-flour.jpg" width="1000" height="1896" loading="lazy" alt="[[Two pairs of hands working with flour on a kitchen table, by a window. ||| Dos pares de manos trabajando con harina en una mesa de cocina, junto a una ventana.]]" /></div>
+          <div>
+            <p class="eyebrow rv">[[How it works ||| Cómo funciona]]</p>
+            <h2 class="rv">[[Three steps, and then it's&nbsp;*every day.* ||| Tres pasos, y después es&nbsp;*todos los días.*]]</h2>
+            <div class="steps">
+              <div class="step rv"><p class="eyebrow">[[First ||| Primero]]</p><h3>[[Start your nidi ||| Empezá tu nidi]]</h3><p>[[Tell Nidi a little about yourself and the child, and pick the colour that will stand for you. ||| Contale a Nidi un poco sobre vos y sobre el chico, y elegí el color que va a ser tuyo.]]</p></div>
+              <div class="step rv"><p class="eyebrow">[[Then ||| Después]]</p><h3>[[Invite the other home ||| Invitá a la otra casa]]</h3><p>[[Send an invitation to someone far away. They join free and never pay for it. ||| Mandá una invitación a alguien que está lejos. Se suma gratis y nunca paga.]]</p></div>
+              <div class="step rv"><p class="eyebrow">[[Every day ||| Todos los días]]</p><h3>[[Do something small ||| Hagan algo chico]]</h3><p>[[Photograph the same sky. Cook the same recipe. Leave a good morning in your own voice. ||| Sacá una foto del mismo cielo. Cociná la misma receta. Dejá un buen día con tu propia voz.]]</p></div>
+            </div>
           </div>
         </div>
       </section>
@@ -615,11 +653,11 @@ TEMPLATE = r'''<!doctype html>
           <div class="rows">
             <div class="row">
               <div class="copy"><p class="eyebrow rv">[[Today ||| Hoy]]</p><h3 class="rv">[[A line about the *other* home. ||| Una línea sobre la *otra* casa.]]</h3><p class="rv">[[Today opens with what it is like where they are: their time, their sky. Then, whenever you like, you send something from your day. ||| Hoy empieza con cómo es el día donde están ellos: su hora, su cielo. Y cuando quieras, mandás algo de tu día.]]</p></div>
-              <div class="screen rv"><img lang="en" src="/assets/screens/en-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="Nidi's Today screen: a line about the other home, and a soft green orb waiting to be opened." /><img lang="es" src="/assets/screens/es-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="La pantalla Hoy de Nidi: una línea sobre la otra casa y una esfera verde esperando que la abras." /></div>
+              <div class="screen rv">[[<img src="/assets/screens/en-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="Nidi's Today screen: a line about the other home, and a soft green orb waiting to be opened." /> ||| <img src="/assets/screens/es-ana-today-arrived.jpg" width="720" height="1566" loading="lazy" alt="La pantalla Hoy de Nidi: una línea sobre la otra casa y una esfera verde esperando que la abras." />]]</div>
             </div>
             <div class="row flip">
               <div class="copy"><p class="eyebrow rv">[[Activities ||| Actividades]]</p><h3 class="rv">[[Small things, chosen for *their age.* ||| Cosas chicas, elegidas para *su edad.*]]</h3><p class="rv">[[Some you do on your own, some are the same thing done in each home, and some are for your next call. ||| Algunas son para hacer por tu cuenta, otras se hacen igual en cada casa y otras, para la próxima llamada.]]</p></div>
-              <div class="screen rv"><img lang="en" src="/assets/screens/en-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Nidi's activities: cards such as Read the same page, with a label above each." /><img lang="es" src="/assets/screens/es-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Las actividades de Nidi: tarjetas como Leer la misma página, con una etiqueta arriba de cada una." /></div>
+              <div class="screen rv">[[<img src="/assets/screens/en-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Nidi's activities: cards such as Read the same page, with a label above each." /> ||| <img src="/assets/screens/es-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Las actividades de Nidi: tarjetas como Leer la misma página, con una etiqueta arriba de cada una." />]]</div>
             </div>
             <div class="row">
               <div class="copy"><p class="eyebrow rv">[[Sharing ||| Compartir]]</p><h3 class="rv">[[A photo, a voice, or a few *words.* ||| Una foto, una voz o unas *palabras.*]]</h3><p class="rv">[[Voice notes in English or Spanish can arrive written out too, so the other home can read along. Whoever recorded sees the words before sending, and can correct them. ||| Los audios en español o en inglés pueden llegar también escritos, para que en la otra casa se puedan leer. Quien grabó ve las palabras antes de mandar y las puede corregir.]]</p></div>
@@ -677,11 +715,11 @@ TEMPLATE = r'''<!doctype html>
       <section class="bg-paper" id="who">
         <div class="wrap">
           <p class="eyebrow rv">[[Who it is for ||| Para quién es]]</p>
-          <h2 class="rv" style="max-width: 15em">[[Two homes that love the same&nbsp;*child.* ||| Dos casas que quieren al mismo&nbsp;*niño o niña.*]]</h2>
+          <h2 class="rv" style="max-width: 15em">[[Two homes that love the same&nbsp;*child.* ||| Dos casas que quieren al mismo&nbsp;*chico.*]]</h2>
           <div class="who-grid">
-            <div class="who rv"><div class="photo"><img src="/assets/photos/who-home.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape honey l" style="--t:-44deg"></i></div><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
-            <div class="who rv" style="--d:.1s"><div class="photo"><img src="/assets/photos/who-far.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape olive r" style="--t:40deg"></i></div><h4>[[The home far away ||| La casa que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents: a way to be there, in your own voice. ||| Abuelos, tíos, padrinos: una forma de estar, con tu propia voz.]]</p></div>
-            <div class="who rv" style="--d:.2s"><div class="photo"><img src="/assets/photos/who-many.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape lavender l" style="--t:-39deg"></i></div><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo uno con cada lado de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
+            <div class="who rv"><div class="photo"><img src="/assets/photos/who-home.jpg" width="900" height="1125" loading="lazy" alt="[[A baby playing near a bookshelf and plants, at home. ||| Un bebé jugando junto a un estante de libros y plantas, en casa.]]" /><i class="tape honey l" style="--t:-44deg"></i></div><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
+            <div class="who rv" style="--d:.1s"><div class="photo"><img src="/assets/photos/who-far.jpg" width="900" height="1125" loading="lazy" alt="[[An older person's hands cooking at a stove. ||| Las manos de una persona mayor cocinando.]]" /><i class="tape olive r" style="--t:40deg"></i></div><h4>[[The home far away ||| La casa que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents: a way to be there, in your own voice. ||| Abuelos, tíos, padrinos: una forma de estar, con tu propia voz.]]</p></div>
+            <div class="who rv" style="--d:.2s"><div class="photo"><img src="/assets/photos/who-many.jpg" width="900" height="1125" loading="lazy" alt="[[A canal lined with old houses in Amsterdam, in autumn. ||| Un canal con casas antiguas en Ámsterdam, en otoño.]]" /><i class="tape lavender l" style="--t:-39deg"></i></div><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo uno con cada lado de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
           </div>
         </div>
       </section>
@@ -696,7 +734,7 @@ TEMPLATE = r'''<!doctype html>
           <div class="free-list">
             <div class="free-item rv"><h4>[[Two free weeks ||| Dos semanas gratis]]</h4><p>[[Your first nidi starts with two weeks, counted from the day the other home joins. No payment details, and nothing is charged when it ends. ||| El primer nidi que empezás tiene dos semanas, que se cuentan desde el día en que entra la otra casa. Sin medio de pago, y no se cobra nada cuando terminan.]]</p></div>
             <div class="free-item rv"><h4>[[Then, a subscription ||| Después, una suscripción]]</h4><p>[[To keep sharing, the person who started the nidi chooses a monthly or yearly subscription. One covers up to three nidis. Options and prices are shown in the app before anything is charged. ||| Para seguir compartiendo, quien empezó el nidi elige una suscripción mensual o anual. Una cubre hasta tres nidis. Las opciones y los precios se ven en la app antes de que se cobre nada.]]</p></div>
-            <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[The people you invite join free and never pay for it. ||| Las personas que invitás entran gratis y nunca pagan por esto.]]</p></div>
+            <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[The people you invite join free and never pay for it. ||| Las personas que invitás se suman gratis y nunca pagan.]]</p></div>
           </div>
         </div>
       </section>
@@ -732,7 +770,7 @@ TEMPLATE = r'''<!doctype html>
             <details><summary>[[Does the other home need the app? ||| ¿La otra casa necesita la app?]]</summary><div>[[Yes. They install Nidi, sign in with a code sent to their email, and join with your invitation. It is free for them. ||| Sí. Instalan Nidi, entran con un código que les llega por email y se suman con tu invitación. Para ellos es gratis.]]</div></details>
             <details><summary>[[Who can see what we share? ||| ¿Quién ve lo que compartimos?]]</summary><div>[[Only the people in your nidi. Nothing is public or searchable. ||| Solo las personas de tu nidi. Nada es público ni aparece en búsquedas.]]</div></details>
             <details><summary>[[What languages does it speak? ||| ¿En qué idiomas está?]]</summary><div>[[English and Spanish, each person in their own language. Voice notes in either can arrive written out. ||| Español e inglés, cada persona en su idioma. Los audios en cualquiera de los dos pueden llegar también escritos.]]</div></details>
-            <details><summary>[[How old is the child? ||| ¿Qué edad tiene que tener el niño o la niña?]]</summary><div>[[From the first months to six years old, with activities chosen for their age. Up to three, the home where the child lives also keeps their firsts. ||| Desde los primeros meses hasta los seis años, con actividades elegidas para cada edad. Hasta los tres, la casa donde crece también guarda sus primeras veces.]]</div></details>
+            <details><summary>[[How old is the child? ||| ¿Para qué edades es?]]</summary><div>[[From the first months to six years old, with activities chosen for their age. Up to three, the home where the child lives also keeps their firsts. ||| Desde los primeros meses hasta los seis años, con actividades elegidas para cada edad. Hasta los tres, la casa donde crece también guarda sus primeras veces.]]</div></details>
             <details><summary>[[What happens if we stop the subscription? ||| ¿Qué pasa si dejamos la suscripción?]]</summary><div>[[The nidi pauses for now and nothing new can be added, but everything already shared stays in Memory for anyone in it. You can manage or cancel a subscription anytime in your iPhone's Settings. ||| El nidi queda en pausa, por ahora, y no se puede sumar nada nuevo, pero todo lo compartido sigue en Recuerdos para cualquiera del nidi. La suscripción la manejás o la cancelás cuando quieras en Ajustes del iPhone.]]</div></details>
             <details><summary>[[Is there an Android version? ||| ¿Hay versión para Android?]]</summary><div>[[Not yet. Nidi comes first to iPhone, and Android is on its way. Leave your email and we will write when it is ready. ||| Todavía no. Nidi sale primero para iPhone, y Android viene en camino. Dejá tu email y te escribimos cuando esté listo.]]</div></details>
           </div>
@@ -754,16 +792,16 @@ TEMPLATE = r'''<!doctype html>
     <footer>
       <div class="wrap foot">
         <div class="links2">
-          <a id="privacy" href="/privacy/">[[Privacy ||| Privacidad]]</a>
-          <a id="terms" href="/terms/">[[Terms ||| Términos]]</a>
-          <a id="support" href="/support/">[[Support ||| Soporte]]</a>
+          <a id="privacy" href="@@PRIVACY@@">[[Privacy ||| Privacidad]]</a>
+          <a id="terms" href="@@TERMS@@">[[Terms ||| Términos]]</a>
+          <a id="support" href="@@SUPPORT@@">[[Support ||| Soporte]]</a>
           <span>BALK Creative Studio</span>
           <span>[[Photos via Unsplash and Pexels ||| Fotos de Unsplash y Pexels]]</span>
         </div>
-        <nav class="lang" aria-label="Language">
-          <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+        <nav class="lang" aria-label="[[Language ||| Idioma]]">
+          <a href="/" hreflang="en" lang="en" data-pick="en" @@CUR_EN@@>EN</a>
           <span class="sep" aria-hidden="true"></span>
-          <button type="button" data-lang="es" lang="es" aria-pressed="false">ES</button>
+          <a href="/es/" hreflang="es" lang="es" data-pick="es" @@CUR_ES@@>ES</a>
         </nav>
       </div>
     </footer>
@@ -772,27 +810,14 @@ TEMPLATE = r'''<!doctype html>
       // The endpoint is public by design: verify_jwt is false on the
       // function and its CORS is open, so no Supabase key is embedded.
       var ENDPOINT = "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/path-c-waitlist";
+      var lang = "@@LANG@@";
       var T = {
-        en: { title: "Nidi. Grow close. From anywhere.", placeholder: "Your email", invalid: "Check the email address.", failed: "We couldn't add you just now. Try again in a moment.", privacy: "/privacy/", terms: "/terms/", support: "/support/" },
-        es: { title: "Nidi. Crecé cerca. Desde donde estés.", placeholder: "Tu email", invalid: "Revisá el email.", failed: "No pudimos anotarte ahora. Probá de nuevo en un momento.", privacy: "/privacidad/", terms: "/terminos/", support: "/soporte/" }
+        en: { invalid: "Check the email address.", failed: "We couldn't add you just now. Try again in a moment." },
+        es: { invalid: "Revisá el email.", failed: "No pudimos anotarte ahora. Probá de nuevo en un momento." }
       };
-      var lang = document.documentElement.getAttribute("data-l") === "es" ? "es" : "en";
-
-      function setLang(next) {
-        lang = next === "es" ? "es" : "en";
-        var c = T[lang], d = document.documentElement;
-        d.lang = lang; d.setAttribute("data-l", lang);
-        document.title = c.title;
-        document.querySelectorAll("form.wl input[type=email]").forEach(function (i) { i.placeholder = c.placeholder; });
-        document.getElementById("privacy").href = c.privacy;
-        document.getElementById("terms").href = c.terms;
-        document.getElementById("support").href = c.support;
-        document.querySelectorAll(".lang button").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-lang") === lang ? "true" : "false"); });
-        document.querySelectorAll(".wl-error[data-kind]").forEach(function (e) { e.textContent = c[e.dataset.kind]; });
-        try { localStorage.setItem("nidi-lang", lang); } catch (e) {}
-      }
-      setLang(lang);
-      document.querySelectorAll(".lang button").forEach(function (b) { b.addEventListener("click", function () { setLang(b.getAttribute("data-lang")); }); });
+      document.querySelectorAll("form.wl input[type=email]").forEach(function (i) { i.placeholder = lang === "es" ? "Tu email" : "Your email"; });
+      // Remember a language chosen with the EN / ES links.
+      document.querySelectorAll(".lang a").forEach(function (a) { a.addEventListener("click", function () { try { localStorage.setItem("nidi-lang", a.getAttribute("data-pick")); } catch (e) {} }); });
 
       // ── Email forms (hero and last ask) ───────────────────────────
       document.querySelectorAll("form.wl").forEach(function (form) {
@@ -938,6 +963,25 @@ FORM = '''<div class="wl-wrap">
               <p class="wl-note live-only">[[On the App Store, for iPhone. Free for two weeks. ||| En el App Store, para iPhone. Dos semanas gratis.]]</p>
             </div>'''
 
+SITEMAP = '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://nidi.life/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nidi.life/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://nidi.life/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nidi.life/"/></url>
+  <url><loc>https://nidi.life/es/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nidi.life/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://nidi.life/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nidi.life/"/></url>
+  <url><loc>https://nidi.life/privacy/</loc></url>
+  <url><loc>https://nidi.life/privacidad/</loc></url>
+  <url><loc>https://nidi.life/terms/</loc></url>
+  <url><loc>https://nidi.life/terminos/</loc></url>
+  <url><loc>https://nidi.life/support/</loc></url>
+  <url><loc>https://nidi.life/soporte/</loc></url>
+</urlset>
+'''
+
 # Redirects: the old Why pages now live inside the home page.
 REDIRECT = '''<!doctype html>
 <html lang="{lang}">
@@ -947,48 +991,74 @@ REDIRECT = '''<!doctype html>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <link rel="canonical" href="https://nidi.life/" />
-    <meta http-equiv="refresh" content="0; url=/?lang={lang}#why" />
-    <script>location.replace("/?lang={lang}#why");</script>
+    <meta http-equiv="refresh" content="0; url={to}" />
+    <script>location.replace("{to}");</script>
   </head>
-  <body style="background:#fffef8;font-family:sans-serif"><p><a href="/?lang={lang}#why">nidi.life</a></p></body>
+  <body style="background:#fffef8;font-family:sans-serif"><p><a href="{to}">nidi.life</a></p></body>
 </html>
 '''
-
-
-def pair(m):
-    en, es = m.group(1).strip(), m.group(2).strip()
-    return f'<span lang="en">{en}</span><span lang="es">{es}</span>'
 
 
 def italics(s):
     return re.sub(r'\*(.+?)\*', r'<em>\1</em>', s)
 
 
-def expand(html):
-    # Attribute values cannot hold spans: those pairs are English-first
-    # defaults the script swaps (aria-labels) or are written per language.
-    def attr(m):
-        return f'{m.group(1)}="{m.group(2).split("|||")[0].strip()}"'
-    html = re.sub(r'((?:aria-label|alt))="\[\[(.*?)\]\]"', attr, html)
-    html = re.sub(r'\[\[(.*?)\|\|\|(.*?)\]\]', lambda m: italics(pair(m)), html, flags=re.S)
+def expand(html, lang):
+    """Pick one side of every [[ English ||| Español ]]; the page carries
+    one language only, so nothing hidden is left for a reader to find."""
+    side = 0 if lang == 'en' else 1
+    html = re.sub(r'\[\[(.*?)\|\|\|(.*?)\]\]',
+                  lambda m: italics((m.group(1), m.group(2))[side].strip()), html, flags=re.S)
     return html
 
 
-def build():
+META = {
+    'en': dict(
+        title='Nidi. Grow close. From anywhere.',
+        desc='Nidi connects two homes: the one where a child is growing up, and one far away. Voice, photo and text, and small things to do together, kept in Memory.',
+        og_locale='en_GB', og_alt='Nidi: Grow close. From anywhere.',
+        path='/', privacy='/privacy/', terms='/terms/', support='/support/'),
+    'es': dict(
+        title='Nidi. Crecé cerca. Desde donde estés.',
+        desc='Nidi une dos casas: la de un chico que crece y otra que está lejos. Voz, foto y texto, y cosas chicas para hacer juntos, guardadas en Recuerdos.',
+        og_locale='es_AR', og_alt='Nidi: Crecé cerca. Desde donde estés.',
+        path='/es/', privacy='/privacidad/', terms='/terminos/', support='/soporte/'),
+}
+
+
+def render(lang):
+    m = META[lang]
     out = TEMPLATE
-    for fid in ('hero', 'end'):
+    for fid in ('hero', 'mid', 'end'):
         out = out.replace(f'@@FORM:{fid}@@', FORM.replace('@@ID@@', fid))
     out = (out.replace('@@WORDMARK@@', WORDMARK)
               .replace('@@WORDMARK_CTA@@', WORDMARK_CTA)
               .replace('@@STORE@@', APP_STORE_URL)
-              .replace('@@LIVE@@', 'true' if APP_LIVE else 'false'))
-    out = expand(out)
-    with open(os.path.join(ROOT, 'index.html'), 'w') as f:
-        f.write(out)
+              .replace('@@LIVE@@', 'true' if APP_LIVE else 'false')
+              .replace('@@LANG@@', lang)
+              .replace('@@TITLE@@', m['title']).replace('@@DESC@@', m['desc'])
+              .replace('@@OGLOCALE@@', m['og_locale']).replace('@@OGALT@@', m['og_alt'])
+              .replace('@@PATH@@', m['path'])
+              .replace('@@PRIVACY@@', m['privacy']).replace('@@TERMS@@', m['terms']).replace('@@SUPPORT@@', m['support'])
+              .replace('@@CUR_EN@@', 'aria-current="true"' if lang == 'en' else '')
+              .replace('@@CUR_ES@@', 'aria-current="true"' if lang == 'es' else ''))
+    return expand(out, lang)
+
+
+def build():
+    os.makedirs(os.path.join(ROOT, 'es'), exist_ok=True)
+    for lang, path in (('en', 'index.html'), ('es', os.path.join('es', 'index.html'))):
+        html = render(lang)
+        with open(os.path.join(ROOT, path), 'w') as f:
+            f.write(html)
+        print('wrote', path, len(html), 'bytes')
     for folder, lang in (('why', 'en'), ('por-que', 'es')):
         with open(os.path.join(ROOT, folder, 'index.html'), 'w') as f:
-            f.write(REDIRECT.format(lang=lang))
-    print('wrote index.html', len(out), 'bytes; why and por-que now redirect')
+            f.write(REDIRECT.format(lang=lang, to='/#why' if lang == 'en' else '/es/#why'))
+    with open(os.path.join(ROOT, 'sitemap.xml'), 'w') as f:
+        f.write(SITEMAP)
+    with open(os.path.join(ROOT, 'robots.txt'), 'w') as f:
+        f.write('User-agent: *\nAllow: /\nDisallow: /join/\n\nSitemap: https://nidi.life/sitemap.xml\n')
 
 
 if __name__ == '__main__':
