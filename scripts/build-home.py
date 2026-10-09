@@ -123,7 +123,7 @@ TEMPLATE = r'''<!doctype html>
       h2 { font-size: clamp(34px, 4.7vw, 62px); line-height: 1.1; letter-spacing: -0.008em; }
       h3 { font-size: clamp(27px, 3.1vw, 40px); line-height: 1.15; }
       h4 { font-size: 22px; line-height: 1.25; }
-      p { margin: 0; }
+      p { margin: 0; text-wrap: pretty; }
       .eyebrow { font-weight: 500; font-size: 12px; line-height: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink2); margin-bottom: 20px; }
       .lead { font-size: clamp(19px, 2vw, 23px); line-height: 1.5; color: var(--ink); max-width: 34em; }
       .muted { color: var(--ink2); }
@@ -424,7 +424,7 @@ TEMPLATE = r'''<!doctype html>
 
     <header class="top" id="top">
       <div class="wrap bar">
-        <a href="#top" aria-label="Nidi">@@WORDMARK@@</a>
+        <a href="/" id="home" aria-label="Nidi">@@WORDMARK@@</a>
         <nav class="links" aria-label="[[Sections ||| Secciones]]">
           <a href="#how">[[How it works ||| Cómo funciona]]</a>
           <a href="#who">[[Who it is for ||| Para quién]]</a>
@@ -672,7 +672,7 @@ TEMPLATE = r'''<!doctype html>
           <h2 class="rv">[[Why I made&nbsp;*Nidi.* ||| Por qué hice&nbsp;*Nidi.*]]</h2>
           <div class="why-body">
             <p class="rv">[[I'm an Argentine mother in the Netherlands. When my daughter was born, my parents were 11,000 km away, and video calls with a baby don't work. I wanted her to grow up knowing her grandparents' voices, their stories, the small things they do every day. Not just faces on a screen. So I built Nidi. ||| Soy una mamá argentina que vive en Holanda. Cuando nació mi hija, mis papás estaban a 11.000 kilómetros, y las videollamadas con un bebé no funcionan. Yo quería que creciera conociendo la voz de sus abuelos, sus historias, las cosas chiquitas que hacen todos los días. No solo caras en una pantalla. Entonces hice Nidi.]]</p>
-            <p class="rv">[[Nidi connects two houses: the child's, and one far away. Every day it suggests small things to do, apart but together. A grandmother records a good morning in her voice. Both houses photograph the same sky, or cook the same recipe. The screen carries it; the moment happens off it. It all lands in Memory, an archive that stays with the family. ||| Nidi une dos casas: la del niño, y una que está en otro lugar. Todos los días propone cosas chicas para hacer, cada uno en su casa y los dos juntos. Una abuela graba un buen día con su voz. Las dos casas sacan una foto del mismo cielo, o cocinan la misma receta. La pantalla lo lleva; el momento pasa afuera de ella. Todo queda en Recuerdos, un archivo que se queda con la familia.]]</p>
+            <p class="rv">[[Nidi connects two houses: the child's, and one far away. Every day it suggests small things to do, apart but together. A grandmother records a good morning in her voice. Both houses photograph the same sky, or cook the same recipe. The screen carries it; the moment happens off it. It all lands in Memory, an archive that stays with the&nbsp;family. ||| Nidi une dos casas: la del niño, y una que está en otro lugar. Todos los días propone cosas chicas para hacer, cada uno en su casa y los dos juntos. Una abuela graba un buen día con su voz. Las dos casas sacan una foto del mismo cielo, o cocinan la misma receta. La pantalla lo lleva; el momento pasa afuera de ella. Todo queda en Recuerdos, un archivo que se queda con la&nbsp;familia.]]</p>
             <p class="rv">[[Since we started testing, my parents have read my daughter bedtime stories, sung to her at breakfast, and left a good morning every day, recorded the night before in Buenos Aires. ||| Desde que empezamos a probarlo, mis papás le leyeron cuentos a mi hija antes de dormir, le cantaron en el desayuno, y le dejaron un buen día todos los días, grabado la noche anterior en Buenos Aires.]]</p>
           </div>
           <div class="why-turn">
@@ -689,7 +689,7 @@ TEMPLATE = r'''<!doctype html>
       <section class="bg-cream" id="questions">
         <div class="wrap">
           <p class="eyebrow rv">[[Questions ||| Preguntas]]</p>
-          <h2 class="rv">[[Clear enough to&nbsp;*try today.* ||| Lo bastante claro para&nbsp;*probar hoy.*]]</h2>
+          <h2 class="rv">[[A few things you might be&nbsp;*wondering.* ||| Lo que quizás te estés&nbsp;*preguntando.*]]</h2>
           <div class="faq rv">
             <details><summary>[[Is Nidi free? ||| ¿Nidi es gratis?]]</summary><div>[[The first nidi you start comes with two free weeks, with no payment details. After that, to keep sharing, the person who started it chooses a monthly or yearly subscription. ||| El primer nidi que empezás tiene dos semanas gratis, sin medio de pago. Después, para seguir compartiendo, quien lo empezó elige una suscripción mensual o anual.]]</div></details>
             <details><summary>[[Who pays? ||| ¿Quién paga?]]</summary><div>[[Only the person who starts a nidi. The people they invite join free and never pay for it. One subscription covers up to three nidis. ||| Solo quien empieza un nidi. Las personas que invita entran gratis y nunca pagan por esto. Una suscripción cubre hasta tres nidis.]]</div></details>
@@ -790,6 +790,13 @@ TEMPLATE = r'''<!doctype html>
           input.scrollIntoView({ behavior: "smooth", block: nearTop ? "center" : "center" });
           setTimeout(function () { input.focus({ preventScroll: true }); }, nearTop ? 50 : 650);
         });
+      });
+
+      // The logo goes to the very top, whatever the page is doing.
+      document.getElementById("home").addEventListener("click", function (e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (location.hash) history.replaceState(null, "", location.pathname + location.search);
       });
 
       // ── The orb, opened ───────────────────────────────────────────
