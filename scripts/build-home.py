@@ -373,10 +373,16 @@ TEMPLATE = r'''<!doctype html>
       /* Nidi's own print, as in Memory: a matte frame, the bottom thicker. */
       .who .photo { background: #e8eae7; padding: 5.6% 5.6% 18.6%; border-radius: 2px; box-shadow: 0 8px 20px rgba(42, 36, 29, 0.14), 0 1px 3px rgba(42, 36, 29, 0.12); }
       .who .photo img { aspect-ratio: 1; }
-      /* Tape is a person's colour (Lola p.35): one home, one colour, the way
-         a print in Memory wears its sender's. Centred on the top edge. */
+      /* Tape, exactly as the app lays it (components/memory/tape.tsx): a 90:26
+         strip, 34% of the print wide, 85% opaque, square-cut, across ONE top
+         corner at about 42 degrees. Centred on the top edge it read as a
+         label on a box, which is why the app moved it to a corner. Its
+         colour is a person's (Lola p.35): one home, one colour. */
+      .who { container-type: inline-size; }
       .who .photo { position: relative; }
-      .who .tape { position: absolute; top: -3.4%; left: 50%; width: 30%; aspect-ratio: 90 / 26; margin-left: -15%; transform: rotate(var(--t, -2deg)); opacity: 0.88; }
+      .who .tape { position: absolute; width: 34cqw; aspect-ratio: 90 / 26; top: calc(12cqw - 4.9cqw); opacity: 0.85; }
+      .who .tape.l { left: calc(12cqw - 17cqw); transform: rotate(var(--t, -42deg)); }
+      .who .tape.r { left: calc(88cqw - 17cqw); transform: rotate(var(--t, 42deg)); }
       .tape.honey { background: var(--honey); } .tape.olive { background: var(--olive); } .tape.lavender { background: var(--lavender); }
       .who h4 { margin-bottom: 10px; }
       .who p { color: var(--ink2); max-width: 24em; }
@@ -662,9 +668,9 @@ TEMPLATE = r'''<!doctype html>
           <p class="eyebrow rv">[[Who it is for ||| Para quién es]]</p>
           <h2 class="rv" style="max-width: 15em">[[Two homes that love the same&nbsp;*child.* ||| Dos casas que quieren al mismo&nbsp;*niño o niña.*]]</h2>
           <div class="who-grid">
-            <div class="who rv"><div class="photo"><img src="/assets/photos/who-home.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape honey" style="--t:-2deg"></i></div><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents of children from 0 to 6 who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres de chicos de 0 a 6 años que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
-            <div class="who rv" style="--d:.1s"><div class="photo"><img src="/assets/photos/who-far.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape olive" style="--t:1.5deg"></i></div><h4>[[The home far away ||| La casa que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents. Nothing to learn and nothing to keep up with: just a way to be there, in your own voice. ||| Abuelos, tíos, padrinos. Nada que aprender y nada que seguir: solo una forma de estar, con tu propia voz.]]</p></div>
-            <div class="who rv" style="--d:.2s"><div class="photo"><img src="/assets/photos/who-many.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape lavender" style="--t:-1deg"></i></div><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo uno con cada lado de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
+            <div class="who rv"><div class="photo"><img src="/assets/photos/who-home.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape honey l" style="--t:-44deg"></i></div><h4>[[The home where they grow up ||| La casa donde crece]]</h4><p>[[Parents of children from 0 to 6 who want the people far away to be part of an ordinary day. Each home can have up to two adults. ||| Madres y padres de chicos de 0 a 6 años que quieren que quienes están lejos sean parte de un día cualquiera. En cada casa puede haber hasta dos personas adultas.]]</p></div>
+            <div class="who rv" style="--d:.1s"><div class="photo"><img src="/assets/photos/who-far.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape olive r" style="--t:40deg"></i></div><h4>[[The home far away ||| La casa que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents. Nothing to learn and nothing to keep up with: just a way to be there, in your own voice. ||| Abuelos, tíos, padrinos. Nada que aprender y nada que seguir: solo una forma de estar, con tu propia voz.]]</p></div>
+            <div class="who rv" style="--d:.2s"><div class="photo"><img src="/assets/photos/who-many.jpg" width="900" height="1125" loading="lazy" alt="" /><i class="tape lavender l" style="--t:-39deg"></i></div><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo uno con cada lado de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
           </div>
         </div>
       </section>
