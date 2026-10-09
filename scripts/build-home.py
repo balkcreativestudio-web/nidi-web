@@ -850,14 +850,15 @@ TEMPLATE = r'''<!doctype html>
             tEl = document.getElementById("tEl"), tRem = document.getElementById("tRem");
         var DUR = 24000, pos = 0, last = 0, raf = 0, playing = false;
         function fmt(ms) { var t = Math.floor(ms / 1000); return Math.floor(t / 60) + ":" + ("0" + (t % 60)).slice(-2); }
+        // each line is written twice (English, Spanish), so two spans per line
         var lines = document.querySelectorAll("#pWords span");
         function paint() {
           fill.style.width = (pos / DUR * 100) + "%"; tEl.textContent = fmt(pos); tRem.textContent = "-" + fmt(DUR - pos);
-          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= i * 8000); });
+          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= Math.floor(i / 2) * 6000); });
         }
         function tick(now) {
           pos = Math.min(DUR, pos + (now - last)); last = now; paint();
-          if (pos >= DUR) { stop(true); return; }
+          if (pos >= DUR) { stop(false); return; }
           raf = requestAnimationFrame(tick);
         }
         function stop(reset) {
@@ -865,14 +866,22 @@ TEMPLATE = r'''<!doctype html>
           btn.setAttribute("aria-label", lang === "es" ? "Reproducir" : "Play");
           if (reset) { pos = 0; paint(); }
         }
-        btn.addEventListener("click", function () {
-          if (playing) { stop(false); return; }
+        function start() {
+          if (playing) return;
+          if (pos >= DUR) pos = 0;
           playing = true; btn.classList.add("on");
           btn.setAttribute("aria-label", lang === "es" ? "Pausar" : "Pause");
           last = performance.now(); raf = requestAnimationFrame(tick);
+        }
+        var auto = 0;
+        btn.addEventListener("click", function () { clearTimeout(auto); if (playing) { stop(false); } else { start(); } });
+        // Opening it plays it, so the words come up by themselves; press pause to hold them.
+        orb.addEventListener("click", function () {
+          set("open"); btn.tabIndex = 0;
+          setTimeout(function () { close.focus({ preventScroll: true }); }, 600);
+          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) auto = setTimeout(start, 2300);
         });
-        orb.addEventListener("click", function () { set("open"); btn.tabIndex = 0; setTimeout(function () { close.focus({ preventScroll: true }); }, 600); });
-        close.addEventListener("click", function () { stop(true); btn.tabIndex = -1; set("closing"); setTimeout(function () { set("idle"); orb.focus({ preventScroll: true }); }, 50); });
+        close.addEventListener("click", function () { clearTimeout(auto); stop(true); btn.tabIndex = -1; set("closing"); setTimeout(function () { set("idle"); orb.focus({ preventScroll: true }); }, 50); });
       })();
 
       // ── Quiet reveals, only for what is below the fold ────────────
