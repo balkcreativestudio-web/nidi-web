@@ -599,7 +599,7 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow rv">[[Less screen, more together ||| Menos pantalla, más juntos]]</p>
             <h2 class="rv">[[Let children be&nbsp;*children.* ||| Dejemos que los chicos sean&nbsp;*chicos.*]]</h2>
-            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi asks for something else: do something small together, each in your own home, and share it afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un chico de dos años no se queda frente a una pantalla. Por eso Nidi propone otra cosa: hacer algo chico juntos, cada uno en su casa, y compartirlo después.]]</p>
+            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi gives you ideas for small things to do together, each in your own home, and a way to share them afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un chico de dos años no se queda frente a una pantalla. Por eso Nidi te da ideas de cosas chicas para hacer juntos, cada uno en su casa, y una forma de compartirlas después.]]</p>
             <p class="rv muted" style="margin-top: 22px; max-width: 30em">[[Nidi is for the adults. The children keep doing what children do, with you, however far apart you are. ||| Nidi es para los adultos. Los chicos hacen lo que hacen los chicos, con vos, no importa la distancia.]]</p>
           </div>
         </div>
