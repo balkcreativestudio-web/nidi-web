@@ -578,12 +578,12 @@ TEMPLATE = r'''<!doctype html>
               <div class="copy"><p class="eyebrow rv">[[Sharing ||| Compartir]]</p><h3 class="rv">[[A photo, a voice, or a few *words.* ||| Una foto, una voz o unas *palabras.*]]</h3><p class="rv">[[Voice notes in English or Spanish can arrive written out too, so the other home can read along. Whoever recorded sees the words before sending, and can correct them. ||| Los audios en español o en inglés pueden llegar también escritos, para que en la otra casa se puedan leer. Quien grabó ve las palabras antes de mandar y las puede corregir.]]</p></div>
               <div class="pair rv">
                 <div class="screen back"><img lang="en" src="/assets/screens/en-ana-receive-sky.jpg" width="720" height="1566" loading="lazy" alt="A photo of a sky from Bea, opened in full colour." /><img lang="es" src="/assets/screens/es-ana-receive-sky.jpg" width="720" height="1566" loading="lazy" alt="Una foto de un cielo que mandó Bea, abierta a todo color." /></div>
-                <div class="screen mock compose front" role="img" aria-label="[[Sending a photo of a plate of lunch, with a line written under it ||| Mandando la foto de un plato de comida, con una línea escrita debajo]]">
+                <div class="screen mock compose front" role="img" aria-label="[[Sending a photo of a dog asleep in a sunny armchair, with a line written under it ||| Mandando la foto de una perra dormida en un sillón al sol, con una línea escrita debajo]]">
                   <div class="m-status"><span>15:24</span><i></i></div>
                   <p class="m-eyebrow">[[Anytime ||| Cuando quieras]]</p>
                   <p class="m-title">[[Anything you feel like sharing. ||| Lo que tengas ganas de compartir.]]</p>
-                  <div class="m-print"><img src="/assets/photos/print-2.jpg" alt="" width="520" height="780" loading="lazy" /></div>
-                  <div class="m-field">[[he ate the mushrooms, finally. ||| se comió los hongos, por fin.]]</div>
+                  <div class="m-print"><img src="/assets/photos/send-dog.jpg" alt="" width="520" height="520" loading="lazy" /></div>
+                  <div class="m-field">[[found the only sunny spot. ||| encontró el único rincón con sol.]]</div>
                   <div class="m-send">[[Send ||| Enviar]]</div>
                   <p class="m-pick">[[Pick another ||| Elegir otra]]</p>
                 </div>

@@ -1,10 +1,9 @@
 Photos on nidi.life. None shows Nidi's founder or her family.
 
 Unsplash (free to use, credit not required): Loume Visser (hands holding hands), Brina Blum, Loes Klinker,
-Karina Trinidad (canal), Joshua Fernandez (sky), Hannah Lockaby, Filip Urban (child in the garden).
+Karina Trinidad (canal), Joshua Fernandez (sky), Hannah Lockaby, Filip Urban (child in the garden), Celyn Bowen (dog).
 
 Pexels (free to use): hands-flour.jpg is a still from Pexels videos 6970211
 8180415. Not used to imply that the people shown use or recommend Nidi.
 
-print-2.jpg is a demo-account photo (plate of food); replace when a licensed one is chosen.
 Graded to Lola's photo preset (matte, flat, grain) except the Memory prints, which show user photos as the app does.
