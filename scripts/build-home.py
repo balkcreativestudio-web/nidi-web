@@ -224,6 +224,11 @@ TEMPLATE = r'''<!doctype html>
       .pillar .eyebrow { margin-bottom: 10px; color: var(--ink); }
       @media (min-width: 820px) { .pillar-grid { grid-template-columns: repeat(3, 1fr); } .pillar { border-top: 0; border-left: 1px solid var(--hair); padding: 44px 36px; } .pillar:first-child { border-left: 0; padding-left: 0; } }
 
+      /* ── Her words, up where they are felt ───────────────────────── */
+      .stand { padding-block: clamp(72px, 9vw, 128px); }
+      .stand blockquote { margin: 0; max-width: 17em; font-family: var(--serif); font-style: italic; font-size: clamp(30px, 4.4vw, 54px); line-height: 1.18; text-wrap: balance; }
+      .stand-by { margin-top: 32px; max-width: 34em; font-size: 17px; color: var(--ink2); }
+      .stand-by a { color: var(--ink); text-underline-offset: 4px; text-decoration-thickness: 1px; white-space: nowrap; }
       /* ── The moment ───────────────────────────────────────────────── */
       .split { display: grid; gap: 48px; align-items: center; }
       @media (min-width: 900px) { .split { grid-template-columns: 1fr 1fr; gap: 88px; } .split.flip > :first-child { order: 2; } }
@@ -486,6 +491,14 @@ TEMPLATE = r'''<!doctype html>
         </div>
       </section>
 
+      <!-- 2b. HER WORDS ────────────────────────────────────────── -->
+      <section class="bg-cream stand" id="words">
+        <div class="wrap">
+          <blockquote class="rv">[[I wanted her to grow up knowing her grandparents' voices. Not just faces on a&nbsp;screen. ||| Yo quería que creciera conociendo la voz de sus abuelos. No solo caras en una&nbsp;pantalla.]]</blockquote>
+          <p class="rv stand-by">[[Nidi was made by an Argentine mother in the Netherlands, whose parents live 11,000 km away. ||| Nidi lo hizo una mamá argentina que vive en Holanda, con sus papás a 11.000 kilómetros.]] <a href="#why">[[Read why I made it ||| Leé por qué lo hice]]</a></p>
+        </div>
+      </section>
+
       <!-- 3. THE MOMENT ─────────────────────────────────────────── -->
       <section class="bg-paper" id="moment">
         <div class="wrap split">
@@ -621,24 +634,6 @@ TEMPLATE = r'''<!doctype html>
         </div>
       </section>
 
-      <!-- 7. THINGS TO DO ───────────────────────────────────────── -->
-      <section class="bg-cream" id="things">
-        <div class="wrap">
-          <div class="things-head">
-            <p class="eyebrow rv">[[Every day, something small ||| Todos los días, algo chico]]</p>
-            <h2 class="rv">[[Things to do, *apart but together.* ||| Cosas para hacer, *cada uno en su casa y juntos.*]]</h2>
-          </div>
-          <div class="cards">
-            <div class="card rv"><p class="eyebrow">[[Together · Sky ||| Juntos · Cielo]]</p><div class="card-foot"><h4>[[Photograph the same sky ||| Sacar una foto del mismo cielo]]</h4><span class="arrow" aria-hidden="true">→</span></div></div>
-            <div class="card rv" style="--d:.1s"><p class="eyebrow">[[Together · Kitchen ||| Juntos · Cocina]]</p><div class="card-foot"><h4>[[Cook the same recipe ||| Cocinar la misma receta]]</h4><span class="arrow" aria-hidden="true">→</span></div></div>
-            <div class="card rv" style="--d:.2s"><p class="eyebrow">[[Together · Stories ||| Juntos · Cuentos]]</p><div class="card-foot"><h4>[[Read the same page ||| Leer la misma página]]</h4><span class="arrow" aria-hidden="true">→</span></div></div>
-            <div class="card rv"><p class="eyebrow">[[Anyone · Anytime ||| Cualquiera · En cualquier momento]]</p><div class="card-foot"><h4>[[Record a good morning ||| Grabar un buen día]]</h4><span class="arrow" aria-hidden="true">→</span></div></div>
-            <div class="card rv" style="--d:.1s"><p class="eyebrow">[[Mirror · Play ||| Espejo · Juego]]</p><div class="card-foot"><h4>[[One move, held still ||| Un movimiento, y a quedarse quieto]]</h4><span class="arrow" aria-hidden="true">→</span></div></div>
-            <div class="card rv" style="--d:.2s"><p class="eyebrow">[[Only you · Your story ||| Solo vos · Tu historia]]</p><div class="card-foot"><h4>[[A place you have been many times ||| Un lugar donde estuviste muchas veces]]</h4><span class="arrow" aria-hidden="true">→</span></div></div>
-          </div>
-        </div>
-      </section>
-
       <!-- 8. QUIET ON PURPOSE (trust) ───────────────────────────── -->
       <section class="bg-ink" id="trust">
         <div class="wrap">
@@ -648,7 +643,7 @@ TEMPLATE = r'''<!doctype html>
             <div class="q rv"><p class="eyebrow">[[Private ||| Privado]]</p><p>[[Photos and voice notes are stored privately: never public and never searchable. ||| Las fotos y los audios se guardan de forma privada: no son públicos ni aparecen en búsquedas.]]</p></div>
             <div class="q rv" style="--d:.1s"><p class="eyebrow">[[Calm ||| Tranquilo]]</p><p>[[No ads, no feed, no counting. A few things a day, and then it lets you go. ||| Sin publicidad, sin feed, sin contadores. Algunas cosas por día, y después te deja ir.]]</p></div>
             <div class="q rv" style="--d:.2s"><p class="eyebrow">[[Simple ||| Simple]]</p><p>[[You sign in with a code sent to your email. No password to remember. ||| Entrás con un código que te llega por email. Sin contraseña que recordar.]]</p></div>
-            <div class="q rv" style="--d:.3s"><p class="eyebrow">[[Kept ||| Guardado]]</p><p>[[If a subscription ever stops, the nidi pauses for now. What you shared stays in Memory. ||| Si alguna vez se corta la suscripción, el nidi queda en pausa, por ahora. Lo que compartieron sigue en Recuerdos.]]</p></div>
+            <div class="q rv" style="--d:.3s"><p class="eyebrow">[[Kept ||| Guardado]]</p><p>[[Everything you share is kept in Memory, by date, for the family. Nothing gets lost along the way. ||| Todo lo que compartís se guarda en Recuerdos, por fecha, para la familia. Nada se pierde en el camino.]]</p></div>
           </div>
         </div>
       </section>
