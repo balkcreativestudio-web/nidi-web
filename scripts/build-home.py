@@ -578,7 +578,7 @@ TEMPLATE = r'''<!doctype html>
               <p class="p-meta">[[From Bea · Today at 3:03 PM ||| De Bea · Hoy a las 15:03]]</p>
               <button class="p-playbtn" id="playBtn" type="button" aria-label="[[Play ||| Reproducir]]" tabindex="-1"><i class="tri"></i></button>
               <div class="p-track"><span id="playFill"></span></div>
-              <div class="p-times"><span id="tEl">0:00</span><span id="tRem">-0:24</span></div>
+              <div class="p-times"><span id="tEl">0:00</span><span id="tRem">-0:15</span></div>
               <div class="p-words" id="pWords" aria-live="off">
                 <span>[[Good morning, love. ||| Buen día, mi amor.]]</span>
                 <span>[[I looked up and thought of you. ||| Miré para arriba y pensé en vos.]]</span>
@@ -844,17 +844,17 @@ TEMPLATE = r'''<!doctype html>
           openPane.setAttribute("aria-hidden", isOpen ? "false" : "true");
           close.tabIndex = isOpen ? 0 : -1;
         }
-        // A pretend 0:24 voice: the scrubber fills in ink and the times count,
+        // A pretend 0:15 voice: the scrubber fills in ink and the times count,
         // as in the app. Nothing is played; there is no audio on this page.
         var btn = document.getElementById("playBtn"), fill = document.getElementById("playFill"),
             tEl = document.getElementById("tEl"), tRem = document.getElementById("tRem");
-        var DUR = 24000, pos = 0, last = 0, raf = 0, playing = false;
+        var DUR = 15000, pos = 0, last = 0, raf = 0, playing = false;
         function fmt(ms) { var t = Math.floor(ms / 1000); return Math.floor(t / 60) + ":" + ("0" + (t % 60)).slice(-2); }
         // each line is written twice (English, Spanish), so two spans per line
         var lines = document.querySelectorAll("#pWords span");
         function paint() {
           fill.style.width = (pos / DUR * 100) + "%"; tEl.textContent = fmt(pos); tRem.textContent = "-" + fmt(DUR - pos);
-          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= Math.floor(i / 2) * 6000); });
+          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= Math.floor(i / 2) * 4500); });
         }
         function tick(now) {
           pos = Math.min(DUR, pos + (now - last)); last = now; paint();
