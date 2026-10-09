@@ -301,7 +301,7 @@ TEMPLATE = r'''<!doctype html>
       .p-track span { display: block; height: 100%; width: 0; background: var(--ink); }
       /* Lola's transcription card (p.54): frosted, one light stroke, Lora italic,
          each line coming up as the voice reaches it. */
-      .p-words { margin-top: 24px; padding: 18px 20px; border-radius: 22px; background: rgba(255, 254, 248, 0.22); border: 1px solid rgba(255, 254, 248, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.4; color: var(--ink); opacity: 0; transition: opacity 0.9s var(--ease-out) 1.8s; }
+      .p-words { margin-top: 24px; padding: 18px 20px; border-radius: 22px; background: rgba(255, 254, 248, 0.22); border: 1px solid rgba(255, 254, 248, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-family: var(--serif); font-style: italic; font-size: 16px; line-height: 1.4; color: var(--ink); opacity: 0; transition: opacity 0.9s var(--ease-out) 1.8s; }
       .p-words span { display: block; opacity: 0; transform: translateY(4px); transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); }
       .p-words span:first-child { opacity: 0.4; transform: none; }
       .p-words span.on { opacity: 1; transform: none; }
@@ -530,7 +530,7 @@ TEMPLATE = r'''<!doctype html>
             <p class="eyebrow rv">[[The moment ||| El momento]]</p>
             <h2 class="rv">[[Video calls with a baby don't&nbsp;*work.* ||| Las videollamadas con un bebé no&nbsp;*funcionan.*]]</h2>
             <div class="scenes">
-              <div class="scene rv"><p class="eyebrow">[[Far away ||| Lejos]]</p><p>[[A grandmother an ocean away, who still wants to say good morning. ||| Una abuela al otro lado del océano, que igual quiere dar los buenos días.]]</p></div>
+              <div class="scene rv"><p class="eyebrow">[[Far away ||| Lejos]]</p><p>[[A grandmother an ocean away, who still wants to say good morning. ||| Una abuela al otro lado del océano, que igual quiere decir buenos días.]]</p></div>
               <div class="scene rv"><p class="eyebrow">[[Travelling ||| De viaje]]</p><p>[[A parent away for work, who wants to be part of today and not only call at the end of it. ||| Un papá o una mamá de viaje por trabajo, que quiere ser parte del día y no solo llamar al final.]]</p></div>
               <div class="scene rv"><p class="eyebrow">[[Another city ||| Otra ciudad]]</p><p>[[An aunt, an uncle, a godparent: someone who loves the child and lives somewhere else. ||| Una tía, un tío, un padrino: alguien que quiere al niño o a la niña y vive en otro lugar.]]</p></div>
             </div>
@@ -561,8 +561,8 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow rv">[[When something arrives ||| Cuando algo llega]]</p>
             <h2 class="rv">[[It arrives quietly. *Whenever you're ready.* ||| Llega sin hacer ruido. *Cuando quieras.*]]</h2>
-            <p class="lead rv">[[There is no badge, no feed, no pressure. A soft orb in the colour of the person who sent it breathes until you open it. Then their colour fills the room, and you press play when you're ready. ||| Sin globitos rojos, sin feed, sin apuro. Una esfera suave, del color de quien la mandó, respira hasta que la abrís. Entonces su color llena la pantalla y le das play cuando quieras.]]</p>
-            <p class="hint rv">[[Try it: touch the orb. ||| Probalo: tocá la esfera.]]</p>
+            <p class="lead rv">[[There is no badge, no feed, no pressure. A soft bubble in the colour of the person who sent it breathes until you open it. Then their colour fills the room, and you press play when you're ready. ||| Sin numeritos rojos, sin feed, sin apuro. Una burbuja suave, del color de quien la mandó, respira hasta que la abrís. Entonces su color llena la pantalla y le das play cuando quieras.]]</p>
+            <p class="hint rv">[[Try it: touch the bubble. ||| Probalo: tocá la burbuja.]]</p>
           </div>
           <div class="phone rv" id="phone" data-state="idle">
             <div class="p-idle">
@@ -582,8 +582,8 @@ TEMPLATE = r'''<!doctype html>
               <div class="p-times"><span id="tEl">0:00</span><span id="tRem">-0:24</span></div>
               <div class="p-words" id="pWords" aria-live="off">
                 <span>[[Good morning, love. ||| Buen día, mi amor.]]</span>
-                <span>[[The sun came out here, ||| Salió el sol acá,]]</span>
-                <span>[[so I thought of you. ||| y me acordé de vos.]]</span>
+                <span>[[I looked up and thought of you. ||| Miré para arriba y pensé en vos.]]</span>
+                <span>[[It's the same sky. ||| Es el mismo cielo.]]</span>
               </div>
             </div>
             <button class="p-close" id="closeBtn" type="button" aria-label="[[Close ||| Cerrar]]" tabindex="-1">×</button>
@@ -598,7 +598,7 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow rv">[[Less screen, more together ||| Menos pantalla, más juntos]]</p>
             <h2 class="rv">[[Let children be&nbsp;*children.* ||| Dejemos que los chicos sean&nbsp;*chicos.*]]</h2>
-            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi asks for something else: do something small together, each in your own home, and share it afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un chiquito de dos años no se queda frente a una pantalla. Por eso Nidi propone otra cosa: hacer algo chico juntos, cada uno en su casa, y compartirlo después.]]</p>
+            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi asks for something else: do something small together, each in your own home, and share it afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un chico de dos años no se queda frente a una pantalla. Por eso Nidi propone otra cosa: hacer algo chico juntos, cada uno en su casa, y compartirlo después.]]</p>
             <p class="rv muted" style="margin-top: 22px; max-width: 30em">[[The screen carries it; the moment happens off it. Nidi is for the adults. The children keep doing what children do, with you, however far apart you are. ||| La pantalla lo lleva; el momento pasa afuera de ella. Nidi es para los adultos. Los chicos hacen lo que hacen los chicos, con vos, no importa la distancia.]]</p>
           </div>
         </div>
