@@ -313,6 +313,15 @@ TEMPLATE = r'''<!doctype html>
       .m-field { position: absolute; left: 6cqw; right: 6cqw; top: 148cqw; padding: 3.3cqw 4cqw; text-align: center; border: 0.35cqw solid rgba(42, 36, 29, 0.75); border-radius: 2cqw; background: rgba(255, 254, 248, 0.36); font-family: var(--serif); font-style: italic; font-size: 5cqw; }
       .m-send { position: absolute; left: 25cqw; right: 25cqw; top: 177cqw; height: 13.4cqw; border-radius: 99px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 500; font-size: 5.2cqw; }
       .m-pick { position: absolute; left: 0; right: 0; top: 196cqw; text-align: center; font-weight: 500; font-size: 4cqw; }
+      .screen.recv { background: linear-gradient(180deg, #87995b 0%, color-mix(in srgb, var(--paper) 22%, var(--olive)) 38%, color-mix(in srgb, var(--paper) 78%, var(--olive)) 72%, var(--paper) 100%); color: var(--ink); }
+      .recv .m-status { color: var(--paper); }
+      .m-x { position: absolute; right: 6.5cqw; top: 22cqw; color: var(--paper); font-size: 9cqw; line-height: 1; font-weight: 300; }
+      .m-meta { position: absolute; left: 8cqw; right: 8cqw; top: 40cqw; color: var(--paper); font-weight: 500; font-size: 3.1cqw; letter-spacing: 0.12em; text-transform: uppercase; }
+      .m-photo { position: absolute; left: 8cqw; right: 8cqw; top: 50cqw; border-radius: 3cqw; overflow: hidden; box-shadow: 0 2cqw 6cqw rgba(42, 36, 29, 0.18); }
+      .m-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+      .m-line { position: absolute; left: 8cqw; right: 8cqw; top: 163cqw; font-family: var(--serif); font-style: italic; font-size: 5.4cqw; }
+      .m-reply { position: absolute; left: 6cqw; right: 6cqw; bottom: 9cqw; height: 16cqw; border-radius: 5cqw; background: var(--paper); box-shadow: 0 1cqw 3cqw rgba(42, 36, 29, 0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 3.5cqw 0 5cqw; font-size: 4.2cqw; }
+      .m-reply b { width: 10cqw; height: 10cqw; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 300; font-size: 5cqw; }
       /* Memory's entry screen, to Lola's own canvas (440 wide): the same
          title, the same three slots and rotations, the same polaroid. */
       .mem { --u: calc(100cqw / 440); }
@@ -577,7 +586,14 @@ TEMPLATE = r'''<!doctype html>
             <div class="row">
               <div class="copy"><p class="eyebrow rv">[[Sharing ||| Compartir]]</p><h3 class="rv">[[A photo, a voice, or a few *words.* ||| Una foto, una voz o unas *palabras.*]]</h3><p class="rv">[[Voice notes in English or Spanish can arrive written out too, so the other home can read along. Whoever recorded sees the words before sending, and can correct them. ||| Los audios en español o en inglés pueden llegar también escritos, para que en la otra casa se puedan leer. Quien grabó ve las palabras antes de mandar y las puede corregir.]]</p></div>
               <div class="pair rv">
-                <div class="screen back"><img lang="en" src="/assets/screens/en-ana-receive-sky.jpg" width="720" height="1566" loading="lazy" alt="A photo of a sky from Bea, opened in full colour." /><img lang="es" src="/assets/screens/es-ana-receive-sky.jpg" width="720" height="1566" loading="lazy" alt="Una foto de un cielo que mandó Bea, abierta a todo color." /></div>
+                <div class="screen mock recv back" role="img" aria-label="[[A photo from Bea of a sunny window with plants, with a line under it ||| Una foto de Bea de una ventana con sol y plantas, con una línea debajo]]">
+                  <div class="m-status"><span>15:04</span><i></i></div>
+                  <span class="m-x" aria-hidden="true">×</span>
+                  <p class="m-meta">[[From Bea · Today at 3:03 PM ||| De Bea · Hoy a las 15:03]]</p>
+                  <div class="m-photo"><img src="/assets/photos/recv-window.jpg" alt="" width="700" height="875" loading="lazy" /></div>
+                  <p class="m-line">[[our window, this morning. ||| nuestra ventana, esta mañana.]]</p>
+                  <div class="m-reply"><span>[[Whenever you're ready, reply. ||| Cuando quieras, contestale.]]</span><b aria-hidden="true">→</b></div>
+                </div>
                 <div class="screen mock compose front" role="img" aria-label="[[Sending a photo of a dog asleep in a sunny armchair, with a line written under it ||| Mandando la foto de una perra dormida en un sillón al sol, con una línea escrita debajo]]">
                   <div class="m-status"><span>15:24</span><i></i></div>
                   <p class="m-eyebrow">[[Anytime ||| Cuando quieras]]</p>
