@@ -302,9 +302,8 @@ TEMPLATE = r'''<!doctype html>
       /* Lola's transcription card (p.54): frosted, one light stroke, Lora italic,
          each line coming up as the voice reaches it. */
       .p-words { margin-top: 24px; padding: 18px 20px; border-radius: 22px; background: rgba(255, 254, 248, 0.22); border: 1px solid rgba(255, 254, 248, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-family: var(--serif); font-style: italic; font-size: 16px; line-height: 1.4; color: var(--ink); opacity: 0; transition: opacity 0.9s var(--ease-out) 1.8s; }
-      .p-words span { display: block; opacity: 0; transform: translateY(4px); transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); }
-      .p-words span:first-child { opacity: 0.4; transform: none; }
-      .p-words span.on { opacity: 1; transform: none; }
+      .p-words span { display: block; opacity: 0.62; transition: opacity 0.9s var(--ease-out); }
+      .p-words span.on { opacity: 1; }
       .p-times { margin-top: 8px; display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 0.03em; color: var(--ink); font-variant-numeric: tabular-nums; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.5s; }
       /* ── The app, one screen at a time ───────────────────────────── */
       .tour-head { max-width: 760px; }
