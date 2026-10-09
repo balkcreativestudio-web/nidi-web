@@ -302,8 +302,8 @@ TEMPLATE = r'''<!doctype html>
       /* Lola's transcription card (p.54): frosted, one light stroke, Lora italic,
          each line coming up as the voice reaches it. */
       .p-words { margin-top: 24px; padding: 18px 20px; border-radius: 22px; background: rgba(255, 254, 248, 0.22); border: 1px solid rgba(255, 254, 248, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-family: var(--serif); font-style: italic; font-size: 16px; line-height: 1.4; color: var(--ink); opacity: 0; transition: opacity 0.9s var(--ease-out) 1.8s; }
-      .p-words span { display: block; opacity: 0; transform: translateY(5px); transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out); }
-      .p-words span.on { opacity: 1; transform: none; }
+      .p-words > span { display: block; opacity: 0; transform: translateY(5px); transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out); }
+      .p-words > span.on { opacity: 1; transform: none; }
       .p-times { margin-top: 8px; display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 0.03em; color: var(--ink); font-variant-numeric: tabular-nums; opacity: 0; transition: opacity 0.9s var(--ease-out) 1.5s; }
       /* ── The app, one screen at a time ───────────────────────────── */
       .tour-head { max-width: 760px; }
@@ -452,7 +452,7 @@ TEMPLATE = r'''<!doctype html>
         html { scroll-behavior: auto; }
         *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; transition-delay: 0s !important; }
         .home p { opacity: 1; }
-        .p-words span { opacity: 1; transform: none; }
+        .p-words > span { opacity: 1; transform: none; }
         .light { display: none; }
       }
     </style>
@@ -851,11 +851,11 @@ TEMPLATE = r'''<!doctype html>
             tEl = document.getElementById("tEl"), tRem = document.getElementById("tRem");
         var DUR = 15000, pos = 0, last = 0, raf = 0, playing = false;
         function fmt(ms) { var t = Math.floor(ms / 1000); return Math.floor(t / 60) + ":" + ("0" + (t % 60)).slice(-2); }
-        // each line is written twice (English, Spanish), so two spans per line
-        var lines = document.querySelectorAll("#pWords span");
+        // one span per line; inside it the English and the Spanish
+        var lines = document.querySelectorAll("#pWords > span");
         function paint() {
           fill.style.width = (pos / DUR * 100) + "%"; tEl.textContent = fmt(pos); tRem.textContent = "-" + fmt(DUR - pos);
-          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= Math.floor(i / 2) * 4500); });
+          lines.forEach(function (l, i) { l.classList.toggle("on", pos > 0 && pos >= i * 3500); });
         }
         function tick(now) {
           pos = Math.min(DUR, pos + (now - last)); last = now; paint();
@@ -880,7 +880,7 @@ TEMPLATE = r'''<!doctype html>
         orb.addEventListener("click", function () {
           set("open"); btn.tabIndex = 0;
           setTimeout(function () { close.focus({ preventScroll: true }); }, 600);
-          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) auto = setTimeout(start, 1500);
+          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) auto = setTimeout(start, 1000);
         });
         close.addEventListener("click", function () { clearTimeout(auto); stop(true); btn.tabIndex = -1; set("closing"); setTimeout(function () { set("idle"); orb.focus({ preventScroll: true }); }, 50); });
       })();
