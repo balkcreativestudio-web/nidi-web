@@ -597,7 +597,7 @@ TEMPLATE = r'''<!doctype html>
                 <p class="mem-sub">[[Take a look back at what you've shared ||| Lo que fueron guardando entre las dos casas.]]</p>
                 <div class="m-av" aria-hidden="true">A</div>
                 <div class="print p3"><img src="/assets/photos/mem-canal.jpg" alt="" width="520" height="780" loading="lazy" /></div>
-                <div class="print p2"><img src="/assets/photos/mem-window.jpg" alt="" width="520" height="780" loading="lazy" /></div>
+                <div class="print p2"><img src="/assets/photos/mem-home.jpg" alt="" width="520" height="780" loading="lazy" /></div>
                 <div class="print p1"><img src="/assets/photos/mem-sky.jpg" alt="" width="520" height="780" loading="lazy" /></div>
               </div>
             </div>
