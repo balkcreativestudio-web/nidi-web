@@ -730,7 +730,7 @@ TEMPLATE = r'''<!doctype html>
         <div class="wrap free-grid">
           <div>
             <p class="eyebrow rv">[[Free to start ||| Gratis para empezar]]</p>
-            <h2 class="rv">[[Try it for two weeks, with nothing to&nbsp;*set up.* ||| Probala dos semanas, sin nada que&nbsp;*configurar.*]]</h2>
+            <h2 class="rv">[[Try it for two weeks, with nothing to&nbsp;*pay.* ||| Probala dos semanas, sin pagar&nbsp;*nada.*]]</h2>
           </div>
           <div class="free-list">
             <div class="free-item rv"><h4>[[Two free weeks ||| Dos semanas gratis]]</h4><p>[[Your first nidi starts with two weeks, counted from the day the other home joins. No payment details, and nothing is charged when it ends. ||| El primer nidi que empezás tiene dos semanas, que se cuentan desde el día en que entra la otra casa. Sin medio de pago, y no se cobra nada cuando terminan.]]</p></div>
