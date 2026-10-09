@@ -597,6 +597,9 @@
       (function () {
         try {
           if (location.hostname.replace(/^www\./, "") !== "nidi.life") return;
+          // Maru and Claude are not visitors: open nidi.life/?notrack once on a device and it never counts again there.
+          if (location.search.indexOf("notrack") > -1) localStorage.setItem("nidi-notrack", "1");
+          if (localStorage.getItem("nidi-notrack")) return;
           var p = location.pathname;
           var body = JSON.stringify({
             // Trimmed here as well as on the server, so a code is not
