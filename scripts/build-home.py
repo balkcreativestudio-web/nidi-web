@@ -733,9 +733,9 @@ TEMPLATE = r'''<!doctype html>
             <h2 class="rv">[[Try it for two weeks, with nothing to&nbsp;*pay.* ||| Pruébala dos semanas, sin pagar&nbsp;*nada.*]]</h2>
           </div>
           <div class="free-list">
-            <div class="free-item rv"><h4>[[Two free weeks ||| Dos semanas gratis]]</h4><p>[[Your first nidi starts with two weeks, counted from the day the other home joins. No payment details, and nothing is charged when it ends. ||| El primer nidi que empiezas tiene dos semanas, que se cuentan desde el día en que entra la otra casa. Sin medio de pago, y no se cobra nada cuando terminan.]]</p></div>
-            <div class="free-item rv"><h4>[[Then, a subscription ||| Después, una suscripción]]</h4><p>[[To keep sharing, the person who started the nidi chooses a monthly or yearly subscription. One covers up to three nidis. Options and prices are shown in the app before anything is charged. ||| Para seguir compartiendo, quien empezó el nidi elige una suscripción mensual o anual. Una cubre hasta tres nidis. Las opciones y los precios se ven en la app antes de que se cobre nada.]]</p></div>
-            <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[The people you invite join free and never pay for it. ||| Las personas que invitas se suman gratis y nunca pagan.]]</p></div>
+            <div class="free-item rv"><h4>[[Two free weeks ||| Dos semanas gratis]]</h4><p>[[You can start your nidi for free for two weeks, counted from the day the other “home” joins. ||| Puedes iniciar tu nidi de forma gratuita durante dos semanas, desde el día en que ingresa la otra “casa”.]]</p></div>
+            <div class="free-item rv"><h4>[[To keep sharing… ||| Para seguir compartiendo…]]</h4><p>[[One subscription covers up to three nidis. Prices are shown in the app. ||| Una suscripción cubre hasta tres nidis. Las tarifas se encuentran en la app.]]</p></div>
+            <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[The people invited to your nidi don't pay a subscription; only the person who starts the nidi does. ||| Los invitados a tu nidi no tienen que pagar suscripción; solo lo hacen quienes inician el nidi.]]</p></div>
           </div>
         </div>
       </section>
