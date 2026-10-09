@@ -142,6 +142,7 @@ TEMPLATE = r'''<!doctype html>
       /* ── Type (Lola p.26, scaled for a browser) ─────────────────── */
       h1, h2, h3, h4 { margin: 0; font-family: var(--serif); font-weight: 400; text-wrap: balance; }
       h1 { font-size: clamp(34px, 6.1vw, 84px); line-height: 1.06; letter-spacing: -0.012em; }
+      html[lang="es"] h1 { font-size: clamp(34px, 5.3vw, 72px); }
       h2 { font-size: clamp(34px, 4.7vw, 62px); line-height: 1.1; letter-spacing: -0.008em; }
       h3 { font-size: clamp(27px, 3.1vw, 40px); line-height: 1.15; }
       h4 { font-size: 22px; line-height: 1.25; }
@@ -513,7 +514,7 @@ TEMPLATE = r'''<!doctype html>
         <div class="wrap hero-grid">
           <div>
             <p class="eyebrow">[[A shared space for two homes ||| Un espacio compartido entre dos casas]]</p>
-            <h1>[[Grow close. From&nbsp;*anywhere.* ||| Crecé cerca. Desde *donde&nbsp;estés.*]]</h1>
+            <h1>[[Grow close. From&nbsp;*anywhere.* ||| Crecé cerca. Desde&nbsp;*donde&nbsp;estés.*]]</h1>
             <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. Share a voice, a photo or a few words, and do small things together. Made for children from 0 to 6. ||| Nidi une dos casas: la de un chico que crece y otra que está lejos. Compartí una voz, una foto o unas palabras, y hagan cosas chicas juntos. Pensada para chicos de 0 a 6 años.]]</p>
             <div class="cta">
               @@FORM:hero@@
