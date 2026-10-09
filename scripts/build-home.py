@@ -494,8 +494,8 @@ TEMPLATE = r'''<!doctype html>
       <!-- 2b. HER WORDS ────────────────────────────────────────── -->
       <section class="bg-cream stand" id="words">
         <div class="wrap">
-          <blockquote class="rv">[[I wanted her to grow up knowing her grandparents' voices. Not just faces on a&nbsp;screen. ||| Yo quería que creciera conociendo la voz de sus abuelos. No solo caras en una&nbsp;pantalla.]]</blockquote>
-          <p class="rv stand-by">[[Nidi was made by an Argentine mother in the Netherlands, whose parents live 11,000 km away. ||| Nidi lo hizo una mamá argentina que vive en Holanda, con sus papás a 11.000 kilómetros.]] <a href="#why">[[Read why I made it ||| Leé por qué lo hice]]</a></p>
+          <blockquote class="rv">[[I wanted her to grow up knowing her grandparents' voices, not just their faces on a&nbsp;screen. ||| Yo quería que creciera conociendo la voz de sus abuelos, no solo sus caras en una&nbsp;pantalla.]]</blockquote>
+          <p class="rv stand-by"><a href="#why">[[Read why I made Nidi ||| Leé por qué hice Nidi]]</a></p>
         </div>
       </section>
 
