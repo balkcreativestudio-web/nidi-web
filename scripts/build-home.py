@@ -622,12 +622,12 @@ TEMPLATE = r'''<!doctype html>
             <div class="row">
               <div class="copy"><p class="eyebrow rv">[[Sharing ||| Compartir]]</p><h3 class="rv">[[A photo, a voice, or a few *words.* ||| Una foto, una voz o unas *palabras.*]]</h3><p class="rv">[[Voice notes in English or Spanish can arrive written out too, so the other home can read along. Whoever recorded sees the words before sending, and can correct them. ||| Los audios en español o en inglés pueden llegar también escritos, para que en la otra casa se puedan leer. Quien grabó ve las palabras antes de mandar y las puede corregir.]]</p></div>
               <div class="pair rv">
-                <div class="screen mock recv back" role="img" aria-label="[[A photo from Bea of a sunny window with plants, with a line under it ||| Una foto de Bea de una ventana con sol y plantas, con una línea debajo]]">
+                <div class="screen mock recv back" role="img" aria-label="[[A photo from Bea of a grandfather's hand holding a baby's, with a line under it ||| Una foto de Bea de la mano de un abuelo agarrando la de un bebé, con una línea debajo]]">
                   <div class="m-status"><span>15:04</span><i></i></div>
                   <span class="m-x" aria-hidden="true">×</span>
                   <p class="m-meta">[[From Bea · Today at 3:03 PM ||| De Bea · Hoy a las 15:03]]</p>
-                  <div class="m-photo"><img src="/assets/photos/recv-window.jpg" alt="" width="700" height="875" loading="lazy" /></div>
-                  <p class="m-line">[[our window, this morning. ||| nuestra ventana, esta mañana.]]</p>
+                  <div class="m-photo"><img src="/assets/photos/recv-hands.jpg" alt="" width="700" height="875" loading="lazy" /></div>
+                  <p class="m-line">[[grandpa and his favourite hand. ||| el abuelo y su mano favorita.]]</p>
                   <div class="m-reply"><span>[[Whenever you're ready, reply. ||| Cuando quieras, contestale.]]</span><b aria-hidden="true">→</b></div>
                 </div>
                 <div class="screen mock compose front" role="img" aria-label="[[Sending a photo of a dog asleep in a sunny armchair, with a line written under it ||| Mandando la foto de una perra dormida en un sillón al sol, con una línea escrita debajo]]">
