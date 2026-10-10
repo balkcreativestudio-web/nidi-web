@@ -380,7 +380,15 @@
         .doc h1 { font-size: 22px !important; line-height: 24px !important; }
         .doc h2 { font-size: 18px !important; line-height: 24px !important; }
       }
-    </style>
+    
+      /* Phone: iubenda's sticky "Índice" button let the text run under it, and
+         a long word pushed past its card (Maru's mother, 2026-10-10). */
+      .doc .table-of-content-btn-wrapper { background: #fffdf9 !important; padding-block: 8px; z-index: 30; }
+      .doc .card-button, .doc .card-button * { overflow-wrap: anywhere; min-width: 0; }
+      @media (max-width: 480px) { .doc .card-button { font-size: 16px; } }
+      /* Desktop: the contents list was sticky and slid over the text as the page scrolled. */
+      @media (min-width: 801px) { .doc #table-of-content-wrapper { position: static !important; } }
+</style>
   </head>
 
   <body>

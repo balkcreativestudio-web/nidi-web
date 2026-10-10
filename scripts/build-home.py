@@ -536,9 +536,9 @@ TEMPLATE = r'''<!doctype html>
       <!-- 2. THREE PILLARS ──────────────────────────────────────── -->
       <section class="pillars" aria-label="[[What Nidi is ||| Qué es Nidi]]">
         <div class="wrap pillar-grid">
-          <div class="pillar rv"><p class="eyebrow">[[Voice, photo and text ||| Voz, foto y texto]]</p><p>[[A few things a day, and nothing to scroll. |||Algunas cosas por día, y nada que revisar.]]</p></div>
+          <div class="pillar rv"><p class="eyebrow">[[Voice, photo and text ||| Voz, foto y texto]]</p><p>[[A few things a day, and nothing to scroll. |||Algunos instantes del día y nada que revisar.]]</p></div>
           <div class="pillar rv" style="--d:.12s"><p class="eyebrow">[[Only your family ||| Solo tu familia]]</p><p>[[Seen by the people in your nidi, and no one else. ||| Lo ven las personas de tu nidi, y nadie más.]]</p></div>
-          <div class="pillar rv" style="--d:.24s"><p class="eyebrow">[[Free to start ||| Gratis para empezar]]</p><p>[[Two free weeks, no payment details needed. ||| Dos semanas gratis, sin necesidad de medio de pago.]]</p></div>
+          <div class="pillar rv" style="--d:.24s"><p class="eyebrow">[[Free to start ||| Gratis para empezar]]</p><p>[[Two free weeks, no payment details needed. ||| Dos semanas gratis, sin necesidad de ingresar datos de pago.]]</p></div>
         </div>
       </section>
 
@@ -623,7 +623,7 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow rv">[[Less screen, more together ||| Menos pantalla, más juntos]]</p>
             <h2 class="rv">[[Let children be&nbsp;*children.* ||| Dejemos que los niños sean&nbsp;*niños.*]]</h2>
-            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi gives you ideas for small things to do together, each in your own home, and a way to share them afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un niño de dos años no se queda frente a una pantalla. Por eso Nidi te da ideas de cosas simples para hacer juntos, cada uno en su hogar, y una forma de compartirlas después.]]</p>
+            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">[[We don't always have time for a call, and a baby or a toddler won't sit through one anyway. So Nidi gives you ideas for small things to do together, each in your own home, and a way to share them afterwards. ||| No siempre hay tiempo para una llamada, y un bebé o un niño de dos años no se queda frente a una pantalla. Por eso Nidi te da ideas de cosas simples para hacer juntos, cada uno en su casa, y una forma de compartirlas después.]]</p>
           </div>
         </div>
       </section>
@@ -705,7 +705,7 @@ TEMPLATE = r'''<!doctype html>
           <h2 class="rv" style="max-width: 14em">[[Quiet on&nbsp;*purpose.* ||| Silenciosa a&nbsp;*propósito.*]]</h2>
           <div class="quiet-grid">
             <div class="q rv"><p class="eyebrow">[[Private ||| Privado]]</p><p>[[Photos and voice notes are stored privately: never public and never searchable. ||| Las fotos y los audios se guardan de forma privada: no son públicos ni aparecen en búsquedas.]]</p></div>
-            <div class="q rv" style="--d:.1s"><p class="eyebrow">[[Calm ||| Tranquilo]]</p><p>[[No ads, no feed, no counting. A few things a day, and then it lets you go. ||| Sin publicidad, sin feed, sin contadores. Algunas cosas por día, y después te deja ir.]]</p></div>
+            <div class="q rv" style="--d:.1s"><p class="eyebrow">[[Calm ||| Tranquilo]]</p><p>[[No ads, no feed, no counting. A few things a day, and then it lets you go. ||| Sin publicidad, sin feed, sin contadores. Algunos instantes en el día y después te deja ir.]]</p></div>
             <div class="q rv" style="--d:.2s"><p class="eyebrow">[[Simple ||| Simple]]</p><p>[[You sign in with a code sent to your email. No password to remember. ||| Entras con un código que te llega por email. Sin contraseña que recordar.]]</p></div>
             
           </div>
@@ -720,7 +720,7 @@ TEMPLATE = r'''<!doctype html>
           <div class="who-grid">
             <div class="who rv"><div class="photo"><img src="/assets/photos/who-home.jpg" width="900" height="1125" loading="lazy" alt="[[A baby playing near a bookshelf and plants, at home. ||| Un bebé jugando junto a un estante de libros y plantas, en casa.]]" /><i class="tape honey l" style="--t:-44deg"></i></div><h4>[[The home where they grow up ||| El hogar donde crece]]</h4><p>[[Parents who want to share everyday moments with the people far away. Each home can have up to two adults. ||| Madres y padres que quieren compartir con quienes están lejos momentos del día a día. En cada hogar puede haber hasta dos personas adultas.]]</p></div>
             <div class="who rv" style="--d:.1s"><div class="photo"><img src="/assets/photos/who-far.jpg" width="900" height="1125" loading="lazy" alt="[[An older person's hands cooking at a stove. ||| Las manos de una persona mayor cocinando.]]" /><i class="tape olive r" style="--t:40deg"></i></div><h4>[[The home far away ||| El hogar que está lejos]]</h4><p>[[Grandparents, aunts, uncles, godparents: a way to be there, in your own voice. ||| Abuelos, tíos, padrinos: una forma de estar, con tu propia voz.]]</p></div>
-            <div class="who rv" style="--d:.2s"><div class="photo"><img src="/assets/photos/who-many.jpg" width="900" height="1125" loading="lazy" alt="[[A canal lined with old houses in Amsterdam, in autumn. ||| Un canal con casas antiguas en Ámsterdam, en otoño.]]" /><i class="tape lavender l" style="--t:-39deg"></i></div><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo uno con cada lado de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
+            <div class="who rv" style="--d:.2s"><div class="photo"><img src="/assets/photos/who-many.jpg" width="900" height="1125" loading="lazy" alt="[[A canal lined with old houses in Amsterdam, in autumn. ||| Un canal con casas antiguas en Ámsterdam, en otoño.]]" /><i class="tape lavender l" style="--t:-39deg"></i></div><h4>[[More than one nidi ||| Más de un nidi]]</h4><p>[[One person can be part of several nidis, say one with each side of the family. Everyone reads Nidi in their own language, English or Spanish. ||| Una misma persona puede tener más de un nidi, por ejemplo, uno con cada rama de la familia. Cada persona usa Nidi en su idioma, español o inglés.]]</p></div>
           </div>
         </div>
       </section>
@@ -735,7 +735,7 @@ TEMPLATE = r'''<!doctype html>
           <div class="free-list">
             <div class="free-item rv"><h4>[[Two free weeks ||| Dos semanas gratis]]</h4><p>[[You can start your nidi for free for two weeks, counted from the day the other “home” joins. ||| Puedes iniciar tu nidi de forma gratuita durante dos semanas, desde el día en que ingresa el otro “hogar”.]]</p></div>
             <div class="free-item rv"><h4>[[To keep sharing… ||| Para seguir compartiendo…]]</h4><p>[[One subscription covers up to three nidis. Prices are shown in the app. ||| Una suscripción cubre hasta tres nidis. Las tarifas se encuentran en la app.]]</p></div>
-            <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[The people invited to your nidi don't pay a subscription; only the person who starts the nidi does. ||| Los invitados a tu nidi no tienen que pagar suscripción; solo lo hacen quienes inician el nidi.]]</p></div>
+            <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[The people invited to your nidi don't pay a subscription; only the person who starts the nidi does. ||| Los invitados a tu nidi no tienen que abonar suscripción; solo lo hacen quienes inician el nidi.]]</p></div>
           </div>
         </div>
       </section>
@@ -747,7 +747,7 @@ TEMPLATE = r'''<!doctype html>
           <h2 class="rv">[[Why I made&nbsp;*Nidi.* ||| Por qué hice&nbsp;*Nidi.*]]</h2>
           <div class="why-body">
             <p class="rv">[[I'm an Argentine mother in the Netherlands. When my daughter was born, my parents were 11,000 km away, and video calls with a baby don't work. I wanted her to grow up knowing her grandparents' voices, their stories, the small things they do every day. Not just faces on a screen. So I built Nidi. ||| Soy una mamá argentina que vive en Países Bajos. Cuando nació mi hija, mis papás estaban a 11.000 kilómetros, y las videollamadas con un bebé no funcionan. Yo quería que creciera conociendo la voz de sus abuelos, sus historias, las cosas chiquitas que hacen todos los días. No solo caras en una pantalla. Entonces hice Nidi.]]</p>
-            <p class="rv">[[Nidi connects two houses: the child's, and one far away. Every day it suggests small things to do, apart but together. A grandmother records a good morning in her voice. Both houses photograph the same sky, or cook the same recipe. The screen carries it; the moment happens off it. It all lands in Memory, an archive that stays with the&nbsp;family. ||| Nidi une dos hogares: el del niño, y otro que está en otro lugar. Todos los días propone cosas simples para hacer, cada uno en su hogar y los dos juntos. Una abuela graba un buen día con su voz. Los dos hogares toman una foto del mismo cielo, o cocinan la misma receta. La pantalla lo lleva; el momento pasa afuera de ella. Todo queda en Recuerdos, un archivo que se queda con la&nbsp;familia.]]</p>
+            <p class="rv">[[Nidi connects two houses: the child's, and one far away. Every day it suggests small things to do, apart but together. A grandmother records a good morning in her voice. Both houses photograph the same sky, or cook the same recipe. The screen carries it; the moment happens off it. It all lands in Memory, an archive that stays with the&nbsp;family. ||| Nidi une dos hogares: el del niño, y otro que está en otro lugar. Todos los días propone cosas simples para hacer, cada uno en su casa y los dos juntos. Una abuela graba un buen día con su voz. Los dos hogares toman una foto del mismo cielo, o cocinan la misma receta. La pantalla lo lleva; el momento pasa afuera de ella. Todo queda en Recuerdos, un archivo que se queda con la&nbsp;familia.]]</p>
             <p class="rv">[[Since we started testing, my parents have read my daughter bedtime stories, sung to her at breakfast, and left a good morning every day, recorded the night before in Buenos Aires. ||| Desde que empezamos a probarlo, mis papás le leyeron cuentos a mi hija antes de dormir, le cantaron en el desayuno, y le dejaron un buen día todos los días, grabado la noche anterior en Buenos Aires.]]</p>
           </div>
           <div class="why-turn">
@@ -766,7 +766,7 @@ TEMPLATE = r'''<!doctype html>
           <p class="eyebrow rv">[[Questions ||| Preguntas]]</p>
           <h2 class="rv">[[A few things you might be&nbsp;*wondering.* ||| Lo que quizás te estés&nbsp;*preguntando.*]]</h2>
           <div class="faq rv">
-            <details><summary>[[Is Nidi free? ||| ¿Nidi es gratis?]]</summary><div>[[Two free weeks, with no payment details. Then the person who started the nidi chooses a monthly or yearly subscription. ||| Dos semanas gratis, sin medio de pago. Después, quien inició el nidi elige una suscripción mensual o anual.]]</div></details>
+            <details><summary>[[Is Nidi free? ||| ¿Nidi es gratis?]]</summary><div>[[Two free weeks, with no payment details. Then the person who started the nidi chooses a monthly or yearly subscription. ||| Dos semanas gratis, sin ingresar datos de pago. Después, quien inició el nidi elige una suscripción mensual o anual.]]</div></details>
             <details><summary>[[Who pays? ||| ¿Quién paga?]]</summary><div>[[Only the person who starts a nidi, and one subscription covers up to three nidis. The people they invite never pay. ||| Solo quien inicia un nidi, y una suscripción cubre hasta tres nidis. Las personas que invita nunca pagan.]]</div></details>
             <details><summary>[[Does the other home need the app? ||| ¿El otro hogar necesita la app?]]</summary><div>[[Yes. They install Nidi, sign in with a code sent to their email, and join with your invitation. It is free for them. ||| Sí. Instalan Nidi, entran con un código que les llega por email y se suman con tu invitación. Para ellos es gratis.]]</div></details>
             <details><summary>[[Who can see what we share? ||| ¿Quién ve lo que compartimos?]]</summary><div>[[Only the people in your nidi. Nothing is public or searchable. ||| Solo las personas de tu nidi. Nada es público ni aparece en búsquedas.]]</div></details>
