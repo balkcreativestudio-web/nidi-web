@@ -250,9 +250,6 @@ TEMPLATE = r'''<!doctype html>
 
       /* ── Her words, up where they are felt ───────────────────────── */
       .stand { padding-block: clamp(72px, 9vw, 128px); }
-      .mid { padding-block: clamp(56px, 7vw, 96px); }
-      .mid-grid { display: grid; gap: 28px; align-items: center; }
-      @media (min-width: 900px) { .mid-grid { grid-template-columns: 1fr 1fr; gap: 80px; } }
       .stand { text-align: center; padding-block: clamp(96px, 12vw, 176px); }
       .stand blockquote { margin: 0 auto; max-width: 15em; font-family: var(--serif); font-style: normal; font-size: clamp(32px, 4.8vw, 64px); line-height: 1.14; letter-spacing: -0.008em; text-wrap: balance; }
       .stand-by { margin-top: 32px; max-width: 34em; font-size: 17px; color: var(--ink2); }
@@ -582,19 +579,6 @@ TEMPLATE = r'''<!doctype html>
               </div>
             </div>
             <button class="p-close" id="closeBtn" type="button" aria-label="[[Close ||| Cerrar]]" tabindex="-1">×</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- 5a. A WAY IN, HALF WAY DOWN ───────────────────────────── -->
-      <section class="bg-paper mid" id="mid">
-        <div class="wrap mid-grid">
-          <div>
-            <p class="eyebrow">[[Coming soon ||| Muy pronto]]</p>
-            <h2>[[We'll write when it's&nbsp;*ready.* ||| Te escribimos cuando esté&nbsp;*listo.*]]</h2>
-          </div>
-          <div class="cta">
-            @@FORM:mid@@
           </div>
         </div>
       </section>
@@ -1030,7 +1014,7 @@ META = {
 def render(lang):
     m = META[lang]
     out = TEMPLATE
-    for fid in ('hero', 'mid', 'end'):
+    for fid in ('hero', 'end'):
         out = out.replace(f'@@FORM:{fid}@@', FORM.replace('@@ID@@', fid))
     out = (out.replace('@@WORDMARK@@', WORDMARK)
               .replace('@@WORDMARK_CTA@@', WORDMARK_CTA)

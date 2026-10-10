@@ -213,9 +213,6 @@
 
       /* ── Her words, up where they are felt ───────────────────────── */
       .stand { padding-block: clamp(72px, 9vw, 128px); }
-      .mid { padding-block: clamp(56px, 7vw, 96px); }
-      .mid-grid { display: grid; gap: 28px; align-items: center; }
-      @media (min-width: 900px) { .mid-grid { grid-template-columns: 1fr 1fr; gap: 80px; } }
       .stand { text-align: center; padding-block: clamp(96px, 12vw, 176px); }
       .stand blockquote { margin: 0 auto; max-width: 15em; font-family: var(--serif); font-style: normal; font-size: clamp(32px, 4.8vw, 64px); line-height: 1.14; letter-spacing: -0.008em; text-wrap: balance; }
       .stand-by { margin-top: 32px; max-width: 34em; font-size: 17px; color: var(--ink2); }
@@ -556,30 +553,6 @@
               </div>
             </div>
             <button class="p-close" id="closeBtn" type="button" aria-label="Close" tabindex="-1">×</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- 5a. A WAY IN, HALF WAY DOWN ───────────────────────────── -->
-      <section class="bg-paper mid" id="mid">
-        <div class="wrap mid-grid">
-          <div>
-            <p class="eyebrow">Coming soon</p>
-            <h2>We'll write when it's&nbsp;<em>ready.</em></h2>
-          </div>
-          <div class="cta">
-            <div class="wl-wrap">
-              <form class="wl soon-only" id="form-mid" novalidate>
-                <label for="email-mid" class="sr-only">Your email</label>
-                <input id="email-mid" type="email" name="email" placeholder="Your email" autocomplete="email" inputmode="email" required />
-                <button class="btn" type="submit">Stay close.</button>
-              </form>
-              <p class="wl-done" hidden role="status">You're in. We'll write when Nidi is ready.</p>
-              <p class="wl-error" hidden role="alert"></p>
-              <p class="wl-note soon-only">Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks.</p>
-              <a class="btn live-only" href="https://apps.apple.com/app/id6774968835">Take a look</a>
-              <p class="wl-note live-only">On the App Store, for iPhone. Free for two weeks.</p>
-            </div>
           </div>
         </div>
       </section>
