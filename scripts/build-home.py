@@ -68,7 +68,7 @@ TEMPLATE = r'''<!doctype html>
     <link rel="preload" href="/assets/fonts/HankenGrotesk-Light.ttf" as="font" type="font/ttf" crossorigin />
     <script type="application/ld+json">
       {"@context":"https://schema.org","@graph":[
-        {"@type":"Organization","@id":"https://nidi.life/#org","name":"Nidi","url":"https://nidi.life/","logo":"https://nidi.life/assets/favicon.svg","parentOrganization":{"@type":"Organization","name":"BALK Creative Studio"}},
+        {"@type":"Organization","@id":"https://nidi.life/#org","name":"Nidi","url":"https://nidi.life/","logo":"https://nidi.life/assets/favicon.svg","sameAs":["https://www.instagram.com/nidi.life/"],"parentOrganization":{"@type":"Organization","name":"BALK Creative Studio"}},
         {"@type":"WebSite","@id":"https://nidi.life/#site","url":"https://nidi.life/","name":"Nidi","inLanguage":["en","es"],"publisher":{"@id":"https://nidi.life/#org"}},
         {"@type":"WebPage","url":"https://nidi.life@@PATH@@","name":"@@TITLE@@","description":"@@DESC@@","inLanguage":"@@LANG@@","isPartOf":{"@id":"https://nidi.life/#site"}}
       ]}
@@ -466,6 +466,9 @@ TEMPLATE = r'''<!doctype html>
       .foot .links2 { display: flex; flex-wrap: wrap; gap: 4px 22px; align-items: center; }
       footer .lang a { color: rgba(244, 239, 231, 0.62); }
       footer .lang a[aria-current="true"] { color: var(--cream); }
+      .foot-right { display: flex; align-items: center; gap: 6px; }
+      .foot .ig { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; color: rgba(244, 239, 231, 0.62); }
+      .foot .ig:hover { color: var(--cream); }
       footer .lang .sep { background: rgba(244, 239, 231, 0.2); }
 
       /* ── Reveal: a quiet settle, only for what is below the fold ── */
@@ -783,11 +786,14 @@ TEMPLATE = r'''<!doctype html>
           <span>BALK Creative Studio</span>
           <span>[[Photos via Unsplash and Pexels ||| Fotos de Unsplash y Pexels]]</span>
         </div>
-        <nav class="lang" aria-label="[[Language ||| Idioma]]">
-          <a href="/" hreflang="en" lang="en" data-pick="en" @@CUR_EN@@>EN</a>
-          <span class="sep" aria-hidden="true"></span>
-          <a href="/es/" hreflang="es" lang="es" data-pick="es" @@CUR_ES@@>ES</a>
-        </nav>
+        <div class="foot-right">
+          <a class="ig" href="https://www.instagram.com/nidi.life/" target="_blank" rel="noopener" aria-label="[[Nidi on Instagram ||| Nidi en Instagram]]"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"></circle></svg></a>
+          <nav class="lang" aria-label="[[Language ||| Idioma]]">
+            <a href="/" hreflang="en" lang="en" data-pick="en" @@CUR_EN@@>EN</a>
+            <span class="sep" aria-hidden="true"></span>
+            <a href="/es/" hreflang="es" lang="es" data-pick="es" @@CUR_ES@@>ES</a>
+          </nav>
+        </div>
       </div>
     </footer>
 
