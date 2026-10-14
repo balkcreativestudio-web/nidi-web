@@ -909,7 +909,9 @@
           if (location.search.indexOf("notrack") > -1) localStorage.setItem("nidi-notrack", "1");
           if (localStorage.getItem("nidi-notrack")) return;
           var p = location.pathname;
-          var body = JSON.stringify({ path: p.indexOf("/join/") === 0 ? "/join/:code" : p, referrer: document.referrer || null, lang: document.documentElement.lang === "es" ? "es" : "en" });
+          // The label on our own links (nidi.life/?ref=ig in the Instagram bio). The function keeps only ig, ig-story, wa or li.
+          var ref = (location.search.match(/[?&]ref=(ig|ig-story|wa|li)(?:&|$)/) || [])[1] || null;
+          var body = JSON.stringify({ path: p.indexOf("/join/") === 0 ? "/join/:code" : p, referrer: document.referrer || null, lang: document.documentElement.lang === "es" ? "es" : "en", ref: ref });
           fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: body, credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});
         } catch (e) {}
       })();
