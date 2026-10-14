@@ -242,6 +242,12 @@
       .arrival-grid { display: grid; gap: 56px; align-items: center; }
       @media (min-width: 900px) { .arrival-grid { grid-template-columns: 1fr 380px; gap: 96px; } }
       .arrival .lead { margin-top: 24px; }
+      .p-orb { transition: transform 0.7s var(--ease-out); }
+      .p-orb:hover { transform: scale(1.04); }
+      .p-orb:hover .orb { filter: brightness(1.05) saturate(1.05); }
+      .p-ring { position: absolute; inset: 0; border-radius: 50%; border: 1.25px solid var(--olive); opacity: 0; pointer-events: none; animation: ring 5s ease-out 1.2s infinite; }
+      .phone:not([data-state="idle"]) .p-ring { animation: none; }
+      @keyframes ring { 0% { transform: scale(1); opacity: 0.5; } 55%, 100% { transform: scale(1.5); opacity: 0; } }
       .hint { margin-top: 28px; font-size: 14px; color: var(--ink2); letter-spacing: 0.02em; }
       .phone { position: relative; width: min(340px, 82vw); aspect-ratio: 9 / 18.4; border-radius: 46px; overflow: hidden; background: var(--paper); box-shadow: 0 30px 70px rgba(42, 36, 29, 0.16), 0 0 0 1px var(--hair); margin-inline: auto; isolation: isolate; }
       .p-idle { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 24px; transition: opacity 0.7s var(--ease-out); }
@@ -444,6 +450,7 @@
         .home p { opacity: 1; }
         .p-words > span { opacity: 1; transform: none; }
         .light { display: none; }
+        .p-ring { display: none; }
       }
     </style>
   </head>
@@ -507,15 +514,6 @@
         </div>
       </section>
 
-      <!-- 2. THREE PILLARS ──────────────────────────────────────── -->
-      <section class="pillars" aria-label="Qué es Nidi">
-        <div class="wrap pillar-grid">
-          <div class="pillar rv"><p class="eyebrow">Voz, foto y texto</p><p>Algunos instantes del día y nada que revisar.</p></div>
-          <div class="pillar rv" style="--d:.12s"><p class="eyebrow">Solo tu familia</p><p>Lo ven las personas de tu nidi, y nadie más.</p></div>
-          <div class="pillar rv" style="--d:.24s"><p class="eyebrow">Gratis para empezar</p><p>Dos semanas gratis, sin necesidad de ingresar datos de pago.</p></div>
-        </div>
-      </section>
-
       <!-- 2b. HER WORDS ────────────────────────────────────────── -->
       <section class="bg-ink stand" id="words">
         <div class="wrap">
@@ -528,7 +526,7 @@
         <div class="wrap arrival-grid">
           <div>
             <p class="eyebrow rv">Cuando algo llega</p>
-            <h2 class="rv">Llega sin hacer ruido. <em>Cuando quieras.</em></h2>
+            <h2 class="rv">Llega con calma. <em>Cuando quieras.</em></h2>
             <p class="lead rv">Una burbuja suave, del color de quien la mandó, respira hasta que la abres. Entonces su color llena la pantalla y le das play.</p>
             <p class="hint rv">Pruébalo: toca la burbuja.</p>
           </div>
@@ -541,7 +539,7 @@
               <div class="p-tabs" aria-hidden="true"><b>Hoy</b><span>Actividades</span><span>Recuerdos</span></div>
             </div>
             <div class="p-grow" aria-hidden="true"><div class="orb"></div></div>
-            <button class="p-orb" id="orbBtn" type="button" aria-label="Abrir lo que mandó Bea" aria-expanded="false"><div class="orb breathes"></div></button>
+            <button class="p-orb" id="orbBtn" type="button" aria-label="Abrir lo que mandó Bea" aria-expanded="false"><span class="p-ring" aria-hidden="true"></span><div class="orb breathes"></div></button>
             <div class="p-wash" aria-hidden="true"></div>
             <div class="p-open" id="pOpen" aria-hidden="true">
               <p class="p-meta">De Bea · Hoy a las 15:03</p>
@@ -567,12 +565,7 @@
           <div>
             <p class="eyebrow rv">El momento</p>
             <h2 class="rv">Las videollamadas con un bebé no&nbsp;<em>funcionan.</em></h2>
-            <div class="scenes">
-              <div class="scene rv"><p class="eyebrow">Lejos</p><p>Una abuela al otro lado del océano, que igual quiere decir buenos días.</p></div>
-              <div class="scene rv"><p class="eyebrow">De viaje</p><p>Un papá o una mamá de viaje por trabajo, que quiere ser parte del día y no solo llamar al final.</p></div>
-              <div class="scene rv"><p class="eyebrow">Otra ciudad</p><p>Una tía, un tío, un padrino: alguien que quiere a un niño y vive en otro lugar.</p></div>
-            </div>
-            <p class="resolve rv">Nidi les da algo simple para hacer juntos, todos los días.</p>
+            <p class="lead rv" style="margin-top: 28px">Ella mira el techo. La abuela le habla al techo. Alguien dice: “Hoy está tímida”.</p>
           </div>
         </div>
       </section>
@@ -584,7 +577,7 @@
           <div>
             <p class="eyebrow rv">Menos pantalla, más juntos</p>
             <h2 class="rv">Dejemos que los niños sean&nbsp;<em>niños.</em></h2>
-            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">No siempre hay tiempo para una llamada, y un bebé o un niño de dos años no se queda frente a una pantalla. Por eso Nidi te da ideas de cosas simples para hacer juntos, cada uno en su casa, y una forma de compartirlas después.</p>
+            <p class="lead rv" style="margin-top: 28px; color: var(--cream)">No hace falta una llamada. Nidi te propone algo para hacer, cada uno en su hogar, y después lo comparten.</p>
           </div>
         </div>
       </section>
@@ -599,7 +592,7 @@
             <div class="steps">
               <div class="step rv"><p class="eyebrow">Primero</p><h3>Empieza tu nidi</h3><p>Cuéntale a Nidi un poco sobre ti y sobre el niño, y elige el color que va a ser tuyo.</p></div>
               <div class="step rv"><p class="eyebrow">Después</p><h3>Invita al otro hogar</h3><p>Envía una invitación a alguien que está lejos. Se suma gratis y nunca paga.</p></div>
-              <div class="step rv"><p class="eyebrow">Todos los días</p><h3>Hagan algo sencillo, simple.</h3><p>Toma una foto del mismo cielo. Cocina la misma receta. Deja un buen día con tu propia voz.</p></div>
+              <div class="step rv"><p class="eyebrow">Todos los días</p><h3>Hagan algo juntos</h3><p>Cocina la misma receta. Deja un buen día con tu propia voz.</p></div>
             </div>
           </div>
         </div>
@@ -622,7 +615,7 @@
               <div class="screen rv"><img src="/assets/screens/es-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Las actividades de Nidi: tarjetas como Leer la misma página, con una etiqueta arriba de cada una." /></div>
             </div>
             <div class="row">
-              <div class="copy"><p class="eyebrow rv">Compartir</p><h3 class="rv">Una foto, una voz o unas <em>palabras.</em></h3><p class="rv">Los audios en español o en inglés pueden llegar también escritos, para que en el otro hogar se puedan leer. Quien grabó ve las palabras antes de mandar y las puede corregir.</p></div>
+              <div class="copy"><p class="eyebrow rv">Compartir</p><h3 class="rv">Una foto, una voz o unas <em>palabras.</em></h3><p class="rv">Los audios en español o en inglés pueden llegar también escritos, para que en el otro hogar se puedan leer.</p></div>
               <div class="pair rv">
                 <div class="screen mock recv back" role="img" aria-label="Una foto de Bea de la mano de un abuelo tomando la de un bebé, con una línea debajo">
                   <div class="m-status"><span>15:04</span><i></i></div>
@@ -694,9 +687,9 @@
             <h2 class="rv">Pruébala dos semanas, sin pagar&nbsp;<em>nada.</em></h2>
           </div>
           <div class="free-list">
-            <div class="free-item rv"><h4>Dos semanas gratis</h4><p>Puedes iniciar tu nidi de forma gratuita durante dos semanas, desde el día en que ingresa el otro “hogar”.</p></div>
-            <div class="free-item rv"><h4>Para seguir compartiendo…</h4><p>Una suscripción cubre hasta tres nidis. Las tarifas se encuentran en la app.</p></div>
-            <div class="free-item rv"><h4>Paga una sola persona</h4><p>Los invitados a tu nidi no tienen que abonar suscripción; solo lo hacen quienes inician el nidi.</p></div>
+            <div class="free-item rv"><h4>Dos semanas gratis</h4><p>Desde el día en que se suma el otro hogar. Sin datos de pago.</p></div>
+            <div class="free-item rv"><h4>Para seguir compartiendo…</h4><p>Una suscripción cubre hasta tres nidis.</p></div>
+            <div class="free-item rv"><h4>Paga una sola persona</h4><p>Paga solo quien inicia el nidi. Las personas que invita nunca pagan.</p></div>
           </div>
         </div>
       </section>
@@ -707,8 +700,8 @@
           <p class="eyebrow rv">Por qué existe Nidi</p>
           <h2 class="rv">Por qué hice&nbsp;<em>Nidi.</em></h2>
           <div class="why-body">
-            <p class="rv">Soy una mamá argentina que vive en Países Bajos. Cuando nació mi hija, mis papás estaban a 11.000 kilómetros, y las videollamadas con un bebé no funcionan. Yo quería que creciera conociendo la voz de sus abuelos, sus historias, las cosas chiquitas que hacen todos los días. No solo caras en una pantalla. Entonces hice Nidi.</p>
-            <p class="rv">Nidi une dos hogares: el del niño, y otro que está en otro lugar. Todos los días propone cosas simples para hacer, cada uno en su casa y los dos juntos. Una abuela graba un buen día con su voz. Los dos hogares toman una foto del mismo cielo, o cocinan la misma receta. La pantalla lo lleva; el momento pasa afuera de ella. Todo queda en Recuerdos, un archivo que se queda con la&nbsp;familia.</p>
+            <p class="rv">Soy una mamá argentina que vive en Países Bajos. Cuando nació mi hija, mis papás estaban a 11.430 kilómetros. Yo quería que creciera conociendo la voz de sus abuelos, sus historias, las cosas chiquitas que hacen todos los días. No solo caras en una pantalla. Entonces hice Nidi.</p>
+            <p class="rv">La pantalla lo lleva; el momento pasa afuera de ella.</p>
             <p class="rv">Desde que empezamos a probarlo, mis papás le leyeron cuentos a mi hija antes de dormir, le cantaron en el desayuno, y le dejaron un buen día todos los días, grabado la noche anterior en Buenos Aires.</p>
           </div>
           <div class="why-turn">
@@ -727,8 +720,7 @@
           <p class="eyebrow rv">Preguntas</p>
           <h2 class="rv">Lo que quizás te estés&nbsp;<em>preguntando.</em></h2>
           <div class="faq rv">
-            <details><summary>¿Nidi es gratis?</summary><div>Dos semanas gratis, sin ingresar datos de pago. Después, quien inició el nidi elige una suscripción mensual o anual.</div></details>
-            <details><summary>¿Quién paga?</summary><div>Solo quien inicia un nidi, y una suscripción cubre hasta tres nidis. Las personas que invita nunca pagan.</div></details>
+            <details><summary>¿Nidi es gratis?</summary><div>Dos semanas gratis, sin ingresar datos de pago. Después, quien inició el nidi elige una suscripción mensual o anual, y las personas que invita nunca pagan.</div></details>
             <details><summary>¿El otro hogar necesita la app?</summary><div>Sí. Instalan Nidi, entran con un código que les llega por email y se suman con tu invitación. Para ellos es gratis.</div></details>
             <details><summary>¿Quién ve lo que compartimos?</summary><div>Solo las personas de tu nidi. Nada es público ni aparece en búsquedas.</div></details>
             <details><summary>¿En qué idiomas está?</summary><div>Español e inglés, cada persona en su idioma. Los audios en cualquiera de los dos pueden llegar también escritos.</div></details>
@@ -743,7 +735,7 @@
       <section class="bg-ink finale" id="join">
         <div class="wrap" style="position: relative">
           <svg class="wordmark wordmark-cream" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="218.588 216.642 500.002 218.598"><path d="M384.857,425.076c-.856-.691-2.135-1.25-3.841-1.678l-7.842-1.6c-2.453-.534-4.376-1.572-5.76-3.122-1.388-1.544-2.082-3.651-2.082-6.32v-80.332c0-14.296-4.054-25.551-12.161-33.768-8.107-8.214-18.831-12.321-32.165-12.321-8.642,0-17.522,2.16-26.645,6.482-8.673,4.108-18.677,11.045-30.005,20.798v-19.119c0-2.132-.506-3.732-1.519-4.801-1.016-1.066-2.588-1.6-4.723-1.6-1.175,0-2.638.188-4.401.559-1.76.375-3.976,1.041-6.639,2l-23.204,7.842c-2.028.641-3.416,1.334-4.163,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.747.587,1.975.938,3.682,1.041l13.283.322c1.813.106,3.119.638,3.919,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.616,4.482-1.841,5.76-1.228,1.282-3.016,2.188-5.36,2.722l-8.801,1.76c-1.707.428-2.988.988-3.841,1.678-.853.697-1.278,1.575-1.278,2.641,0,1.175.478,2.135,1.438,2.882.963.747,2.347,1.119,4.163,1.119h52.646c3.948,0,5.923-1.385,5.923-4.16,0-2.025-1.71-3.466-5.123-4.32l-8.32-1.6c-2.241-.534-3.976-1.466-5.201-2.8-1.228-1.335-1.841-3.226-1.841-5.682v-90.318l3.201-2.656c8.323-7.042,16.003-12.161,23.044-15.362,7.042-3.201,13.546-4.801,19.522-4.801,9.814,0,17.709,2.96,23.685,8.879,5.973,5.923,8.961,14.859,8.961,26.805v76.653c0,2.669-.588,4.748-1.76,6.242-1.175,1.494-3.041,2.507-5.601,3.041l-8.801,1.6c-3.307.853-4.96,2.294-4.96,4.32,0,2.775,1.972,4.16,5.92,4.16h52.809c2.025,0,3.494-.372,4.401-1.119.906-.747,1.36-1.707,1.36-2.882,0-1.066-.425-1.944-1.278-2.641Z" fill="#2a241e"/><path d="M463.411,424.916c-.91-.691-2.216-1.253-3.923-1.678l-8.48-1.6c-2.241-.425-3.976-1.334-5.201-2.722-1.228-1.385-1.841-3.304-1.841-5.76v-119.06c0-2.132-.51-3.732-1.522-4.801-1.013-1.066-2.588-1.6-4.72-1.6-1.175,0-2.616.188-4.32.559-1.71.375-3.95,1.041-6.723,2l-23.204,7.842c-2.028.641-3.416,1.334-4.16,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.744.587,1.972.938,3.682,1.041l13.28.322c1.813.106,3.122.638,3.923,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.616,4.482-1.841,5.76-1.228,1.282-3.016,2.188-5.36,2.722l-8.801,1.76c-1.71.428-2.988.988-3.841,1.678-.856.697-1.282,1.575-1.282,2.641,0,1.175.481,2.135,1.441,2.882.959.747,2.344,1.119,4.16,1.119h52.968c2.025,0,3.522-.372,4.482-1.119.959-.747,1.441-1.707,1.441-2.882s-.456-2.103-1.36-2.8Z" fill="#2a241e"/><path d="M429.094,264.41c4.66,0,8.503-1.517,11.53-4.551,3.027-3.034,4.542-6.876,4.542-11.528,0-4.551-1.515-8.343-4.542-11.377-3.027-3.034-6.871-4.551-11.53-4.551s-8.478,1.517-11.459,4.551c-2.983,3.034-4.474,6.826-4.474,11.377,0,4.651,1.491,8.494,4.474,11.528,2.981,3.034,6.8,4.551,11.459,4.551Z" fill="#2a241e"/><path d="M685.235,264.41c4.659,0,8.503-1.517,11.53-4.551,3.027-3.034,4.542-6.876,4.542-11.528,0-4.551-1.515-8.343-4.542-11.377-3.027-3.034-6.871-4.551-11.53-4.551s-8.478,1.517-11.459,4.551c-2.983,3.034-4.474,6.826-4.474,11.377,0,4.651,1.49,8.494,4.474,11.528,2.981,3.034,6.8,4.551,11.459,4.551Z" fill="#2a241e"/><path d="M638.122,424.916c-.909-.691-2.269-1.253-4.082-1.678l-8.32-1.6c-2.35-.425-4.138-1.334-5.363-2.722-1.225-1.385-1.838-3.304-1.838-5.76v-189.95c0-2.135-.51-3.763-1.522-4.882-1.016-1.119-2.535-1.682-4.56-1.682-1.282,0-2.775.216-4.482.641-1.707.428-3.947,1.122-6.72,2.082l-23.204,7.842c-1.919.638-3.257,1.335-4,2.078-.747.747-1.119,1.6-1.119,2.56s.344,1.738,1.038,2.322c.694.588,1.894.935,3.601,1.041l13.283.319c1.919.106,3.254.641,4.001,1.6.744.96,1.119,2.507,1.119,4.641v63.537c-3.496-3.663-7.36-6.871-11.602-9.61-10.08-6.504-21.469-9.761-34.165-9.761-13.23,0-25.31,3.257-36.247,9.761-10.936,6.511-19.656,15.79-26.164,27.845-6.507,12.058-9.761,20.003-9.761,36.647,0,14.509,2.825,27.42,8.483,38.725,5.651,11.311,13.387,20.191,23.204,26.645,9.814,6.454,21.066,9.683,33.765,9.683,12.161,0,23.657-3.229,34.484-9.683,6.752-4.025,12.913-9.057,18.484-15.093v8.292c0,4.588,1.041,7.895,3.119,9.92,2.082,2.028,5.201,3.041,9.364,3.041h24.642c1.922,0,3.388-.372,4.401-1.119s1.522-1.707,1.522-2.882-.457-2.103-1.36-2.8ZM595.953,399.582c-5.231,6.115-10.858,11.042-16.881,14.773-8.698,5.388-17.843,8.083-27.445,8.083-9.495,0-17.978-2.507-25.445-7.523-7.467-5.013-13.337-12.374-17.603-22.082-4.266-9.708-6.401-21.55-6.401-35.528,0-19.883,7.755-41.464,25.126-52.65,7.786-5.013,16.428-7.52,25.923-7.52,10.026,0,19.469,2.857,28.323,8.561,5.371,3.463,10.169,7.824,14.402,13.071v80.815Z" fill="#2a241e"/><path d="M717.23,424.916c-.909-.691-2.216-1.253-3.922-1.678l-8.48-1.6c-2.241-.425-3.976-1.334-5.201-2.722-1.228-1.385-1.841-3.304-1.841-5.76v-119.06c0-2.132-.509-3.732-1.522-4.801-1.013-1.066-2.588-1.6-4.719-1.6-1.175,0-2.616.188-4.319.559-1.71.375-3.951,1.041-6.723,2l-23.204,7.842c-2.028.641-3.416,1.334-4.16,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.744.587,1.972.938,3.682,1.041l13.28.322c1.813.106,3.122.638,3.923,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.615,4.482-1.841,5.76-1.229,1.282-3.016,2.188-5.36,2.722l-8.802,1.76c-1.71.428-2.988.988-3.841,1.678-.857.697-1.282,1.575-1.282,2.641,0,1.175.482,2.135,1.441,2.882.96.747,2.344,1.119,4.16,1.119h52.968c2.025,0,3.523-.372,4.482-1.119.96-.747,1.441-1.707,1.441-2.882s-.456-2.103-1.36-2.8Z" fill="#2a241e"/></svg>
-          <h2 class="rv">Los momentos pequeños pueden serlo&nbsp;<em>todo.</em></h2>
+          <h2 class="rv">Estar ahí, en los días&nbsp;<em>comunes.</em></h2>
           <div class="cta">
             <div class="wl-wrap">
               <form class="wl soon-only" id="form-end" novalidate>
