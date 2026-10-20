@@ -461,7 +461,8 @@ TEMPLATE = r'''<!doctype html>
       .finale .wordmark { height: 44px; margin: 0 auto 48px; animation: none; }
       .finale h2 { max-width: 14em; margin-inline: auto; }
       .finale .cta { margin-top: 44px; display: flex; flex-direction: column; align-items: center; }
-      .finale form.wl .btn { background: var(--cream); color: var(--ink); }
+      .finale form.wl .btn, .finale a.btn { background: var(--cream); color: var(--ink); }
+      .finale form.wl .btn:hover, .finale a.btn:hover { background: var(--paper); }
       .finale .orb-bg { position: absolute; border-radius: 50%; pointer-events: none; }
 
       /* ── Footer ───────────────────────────────────────────────────── */
