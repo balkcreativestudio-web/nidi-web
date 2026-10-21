@@ -388,6 +388,34 @@
       @media (max-width: 480px) { .doc .card-button { font-size: 16px; } }
       /* Desktop: the contents list was sticky and slid over the text as the page scrolled. */
       @media (min-width: 801px) { .doc #table-of-content-wrapper { position: static !important; } }
+      /* Ours, above iubenda's text, on the Terms only (2026-10-21, App
+         Review 1.2): no tolerance for objectionable content, how to
+         report and block, and the 24 hours. iubenda's plan offers no
+         clause of our own, and its text says the owner "does not filter
+         or moderate", so this is where Apple and everyone else read it
+         first. legal-src/terms-safety-*.html. */
+      .preface {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 24px 28px;
+        margin: 0 0 40px;
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+      }
+      .preface h2 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 30px;
+        margin: 0 0 12px;
+      }
+      .preface p { margin: 0 0 12px; max-width: 68ch; }
+      .preface a { color: var(--ink); }
+      .preface .preface-note { color: var(--ink2); font-size: 14px; margin: 0; }
+
+      @media (max-width: 600px) { .preface { padding: 20px; } }
 </style>
   </head>
 
@@ -398,6 +426,13 @@
 
     <main>
       <h1 class="sr-only">Términos y Condiciones</h1>
+      <section class="preface" aria-labelledby="reportar-y-bloquear">
+  <h2 id="reportar-y-bloquear">Reportar y bloquear</h2>
+  <p>En Nidi no hay tolerancia para el contenido inaceptable ni para el comportamiento abusivo. Esto incluye todo lo que se comparte en un nidi: notas de voz, fotos, palabras y notas.</p>
+  <p>Nidi no revisa los momentos antes de que se compartan, pero cualquier persona de un nidi puede reportar un momento o bloquear a quien lo compartió: toca los tres puntos (⋯) en ese momento y elige Reportar o Bloquear. Al bloquear, deja de verse lo que compartió el hogar de esa persona, no te llega nada nuevo y nos llega un aviso. No se borra nada y puedes desbloquear cuando quieras.</p>
+  <p>Revisamos cada reporte y cada bloqueo en menos de 24 horas, y antes cuando puede estar en riesgo la seguridad de un niño o la vida de alguien. Cuando un contenido no respeta estos Términos, lo retiramos y cerramos la cuenta de la persona que lo compartió. También puedes escribirnos a <a href="mailto:hello@nidi.life">hello@nidi.life</a>.</p>
+  <p class="preface-note">Esta sección forma parte de los Términos y Condiciones de Nidi. Si el texto de abajo dice algo distinto, vale esta sección.</p>
+</section>
       <div class="doc">
         <a href="https://www.iubenda.com/condiciones-de-uso/37271793" class="iubenda-white no-brand iubenda-noiframe iubenda-embed iub-body-embed" title="Términos y Condiciones">Términos y Condiciones</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
       </div>

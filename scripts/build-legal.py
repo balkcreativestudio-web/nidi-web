@@ -401,7 +401,35 @@ TEMPLATE = """<!doctype html>
         overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
       }}
 
+      /* Ours, above iubenda's text, on the Terms only (2026-10-21, App
+         Review 1.2): no tolerance for objectionable content, how to
+         report and block, and the 24 hours. iubenda's plan offers no
+         clause of our own, and its text says the owner "does not filter
+         or moderate", so this is where Apple and everyone else read it
+         first. legal-src/terms-safety-*.html. */
+      .preface {{
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 24px 28px;
+        margin: 0 0 40px;
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+      }}
+      .preface h2 {{
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 30px;
+        margin: 0 0 12px;
+      }}
+      .preface p {{ margin: 0 0 12px; max-width: 68ch; }}
+      .preface a {{ color: var(--ink); }}
+      .preface .preface-note {{ color: var(--ink2); font-size: 14px; margin: 0; }}
+
       @media (max-width: 600px) {{
+        .preface {{ padding: 20px; }}
         h1.page-title {{ font-size: 30px; line-height: 32px; }}
         .doc h1 {{ font-size: 22px !important; line-height: 24px !important; }}
         .doc h2 {{ font-size: 18px !important; line-height: 24px !important; }}
@@ -416,6 +444,7 @@ TEMPLATE = """<!doctype html>
 
     <main>
       <h1 class="sr-only">{title}</h1>
+      {preface}
       <div class="doc">
         {embed}
       </div>
@@ -448,6 +477,12 @@ def main() -> None:
 
     for slug, lang, title, docfile, otherslug, (siblabel, sibhref) in DOCS:
         embed = open(os.path.join(root, 'legal-src', docfile + '.html')).read().strip()
+        preface_file = os.path.join(root, 'legal-src', docfile.replace('terms', 'terms-safety') + '.html')
+        preface = (
+            open(preface_file).read().strip()
+            if docfile.startswith('terms') and os.path.exists(preface_file)
+            else ''
+        )
         enslug, esslug = PAIRS[slug]
         page = TEMPLATE.format(
             lang=lang,
@@ -457,6 +492,7 @@ def main() -> None:
             title=title,
             svg=svg,
             embed=embed,
+            preface=preface,
             navlabel='Language' if lang == 'en' else 'Idioma',
             enslug=enslug,
             esslug=esslug,
