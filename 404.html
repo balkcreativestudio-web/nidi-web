@@ -17,13 +17,22 @@
     <!-- Links out of an invitation page carry at most https://nidi.life/,
          never the /join/<slug> path an old invitation link may hold. -->
     <meta name="referrer" content="origin" />
-    <meta name="theme-color" content="#FFFDF9" />
+    <meta name="theme-color" content="#F4EFE7" />
     <style>
       /* One screen, nothing below the fold. The page is a grid of three
          rows — header, hero, footer — pinned to the viewport, so the
          footer sits at the bottom without absolute positioning and
          without overlapping the hero on a short screen. */
+      /* Nidi's own type, as on the home page (2026-10-23): the
+         invitation is the first thing of Nidi somebody sees. */
+      @font-face { font-family: "Lora"; src: url(/assets/fonts/Lora-Regular.ttf) format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+      @font-face { font-family: "Lora"; src: url(/assets/fonts/Lora-Italic.ttf) format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Light.ttf) format("truetype"); font-weight: 300; font-style: normal; font-display: swap; }
+      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Medium.ttf) format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
       :root {
+        --cream: #f4efe7;
+        --olive: #87995b;
+        --lavender: #9890b0;
         --paper: #fffdf9;
         --ink: #2a241d;
         --ink2: #7a6f62;
@@ -31,8 +40,8 @@
         /* The input's hairline. Warmer and far lighter than ink, which
            is what stops the form reading as a boxed control. */
         --field-line: #e7dfd2;
-        --serif: Georgia, "Times New Roman", serif;
-        --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+        --serif: "Lora", Georgia, "Times New Roman", serif;
+        --sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
           sans-serif;
       }
 
@@ -44,7 +53,9 @@
       body {
         margin: 0;
         padding: 0;
-        background: var(--paper);
+        /* Cream, as in the app, so the invitation card reads as paper
+           laid on it. */
+        background: var(--cream);
         color: var(--ink);
       }
 
@@ -289,36 +300,139 @@
       }
 
       /* ── The invitation page (/join, /join/…) ───────────────────── */
+      /* Option B, chosen by Maru on 2026-10-23: the invitation is a
+         card, paper on cream, taped and slightly turned like the prints
+         in Memory, and under it the three steps, numbered. Half the
+         words it had, and the steps one per line instead of a
+         paragraph. Left-aligned inside one centred column, at every
+         width: the column is what centres, never the text. */
+      main {
+        /* The card is turned, so its corners reach a little past the
+           column; clip keeps that from ever scrolling the page sideways. */
+        overflow-x: clip;
+      }
       .invite {
-        max-width: 440px;
         width: 100%;
+        max-width: 420px;
+        text-align: left;
+        font-family: var(--sans);
+        font-weight: 300;
+      }
+      .card {
+        position: relative;
+        background: var(--paper);
+        padding: 32px 28px 26px;
+        margin: 6px 4px 40px;
+        transform: rotate(-1.5deg);
+        box-shadow: 0 10px 28px rgba(42, 36, 29, 0.1), 0 1px 0 rgba(42, 36, 29, 0.08);
+      }
+      .tape {
+        position: absolute;
+        top: -11px;
+        right: 30px;
+        width: 88px;
+        height: 24px;
+        background: color-mix(in srgb, var(--olive) 78%, transparent);
+        transform: rotate(7deg);
+      }
+      .eyebrow,
+      .how {
+        font-family: var(--sans);
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 16px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink2);
+        margin: 0;
       }
       .invite h1 {
-        margin-bottom: 16px;
+        font-size: 40px;
+        line-height: 46px;
+        max-width: 11ch;
+        margin: 12px 0 14px;
       }
       .lede {
-        font-size: 16px;
-        line-height: 26px;
-        color: var(--ink);
-        margin: 0 0 32px;
-      }
-      .help {
-        font-size: 16px;
-        line-height: 26px;
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 19px;
+        line-height: 28px;
         color: var(--ink2);
-        margin: 20px 0 0;
+        margin: 0;
+        text-wrap: pretty;
       }
-      /* The action, since downloading nidi is the only thing somebody
-         reading this page can actually do next. It was a 12px grey
-         line under a black button that cannot work for her. */
-      .store {
-        margin: 28px 0 0;
+      .homes {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 22px 0 0;
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--ink2);
       }
-      .storeAction,
-      .store.storeSoon {
+      .homes .dots {
+        display: flex;
+      }
+      .homes .dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1px solid color-mix(in srgb, var(--c) 68%, var(--paper));
+        background: radial-gradient(circle closest-side, var(--c) 0%, color-mix(in srgb, var(--paper) 13%, var(--c)) 60%, color-mix(in srgb, var(--paper) 60%, var(--c)) 90%, var(--paper) 100%);
+      }
+      .homes .dot.olive { --c: var(--olive); }
+      .homes .dot.lav { --c: var(--lavender); margin-left: -8px; }
+      .how {
+        padding: 0 4px;
+        margin-bottom: 16px;
+      }
+      .steps {
+        list-style: none;
+        margin: 0;
+        padding: 0 4px;
+        display: grid;
+        gap: 18px;
+        counter-reset: step;
+      }
+      .steps li {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        column-gap: 14px;
+        align-items: start;
+        font-size: 17px;
+        line-height: 25px;
+        color: var(--ink);
+      }
+      .steps li::before {
+        counter-increment: step;
+        content: counter(step);
+        font-family: var(--serif);
+        font-size: 22px;
+        line-height: 25px;
+        color: var(--ink2);
+      }
+      .steps li > * {
+        grid-column: 2;
+        min-width: 0;
+      }
+      .steps i {
+        font-family: var(--serif);
+        white-space: nowrap;
+      }
+      .steps small {
         display: block;
-        width: 100%;
-        box-sizing: border-box;
+        font-size: 15px;
+        line-height: 22px;
+        color: var(--ink2);
+        margin-top: 2px;
+      }
+      /* Live: the first step is the button, the one thing she has to do,
+         with its number centred on it. */
+      .steps li.has-action {
+        align-items: center;
+      }
+      .storeAction {
+        display: block;
         text-align: center;
         text-decoration: none;
         font-family: var(--sans);
@@ -327,27 +441,28 @@
         color: var(--paper);
         background: var(--ink);
         border-radius: 999px;
-        padding: 16px 22px;
-      }
-      /* Before the app is published there is nothing to tap, so the
-         same words sit on the page rather than pretending to be a
-         button. Centred like every other line on the page (Maru,
-         2026-10-23: it sat on the left between two centred blocks). */
-      .store.storeSoon {
-        background: none;
-        color: var(--ink2);
-        font-weight: 400;
-        padding: 0;
-        text-align: center;
+        padding: 15px 22px;
       }
       /* The old primary, kept for the one person it can still serve. */
       .already {
         font-size: 15px;
         line-height: 22px;
-        margin: 22px 0 0;
+        margin: 28px 0 0;
+        padding: 0 4px;
       }
       .already a {
         color: var(--ink2);
+        text-underline-offset: 3px;
+      }
+      @media (max-width: 600px) {
+        main { padding: 24px 20px 32px; }
+        .card { padding: 28px 22px 22px; margin-bottom: 34px; }
+        .invite h1 { font-size: 34px; line-height: 40px; }
+        .lede { font-size: 18px; line-height: 27px; }
+      }
+      @media (max-width: 360px) {
+        .invite h1 { font-size: 30px; line-height: 36px; }
+        .steps li { font-size: 16px; }
       }
       .home {
         color: var(--ink);
@@ -366,19 +481,28 @@
 
     <main>
       <section class="invite" id="invite" hidden>
-        <h1 data-i18n="inviteTitle">You're invited to Nidi.</h1>
-        <p class="lede" data-i18n="inviteLede">Nidi is a way to stay close to a small child who lives far away, a little, every day.</p>
-
-        <p class="store" id="store"></p>
+        <article class="card">
+          <span class="tape" aria-hidden="true"></span>
+          <p class="eyebrow" data-i18n="inviteEyebrow">An invitation</p>
+          <h1 data-i18n="inviteTitle">You're invited to Nidi.</h1>
+          <p class="lede" data-i18n="inviteLede">To stay close to a child who lives far away, a little every day.</p>
+          <p class="homes"><span class="dots" aria-hidden="true"><span class="dot olive"></span><span class="dot lav"></span></span><span data-i18n="homes">Two homes, one nidi</span></p>
+        </article>
 
         <!-- The steps, in the invitation email's words (flow v4,
              2026-10-06), so the page and the mail say the same thing.
-             No code here any more, and nothing to copy: since v4 the
-             only key is the email the invitation was sent to, a code
-             opens nothing, and the one she signs in with comes by email
-             once she asks for it in the app. The mail writes her
-             address out; this page does not know it, and must not. -->
-        <p class="help"><span data-i18n="help">Then: open Nidi, tap “I was invited” and enter the email your invitation came to.</span><br /><span data-i18n="codeComing">A code to come in will be on its way by email.</span></p>
+             No code here, and nothing to copy: since v4 the only key is
+             the email the invitation was sent to, and the code she signs
+             in with comes by email once she asks for it in the app. The
+             mail writes her address out; this page does not know it,
+             and must not. Step 1 is drawn by the script: the App Store
+             button once Nidi is live, "coming soon" before. -->
+        <h2 class="how" data-i18n="howTitle">How to come in</h2>
+        <ol class="steps">
+          <li id="step1"></li>
+          <li><span><span data-i18n="step2">Open it and tap</span> <i data-i18n="invitedButton">“I was invited”</i></span></li>
+          <li><span><span data-i18n="step3">Enter the email this invitation came to</span><small data-i18n="step3Note">We'll send you a code to come in.</small></span></li>
+        </ol>
 
         <!-- Kept, demoted. It cannot work for somebody without the app,
              which is who this page is for — but somebody who already
@@ -424,21 +548,26 @@
       // invitation email that send people here (2026-10-06). The
       // wordmark and the not-found title stay as they were.
       //
-      // help and codeComing are the email's steps: "Después: abrí Nidi,
-      // tocá Me invitaron y escribí este email:" and "Te va a llegar un
-      // código para entrar." The page cannot write her address out, so
-      // it names it the way the support page does ("el email al que te
-      // llegó la invitación"), and says the code comes by email, which
-      // the mail could leave unsaid because she was reading one.
+      // step1 to step3 are the email's steps, one per line (2026-10-23).
+      // The page cannot write her address out, so it names it the way
+      // the support page does ("el email al que te llegó esta
+      // invitación"), and says the code comes by email, which the mail
+      // could leave unsaid because she was reading one.
       var COPY = {
         en: {
+          inviteEyebrow: "An invitation",
           inviteTitle: "You're invited to Nidi.",
-          inviteLede: "Nidi is a way to stay close to a small child who lives far away, a little, every day.",
+          inviteLede: "To stay close to a child who lives far away, a little every day.",
+          homes: "Two homes, one nidi",
+          howTitle: "How to come in",
+          step1: "Get Nidi",
+          step2: "Open it and tap",
+          invitedButton: "“I was invited”",
+          step3: "Enter the email this invitation came to",
+          step3Note: "We'll send you a code to come in.",
           open: "Already have Nidi? Open it",
-          help: "Then: open Nidi, tap “I was invited” and enter the email your invitation came to.",
-          codeComing: "A code to come in will be on its way by email.",
           storeLink: "Get Nidi",
-          storeSoon: "Nidi is coming to the App Store very soon.",
+          storeSoon: "Coming to the App Store very soon.",
           missingTitle: "This page doesn't exist.",
           home: "Go to nidi.life",
           privacy: "Privacy",
@@ -450,14 +579,20 @@
           titleMissing: "nidi",
         },
         es: {
+          inviteEyebrow: "Una invitación",
           inviteTitle: "Te invitaron a Nidi.",
-          inviteLede: "Nidi es para estar cerca de una criatura que vive lejos, un poco, todos los días.",
-          // "Abrila", la app, as Maru's share message has "Bajala".
-          open: "¿Ya tenés Nidi? Abrila",
-          help: "Después: abrí Nidi, tocá “Me invitaron” y escribí el email al que te llegó la invitación.",
-          codeComing: "Te va a llegar un código por email para entrar.",
-          storeLink: "Bajá Nidi",
-          storeSoon: "Nidi llega al App Store muy pronto.",
+          inviteLede: "Para estar cerca de un niño que vive lejos, un poco cada día.",
+          homes: "Dos hogares, un nidi",
+          howTitle: "Cómo entrar",
+          step1: "Descarga Nidi",
+          step2: "Ábrela y toca",
+          invitedButton: "“Me invitaron”",
+          step3: "Escribe el email al que te llegó esta invitación",
+          step3Note: "Te enviamos un código para entrar.",
+          // Neutral Spanish (tú) since 2026-10-20.
+          open: "¿Ya tienes Nidi? Ábrela",
+          storeLink: "Descarga Nidi",
+          storeSoon: "Llega al App Store muy pronto.",
           missingTitle: "Esta página no existe.",
           home: "Ir a nidi.life",
           privacy: "Privacidad",
@@ -531,18 +666,25 @@
         // her ("no te va a pedir ninguna tarjeta") were offered and
         // Maru chose none of them: a reassurance nobody asked for is
         // still a sentence about money on a page about a grandchild.
-        var store = document.getElementById("store");
-        store.textContent = "";
+        // Step 1 (2026-10-23): once Nidi is live, the App Store button
+        // itself; before, "Get Nidi" with "coming very soon" under it.
+        var step1 = document.getElementById("step1");
+        step1.textContent = "";
+        step1.className = APP_LIVE ? "has-action" : "";
+        var body = document.createElement("span");
         if (APP_LIVE) {
           var a = document.createElement("a");
           a.className = "storeAction";
           a.href = APP_STORE_URL;
           a.textContent = c.storeLink;
-          store.appendChild(a);
+          body.appendChild(a);
         } else {
-          store.textContent = noWidow(c.storeSoon);
-          store.className = "store storeSoon";
+          body.textContent = c.step1;
+          var soon = document.createElement("small");
+          soon.textContent = noWidow(c.storeSoon);
+          body.appendChild(soon);
         }
+        step1.appendChild(body);
         var buttons = document.querySelectorAll(".lang button");
         for (var j = 0; j < buttons.length; j++) {
           buttons[j].setAttribute(
