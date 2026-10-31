@@ -24,7 +24,7 @@ import os
 import re
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
-APP_LIVE = False
+APP_LIVE = True
 APP_STORE_URL = 'https://apps.apple.com/app/id6774968835'
 
 # The wordmark artwork lives in index.html (every build script reads it
@@ -461,7 +461,8 @@ TEMPLATE = r'''<!doctype html>
       .finale .wordmark { height: 44px; margin: 0 auto 48px; animation: none; }
       .finale h2 { max-width: 14em; margin-inline: auto; }
       .finale .cta { margin-top: 44px; display: flex; flex-direction: column; align-items: center; }
-      .finale form.wl .btn { background: var(--cream); color: var(--ink); }
+      .finale form.wl .btn, .finale a.btn { background: var(--cream); color: var(--ink); }
+      .finale form.wl .btn:hover, .finale a.btn:hover { background: var(--paper); }
       .finale .orb-bg { position: absolute; border-radius: 50%; pointer-events: none; }
 
       /* ── Footer ───────────────────────────────────────────────────── */
@@ -752,7 +753,7 @@ TEMPLATE = r'''<!doctype html>
             <details><summary>[[What languages does it speak? ||| ¿En qué idiomas está?]]</summary><div>[[English and Spanish, each person in their own language. Voice notes in either can arrive written out. ||| Español e inglés, cada persona en su idioma. Los audios en cualquiera de los dos pueden llegar también escritos.]]</div></details>
             <details><summary>[[How old is the child? ||| ¿Para qué edades es?]]</summary><div>[[From the first months to six years old, with activities chosen for their age. Up to three, the home where the child lives also keeps their firsts. ||| Desde los primeros meses hasta los seis años, con actividades elegidas para cada edad. Hasta los tres, el hogar donde crece también guarda sus primeras veces.]]</div></details>
             <details><summary>[[What happens if we stop the subscription? ||| ¿Qué pasa si dejamos la suscripción?]]</summary><div>[[The nidi pauses for now and nothing new can be added, but everything already shared stays in Memory for anyone in it. You can manage or cancel a subscription anytime in your iPhone's Settings. ||| El nidi queda en pausa, por ahora, y no se puede sumar nada nuevo, pero todo lo compartido sigue en Recuerdos para cualquiera del nidi. La suscripción la manejas o la cancelas cuando quieras en Ajustes del iPhone.]]</div></details>
-            <details><summary>[[Is there an Android version? ||| ¿Hay versión para Android?]]</summary><div>[[Not yet. Nidi comes first to iPhone, and Android is on its way. Leave your email and we will write when it is ready. ||| Todavía no. Nidi sale primero para iPhone, y Android viene en camino. Deja tu email y te escribimos cuando esté listo.]]</div></details>
+            <details><summary>[[Is there an Android version? ||| ¿Hay versión para Android?]]</summary><div>[[Not yet. Nidi comes first to iPhone, and Android is on its way.<span class="soon-only"> Leave your email and we will write when it is ready.</span> ||| Todavía no. Nidi sale primero para iPhone, y Android viene en camino.<span class="soon-only"> Deja tu email y te escribimos cuando esté listo.</span>]]</div></details>
           </div>
         </div>
       </section>
