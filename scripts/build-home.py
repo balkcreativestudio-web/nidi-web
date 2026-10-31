@@ -15,7 +15,7 @@ trust, the app, questions, one last ask), in Nidi's own voice.
 
 APP_LIVE: False until Apple releases the app. While it is False, every
 call to action is the email form; flip it and run this again and they
-all become "Take a look" on the App Store.
+all become "Let's begin" on the App Store (was "Take a look"; Maru, 2026-10-31: the same words as the first button in the app).
 
 Run from the repo root:  python3 scripts/build-home.py
 """
@@ -510,7 +510,7 @@ TEMPLATE = r'''<!doctype html>
           <a href="/es/" hreflang="es" lang="es" data-pick="es" @@CUR_ES@@>ES</a>
         </nav>
         <a class="btn btn-sm soon-only" href="#start">[[Stay close. ||| Avísame.]]</a>
-        <a class="btn btn-sm live-only" href="@@STORE@@">[[Take a look ||| Mira cómo es]]</a>
+        <a class="btn btn-sm live-only" href="@@STORE@@">[[Let's begin ||| Empecemos]]</a>
       </div>
     </header>
 
@@ -945,7 +945,7 @@ FORM = '''<div class="wl-wrap">
               <p class="wl-done" hidden role="status">[[You're in. We'll write when Nidi is ready. ||| Listo. Te escribimos cuando Nidi esté disponible.]]</p>
               <p class="wl-error" hidden role="alert"></p>
               <p class="wl-note soon-only">[[Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks. ||| Muy pronto en el App Store, para iPhone. Android viene en camino. Dos semanas gratis.]]</p>
-              <a class="btn live-only" href="@@STORE@@">[[Take a look ||| Mira cómo es]]</a>
+              <a class="btn live-only" href="@@STORE@@">[[Let's begin ||| Empecemos]]</a>
               <p class="wl-note live-only">[[On the App Store, for iPhone. Free for two weeks. ||| En el App Store, para iPhone. Dos semanas gratis.]]</p>
             </div>'''
 
