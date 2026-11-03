@@ -339,15 +339,27 @@
             + '<details class="add" id="campdetails"><summary>Agregar o editar campaña</summary><form class="row" id="campform"><input name="name" placeholder="nombre (ej. Haarlem Expats)" required maxlength="80" /><input name="ct" placeholder="ct= (ej. haarlem-expats)" required pattern="[a-z0-9_-]{1,40}" /><select name="channel">' + Object.keys(CH_L).map(function (k) { return '<option value="' + k + '">' + CH_L[k] + '</option>'; }).join('') + '</select><input name="where_used" placeholder="dónde exactamente" required /><input name="downloads" type="number" min="0" placeholder="descargas (Apple)" /><button class="primary" type="submit">Guardar</button></form></details></div>';
 
           // contacts pipeline
-          var STATUS_L = { sent: 'Enviado', replied: 'Respondió', downloaded: 'Bajó la app', redeemed: 'Canjeó', reviewed: 'Dejó reseña', declined: 'No le interesa', no_answer: 'Sin respuesta', done: 'Listo' };
+          var STATUS_L = { sent: 'Enviado', replied: 'Respondió', no_answer: 'Sin respuesta', declined: 'No le interesa', done: 'Listo' };
+          var people = d.people || {};
+          var inNidi = function (name) {
+            var key = String(name || '').trim().split(/\s+/)[0].replace(/^@/, '').toLowerCase();
+            var p = people[key]; if (!p) return '<span class="quiet">—</span>';
+            var bits = [];
+            bits.push('<span class="ok">cuenta</span>');
+            if (p.has_nidi) bits.push('<span class="ok">nidi</span>');
+            if (p.activated) bits.push('<span class="ok">las dos casas</span>');
+            if (p.paid) bits.push('<span class="ok">paga</span>'); else if (p.gift) bits.push('<span class="ok">año gratis</span>');
+            if (p.moments) bits.push(p.moments + ' ' + plural(p.moments, 'momento', 'momentos'));
+            return bits.join(' · ');
+          };
           var KIND_L = { gift: 'regalo', pitch: 'prensa', post: 'post', review_ask: 'reseña', follow_up: 'seguimiento', other: 'otro' };
           var counts = {}; d.contacts.forEach(function (c) { counts[c.status] = (counts[c.status] || 0) + 1; });
-          html += '<h2>Contactos <small>' + d.contacts.length + ' contactados · tocá un estado para filtrar</small></h2><div class="card"><div class="pipe">'
+          html += '<h2>Contactos <small>' + d.contacts.length + ' contactados · "Respuesta" la cargás vos; "En Nidi" lo lee la app sola</small></h2><div class="card"><div class="pipe">'
             + '<button data-filter="all" aria-pressed="' + (CONTACT_FILTER === 'all') + '"><div class="n">' + d.contacts.length + '</div><div class="l">Todos</div></button>'
-            + ['sent', 'replied', 'downloaded', 'redeemed', 'reviewed', 'no_answer', 'declined'].map(function (k) { return '<button data-filter="' + k + '" aria-pressed="' + (CONTACT_FILTER === k) + '"><div class="n">' + (counts[k] || 0) + '</div><div class="l">' + STATUS_L[k] + '</div></button>'; }).join('')
-            + '</div><div class="tablewrap"><table><tr><th>Quién</th><th>Canal</th><th>Qué</th><th>Cuándo</th><th>Estado</th><th>Nota</th><th></th></tr>';
+            + ['sent', 'replied', 'no_answer', 'declined', 'done'].map(function (k) { return '<button data-filter="' + k + '" aria-pressed="' + (CONTACT_FILTER === k) + '"><div class="n">' + (counts[k] || 0) + '</div><div class="l">' + STATUS_L[k] + '</div></button>'; }).join('')
+            + '</div><div class="tablewrap"><table><tr><th>Quién</th><th>Canal</th><th>Qué</th><th>Cuándo</th><th>Respuesta</th><th>En Nidi (automático)</th><th>Nota</th><th></th></tr>';
           d.contacts.filter(function (c) { return CONTACT_FILTER === 'all' || c.status === CONTACT_FILTER; }).forEach(function (c) {
-            html += '<tr><td>' + esc(c.name) + '</td><td class="quiet">' + esc(c.channel) + '</td><td class="quiet">' + KIND_L[c.kind] + '</td><td>' + dmy(c.sent_at) + '</td><td><span class="pill ' + esc(c.status) + '">' + STATUS_L[c.status] + '</span></td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-edit=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
+            html += '<tr><td>' + esc(c.name) + '</td><td class="quiet">' + esc(c.channel) + '</td><td class="quiet">' + KIND_L[c.kind] + '</td><td>' + dmy(c.sent_at) + '</td><td><span class="pill ' + esc(c.status) + '">' + (STATUS_L[c.status] || esc(c.status)) + '</span></td><td class="quiet">' + inNidi(c.name) + '</td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-edit=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
           });
           html += '</table></div>'
             + '<details class="add" id="contactdetails"><summary>Agregar contacto</summary><form class="row" id="contactform"><input type="hidden" name="id" /><input name="name" placeholder="nombre o @handle" required maxlength="80" />'
