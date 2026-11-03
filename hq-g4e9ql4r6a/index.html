@@ -54,11 +54,12 @@
       .alert.none { border-left-color:var(--olive); color:var(--ink2); }
 
       /* kpis */
-      .kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(164px,1fr)); gap:10px; }
+      .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+      @media (max-width:640px) { .kpis { grid-template-columns:repeat(2,1fr); } }
       .kpi { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:14px 14px 10px; min-width:0; display:flex; flex-direction:column; gap:2px; }
       .kpi .k { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); }
-      .kpi .v { font-family:var(--serif); font-size:32px; line-height:1.05; margin-top:6px; }
-      .kpi .v small { font-size:16px; color:var(--ink2); margin-left:2px; }
+      .kpi .v { font-family:var(--serif); font-size:36px; line-height:1.05; margin-top:6px; }
+      .kpi .v small { font-size:15px; color:var(--ink2); margin-left:4px; font-family:var(--sans); }
       .kpi .d { font-size:12px; color:var(--ink2); min-height:16px; }
       .delta { font-weight:500; }
       .delta.up { color:var(--olive); } .delta.down { color:var(--rose); } .delta.flat { color:var(--ink3); }
@@ -254,21 +255,24 @@
           s.alerts.forEach(function (a) { html += '<div class="alert ' + esc(a.kind) + '"><span class="tag">' + ({ quiet: 'Quieto', pending: 'Esperando', redeemed_no_nidi: 'Regalo sin nidi' })[a.kind] + '</span>' + esc(a.text) + '</div>'; });
           html += '</div>';
 
-          // KPIs
-          html += '<h2>Hoy <small>comparado con ayer y con el rango anterior</small></h2><div class="kpis">'
-            + kpi('Familias reales', s.families.outside, delta(sum(ser, 'accounts_outside'), sum(prev, 'accounts_outside')) + ' <span class="quiet">en ' + rangeLabel + '</span>', 'accounts_outside', 'var(--olive)')
+          // KPIs. A family is a nidi outside Maru's circle with BOTH homes
+          // in (Maru, 2026-11-03): Fer + Andrea is one, Gise + Alejandro is
+          // one. People with an account are not families yet.
+          var pendingNidis = s.nidis.filter(function (n) { return n.status === 'pending'; });
+          var famDelta = delta(sum(ser, 'activated'), sum(prev, 'activated'));
+          html += '<h2>Hoy <small>comparado con ayer y con los ' + rangeLabel + ' anteriores</small></h2><div class="kpis">'
+            + kpi('Familias', activeNidis.length, (pendingNidis.length ? '+' + pendingNidis.length + ' ' + plural(pendingNidis.length, 'esperando a la otra casa', 'esperando a la otra casa') + ' · ' : '') + 'nidis con las dos casas, sin tu familia', 'activated', 'var(--olive)')
             + kpi('Suscripciones', m.paid_active, '≈ USD ' + m.proceeds_usd_estimate + ' netos · Apple paga en enero')
-            + kpi('Nidis gratis', m.gifts_redeemed, pct(m.gifts_redeemed, m.gifts_sent) + '% de los entregados · ' + (m.gifts_total - m.gifts_sent) + ' códigos libres', null, null, ' / ' + m.gifts_sent + ' entregados')
-            + kpi('Nidis activos', activeNidis.length, quiet.length ? '<span class="warn">' + quiet.length + ' ' + plural(quiet.length, 'quieto', 'quietos') + ' 2+ días</span>' : '<span class="ok">todos compartiendo</span>', 'activated', 'var(--olive)')
-            + kpi('Instalaciones', f.installs, 'hoy ' + (today.installs || 0) + ' · ayer ' + (yest.installs || 0) + '<br>' + vsPrev('installs'), 'installs', 'var(--lagoon)')
-            + kpi('Usuarios activos hoy', today.active_users || 0, 'ayer ' + (yest.active_users || 0) + ' · abrieron la app', 'active_users', 'var(--lagoon)')
-            + kpi('Momentos', s.moments.total, 'hoy ' + (today.moments || 0) + ' (' + (today.moments_outside || 0) + ' de afuera)<br>' + vsPrev('moments'), 'moments', 'var(--olive)')
-            + kpi('Web', w.total, 'hoy ' + (today.web || 0) + ' · ayer ' + (yest.web || 0) + '<br>' + vsPrev('web'), 'web', 'var(--sienna)')
-            + '</div>';
+            + kpi('Nidis gratis', m.gifts_redeemed, m.gifts_sent + ' códigos entregados · ' + (m.gifts_total - m.gifts_sent) + ' libres', null, null, 'de ' + m.gifts_sent)
+            + kpi('Momentos de familias', s.moments.outside_total, 'hoy ' + (today.moments_outside || 0) + ' · ayer ' + (yest.moments_outside || 0) + '<br>' + delta(sum(ser, 'moments_outside'), sum(prev, 'moments_outside')) + ' <span class="quiet">vs antes</span>', 'moments_outside', 'var(--olive)')
+            + kpi('Instalaciones', f.installs, 'hoy ' + (today.installs || 0) + ' · ayer ' + (yest.installs || 0) + '<br>' + delta(sum(ser, 'installs'), sum(prev, 'installs')) + ' <span class="quiet">vs antes</span>', 'installs', 'var(--lagoon)')
+            + kpi('Web', w.total, 'hoy ' + (today.web || 0) + ' · ayer ' + (yest.web || 0) + '<br>' + delta(sum(ser, 'web'), sum(prev, 'web')) + ' <span class="quiet">vs antes</span>', 'web', 'var(--sienna)')
+            + '</div>'
+            + '<p class="quiet" style="margin:10px 2px 0">' + s.families.outside + ' ' + plural(s.families.outside, 'persona', 'personas') + ' de afuera con cuenta' + (s.families.outside_names.length ? ' (' + s.families.outside_names.map(function (p) { return esc(p.name); }).join(', ') + ')' : '') + ' · ' + (today.active_users || 0) + ' ' + plural(today.active_users || 0, 'persona abrió', 'personas abrieron') + ' Nidi hoy, tu familia incluida.</p>';
 
           // charts
           var K_ACQ = [{ k: 'installs', color: 'var(--lagoon)', label: 'Instalaciones que abrieron' }, { k: 'accounts', color: 'var(--olive)', label: 'Cuentas' }, { k: 'activated', color: 'var(--honey)', label: 'Nidis activados' }];
-          var K_MOM = [{ k: 'moments_outside', color: 'var(--olive)', label: 'Momentos de familias reales' }, { k: 'moments', color: 'var(--olive-soft)', label: 'Todos (incluye tu familia)' }];
+          var K_MOM = [{ k: 'moments_outside', color: 'var(--olive)', label: 'Momentos de familias' }, { k: 'moments', color: 'var(--olive-soft)', label: 'Todos (incluye tu familia)' }];
           var K_WEB = [{ k: 'web_direct', color: 'var(--sienna)', label: 'Sin origen (WhatsApp, mail, escrito)' }, { k: 'web_ig', color: 'var(--rose)', label: 'Instagram' }, { k: 'web', color: 'var(--ink3)', label: 'Total', line: true }];
           html += '<h2>Tendencias <small>' + rangeLabel + '</small></h2><div class="two">'
             + '<div class="card"><div class="title">Adquisición</div>' + legend(K_ACQ) + chart(ser, K_ACQ, { label: 'Adquisición por día' }) + '</div>'
@@ -285,7 +289,7 @@
             html += '<div class="step"><span>' + esc(st[0]) + '</span><div class="bar"><i style="width:' + pct(st[1], f.installs) + '%"></i></div><span class="num">' + st[1] + '</span><span class="pct">' + (i ? pct(st[1], prevV) + '%' : '') + '</span></div>';
           });
           html += '</div><div class="foot">Apple cuenta además a quien bajó y no abrió (App Store Connect). ' + esc(s.ratings_note) + '</div></div>';
-          html += '<div class="card"><div class="title">Retención <span>familias reales · ' + ret.cohort + ' cuentas</span></div><div class="funnel">'
+          html += '<div class="card"><div class="title">Retención <span>personas de afuera · ' + ret.cohort + ' cuentas</span></div><div class="funnel">'
             + '<div class="step"><span>Volvieron al día siguiente</span><div class="bar"><i style="width:' + pct(ret.d1, ret.eligible_d1) + '%"></i></div><span class="num">' + ret.d1 + '/' + ret.eligible_d1 + '</span><span class="pct">' + pct(ret.d1, ret.eligible_d1) + '%</span></div>'
             + '<div class="step"><span>Volvieron en la 1ª semana</span><div class="bar"><i style="width:' + pct(ret.w1, ret.eligible_w1) + '%"></i></div><span class="num">' + ret.w1 + '/' + ret.eligible_w1 + '</span><span class="pct">' + (ret.eligible_w1 ? pct(ret.w1, ret.eligible_w1) + '%' : 'pronto') + '</span></div>'
             + '<div class="step"><span>Activas en los últimos 7 días</span><div class="bar"><i style="width:' + pct(ret.last7, ret.cohort) + '%"></i></div><span class="num">' + ret.last7 + '/' + ret.cohort + '</span><span class="pct">' + pct(ret.last7, ret.cohort) + '%</span></div>'
@@ -296,7 +300,7 @@
           var cad = s.cadence || {}, gb = cad.gap_buckets || {};
           var gbTot = (gb.same_day || 0) + (gb.one_to_three_days || 0) + (gb.three_plus_days || 0);
           var hoursWord = function (h) { if (h == null) return '—'; if (h < 1) return Math.round(h * 60) + ' min'; if (h < 48) return Math.round(h) + ' h'; return (h / 24).toFixed(1) + ' días'; };
-          html += '<h2>Ritmo de compartir <small>cuánto pasa entre un momento y el siguiente, familias reales</small></h2><div class="two">'
+          html += '<h2>Ritmo de compartir <small>cuánto pasa entre un momento y el siguiente, familias</small></h2><div class="two">'
             + '<div class="card"><div class="title">Tiempo típico entre momentos</div><div class="kpi" style="border:0;padding:0"><div class="v">' + hoursWord(cad.median_gap_hours) + '</div><div class="d">mediana en ' + (cad.nidis_with_gaps || 0) + ' ' + plural(cad.nidis_with_gaps || 0, 'nidi', 'nidis') + ' con más de un momento</div></div>'
             + '<div class="foot">Lo que queremos ver bajar: si una familia tarda más de 3 días en volver, el hábito no agarró.</div></div>'
             + '<div class="card"><div class="title">Cada vuelta a compartir, por demora <span>' + gbTot + ' intervalos</span></div><div class="funnel">'
@@ -306,7 +310,7 @@
             + '</div></div></div>';
 
           // nidis table
-          html += '<h2>Nidis de familias reales <small>' + s.nidis.length + '</small></h2><div class="card"><div class="tablewrap"><table><tr><th>Quiénes</th><th>Estado</th><th class="num">Momentos</th><th>Quién manda</th><th>Último</th><th>Cada</th><th>Activación</th><th>Cobertura</th></tr>';
+          html += '<h2>Familias <small>' + activeNidis.length + ' con las dos casas · ' + pendingNidis.length + ' esperando</small></h2><div class="card"><div class="tablewrap"><table><tr><th>Quiénes</th><th>Estado</th><th class="num">Momentos</th><th>Quién manda</th><th>Último</th><th>Cada</th><th>Activación</th><th>Cobertura</th></tr>';
           if (!s.nidis.length) html += '<tr><td colspan="8" class="quiet">Todavía ninguno.</td></tr>';
           s.nidis.forEach(function (n) {
             var q = n.quiet_days, health = n.status !== 'active' ? 'n' : q == null ? 'r' : q >= 4 ? 'r' : q >= 2 ? 'y' : 'g';
@@ -374,7 +378,7 @@
           var ctab = function (obj, label) { var ks = Object.keys(obj || {}); var tot = ks.reduce(function (a, k) { return a + obj[k]; }, 0); return '<div class="card"><div class="title">' + label + ' <span>' + tot + '</span></div><table>' + ks.map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="num">' + obj[k] + '</td><td style="width:40%"><div class="bar" style="height:8px;background:var(--line2);border-radius:4px"><i style="display:block;height:100%;width:' + pct(obj[k], tot) + '%;background:var(--lagoon);border-radius:4px"></i></div></td></tr>'; }).join('') + '</table></div>'; };
           var ast = d.appstore || [];
           var webKnown = {}; Object.keys(co.web || {}).forEach(function (k) { if (k !== '?') webKnown[k] = co.web[k]; });
-          html += '<h2>Países</h2><div class="three">' + ctab(co.accounts, 'Cuentas de familias reales') + (Object.keys(webKnown).length ? ctab(webKnown, 'Visitas a nidi.life') : '<div class="card"><div class="title">Visitas a nidi.life</div><p class="quiet" style="margin:0">La web no guarda el país de quien la visita (sin rastreo, a propósito). Los países de las descargas están en App Store Connect.</p></div>')
+          html += '<h2>Países</h2><div class="three">' + ctab(co.accounts, 'Personas de afuera con cuenta') + (Object.keys(webKnown).length ? ctab(webKnown, 'Visitas a nidi.life') : '<div class="card"><div class="title">Visitas a nidi.life</div><p class="quiet" style="margin:0">La web no guarda el país de quien la visita (sin rastreo, a propósito). Los países de las descargas están en App Store Connect.</p></div>')
             + '<div class="card"><div class="title">Calificaciones App Store <span>' + ast.reduce(function (a, r) { return a + r.count; }, 0) + '</span></div><table>' + (ast.length ? ast.map(function (r) { return '<tr><td>' + esc(r.country) + '</td><td class="num">' + (r.rating != null ? r.rating.toFixed(1) + ' ★' : '—') + '</td><td class="num quiet">' + r.count + ' ' + plural(r.count, 'voto', 'votos') + '</td></tr>'; }).join('') : '<tr><td class="quiet">Todavía ninguna.</td></tr>') + '</table><div class="foot">Las descargas por país están en App Store Connect hasta conectar la API.</div></div></div>';
 
           // reviews
