@@ -239,6 +239,7 @@
         var CONTACT_FILTER = 'all';
         function render() {
           var d = DATA, s = d.stats, f = s.funnel, m = s.money, w = s.web, inv = s.invites, ret = s.retention;
+          var people = d.people || {};
           var all = s.series || [], ser = all.slice(-range), prev = all.slice(-range * 2, -range);
           var today = all[all.length - 1] || {}, yest = all[all.length - 2] || {};
           var activeNidis = s.nidis.filter(function (n) { return n.status === 'active'; });
@@ -390,7 +391,6 @@
 
           // contacts pipeline
           var STATUS_L = { sent: 'Enviado', replied: 'Respondió', no_answer: 'Sin respuesta', declined: 'No le interesa', done: 'Listo' };
-          var people = d.people || {};
           var inNidi = function (name) {
             var key = String(name || '').trim().split(/\s+/)[0].replace(/^@/, '').toLowerCase();
             var p = people[key]; if (!p) return '<span class="quiet">—</span>';
