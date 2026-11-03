@@ -97,6 +97,14 @@
       .step .bar i { display:block; height:100%; background:var(--olive); border-radius:7px; }
       .step .pct { font-size:12px; color:var(--ink2); text-align:right; }
       @media (max-width:560px) { .step { grid-template-columns:120px 1fr 40px 52px; font-size:13px; } }
+      /* in a narrow card: label, number and percent on one line, the bar under them */
+      .three .funnel { gap:12px; }
+      .three .step { grid-template-columns:minmax(0,1fr) auto 38px; gap:5px 10px; }
+      .three .step > span:first-child { grid-column:1; grid-row:1; }
+      .three .step .num { grid-column:2; grid-row:1; text-align:right; }
+      .three .step .pct { grid-column:3; grid-row:1; }
+      .three .step .bar { grid-column:1 / -1; grid-row:2; height:6px; border-radius:3px; }
+      .three .step .bar i { border-radius:3px; }
 
       /* tables */
       .tablewrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -16px; padding:0 16px; }
