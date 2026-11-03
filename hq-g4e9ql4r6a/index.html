@@ -160,10 +160,10 @@
         function pct(a, b) { return b ? Math.round(a / b * 100) : 0; }
         function delta(now, before, unit) {
           if (!before && !now) return '<span class="delta flat">sin cambios</span>';
-          if (!before) return '<span class="delta up">+' + now + ' ' + (unit || '') + '</span>';
+          if (!before) return '<span class="delta up">▲ ' + now + '</span> <span class="quiet">en ' + range + ' días</span>';
           var d = now - before, p = Math.round(d / before * 100);
           var cls = d > 0 ? 'up' : d < 0 ? 'down' : 'flat';
-          return '<span class="delta ' + cls + '">' + (d > 0 ? '+' : '') + d + ' (' + (p > 0 ? '+' : '') + p + '%)</span>';
+          return '<span class="delta ' + cls + '">' + (d > 0 ? '▲' : d < 0 ? '▼' : '·') + ' ' + (p > 0 ? '+' : '') + p + '%</span> <span class="quiet">vs ' + range + ' días antes</span>';
         }
         function plural(n, s, p) { return n === 1 ? s : p; }
 
@@ -269,13 +269,13 @@
           // one. People with an account are not families yet.
           var pendingNidis = s.nidis.filter(function (n) { return n.status === 'pending'; });
           var famDelta = delta(sum(ser, 'activated'), sum(prev, 'activated'));
-          html += '<h2>Hoy <small>comparado con ayer y con los ' + rangeLabel + ' anteriores</small></h2><div class="kpis">'
-            + kpi('Familias', activeNidis.length, (pendingNidis.length ? '+' + pendingNidis.length + ' ' + plural(pendingNidis.length, 'esperando a la otra casa', 'esperando a la otra casa') + ' · ' : '') + 'nidis con las dos casas, sin tu familia', 'activated', 'var(--olive)')
+          html += '<h2>Hoy <small>el gráfico es el día a día; la flecha, el período contra el anterior</small></h2><div class="kpis">'
+            + kpi('Familias', activeNidis.length, (pendingNidis.length ? '+' + pendingNidis.length + ' esperando a la otra casa' : 'nidis con las dos casas, sin tu familia'), 'activated', 'var(--olive)')
             + kpi('Suscripciones', m.paid_active, '≈ USD ' + m.proceeds_usd_estimate + ' netos · Apple paga en enero', null, null, (function () { var a = m.paid_list.filter(function (p) { return p.product !== 'nidi_monthly'; }).length, mo = m.paid_list.length - a; return [a ? a + (a === 1 ? ' anual' : ' anuales') : '', mo ? mo + (mo === 1 ? ' mensual' : ' mensuales') : ''].filter(Boolean).join(' · '); })())
             + kpi('Nidis gratis', m.gifts_redeemed, pct(m.gifts_redeemed, m.gifts_sent) + '% de los códigos entregados ya activos · ' + (m.gifts_total - m.gifts_sent) + ' libres', null, null, 'de ' + m.gifts_sent + ' entregados', m.gifts_sent ? m.gifts_redeemed / m.gifts_sent : 0)
-            + kpi('Momentos de familias', s.moments.outside_total, 'hoy ' + (today.moments_outside || 0) + ' · ayer ' + (yest.moments_outside || 0) + '<br>' + delta(sum(ser, 'moments_outside'), sum(prev, 'moments_outside')) + ' <span class="quiet">vs antes</span>', 'moments_outside', 'var(--olive)')
-            + kpi('Instalaciones', f.installs, 'hoy ' + (today.installs || 0) + ' · ayer ' + (yest.installs || 0) + '<br>' + delta(sum(ser, 'installs'), sum(prev, 'installs')) + ' <span class="quiet">vs antes</span>', 'installs', 'var(--lagoon)')
-            + kpi('Web', w.total, 'hoy ' + (today.web || 0) + ' · ayer ' + (yest.web || 0) + '<br>' + delta(sum(ser, 'web'), sum(prev, 'web')) + ' <span class="quiet">vs antes</span>', 'web', 'var(--sienna)')
+            + kpi('Momentos de familias', s.moments.outside_total, delta(sum(ser, 'moments_outside'), sum(prev, 'moments_outside')), 'moments_outside', 'var(--olive)')
+            + kpi('Instalaciones', f.installs, delta(sum(ser, 'installs'), sum(prev, 'installs')), 'installs', 'var(--lagoon)')
+            + kpi('Web', w.total, delta(sum(ser, 'web'), sum(prev, 'web')), 'web', 'var(--sienna)')
             + '</div>'
             + '<p class="quiet" style="margin:10px 2px 0">' + s.families.outside + ' ' + plural(s.families.outside, 'persona', 'personas') + ' de afuera con cuenta' + (s.families.outside_names.length ? ' (' + s.families.outside_names.map(function (p) { return esc(p.name); }).join(', ') + ')' : '') + ' · ' + (today.active_users || 0) + ' ' + plural(today.active_users || 0, 'persona abrió', 'personas abrieron') + ' Nidi hoy, tu familia incluida.</p>';
 
