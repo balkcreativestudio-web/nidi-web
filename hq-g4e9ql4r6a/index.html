@@ -351,23 +351,28 @@
             + '</div>';
 
           // nidis table
-          html += '<h2>Familias <small>' + activeNidis.length + ' con las dos casas · ' + pendingNidis.length + ' esperando</small></h2><div class="card"><div class="tablewrap"><table><tr><th>Quiénes</th><th>Estado</th><th class="num">Momentos</th><th>Quién manda</th><th>Último</th><th>Cada</th><th>Activación</th><th>Cobertura</th></tr>';
-          if (!s.nidis.length) html += '<tr><td colspan="8" class="quiet">Todavía ninguno.</td></tr>';
+          html += '<h2>Familias <small>' + activeNidis.length + ' con las dos casas · ' + pendingNidis.length + ' esperando</small></h2><div class="card"><div class="tablewrap"><table><tr><th>Familia</th><th>Estado</th><th class="num">Momentos</th><th>Quién manda</th><th>Último momento</th><th>Ritmo</th><th>Plan</th></tr>';
+          if (!s.nidis.length) html += '<tr><td colspan="7" class="quiet">Todavía ninguno.</td></tr>';
+          var personOf = function (name) { return people[String(name || '').trim().split(/\s+/)[0].toLowerCase()] || null; };
           s.nidis.forEach(function (n) {
-            var q = n.quiet_days, health = n.status !== 'active' ? 'n' : q == null ? 'r' : q >= 4 ? 'r' : q >= 2 ? 'y' : 'g';
+            var hrs = n.last_moment ? (Date.now() - new Date(n.last_moment).getTime()) / 36e5 : null;
+            var health = n.status !== 'active' ? 'n' : hrs == null ? 'r' : hrs < 24 ? 'g' : hrs < 72 ? 'y' : 'r';
             var tot = (n.moments_a + n.moments_b) || 1;
-            html += '<tr><td><span class="health ' + health + '"></span>' + esc(n.a) + (n.b ? ' + ' + esc(n.b) : ' <span class="quiet">→ ' + esc(n.invitee || 'la otra casa') + '</span>') + '</td>'
+            var pa = personOf(n.a), pb = personOf(n.b);
+            var plan = (pa && pa.paid) || (pb && pb.paid) ? '<span class="ok">Paga</span>'
+              : (pa && pa.gift) || (pb && pb.gift) ? '<span class="ok">Año gratis</span>'
+              : n.activated_at ? 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + 14 * 864e5).toISOString()) + '</span>'
+              : '<span class="quiet">Prueba, empieza cuando entre la otra casa</span>';
+            html += '<tr><td><span class="health ' + health + '"></span>' + esc(n.a) + (n.status === 'pending' ? ' <span class="quiet">→ ' + esc(n.invitee || 'la otra casa') + '</span>' : '') + '</td>'
               + '<td><span class="pill ' + esc(n.status) + '">' + (n.status === 'active' ? 'activo' : n.status === 'pending' ? 'esperando' : esc(n.status)) + '</span>' + (n.status === 'pending' && n.pending_invite_at ? '<div class="quiet">' + (n.pending_invite_opened ? 'abrió la invitación' : 'no abrió la invitación') + '</div>' : '') + '</td>'
-              + '<td class="num">' + n.moments + (n.notes ? ' <span class="quiet">+' + n.notes + ' notas</span>' : '') + '</td>'
+              + '<td class="num">' + n.moments + '</td>'
               + '<td><span class="quiet">' + esc(n.a) + ' ' + n.moments_a + ' · ' + esc(n.b || '—') + ' ' + n.moments_b + '</span><span class="bars2"><i style="width:' + pct(n.moments_a, tot) + '%;background:var(--olive)"></i><i style="width:' + pct(n.moments_b, tot) + '%;background:var(--lagoon)"></i></span></td>'
-              + '<td>' + (n.last_moment ? dmy(n.last_moment) + (q >= 2 ? ' <span class="' + (q >= 4 ? 'warn' : 'meh') + '">' + q + ' días</span>' : '') : '—') + '</td>'
-              + '<td>' + (n.median_gap_hours == null ? '—' : '~' + hoursWord(n.median_gap_hours)) + (n.last_gap_hours != null && n.last_gap_hours > (n.median_gap_hours || 0) * 2 ? ' <span class="meh">(último ' + hoursWord(n.last_gap_hours) + ')</span>' : '') + '</td>'
-              + '<td>' + (n.hours_to_activate == null ? '—' : n.hours_to_activate < 48 ? n.hours_to_activate + ' h' : Math.round(n.hours_to_activate / 24) + ' días') + '</td>'
-              + '<td>' + (n.covered ? '<span class="ok">cubierto</span>' : '<span class="quiet">prueba</span>') + '</td></tr>';
+              + '<td>' + (hrs == null ? '<span class="quiet">nunca</span>' : '<span class="' + (hrs < 24 ? 'ok' : hrs < 72 ? 'meh' : 'warn') + '">hace ' + hoursWord(hrs) + '</span>') + '</td>'
+              + '<td>' + (n.median_gap_hours == null ? '<span class="quiet">—</span>' : 'cada ~' + hoursWord(n.median_gap_hours)) + '</td>'
+              + '<td>' + plan + '</td></tr>';
           });
-          html += '</table></div></div>';
+          html += '</table></div><div class="foot">Ritmo: tiempo típico entre dos momentos de esa familia. Plan: quién sostiene el nidi; la prueba son 14 días desde que entra la otra casa.</div></div>';
 
-          // money + gifts
           html += '<h2>Suscripciones <small>' + m.paid_active + ' pagas · ' + m.gifts_redeemed + ' de ' + m.gifts_sent + ' nidis gratis entregados ya activos</small></h2><div class="two">'
             + '<div class="card"><div class="title">Pagas <span>' + m.paid_active + ' · ≈ USD ' + m.proceeds_usd_estimate + ' netos</span></div><div class="tablewrap"><table><tr><th>Quién</th><th>Plan</th><th>País</th><th class="num">Pagó</th><th>Renueva</th></tr>';
           m.paid_list.forEach(function (p) { html += '<tr><td>' + esc(p.who) + '</td><td>' + (p.product === 'nidi_monthly' ? 'Mensual' : 'Anual') + '</td><td>' + esc(p.country || '—') + '</td><td class="num">' + (p.price != null ? Math.round(p.price) + ' ' + esc(p.currency || '') : '—') + '</td><td>' + dmyLong(p.ends) + '</td></tr>'; });
