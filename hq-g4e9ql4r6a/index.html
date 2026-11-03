@@ -615,6 +615,18 @@
           var peakHour = null; (en.by_hour || []).forEach(function (v, i) { if (v && (peakHour == null || v > en.by_hour[peakHour])) peakHour = i; });
           var dayNames = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
           var peakDay = null; (en.by_weekday || []).forEach(function (v, i) { if (v && (peakDay == null || v > en.by_weekday[peakDay])) peakDay = i; });
+          // the number to watch: families that keep sharing, and how invitations go
+          var gr = d.growth || null;
+          if (gr) {
+            var weeks = gr.weeks || [], inv2 = gr.invitations || {};
+            html += '<h2>Lo que importa <small>si las familias siguen, y si las invitaciones llegan</small></h2><div class="two">'
+              + '<div class="card"><div class="title">Familias compartiendo <span>últimos 7 días</span></div><div class="kpi" style="border:0;padding:0"><div class="v">' + gr.both_ways_7d + '<small>de ' + gr.families + '</small></div><div class="d">compartieron en los dos sentidos' + (gr.any_7d > gr.both_ways_7d ? ' (' + gr.any_7d + ' con algún momento)' : '') + '</div></div>'
+              + hbars(weeks.map(function (w) { return w.both_ways; }), weeks.map(function (w) { return dmy(w.start + 'T12:00:00'); }), 'var(--rose)', weeks.length > 6 ? 2 : 1)
+              + '<div class="foot">Cada barra es una semana desde el lanzamiento, solo familias de afuera. Lo que hay que mirar es si en la semana 2 y la 4 siguen ahí.</div></div>'
+              + '<div class="card"><div class="title">Invitaciones <span>familias de afuera</span></div><div class="funnel">' + stepRow('Enviadas', inv2.sent, inv2.sent) + stepRow('Aceptadas', inv2.accepted, inv2.sent, 'var(--olive)') + stepRow('Esperando', inv2.waiting, inv2.sent, 'var(--honey)') + stepRow('Esperando hace más de 3 días', inv2.waiting_3d, inv2.sent, 'var(--rose)') + '</div>'
+              + '<div class="foot">' + (inv2.median_hours != null ? 'Tardan ' + minsWord(Number(inv2.median_hours) * 60) + ' en aceptarla. ' : '') + 'Por qué queda esperando no se puede saber desde acá.</div></div></div>';
+          }
+
           html += '<h2>Uso <small>cómo usan Nidi las familias; donde dice "con tu familia", suma la tuya</small></h2><div class="three">'
             + '<div class="card"><div class="title">Una sesión</div><div class="kpi" style="border:0;padding:0"><div class="v">' + minsWord(en.session_median_min) + '</div><div class="d">lo que dura una visita típica a Nidi (' + minsWord(en.session_median_min_all) + ' con tu familia)</div></div>'
             + '<div class="foot">Abren Nidi ' + (en.sessions_per_user_day || 0) + ' veces por día cuando lo usan, y hacen ' + (en.events_per_session || 0) + ' cosas por visita.</div></div>'
