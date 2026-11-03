@@ -6,207 +6,365 @@
     <title>Nidi HQ</title>
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="theme-color" content="#fffdf9" />
+    <meta name="theme-color" content="#f4efe7" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Nidi HQ" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
     <link rel="apple-touch-icon" href="/assets/press/nidi-app-icon-1024.png" />
     <style>
-      /* Nidi HQ: Maru's own panel. No analytics, no fonts fetched from
-         anywhere, nothing leaves the page but the one call to /hq with
-         her token, which lives in this browser only. */
-      :root { --paper:#fffdf9; --cream:#f4efe7; --ink:#2a241d; --ink2:#7a6f62; --muted:#b0a596; --line:#e7dfd2;
-              --olive:#87995b; --rose:#b5677d; --honey:#d9a441; --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; --serif:Georgia,"Times New Roman",serif; }
+      /* Nidi HQ, Maru's own panel. One call to the hq function with her
+         token (kept in this browser only); no analytics, no fonts fetched,
+         nothing else leaves the page. Lola's rungs (brand-spec p. 26):
+         serif for figures and titles, sans light for everything else. */
+      @font-face { font-family: "Lora"; src: url(/assets/fonts/Lora-Regular.ttf) format("truetype"); font-weight: 400; font-display: swap; }
+      @font-face { font-family: "Lora"; src: url(/assets/fonts/Lora-Italic.ttf) format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Light.ttf) format("truetype"); font-weight: 300; font-display: swap; }
+      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Medium.ttf) format("truetype"); font-weight: 500; font-display: swap; }
+      :root {
+        --cream:#f4efe7; --paper:#fffdf9; --ink:#2a241d; --ink2:#7a6f62; --ink3:#b0a596; --line:#e7dfd2; --line2:#efe8dc;
+        --olive:#87995b; --olive-soft:#e4e8d5; --rose:#b5677d; --rose-soft:#f1dfe4; --honey:#c9962e; --honey-soft:#f3e7cc; --lagoon:#5f8f9a; --lagoon-soft:#dbe8ea; --sienna:#b0714f;
+        --serif:"Lora",Georgia,serif; --sans:"Hanken Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+      }
       * { box-sizing:border-box; }
-      html,body { margin:0; background:var(--cream); color:var(--ink); font-family:var(--sans); font-weight:300; font-size:16px; line-height:1.45; -webkit-font-smoothing:antialiased; }
-      body { padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(40px + env(safe-area-inset-bottom,0px)); }
-      main { max-width:960px; margin:0 auto; }
-      header { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:8px 0 20px; }
-      h1 { font-family:var(--serif); font-weight:400; font-size:28px; margin:0; letter-spacing:-0.02em; }
-      .stamp { font-size:12px; color:var(--ink2); letter-spacing:.04em; }
-      h2 { font-weight:300; font-size:22px; margin:32px 0 12px; letter-spacing:-0.01em; }
-      .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
-      .tile { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px 14px 12px; min-width:0; }
-      .tile .k { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); }
-      .tile .v { font-family:var(--serif); font-size:30px; line-height:1.1; margin-top:6px; font-variant-numeric:tabular-nums; }
-      .tile .d { font-size:12px; color:var(--ink2); margin-top:4px; }
-      .tile.hero { grid-column:span 2; }
-      .card { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px; overflow:hidden; }
+      html,body { margin:0; background:var(--cream); color:var(--ink); font-family:var(--sans); font-weight:300; font-size:15px; line-height:1.45; -webkit-font-smoothing:antialiased; }
+      body { padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(48px + env(safe-area-inset-bottom,0px)); }
+      main { max-width:1040px; margin:0 auto; }
+      a { color:var(--ink); }
+      .num, td.num, .v, .delta, .pct { font-variant-numeric:tabular-nums; }
+
+      /* header */
+      header { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin:6px 0 18px; }
+      h1 { font-family:var(--serif); font-weight:400; font-size:30px; line-height:1; margin:0; letter-spacing:-0.02em; }
+      .sub { font-size:12px; color:var(--ink2); letter-spacing:.04em; margin-top:6px; }
+      .range { display:flex; gap:4px; background:var(--paper); border:1px solid var(--line); border-radius:999px; padding:3px; }
+      .range button { border:0; background:transparent; color:var(--ink2); font:inherit; font-size:12px; letter-spacing:.04em; padding:6px 10px; border-radius:999px; cursor:pointer; }
+      .range button[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
+
+      h2 { font-weight:300; font-size:20px; letter-spacing:-0.01em; margin:30px 0 10px; display:flex; align-items:baseline; gap:10px; }
+      h2 small { font-size:12px; color:var(--ink2); letter-spacing:.04em; font-weight:300; }
+
+      /* alerts */
+      .alerts { display:flex; flex-direction:column; gap:6px; margin-bottom:6px; }
+      .alert { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--honey); border-radius:10px; padding:10px 12px; font-size:14px; display:flex; gap:10px; align-items:baseline; }
+      .alert.quiet { border-left-color:var(--rose); }
+      .alert.pending { border-left-color:var(--honey); }
+      .alert.redeemed_no_nidi { border-left-color:var(--lagoon); }
+      .alert .tag { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink2); white-space:nowrap; }
+      .alert.none { border-left-color:var(--olive); color:var(--ink2); }
+
+      /* kpis */
+      .kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(164px,1fr)); gap:10px; }
+      .kpi { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:14px 14px 10px; min-width:0; display:flex; flex-direction:column; gap:2px; }
+      .kpi .k { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); }
+      .kpi .v { font-family:var(--serif); font-size:32px; line-height:1.05; margin-top:6px; }
+      .kpi .v small { font-size:16px; color:var(--ink2); margin-left:2px; }
+      .kpi .d { font-size:12px; color:var(--ink2); min-height:16px; }
+      .delta { font-weight:500; }
+      .delta.up { color:var(--olive); } .delta.down { color:var(--rose); } .delta.flat { color:var(--ink3); }
+      .kpi svg { display:block; width:100%; height:34px; margin-top:8px; overflow:visible; }
+
+      /* cards and charts */
+      .card { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:16px; min-width:0; overflow:hidden; }
+      .two { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .three { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+      @media (max-width:760px) { .two,.three { grid-template-columns:1fr; } }
+      .chart { width:100%; height:190px; display:block; overflow:visible; }
+      .chart text { font-family:var(--sans); font-size:10px; fill:var(--ink2); }
+      .chart .grid { stroke:var(--line2); stroke-width:1; }
+      .chart .axis { stroke:var(--line); }
+      .legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--ink2); margin:0 0 8px; }
+      .legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+      .title { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); margin-bottom:8px; display:flex; justify-content:space-between; }
+      .foot { font-size:12px; color:var(--ink2); margin-top:10px; }
+
+      /* funnel */
+      .funnel { display:flex; flex-direction:column; gap:8px; }
+      .step { display:grid; grid-template-columns:180px 1fr 56px 64px; gap:10px; align-items:center; font-size:14px; }
+      .step .bar { height:14px; background:var(--line2); border-radius:7px; overflow:hidden; }
+      .step .bar i { display:block; height:100%; background:var(--olive); border-radius:7px; }
+      .step .pct { font-size:12px; color:var(--ink2); text-align:right; }
+      @media (max-width:560px) { .step { grid-template-columns:120px 1fr 40px 52px; font-size:13px; } }
+
+      /* tables */
+      .tablewrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -16px; padding:0 16px; }
       table { width:100%; border-collapse:collapse; font-size:14px; }
-      th { text-align:left; font-weight:500; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); padding:6px 8px; border-bottom:1px solid var(--line); }
-      td { padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+      th { text-align:left; font-weight:500; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
+      td { padding:9px 8px; border-bottom:1px solid var(--line2); vertical-align:top; }
       tr:last-child td { border-bottom:0; }
-      .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
-      .tablewrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      td.num, th.num { text-align:right; white-space:nowrap; }
       .quiet { color:var(--ink2); font-size:13px; }
-      .warn { color:var(--rose); }
-      .ok { color:var(--olive); }
-      .funnel { display:flex; flex-direction:column; gap:6px; }
-      .step { display:grid; grid-template-columns:150px 1fr 48px; gap:10px; align-items:center; font-size:14px; }
-      .bar { height:10px; background:var(--line); border-radius:6px; overflow:hidden; }
-      .bar i { display:block; height:100%; background:var(--olive); }
-      .spark { display:flex; align-items:flex-end; gap:3px; height:48px; margin-top:8px; }
-      .spark b { flex:1; background:var(--olive); opacity:.75; border-radius:2px 2px 0 0; min-height:2px; }
-      .spark b:last-child { opacity:1; }
-      .legend { display:flex; justify-content:space-between; font-size:11px; color:var(--ink2); margin-top:4px; }
-      .pill { display:inline-block; font-size:11px; letter-spacing:.04em; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--ink2); white-space:nowrap; }
-      .pill.redeemed,.pill.reviewed,.pill.done { border-color:var(--olive); color:var(--olive); }
-      .pill.replied,.pill.downloaded { border-color:var(--honey); color:#8a6a1f; }
-      .pill.declined,.pill.no_answer { border-color:var(--rose); color:var(--rose); }
-      form.row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+      .warn { color:var(--rose); } .ok { color:var(--olive); } .meh { color:var(--honey); }
+      .pill { display:inline-block; font-size:11px; letter-spacing:.04em; padding:2px 9px; border-radius:999px; background:var(--line2); color:var(--ink2); white-space:nowrap; }
+      .pill.redeemed,.pill.reviewed,.pill.done,.pill.active { background:var(--olive-soft); color:#4d5c2a; }
+      .pill.replied,.pill.downloaded,.pill.pending { background:var(--honey-soft); color:#7a5a16; }
+      .pill.declined,.pill.no_answer { background:var(--rose-soft); color:var(--rose); }
+      .health { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px; }
+      .health.g { background:var(--olive); } .health.y { background:var(--honey); } .health.r { background:var(--rose); } .health.n { background:var(--ink3); }
+      .bars2 { display:inline-flex; gap:2px; height:8px; width:60px; vertical-align:middle; margin-left:6px; }
+      .bars2 i { display:block; height:100%; border-radius:2px; }
+
+      /* pipeline */
+      .pipe { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px; margin-bottom:12px; }
+      .pipe button { border:1px solid var(--line); background:var(--paper); border-radius:12px; padding:10px 8px; text-align:left; font:inherit; color:var(--ink); cursor:pointer; }
+      .pipe button[aria-pressed="true"] { border-color:var(--ink); }
+      .pipe .n { font-family:var(--serif); font-size:22px; line-height:1; }
+      .pipe .l { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink2); margin-top:4px; }
+
+      /* forms */
+      form.row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-top:12px; }
       form.row .full { grid-column:1 / -1; }
-      input,select,textarea,button { font:inherit; font-size:15px; color:var(--ink); }
-      input,select,textarea { width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; background:#fff; }
+      input,select,textarea,button { font:inherit; color:var(--ink); }
+      input,select,textarea { width:100%; padding:10px 11px; border:1px solid var(--line); border-radius:10px; background:#fff; font-size:15px; }
       textarea { min-height:60px; resize:vertical; }
-      button { padding:10px 16px; border-radius:999px; border:1px solid var(--ink); background:var(--ink); color:var(--paper); cursor:pointer; }
-      button.ghost { background:transparent; color:var(--ink); }
-      button.link { border:0; background:transparent; color:var(--ink2); padding:4px 6px; font-size:13px; text-decoration:underline; }
-      .gate { max-width:420px; margin:18vh auto 0; text-align:center; }
+      button.primary { padding:10px 16px; border-radius:999px; border:1px solid var(--ink); background:var(--ink); color:var(--paper); cursor:pointer; font-weight:500; }
+      button.ghost { padding:10px 16px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; }
+      button.link { border:0; background:transparent; color:var(--ink2); padding:2px 4px; font-size:13px; text-decoration:underline; cursor:pointer; }
+      details.add { margin-top:6px; }
+      details.add summary { cursor:pointer; color:var(--ink2); font-size:13px; list-style:none; }
+      details.add summary::before { content:"+ "; }
+      details.add[open] summary::before { content:"− "; }
+
+      /* gate */
+      .gate { max-width:400px; margin:18vh auto 0; text-align:center; }
+      .gate h1 { font-size:34px; }
       .gate p { color:var(--ink2); }
       .gate input { text-align:center; letter-spacing:.08em; margin:14px 0; }
       .err { color:var(--rose); font-size:14px; min-height:20px; }
-      .links a { color:var(--ink); margin-right:16px; font-size:14px; }
-      details summary { cursor:pointer; color:var(--ink2); font-size:14px; }
-      footer { margin-top:40px; font-size:12px; color:var(--muted); }
-      @media (max-width:520px) { .step { grid-template-columns:110px 1fr 40px; } .tile.hero { grid-column:span 2; } h1 { font-size:24px; } }
+      .links { display:flex; flex-wrap:wrap; gap:8px; }
+      .links a { text-decoration:none; border:1px solid var(--line); background:var(--paper); border-radius:999px; padding:8px 14px; font-size:13px; }
+      footer { margin-top:44px; font-size:12px; color:var(--ink3); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+      .skeleton { color:var(--ink2); padding:40px 0; text-align:center; }
     </style>
   </head>
   <body>
-    <main id="app"></main>
+    <main id="app"><p class="skeleton">Cargando…</p></main>
     <script>
       (function () {
         var FN = 'https://orqdnuikcdskmvorchly.supabase.co/functions/v1/hq-g4e9ql4r6a';
-        var KEY = 'nidi-hq-token';
+        var KEY = 'nidi-hq-token', RANGE_KEY = 'nidi-hq-range';
         var app = document.getElementById('app');
-        var token = null;
-        try { token = localStorage.getItem(KEY); } catch (e) {}
+        var token = null, range = 14, DATA = null;
+        try { token = localStorage.getItem(KEY); range = Number(localStorage.getItem(RANGE_KEY)) || 14; } catch (e) {}
 
+        // ── helpers ─────────────────────────────────────────────────────
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
-        function fmtDate(iso) { if (!iso) return '—'; var d = new Date(iso); return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }); }
-        function fmtStamp(iso) { var d = new Date(iso); return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+        function dmy(iso) { if (!iso) return '—'; return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }); }
+        function dmyLong(iso) { if (!iso) return '—'; return new Date(iso).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }); }
+        function stamp(iso) { return new Date(iso).toLocaleString('es-AR', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); }
         function sum(arr, k) { return arr.reduce(function (a, r) { return a + (Number(r[k]) || 0); }, 0); }
+        function pct(a, b) { return b ? Math.round(a / b * 100) : 0; }
+        function delta(now, before, unit) {
+          if (!before && !now) return '<span class="delta flat">sin cambios</span>';
+          if (!before) return '<span class="delta up">+' + now + ' ' + (unit || '') + '</span>';
+          var d = now - before, p = Math.round(d / before * 100);
+          var cls = d > 0 ? 'up' : d < 0 ? 'down' : 'flat';
+          return '<span class="delta ' + cls + '">' + (d > 0 ? '+' : '') + d + ' (' + (p > 0 ? '+' : '') + p + '%)</span>';
+        }
+        function plural(n, s, p) { return n === 1 ? s : p; }
 
+        // sparkline: a tiny area, last point marked
+        function spark(series, key, color) {
+          var vals = series.map(function (r) { return Number(r[key]) || 0; });
+          var max = Math.max.apply(null, vals.concat([1])), w = 100, h = 34, n = vals.length;
+          var pts = vals.map(function (v, i) { return [(i / Math.max(1, n - 1)) * w, h - 2 - (v / max) * (h - 6)]; });
+          var line = pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+          var area = line + ' L' + w + ' ' + h + ' L0 ' + h + ' Z';
+          var last = pts[pts.length - 1];
+          return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><path d="' + area + '" fill="' + color + '" opacity=".14"/><path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5" vector-effect="non-scaling-stroke"/><circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.4" fill="' + color + '" vector-effect="non-scaling-stroke"/></svg>';
+        }
+
+        // bar/line chart with gridlines, y labels and date ticks. keys: [{k, color, label, line?}]
+        function chart(series, keys, opts) {
+          opts = opts || {};
+          var W = 600, H = 190, L = 28, R = 6, T = 10, B = 24, iw = W - L - R, ih = H - T - B, n = series.length;
+          var max = 1;
+          series.forEach(function (r) { var stack = 0; keys.forEach(function (k) { var v = Number(r[k.k]) || 0; if (opts.stacked && !k.line) stack += v; else max = Math.max(max, v); }); max = Math.max(max, stack); });
+          var step = max <= 5 ? 1 : max <= 10 ? 2 : max <= 25 ? 5 : max <= 50 ? 10 : max <= 100 ? 20 : Math.ceil(max / 5 / 10) * 10;
+          var top = Math.ceil(max / step) * step;
+          var y = function (v) { return T + ih - (v / top) * ih; };
+          var x = function (i) { return L + (i + 0.5) * (iw / n); };
+          var out = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opts.label || '') + '">';
+          for (var g = 0; g <= top; g += step) out += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(g) + '" y2="' + y(g) + '"/><text x="' + (L - 6) + '" y="' + (y(g) + 3) + '" text-anchor="end">' + g + '</text>';
+          var bw = Math.max(2, (iw / n) * 0.62);
+          series.forEach(function (r, i) {
+            var base = 0;
+            keys.forEach(function (k) {
+              if (k.line) return;
+              var v = Number(r[k.k]) || 0; if (!v) return;
+              var y1 = y(base + v), y0 = y(base);
+              out += '<rect x="' + (x(i) - bw / 2) + '" y="' + y1 + '" width="' + bw + '" height="' + Math.max(0, y0 - y1) + '" fill="' + k.color + '" rx="2"><title>' + esc(r.day) + ' · ' + esc(k.label) + ': ' + v + '</title></rect>';
+              if (opts.stacked) base += v;
+            });
+          });
+          keys.forEach(function (k) {
+            if (!k.line) return;
+            var d = series.map(function (r, i) { return (i ? 'L' : 'M') + x(i) + ' ' + y(Number(r[k.k]) || 0); }).join(' ');
+            out += '<path d="' + d + '" fill="none" stroke="' + k.color + '" stroke-width="2" stroke-linejoin="round"/>';
+          });
+          var every = n > 16 ? 7 : n > 8 ? 2 : 1;
+          series.forEach(function (r, i) { if ((n - 1 - i) % every === 0) out += '<text x="' + x(i) + '" y="' + (H - 6) + '" text-anchor="middle">' + dmy(r.day) + '</text>'; });
+          out += '<line class="axis" x1="' + L + '" x2="' + (W - R) + '" y1="' + (T + ih) + '" y2="' + (T + ih) + '"/></svg>';
+          return out;
+        }
+        function legend(keys) { return '<div class="legend">' + keys.map(function (k) { return '<span><i style="background:' + k.color + '"></i>' + esc(k.label) + '</span>'; }).join('') + '</div>'; }
+
+        // ── gate / api ──────────────────────────────────────────────────
         function gate(msg) {
-          app.innerHTML = '<div class="gate"><h1>Nidi HQ</h1><p>Tu clave, una vez por dispositivo.</p>'
-            + '<input id="tok" type="password" autocomplete="current-password" placeholder="clave" />'
-            + '<div class="err" id="err">' + esc(msg || '') + '</div>'
-            + '<button id="go">Entrar</button></div>';
+          app.innerHTML = '<div class="gate"><h1>Nidi HQ</h1><p>Tu clave, una vez por dispositivo.</p><input id="tok" type="password" autocomplete="current-password" placeholder="clave" /><div class="err" id="err">' + esc(msg || '') + '</div><button class="primary" id="go">Entrar</button></div>';
           var inp = document.getElementById('tok');
-          function go() {
-            var v = inp.value.trim();
-            if (!v) return;
-            token = v;
-            try { localStorage.setItem(KEY, v); } catch (e) {}
-            load();
-          }
+          function go() { var v = inp.value.trim(); if (!v) return; token = v; try { localStorage.setItem(KEY, v); } catch (e) {} load(); }
           document.getElementById('go').onclick = go;
           inp.onkeydown = function (e) { if (e.key === 'Enter') go(); };
           inp.focus();
         }
-
         function api(method, body) {
           return fetch(FN, { method: method, headers: { 'x-hq-token': token || '', 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, credentials: 'omit', cache: 'no-store' })
-            .then(function (r) { if (r.status === 401) { throw new Error('unauthorized'); } if (r.status === 503) { throw new Error('no_token'); } return r.json(); });
+            .then(function (r) { if (r.status === 401) throw new Error('unauthorized'); if (r.status === 503) throw new Error('no_token'); return r.json(); });
         }
-
         function load() {
-          app.innerHTML = '<p class="quiet">Cargando…</p>';
-          api('GET').then(render).catch(function (e) {
+          if (!DATA) app.innerHTML = '<p class="skeleton">Cargando…</p>';
+          api('GET').then(function (d) { DATA = d; render(); }).catch(function (e) {
             if (e.message === 'unauthorized') { try { localStorage.removeItem(KEY); } catch (x) {} token = null; gate('Clave incorrecta.'); }
-            else if (e.message === 'no_token') { try { localStorage.removeItem(KEY); } catch (x) {} token = null; gate('Todavía no hay clave en el servidor: creá HQ_TOKEN en Supabase → Edge Functions → Secrets, y volvé a entrar con esa misma clave.'); }
-            else app.innerHTML = '<p class="warn">No se pudo cargar. Probá de nuevo en un rato.</p><p><button class="ghost" onclick="location.reload()">Reintentar</button></p>';
+            else if (e.message === 'no_token') { try { localStorage.removeItem(KEY); } catch (x) {} token = null; gate('Todavía no hay clave en el servidor: creá HQ_TOKEN en Supabase → Edge Functions → Secrets.'); }
+            else app.innerHTML = '<p class="skeleton warn">No se pudo cargar. <button class="link" onclick="location.reload()">Reintentar</button></p>';
           });
         }
 
-        function tile(k, v, d, cls) { return '<div class="tile ' + (cls || '') + '"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div>' + (d ? '<div class="d">' + d + '</div>' : '') + '</div>'; }
+        // ── render ──────────────────────────────────────────────────────
+        var CONTACT_FILTER = 'all';
+        function render() {
+          var d = DATA, s = d.stats, f = s.funnel, m = s.money, w = s.web, inv = s.invites, ret = s.retention;
+          var all = s.series || [], ser = all.slice(-range), prev = all.slice(-range * 2, -range);
+          var today = all[all.length - 1] || {}, yest = all[all.length - 2] || {};
+          var activeNidis = s.nidis.filter(function (n) { return n.status === 'active'; });
+          var quiet = activeNidis.filter(function (n) { return n.quiet_days == null || n.quiet_days >= 2; });
+          var kpi = function (k, v, dhtml, key, color, unit) {
+            return '<div class="kpi"><div class="k">' + esc(k) + '</div><div class="v">' + v + (unit ? '<small>' + esc(unit) + '</small>' : '') + '</div><div class="d">' + (dhtml || '') + '</div>' + (key ? spark(ser, key, color || 'var(--olive)') : '') + '</div>';
+          };
+          var rangeLabel = range + ' días';
+          var vsPrev = function (k) { return delta(sum(ser, k), sum(prev, k)) + ' <span class="quiet">vs ' + rangeLabel + ' anteriores</span>'; };
 
-        function spark(series, key) {
-          var max = Math.max.apply(null, series.map(function (r) { return Number(r[key]) || 0; }).concat([1]));
-          return '<div class="spark">' + series.map(function (r) { var v = Number(r[key]) || 0; return '<b style="height:' + Math.max(4, Math.round(v / max * 100)) + '%" title="' + esc(r.day) + ': ' + v + '"></b>'; }).join('') + '</div>'
-            + '<div class="legend"><span>' + fmtDate(series[0].day) + '</span><span>hoy</span></div>';
-        }
+          var html = '<header><div><h1>Nidi HQ</h1><div class="sub">Día ' + s.days_since_launch + ' desde el lanzamiento · ' + esc(stamp(s.generated_at)) + ' · <button class="link" id="refresh">actualizar</button></div></div>'
+            + '<div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></header>';
 
-        function render(d) {
-          var s = d.stats, f = s.funnel, m = s.money, w = s.web, ser = s.series || [];
-          var today = ser[ser.length - 1] || {}, yest = ser[ser.length - 2] || {};
-          var week = ser.slice(-7), prev = ser.slice(-14, -7);
-          var dd = function (k) { var a = Number(today[k]) || 0, b = Number(yest[k]) || 0; return 'hoy ' + a + ' · ayer ' + b; };
-          var wk = function (k) { var a = sum(week, k), b = sum(prev, k); return '7 días: ' + a + (b ? ' (antes ' + b + ')' : ''); };
-          var quietNidis = s.nidis.filter(function (n) { return n.status === 'active' && (n.quiet_days == null || n.quiet_days >= 2); });
+          // alerts
+          html += '<div class="alerts">';
+          if (!s.alerts.length) html += '<div class="alert none"><span class="tag">OK</span>Nada que atender: los nidis activos comparten y no hay invitaciones viejas.</div>';
+          s.alerts.forEach(function (a) { html += '<div class="alert ' + esc(a.kind) + '"><span class="tag">' + ({ quiet: 'Quieto', pending: 'Esperando', redeemed_no_nidi: 'Regalo sin nidi' })[a.kind] + '</span>' + esc(a.text) + '</div>'; });
+          html += '</div>';
 
-          var html = '<header><h1>Nidi HQ</h1><span class="stamp">' + esc(fmtStamp(s.generated_at)) + ' · <button class="link" id="refresh">actualizar</button></span></header>';
-
-          html += '<h2>Hoy</h2><div class="grid">'
-            + tile('Familias reales', s.families.outside, 'cuentas fuera de tu círculo desde el lanzamiento', 'hero')
-            + tile('Nidis activos', s.nidis.filter(function (n) { return n.status === 'active'; }).length, (quietNidis.length ? '<span class="warn">' + quietNidis.length + ' sin compartir hace 2+ días</span>' : '<span class="ok">todos compartiendo</span>'))
-            + tile('Instalaciones', f.installs, dd('installs') + '<br>' + wk('installs'))
-            + tile('Cuentas', f.profile, dd('accounts') + '<br>' + wk('accounts'))
-            + tile('Momentos', s.moments.total, '24 h: ' + s.moments.last_24h + ' (' + s.moments.outside_last_24h + ' de afuera)<br>' + wk('moments'))
-            + tile('Pagas', m.paid_active, '≈ USD ' + m.proceeds_usd_estimate + ' netos')
-            + tile('Regalos usados', m.gifts_redeemed + ' / ' + m.gifts_total, 'códigos canjeados')
-            + tile('Web', w.total, dd('web') + '<br>' + wk('web'))
+          // KPIs
+          html += '<h2>Hoy <small>comparado con ayer y con el rango anterior</small></h2><div class="kpis">'
+            + kpi('Familias reales', s.families.outside, delta(sum(ser, 'accounts_outside'), sum(prev, 'accounts_outside')) + ' <span class="quiet">en ' + rangeLabel + '</span>', 'accounts_outside', 'var(--olive)')
+            + kpi('Nidis activos', activeNidis.length, quiet.length ? '<span class="warn">' + quiet.length + ' ' + plural(quiet.length, 'quieto', 'quietos') + ' 2+ días</span>' : '<span class="ok">todos compartiendo</span>', 'activated', 'var(--olive)')
+            + kpi('Instalaciones', f.installs, 'hoy ' + (today.installs || 0) + ' · ayer ' + (yest.installs || 0) + '<br>' + vsPrev('installs'), 'installs', 'var(--lagoon)')
+            + kpi('Usuarios activos hoy', today.active_users || 0, 'ayer ' + (yest.active_users || 0) + ' · abrieron la app', 'active_users', 'var(--lagoon)')
+            + kpi('Momentos', s.moments.total, 'hoy ' + (today.moments || 0) + ' (' + (today.moments_outside || 0) + ' de afuera)<br>' + vsPrev('moments'), 'moments', 'var(--olive)')
+            + kpi('Pagas', m.paid_active, '≈ USD ' + m.proceeds_usd_estimate + ' netos · Apple paga en enero')
+            + kpi('Regalos', m.gifts_redeemed, m.gifts_sent + ' entregados · ' + pct(m.gifts_redeemed, m.gifts_sent) + '% canjeados · ' + (m.gifts_total - m.gifts_sent) + ' libres', null, null, ' / ' + m.gifts_sent)
+            + kpi('Web', w.total, 'hoy ' + (today.web || 0) + ' · ayer ' + (yest.web || 0) + '<br>' + vsPrev('web'), 'web', 'var(--sienna)')
             + '</div>';
 
-          html += '<div class="grid" style="margin-top:10px">'
-            + '<div class="tile hero"><div class="k">Instalaciones, 14 días</div>' + spark(ser, 'installs') + '</div>'
-            + '<div class="tile hero"><div class="k">Momentos, 14 días</div>' + spark(ser, 'moments') + '</div>'
-            + '<div class="tile hero"><div class="k">Visitas web, 14 días</div>' + spark(ser, 'web') + '</div>'
+          // charts
+          var K_ACQ = [{ k: 'installs', color: 'var(--lagoon)', label: 'Instalaciones que abrieron' }, { k: 'accounts', color: 'var(--olive)', label: 'Cuentas' }, { k: 'activated', color: 'var(--honey)', label: 'Nidis activados' }];
+          var K_MOM = [{ k: 'moments_outside', color: 'var(--olive)', label: 'Momentos de familias reales' }, { k: 'moments', color: 'var(--olive-soft)', label: 'Todos (incluye tu familia)' }];
+          var K_WEB = [{ k: 'web_direct', color: 'var(--sienna)', label: 'Directo' }, { k: 'web_ig', color: 'var(--rose)', label: 'Instagram' }, { k: 'web', color: 'var(--ink3)', label: 'Total', line: true }];
+          html += '<h2>Tendencias <small>' + rangeLabel + '</small></h2><div class="two">'
+            + '<div class="card"><div class="title">Adquisición</div>' + legend(K_ACQ) + chart(ser, K_ACQ, { label: 'Adquisición por día' }) + '</div>'
+            + '<div class="card"><div class="title">Momentos compartidos</div>' + legend(K_MOM) + chart(ser, [K_MOM[1], K_MOM[0]], { label: 'Momentos por día' }) + '<div class="foot">Por tipo desde el lanzamiento: ' + Object.keys(s.moments.by_type).map(function (k) { return ({ voice_note: 'audio', photo: 'foto', text: 'texto' })[k] + ' ' + s.moments.by_type[k]; }).join(' · ') + ' · notas ' + s.moments.notes + '</div></div>'
+            + '<div class="card"><div class="title">Web por origen</div>' + legend(K_WEB) + chart(ser, K_WEB, { stacked: true, label: 'Visitas por día' }) + '<div class="foot">' + Object.keys(w.by_source).map(function (k) { return esc(k === 'ig' ? 'instagram (bio)' : k) + ' ' + w.by_source[k]; }).join(' · ') + '</div></div>'
+            + '<div class="card"><div class="title">Usuarios activos por día</div>' + legend([{ k: 'active_users', color: 'var(--lagoon)', label: 'Personas que abrieron Nidi' }]) + chart(ser, [{ k: 'active_users', color: 'var(--lagoon)', label: 'Activos' }], { label: 'Usuarios activos' }) + '<div class="foot">Incluye a tu familia. Cuando haya más familias, esta es la curva que importa.</div></div>'
             + '</div>';
 
-          html += '<h2>Embudo desde el lanzamiento</h2><div class="card"><div class="funnel">';
-          var steps = [['Descargaron y abrieron', f.installs], ['Pusieron el email', f.signed_in], ['Crearon la cuenta', f.profile], ['Armaron un nidi', f.nidi], ['La otra casa entró', f.activated], ['Alguien compartió', f.shared], ['Compartieron los dos', f.both_shared]];
-          var top = Math.max(f.installs, 1);
-          steps.forEach(function (st) { html += '<div class="step"><span>' + esc(st[0]) + '</span><div class="bar"><i style="width:' + Math.round(st[1] / top * 100) + '%"></i></div><span class="num">' + st[1] + '</span></div>'; });
-          html += '</div><p class="quiet" style="margin:10px 0 0">Las descargas de Apple (gente que bajó y no abrió) están en App Store Connect; acá solo cuenta quien abrió la app. ' + esc(s.ratings_note) + '</p></div>';
+          // funnel + retention
+          var steps = [['Descargaron y abrieron', f.installs], ['Pusieron el email', f.signed_in], ['Crearon la cuenta', f.profile], ['Armaron un nidi', f.nidi], ['Invitaron a la otra casa', f.invited], ['La otra casa entró', f.activated], ['Alguien compartió', f.shared], ['Compartieron los dos', f.both_shared]];
+          html += '<h2>Embudo <small>desde el lanzamiento · % sobre el paso anterior</small></h2><div class="two"><div class="card"><div class="funnel">';
+          steps.forEach(function (st, i) {
+            var prevV = i ? steps[i - 1][1] : st[1];
+            html += '<div class="step"><span>' + esc(st[0]) + '</span><div class="bar"><i style="width:' + pct(st[1], f.installs) + '%"></i></div><span class="num">' + st[1] + '</span><span class="pct">' + (i ? pct(st[1], prevV) + '%' : '') + '</span></div>';
+          });
+          html += '</div><div class="foot">Apple cuenta además a quien bajó y no abrió (App Store Connect). ' + esc(s.ratings_note) + '</div></div>';
+          html += '<div class="card"><div class="title">Retención <span>familias reales · ' + ret.cohort + ' cuentas</span></div><div class="funnel">'
+            + '<div class="step"><span>Volvieron al día siguiente</span><div class="bar"><i style="width:' + pct(ret.d1, ret.eligible_d1) + '%"></i></div><span class="num">' + ret.d1 + '/' + ret.eligible_d1 + '</span><span class="pct">' + pct(ret.d1, ret.eligible_d1) + '%</span></div>'
+            + '<div class="step"><span>Volvieron en la 1ª semana</span><div class="bar"><i style="width:' + pct(ret.w1, ret.eligible_w1) + '%"></i></div><span class="num">' + ret.w1 + '/' + ret.eligible_w1 + '</span><span class="pct">' + (ret.eligible_w1 ? pct(ret.w1, ret.eligible_w1) + '%' : 'pronto') + '</span></div>'
+            + '<div class="step"><span>Activas en los últimos 7 días</span><div class="bar"><i style="width:' + pct(ret.last7, ret.cohort) + '%"></i></div><span class="num">' + ret.last7 + '/' + ret.cohort + '</span><span class="pct">' + pct(ret.last7, ret.cohort) + '%</span></div>'
+            + '<div class="step"><span>Compartieron algo</span><div class="bar"><i style="width:' + pct(ret.shared, ret.cohort) + '%"></i></div><span class="num">' + ret.shared + '/' + ret.cohort + '</span><span class="pct">' + pct(ret.shared, ret.cohort) + '%</span></div>'
+            + '</div><div class="foot">Invitaciones: ' + inv.sent + ' enviadas · ' + inv.opened + ' abiertas · ' + inv.accepted + ' aceptadas · ' + inv.pending + ' esperando.</div></div></div>';
 
-          html += '<h2>Nidis de afuera</h2><div class="card tablewrap"><table><tr><th>Quiénes</th><th>Estado</th><th class="num">Momentos</th><th>Último</th><th>Cobertura</th></tr>';
+          // nidis table
+          html += '<h2>Nidis de familias reales <small>' + s.nidis.length + '</small></h2><div class="card"><div class="tablewrap"><table><tr><th>Quiénes</th><th>Estado</th><th class="num">Momentos</th><th>Quién manda</th><th>Último</th><th>Activación</th><th>Cobertura</th></tr>';
+          if (!s.nidis.length) html += '<tr><td colspan="7" class="quiet">Todavía ninguno.</td></tr>';
           s.nidis.forEach(function (n) {
-            var q = n.quiet_days;
-            html += '<tr><td>' + esc(n.a) + (n.b ? ' + ' + esc(n.b) : ' <span class="quiet">(esperando)</span>') + '</td><td>' + esc(n.status) + '</td><td class="num">' + n.moments + '</td><td>' + (n.last_moment ? fmtDate(n.last_moment) + (q >= 2 ? ' <span class="warn">' + q + ' días</span>' : '') : '—') + '</td><td>' + (n.covered ? '<span class="ok">sí</span>' : 'prueba') + '</td></tr>';
-          });
-          html += '</table></div>';
-
-          html += '<h2>Plata</h2><div class="card tablewrap"><table><tr><th>Quién</th><th>Plan</th><th>País</th><th>Desde</th><th>Termina</th></tr>';
-          m.paid_list.forEach(function (p) { html += '<tr><td>' + esc(p.who) + '</td><td>' + esc(p.product === 'nidi_monthly' ? 'Mensual' : 'Anual') + '</td><td>' + esc(p.country || '—') + '</td><td>' + fmtDate(p.since) + '</td><td>' + fmtDate(p.ends) + '</td></tr>'; });
-          html += '</table><p class="quiet" style="margin:10px 0 0">Neto estimado después del 15% de Apple e impuestos; el número exacto lo paga Apple a principios de enero.</p></div>';
-
-          html += '<h2>Campañas (links de Apple)</h2><div class="card tablewrap"><table><tr><th>ct=</th><th>Dónde</th><th>Desde</th><th class="num">Descargas</th><th></th></tr>';
-          d.campaigns.forEach(function (c) { html += '<tr><td><code>' + esc(c.ct) + '</code></td><td>' + esc(c.where_used) + '</td><td>' + fmtDate(c.since) + '</td><td class="num">' + c.downloads + '</td><td><button class="link" data-ct="' + esc(c.ct) + '" data-where="' + esc(c.where_used) + '">editar</button></td></tr>'; });
-          html += '</table><p class="quiet" style="margin:10px 0 0">Las descargas se copian de App Store Connect → Analytics → Campaigns (un día de atraso) hasta que conectemos la API.</p>'
-            + '<form class="row" id="campform"><input name="ct" placeholder="ct (ej. ig-bio)" required pattern="[a-z0-9_-]{1,40}" /><input name="where_used" placeholder="dónde está publicado" required /><input name="downloads" type="number" min="0" placeholder="descargas (Apple)" /><button type="submit">Guardar campaña</button></form></div>';
-
-          html += '<h2>Contactos</h2><div class="card"><form class="row" id="contactform"><input type="hidden" name="id" /><input name="name" placeholder="nombre o @handle" required maxlength="80" />'
-            + '<select name="channel"><option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option><option value="email">Email</option><option value="facebook">Facebook</option><option value="in_person">En persona</option><option value="other">Otro</option></select>'
-            + '<select name="kind"><option value="gift">Código de regalo</option><option value="pitch">Prensa / pitch</option><option value="post">Post en grupo</option><option value="review_ask">Pedido de reseña</option><option value="follow_up">Seguimiento</option><option value="other">Otro</option></select>'
-            + '<select name="status"><option value="sent">Enviado</option><option value="replied">Respondió</option><option value="downloaded">Bajó la app</option><option value="redeemed">Canjeó</option><option value="reviewed">Dejó reseña</option><option value="declined">No le interesa</option><option value="no_answer">Sin respuesta</option><option value="done">Listo</option></select>'
-            + '<input name="sent_at" type="date" /><textarea class="full" name="note" placeholder="nota (sin emails)" maxlength="500"></textarea>'
-            + '<div class="full"><button type="submit" id="contactsave">Guardar contacto</button> <button type="button" class="ghost" id="contactclear">Limpiar</button></div></form>'
-            + '<div class="tablewrap" style="margin-top:14px"><table><tr><th>Quién</th><th>Canal</th><th>Qué</th><th>Cuándo</th><th>Estado</th><th>Nota</th><th></th></tr>';
-          d.contacts.forEach(function (c) {
-            html += '<tr><td>' + esc(c.name) + '</td><td>' + esc(c.channel) + '</td><td>' + esc(c.kind) + '</td><td>' + fmtDate(c.sent_at) + '</td><td><span class="pill ' + esc(c.status) + '">' + esc(c.status) + '</span></td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-edit=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
+            var q = n.quiet_days, health = n.status !== 'active' ? 'n' : q == null ? 'r' : q >= 4 ? 'r' : q >= 2 ? 'y' : 'g';
+            var tot = (n.moments_a + n.moments_b) || 1;
+            html += '<tr><td><span class="health ' + health + '"></span>' + esc(n.a) + (n.b ? ' + ' + esc(n.b) : ' <span class="quiet">→ ' + esc(n.invitee || 'la otra casa') + '</span>') + '</td>'
+              + '<td><span class="pill ' + esc(n.status) + '">' + (n.status === 'active' ? 'activo' : n.status === 'pending' ? 'esperando' : esc(n.status)) + '</span>' + (n.status === 'pending' && n.pending_invite_at ? '<div class="quiet">' + (n.pending_invite_opened ? 'abrió la invitación' : 'no abrió la invitación') + '</div>' : '') + '</td>'
+              + '<td class="num">' + n.moments + (n.notes ? ' <span class="quiet">+' + n.notes + ' notas</span>' : '') + '</td>'
+              + '<td><span class="quiet">' + esc(n.a) + ' ' + n.moments_a + ' · ' + esc(n.b || '—') + ' ' + n.moments_b + '</span><span class="bars2"><i style="width:' + pct(n.moments_a, tot) + '%;background:var(--olive)"></i><i style="width:' + pct(n.moments_b, tot) + '%;background:var(--lagoon)"></i></span></td>'
+              + '<td>' + (n.last_moment ? dmy(n.last_moment) + (q >= 2 ? ' <span class="' + (q >= 4 ? 'warn' : 'meh') + '">' + q + ' días</span>' : '') : '—') + '</td>'
+              + '<td>' + (n.hours_to_activate == null ? '—' : n.hours_to_activate < 48 ? n.hours_to_activate + ' h' : Math.round(n.hours_to_activate / 24) + ' días') + '</td>'
+              + '<td>' + (n.covered ? '<span class="ok">cubierto</span>' : '<span class="quiet">prueba</span>') + '</td></tr>';
           });
           html += '</table></div></div>';
 
-          html += '<h2>Web por origen</h2><div class="grid">';
-          Object.keys(w.by_source || {}).forEach(function (k) { html += tile(k === 'ig' ? 'Instagram (bio)' : k, w.by_source[k]); });
-          html += '</div>';
+          // money + gifts
+          html += '<h2>Plata y regalos</h2><div class="two">'
+            + '<div class="card"><div class="title">Suscripciones pagas <span>' + m.paid_active + '</span></div><div class="tablewrap"><table><tr><th>Quién</th><th>Plan</th><th>País</th><th class="num">Pagó</th><th>Renueva</th></tr>';
+          m.paid_list.forEach(function (p) { html += '<tr><td>' + esc(p.who) + '</td><td>' + (p.product === 'nidi_monthly' ? 'Mensual' : 'Anual') + '</td><td>' + esc(p.country || '—') + '</td><td class="num">' + (p.price != null ? Math.round(p.price) + ' ' + esc(p.currency || '') : '—') + '</td><td>' + dmyLong(p.ends) + '</td></tr>'; });
+          html += '</table></div><div class="foot">Neto estimado USD ' + m.proceeds_usd_estimate + ' tras el 15% de Apple e impuestos; el pago de Apple llega ~33 días después de cerrar el mes.</div></div>'
+            + '<div class="card"><div class="title">Años de regalo <span>' + m.gifts_redeemed + ' canjeados de ' + m.gifts_sent + ' entregados</span></div><div class="tablewrap"><table><tr><th>Quién</th><th>Desde</th><th>Termina</th><th>Cómo llegó</th></tr>';
+          m.gifts_list.forEach(function (g) { html += '<tr><td>' + esc(g.who) + '</td><td>' + dmy(g.since) + '</td><td>' + dmyLong(g.ends) + '</td><td class="quiet">' + esc(g.via) + '</td></tr>'; });
+          html += '</table></div><div class="foot">500 códigos en total, válidos hasta el 31/01/2027, sin renovación automática. "Entregados" sale de los contactos marcados como regalo.</div></div></div>';
 
-          html += '<h2>Links</h2><div class="card links">'
-            + '<a href="https://appstoreconnect.apple.com/apps/6774968835/distribution" target="_blank" rel="noopener">App Store Connect</a>'
+          // campaigns
+          html += '<h2>Campañas <small>links de Apple con ct=</small></h2><div class="card"><div class="tablewrap"><table><tr><th>ct=</th><th>Dónde</th><th>Desde</th><th class="num">Descargas</th><th></th></tr>';
+          d.campaigns.forEach(function (c) { html += '<tr><td><code>' + esc(c.ct) + '</code></td><td>' + esc(c.where_used) + '</td><td>' + dmy(c.since) + '</td><td class="num">' + c.downloads + '</td><td><button class="link" data-ct="' + esc(c.ct) + '" data-where="' + esc(c.where_used) + '" data-dl="' + c.downloads + '">editar</button></td></tr>'; });
+          html += '</table></div><div class="foot">Descargas: App Store Connect → Analytics → Acquisition → Campaigns, con un día de atraso. Se copian a mano hasta conectar la API.</div>'
+            + '<details class="add" id="campdetails"><summary>Agregar o editar campaña</summary><form class="row" id="campform"><input name="ct" placeholder="ct (ej. ig-bio)" required pattern="[a-z0-9_-]{1,40}" /><input name="where_used" placeholder="dónde está publicado" required /><input name="downloads" type="number" min="0" placeholder="descargas (Apple)" /><button class="primary" type="submit">Guardar</button></form></details></div>';
+
+          // contacts pipeline
+          var STATUS_L = { sent: 'Enviado', replied: 'Respondió', downloaded: 'Bajó la app', redeemed: 'Canjeó', reviewed: 'Dejó reseña', declined: 'No le interesa', no_answer: 'Sin respuesta', done: 'Listo' };
+          var KIND_L = { gift: 'regalo', pitch: 'prensa', post: 'post', review_ask: 'reseña', follow_up: 'seguimiento', other: 'otro' };
+          var counts = {}; d.contacts.forEach(function (c) { counts[c.status] = (counts[c.status] || 0) + 1; });
+          html += '<h2>Contactos <small>' + d.contacts.length + ' · tocá un estado para filtrar</small></h2><div class="card"><div class="pipe">'
+            + '<button data-filter="all" aria-pressed="' + (CONTACT_FILTER === 'all') + '"><div class="n">' + d.contacts.length + '</div><div class="l">Todos</div></button>'
+            + ['sent', 'replied', 'downloaded', 'redeemed', 'reviewed', 'no_answer', 'declined'].map(function (k) { return '<button data-filter="' + k + '" aria-pressed="' + (CONTACT_FILTER === k) + '"><div class="n">' + (counts[k] || 0) + '</div><div class="l">' + STATUS_L[k] + '</div></button>'; }).join('')
+            + '</div><div class="tablewrap"><table><tr><th>Quién</th><th>Canal</th><th>Qué</th><th>Cuándo</th><th>Estado</th><th>Nota</th><th></th></tr>';
+          d.contacts.filter(function (c) { return CONTACT_FILTER === 'all' || c.status === CONTACT_FILTER; }).forEach(function (c) {
+            html += '<tr><td>' + esc(c.name) + '</td><td class="quiet">' + esc(c.channel) + '</td><td class="quiet">' + KIND_L[c.kind] + '</td><td>' + dmy(c.sent_at) + '</td><td><span class="pill ' + esc(c.status) + '">' + STATUS_L[c.status] + '</span></td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-edit=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
+          });
+          html += '</table></div>'
+            + '<details class="add" id="contactdetails"><summary>Agregar contacto</summary><form class="row" id="contactform"><input type="hidden" name="id" /><input name="name" placeholder="nombre o @handle" required maxlength="80" />'
+            + '<select name="channel"><option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option><option value="email">Email</option><option value="facebook">Facebook</option><option value="in_person">En persona</option><option value="other">Otro</option></select>'
+            + '<select name="kind">' + Object.keys(KIND_L).map(function (k) { return '<option value="' + k + '">' + KIND_L[k] + '</option>'; }).join('') + '</select>'
+            + '<select name="status">' + Object.keys(STATUS_L).map(function (k) { return '<option value="' + k + '">' + STATUS_L[k] + '</option>'; }).join('') + '</select>'
+            + '<input name="sent_at" type="date" /><textarea class="full" name="note" placeholder="nota (sin emails)" maxlength="500"></textarea>'
+            + '<div class="full"><button class="primary" type="submit" id="contactsave">Guardar</button> <button type="button" class="ghost" id="contactclear">Limpiar</button> <button type="button" class="link" id="contactdelete" hidden>Borrar este contacto</button></div></form></details></div>';
+
+          // links
+          html += '<h2>Accesos</h2><div class="links">'
+            + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect · Analytics</a>'
+            + '<a href="https://appstoreconnect.apple.com/apps/6774968835/distribution/ratings" target="_blank" rel="noopener">Reseñas</a>'
             + '<a href="https://app.revenuecat.com" target="_blank" rel="noopener">RevenueCat</a>'
             + '<a href="https://supabase.com/dashboard/project/orqdnuikcdskmvorchly" target="_blank" rel="noopener">Supabase</a>'
             + '<a href="https://www.instagram.com/hello.nidi/" target="_blank" rel="noopener">@hello.nidi</a>'
-            + '<a href="https://nidi.life/press/" target="_blank" rel="noopener">Kit de prensa</a>'
-            + '<a href="https://drive.google.com/drive/folders/1DipIvwK3fUR_YR85jdYm6CTT7WwJ-UdH" target="_blank" rel="noopener">Tandas de Instagram (Drive)</a>'
+            + '<a href="https://drive.google.com/drive/folders/1DipIvwK3fUR_YR85jdYm6CTT7WwJ-UdH" target="_blank" rel="noopener">Tandas de Instagram</a>'
+            + '<a href="https://nidi.life/prensa/" target="_blank" rel="noopener">Kit de prensa</a>'
             + '</div>';
 
-          html += '<footer>Solo vos ves esto. Para salir de este dispositivo: <button class="link" id="logout">borrar la clave</button></footer>';
+          html += '<footer><span>Solo vos ves esto. Sin emails, sin rastreo.</span><button class="link" id="logout">Borrar la clave de este dispositivo</button></footer>';
           app.innerHTML = html;
+          wire();
+        }
 
+        function wire() {
           document.getElementById('refresh').onclick = load;
-          document.getElementById('logout').onclick = function () { try { localStorage.removeItem(KEY); } catch (e) {} token = null; gate(); };
+          document.getElementById('logout').onclick = function () { try { localStorage.removeItem(KEY); } catch (e) {} token = null; DATA = null; gate(); };
+          Array.prototype.forEach.call(document.querySelectorAll('[data-range]'), function (b) { b.onclick = function () { range = Number(b.getAttribute('data-range')); try { localStorage.setItem(RANGE_KEY, String(range)); } catch (e) {} render(); }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-filter]'), function (b) { b.onclick = function () { CONTACT_FILTER = b.getAttribute('data-filter'); render(); }; });
 
-          var cf = document.getElementById('contactform');
+          var cf = document.getElementById('contactform'), cdet = document.getElementById('contactdetails'), del = document.getElementById('contactdelete');
           cf.onsubmit = function (e) {
             e.preventDefault();
             var fd = new FormData(cf), body = { action: 'contact_upsert' };
@@ -215,16 +373,22 @@
             document.getElementById('contactsave').disabled = true;
             api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se guardó: ' + err.message); document.getElementById('contactsave').disabled = false; });
           };
-          document.getElementById('contactclear').onclick = function () { cf.reset(); cf.id.value = ''; };
+          document.getElementById('contactclear').onclick = function () { cf.reset(); cf.id.value = ''; del.hidden = true; cdet.querySelector('summary').textContent = 'Agregar contacto'; };
+          del.onclick = function () {
+            if (!cf.id.value || !confirm('¿Borrar este contacto?')) return;
+            api('POST', { action: 'contact_delete', id: cf.id.value }).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se borró: ' + err.message); });
+          };
           Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function (b) {
             b.onclick = function () {
               var c = JSON.parse(b.getAttribute('data-edit'));
               cf.id.value = c.id; cf.name.value = c.name; cf.channel.value = c.channel; cf.kind.value = c.kind; cf.status.value = c.status; cf.sent_at.value = c.sent_at || ''; cf.note.value = c.note || '';
-              cf.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              del.hidden = false; cdet.open = true; cdet.querySelector('summary').textContent = 'Editando: ' + c.name;
+              cdet.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              cf.status.focus();
             };
           });
 
-          var pf = document.getElementById('campform');
+          var pf = document.getElementById('campform'), pdet = document.getElementById('campdetails');
           pf.onsubmit = function (e) {
             e.preventDefault();
             var fd = new FormData(pf), body = { action: 'campaign_upsert', ct: fd.get('ct'), where_used: fd.get('where_used') };
@@ -232,11 +396,12 @@
             api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se guardó: ' + err.message); });
           };
           Array.prototype.forEach.call(document.querySelectorAll('[data-ct]'), function (b) {
-            b.onclick = function () { pf.ct.value = b.getAttribute('data-ct'); pf.where_used.value = b.getAttribute('data-where'); pf.downloads.focus(); pf.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+            b.onclick = function () { pf.ct.value = b.getAttribute('data-ct'); pf.where_used.value = b.getAttribute('data-where'); pf.downloads.value = b.getAttribute('data-dl'); pdet.open = true; pdet.scrollIntoView({ behavior: 'smooth', block: 'start' }); pf.downloads.focus(); };
           });
         }
 
         if (token) load(); else gate();
+        document.addEventListener('visibilitychange', function () { if (!document.hidden && token && DATA) load(); });
       })();
     </script>
   </body>
