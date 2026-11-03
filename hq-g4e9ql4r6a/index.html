@@ -276,8 +276,7 @@
             + kpi('Momentos de familias', s.moments.outside_total, delta(sum(ser, 'moments_outside'), sum(prev, 'moments_outside')), 'moments_outside', 'var(--olive)')
             + kpi('Instalaciones', f.installs, delta(sum(ser, 'installs'), sum(prev, 'installs')), 'installs', 'var(--lagoon)')
             + kpi('Web', w.total, delta(sum(ser, 'web'), sum(prev, 'web')), 'web', 'var(--sienna)')
-            + '</div>'
-            + '<p class="quiet" style="margin:10px 2px 0">' + s.families.outside + ' ' + plural(s.families.outside, 'persona', 'personas') + ' de afuera con cuenta' + (s.families.outside_names.length ? ' (' + s.families.outside_names.map(function (p) { return esc(p.name); }).join(', ') + ')' : '') + ' · ' + (today.active_users || 0) + ' ' + plural(today.active_users || 0, 'persona abrió', 'personas abrieron') + ' Nidi hoy, tu familia incluida.</p>';
+            + '</div>';
 
           // charts
           var K_ACQ = [{ k: 'installs', color: 'var(--lagoon)', label: 'Instalaciones que abrieron' }, { k: 'accounts', color: 'var(--olive)', label: 'Cuentas' }, { k: 'activated', color: 'var(--honey)', label: 'Nidis activados' }];
