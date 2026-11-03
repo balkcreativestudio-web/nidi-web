@@ -315,12 +315,40 @@
           var hoursWord = function (h) { if (h == null) return '—'; if (h < 1) return Math.round(h * 60) + ' min'; if (h < 48) return Math.round(h) + ' h'; return (h / 24).toFixed(1) + ' días'; };
           html += '<h2>Ritmo de compartir <small>cuánto pasa entre un momento y el siguiente, familias</small></h2><div class="two">'
             + '<div class="card"><div class="title">Tiempo típico entre momentos</div><div class="kpi" style="border:0;padding:0"><div class="v">' + hoursWord(cad.median_gap_hours) + '</div><div class="d">mediana en ' + (cad.nidis_with_gaps || 0) + ' ' + plural(cad.nidis_with_gaps || 0, 'nidi', 'nidis') + ' con más de un momento</div></div>'
-            + '<div class="foot">Lo que queremos ver bajar: si una familia tarda más de 3 días en volver, el hábito no agarró.</div></div>'
+            + '<div class="foot">Mide el tiempo entre momentos ya compartidos. El silencio de ahora, que todavía no cerró, está al lado.</div></div>'
             + '<div class="card"><div class="title">Cada vuelta a compartir, por demora <span>' + gbTot + ' intervalos</span></div><div class="funnel">'
             + '<div class="step"><span>El mismo día</span><div class="bar"><i style="width:' + pct(gb.same_day || 0, gbTot) + '%"></i></div><span class="num">' + (gb.same_day || 0) + '</span><span class="pct">' + pct(gb.same_day || 0, gbTot) + '%</span></div>'
             + '<div class="step"><span>1 a 3 días</span><div class="bar"><i style="width:' + pct(gb.one_to_three_days || 0, gbTot) + '%;background:var(--honey)"></i></div><span class="num">' + (gb.one_to_three_days || 0) + '</span><span class="pct">' + pct(gb.one_to_three_days || 0, gbTot) + '%</span></div>'
             + '<div class="step"><span>Más de 3 días</span><div class="bar"><i style="width:' + pct(gb.three_plus_days || 0, gbTot) + '%;background:var(--rose)"></i></div><span class="num">' + (gb.three_plus_days || 0) + '</span><span class="pct">' + pct(gb.three_plus_days || 0, gbTot) + '%</span></div>'
-            + '</div></div></div>';
+            + '</div><div class="title" style="margin-top:18px">Ahora mismo, sin compartir desde hace</div>'
+            + (activeNidis.length ? activeNidis.map(function (n) {
+                var hrs = n.last_moment ? (Date.now() - new Date(n.last_moment).getTime()) / 36e5 : null;
+                var cls = hrs == null ? 'warn' : hrs < 24 ? 'ok' : hrs < 72 ? 'meh' : 'warn';
+                return '<div class="step"><span>' + esc(n.a) + ' + ' + esc(n.b || '?') + '</span><div class="bar"><i style="width:' + (hrs == null ? 100 : Math.min(100, Math.round(hrs / 96 * 100))) + '%;background:' + (cls === 'ok' ? 'var(--olive)' : cls === 'meh' ? 'var(--honey)' : 'var(--rose)') + '"></i></div><span class="num ' + cls + '">' + (hrs == null ? 'nunca' : hoursWord(hrs)) + '</span><span class="pct"></span></div>';
+              }).join('') : '<p class="quiet">Ningún nidi activo.</p>')
+            + '<div class="foot">Verde hasta 24 h, ámbar hasta 3 días, rojo después. La barra llena son 4 días.</div></div></div>';
+
+          // engagement
+          var en = s.engagement || {};
+          var minsWord = function (m) { if (m == null) return '—'; m = Number(m); if (m < 1) return '< 1 min'; if (m < 60) return Math.round(m) + ' min'; if (m < 60 * 48) return (m / 60).toFixed(1) + ' h'; return Math.round(m / 60 / 24) + ' días'; };
+          var mini = function (arr, labels, color) { var mx = Math.max.apply(null, (arr || []).concat([1])); return '<div class="spark" style="height:56px;gap:2px">' + (arr || []).map(function (v, i) { return '<b style="height:' + Math.max(3, Math.round(v / mx * 100)) + '%;background:' + color + '" title="' + esc(labels[i]) + ': ' + v + '"></b>'; }).join('') + '</div><div class="legend"><span>' + esc(labels[0]) + '</span><span>' + esc(labels[Math.floor(labels.length / 2)]) + '</span><span>' + esc(labels[labels.length - 1]) + '</span></div>'; };
+          var stepRow = function (label, n, tot, color) { return '<div class="step"><span>' + label + '</span><div class="bar"><i style="width:' + pct(n, tot) + '%' + (color ? ';background:' + color : '') + '"></i></div><span class="num">' + n + '</span><span class="pct">' + (tot ? pct(n, tot) + '%' : '') + '</span></div>'; };
+          var dropped = en.onboarding_dropped_at || {};
+          var STEP_L = { about_you: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando' };
+          html += '<h2>Uso <small>cómo usan Nidi, familias y tu familia juntas salvo donde dice lo contrario</small></h2><div class="three">'
+            + '<div class="card"><div class="title">Sesiones</div><div class="kpi" style="border:0;padding:0"><div class="v">' + minsWord(en.session_median_min) + '</div><div class="d">duración típica de una sesión, familias (' + minsWord(en.session_median_min_all) + ' con tu familia)</div></div>'
+            + '<div class="foot">' + (en.sessions_per_user_day || 0) + ' aperturas por persona por día activo · ' + (en.events_per_session || 0) + ' acciones por sesión</div></div>'
+            + '<div class="card"><div class="title">Lo que llega, ¿se abre? <span>' + en.received + ' momentos</span></div><div class="funnel">'
+            + stepRow('Abiertos', en.received_opened, en.received) + stepRow('En la primera hora', en.opened_within_1h, en.received) + stepRow('En el día', en.opened_within_24h, en.received) + stepRow('Respondidos en 24 h', en.answered_within_24h, en.received, 'var(--lagoon)')
+            + '</div><div class="foot">Tiempo típico hasta abrir: ' + minsWord(en.median_min_to_open) + '. "Respondido" es una nota al pie o un momento de vuelta.</div></div>'
+            + '<div class="card"><div class="title">Notificaciones</div><div class="funnel">' + stepRow('Aceptaron recibirlas', en.notif_granted, en.notif_asked) + '</div>'
+            + '<div class="foot">' + (en.push_opens_tracked ? '' : 'Cuántos pushes se abren todavía no se mide: falta un evento en la app y un registro de envíos. Mientras tanto, "abiertos en la primera hora" es la mejor pista.') + '</div></div>'
+            + '</div><div class="three" style="margin-top:10px">'
+            + '<div class="card"><div class="title">Onboarding</div><div class="funnel">' + stepRow('Empezaron', en.onboarding_started, en.onboarding_started) + stepRow('Terminaron', en.onboarding_completed, en.onboarding_started, 'var(--olive)') + '</div>'
+            + '<div class="foot">Tiempo típico: ' + minsWord(en.onboarding_median_min) + '.' + (Object.keys(dropped).length ? ' Se quedaron en: ' + Object.keys(dropped).map(function (k) { return (STEP_L[k] || k) + ' ' + dropped[k]; }).join(' · ') + '.' : '') + '</div></div>'
+            + '<div class="card"><div class="title">A qué hora comparten <span>hora de Ámsterdam</span></div>' + mini(en.by_hour, Array.from({ length: 24 }, function (_, i) { return i + ':00'; }), 'var(--olive)') + '</div>'
+            + '<div class="card"><div class="title">Qué día comparten</div>' + mini(en.by_weekday, ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], 'var(--lagoon)') + '<div class="foot">Paywall: ' + en.paywall_viewed + ' lo vieron · ' + en.purchase_started + ' tocaron pagar · ' + en.purchase_confirmed + ' pagaron.</div></div>'
+            + '</div>';
 
           // nidis table
           html += '<h2>Familias <small>' + activeNidis.length + ' con las dos casas · ' + pendingNidis.length + ' esperando</small></h2><div class="card"><div class="tablewrap"><table><tr><th>Quiénes</th><th>Estado</th><th class="num">Momentos</th><th>Quién manda</th><th>Último</th><th>Cada</th><th>Activación</th><th>Cobertura</th></tr>';
