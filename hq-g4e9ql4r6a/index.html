@@ -349,7 +349,8 @@
           var campaignNames = (d.campaigns || []).map(function (c) { return String(c.name).toLowerCase(); }).join(' · ');
           (d.contacts || []).forEach(function (c) {
             var key = first(c.name);
-            if (FAMILY.indexOf(key) >= 0) return;
+            // nothing has been sent to a candidate yet
+            if (c.status === 'candidate' || FAMILY.indexOf(key) >= 0) return;
             // a group or a press pitch already stands as its campaign
             if ((c.kind === 'post' || c.kind === 'pitch') && campaignNames.indexOf(key) >= 0) return;
             var known = (R.people || {})[key] || {};
@@ -694,7 +695,7 @@
             + '<textarea class="full" name="note" placeholder="qué pasó ahí (sin emails)" maxlength="500"></textarea><div class="full"><button class="primary" type="submit">Guardar</button></div></form></details></div>';
 
           // contacts pipeline
-          var STATUS_L = { sent: 'Enviado', replied: 'Respondió', no_answer: 'Sin respuesta', declined: 'No le interesa', done: 'Listo' };
+          var STATUS_L = { candidate: 'Candidata', sent: 'Enviado', replied: 'Respondió', no_answer: 'Sin respuesta', declined: 'No le interesa', done: 'Listo' };
           var inNidi = function (name) {
             var key = String(name || '').trim().split(/\s+/)[0].replace(/^@/, '').toLowerCase();
             var p = people[key]; if (!p) return '<span class="quiet">—</span>';
@@ -708,9 +709,10 @@
           };
           var KIND_L = { gift: 'regalo', pitch: 'prensa', post: 'post', review_ask: 'reseña', follow_up: 'seguimiento', other: 'otro' };
           var counts = {}; d.contacts.forEach(function (c) { counts[c.status] = (counts[c.status] || 0) + 1; });
-          html += '<h2>Contactos <small>' + d.contacts.length + ' contactados · "Respuesta" la cargás vos; "En Nidi" lo lee la app sola</small></h2><div class="card"><div class="pipe">'
+          var reached = d.contacts.filter(function (c) { return c.status !== 'candidate'; }).length;
+          html += '<h2>Contactos <small>' + reached + ' contactados · "Respuesta" la cargás vos; "En Nidi" lo lee la app sola</small></h2><div class="card"><div class="pipe">'
             + '<button data-filter="all" aria-pressed="' + (CONTACT_FILTER === 'all') + '"><div class="n">' + d.contacts.length + '</div><div class="l">Todos</div></button>'
-            + ['sent', 'replied', 'no_answer', 'declined', 'done'].map(function (k) { return '<button data-filter="' + k + '" aria-pressed="' + (CONTACT_FILTER === k) + '"><div class="n">' + (counts[k] || 0) + '</div><div class="l">' + STATUS_L[k] + '</div></button>'; }).join('')
+            + ['candidate', 'sent', 'replied', 'no_answer', 'declined', 'done'].map(function (k) { return '<button data-filter="' + k + '" aria-pressed="' + (CONTACT_FILTER === k) + '"><div class="n">' + (counts[k] || 0) + '</div><div class="l">' + STATUS_L[k] + '</div></button>'; }).join('')
             + '</div><div class="tablewrap"><table><tr><th>Quién</th><th>Canal</th><th>Qué</th><th>Cuándo</th><th>Respuesta</th><th>En Nidi (automático)</th><th>Nota</th><th></th></tr>';
           d.contacts.filter(function (c) { return CONTACT_FILTER === 'all' || c.status === CONTACT_FILTER; }).forEach(function (c) {
             html += '<tr><td>' + esc(c.name) + '</td><td class="quiet">' + esc(c.channel) + '</td><td class="quiet">' + KIND_L[c.kind] + '</td><td>' + dmy(c.sent_at) + '</td><td><span class="pill ' + esc(c.status) + '">' + (STATUS_L[c.status] || esc(c.status)) + '</span></td><td class="quiet">' + inNidi(c.name) + '</td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-edit=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
