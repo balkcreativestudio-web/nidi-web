@@ -74,6 +74,14 @@
       .three { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
       @media (max-width:760px) { .two,.three { grid-template-columns:1fr; } }
       .chart { width:100%; height:190px; display:block; overflow:visible; }
+      .hb { width:100%; height:84px; display:block; overflow:visible; }
+      .hb text { font-family:var(--sans); font-size:10px; fill:var(--ink2); }
+      .hb .axis { stroke:var(--line); }
+      .ter { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin-bottom:12px; }
+      .ter div { border:1px solid var(--line); border-radius:12px; padding:10px 12px; }
+      .ter .n { font-family:var(--serif); font-size:22px; line-height:1; }
+      .ter .l { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink2); margin-top:4px; }
+      .ter .s { font-size:12px; color:var(--ink2); margin-top:6px; }
       .chart text { font-family:var(--sans); font-size:10px; fill:var(--ink2); }
       .chart .grid { stroke:var(--line2); stroke-width:1; }
       .chart .axis { stroke:var(--line); }
@@ -332,23 +340,42 @@
           // engagement
           var en = s.engagement || {};
           var minsWord = function (m) { if (m == null) return '—'; m = Number(m); if (m < 1) return '< 1 min'; if (m < 60) return Math.round(m) + ' min'; if (m < 60 * 48) return (m / 60).toFixed(1) + ' h'; return Math.round(m / 60 / 24) + ' días'; };
-          var mini = function (arr, labels, color) { var mx = Math.max.apply(null, (arr || []).concat([1])); return '<div class="spark" style="height:56px;gap:2px">' + (arr || []).map(function (v, i) { return '<b style="height:' + Math.max(3, Math.round(v / mx * 100)) + '%;background:' + color + '" title="' + esc(labels[i]) + ': ' + v + '"></b>'; }).join('') + '</div><div class="legend"><span>' + esc(labels[0]) + '</span><span>' + esc(labels[Math.floor(labels.length / 2)]) + '</span><span>' + esc(labels[labels.length - 1]) + '</span></div>'; };
-          var stepRow = function (label, n, tot, color) { return '<div class="step"><span>' + label + '</span><div class="bar"><i style="width:' + pct(n, tot) + '%' + (color ? ';background:' + color : '') + '"></i></div><span class="num">' + n + '</span><span class="pct">' + (tot ? pct(n, tot) + '%' : '') + '</span></div>'; };
-          var dropped = en.onboarding_dropped_at || {};
-          var STEP_L = { about_you: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando' };
-          html += '<h2>Uso <small>cómo usan Nidi, familias y tu familia juntas salvo donde dice lo contrario</small></h2><div class="three">'
-            + '<div class="card"><div class="title">Sesiones</div><div class="kpi" style="border:0;padding:0"><div class="v">' + minsWord(en.session_median_min) + '</div><div class="d">duración típica de una sesión, familias (' + minsWord(en.session_median_min_all) + ' con tu familia)</div></div>'
-            + '<div class="foot">' + (en.sessions_per_user_day || 0) + ' aperturas por persona por día activo · ' + (en.events_per_session || 0) + ' acciones por sesión</div></div>'
-            + '<div class="card"><div class="title">Lo que llega, ¿se abre? <span>' + en.received + ' momentos</span></div><div class="funnel">'
-            + stepRow('Abiertos', en.received_opened, en.received) + stepRow('En la primera hora', en.opened_within_1h, en.received) + stepRow('En el día', en.opened_within_24h, en.received) + stepRow('Respondidos en 24 h', en.answered_within_24h, en.received, 'var(--lagoon)')
-            + '</div><div class="foot">Tiempo típico hasta abrir: ' + minsWord(en.median_min_to_open) + '. "Respondido" es una nota al pie o un momento de vuelta.</div></div>'
-            + '<div class="card"><div class="title">Notificaciones</div><div class="funnel">' + stepRow('Aceptaron recibirlas', en.notif_granted, en.notif_asked) + '</div>'
-            + '<div class="foot">' + (en.push_opens_tracked ? '' : 'Cuántos pushes se abren todavía no se mide: falta un evento en la app y un registro de envíos. Mientras tanto, "abiertos en la primera hora" es la mejor pista.') + '</div></div>'
+          // small bar chart: one bar per slot, the count on top when there is one, a few labels under
+          var hbars = function (arr, labels, color, every) {
+            arr = (arr || []).map(Number); var n = arr.length || 1, mx = Math.max.apply(null, arr.concat([1]));
+            var W = 300, H = 84, T = 14, B = 16, ih = H - T - B, gap = n > 12 ? 1.5 : 6, bw = (W - gap * (n - 1)) / n, out = '';
+            arr.forEach(function (v, i) {
+              var x = i * (bw + gap), h = v ? Math.max(2, v / mx * ih) : 2;
+              out += '<rect x="' + x.toFixed(1) + '" y="' + (T + ih - h).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="1.5" fill="' + (v ? color : 'var(--line2)') + '"><title>' + esc(labels[i]) + ': ' + v + '</title></rect>';
+              if (v && (n <= 12 || v === mx)) out += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (T + ih - h - 3).toFixed(1) + '" text-anchor="middle">' + v + '</text>';
+              if (i % every === 0 || i === n - 1) out += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 3) + '" text-anchor="middle">' + esc(labels[i]) + '</text>';
+            });
+            return '<svg class="hb" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true"><line class="axis" x1="0" x2="' + W + '" y1="' + (T + ih + 0.5) + '" y2="' + (T + ih + 0.5) + '"/>' + out + '</svg>';
+          };
+          var stepRow = function (label, n, tot, color) { return '<div class="step"><span>' + label + '</span><div class="bar"><i style="width:' + pct(n, tot) + '%' + (color ? ';background:' + color : '') + '"></i></div><span class="num">' + (n == null ? '—' : n) + '</span><span class="pct">' + (tot && n != null ? pct(n, tot) + '%' : '') + '</span></div>'; };
+          var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando' };
+          var droppedRaw = en.onboarding_dropped_at || {}, dropped = {};
+          Object.keys(droppedRaw).forEach(function (k) { var l = STEP_L[k] || k; dropped[l] = (dropped[l] || 0) + droppedRaw[k]; });
+          var hourLabels = Array.from({ length: 24 }, function (_, i) { return i + ' h'; });
+          var peakHour = null; (en.by_hour || []).forEach(function (v, i) { if (v && (peakHour == null || v > en.by_hour[peakHour])) peakHour = i; });
+          var dayNames = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+          var peakDay = null; (en.by_weekday || []).forEach(function (v, i) { if (v && (peakDay == null || v > en.by_weekday[peakDay])) peakDay = i; });
+          html += '<h2>Uso <small>cómo usan Nidi las familias; donde dice "con tu familia", suma la tuya</small></h2><div class="three">'
+            + '<div class="card"><div class="title">Una sesión</div><div class="kpi" style="border:0;padding:0"><div class="v">' + minsWord(en.session_median_min) + '</div><div class="d">lo que dura una visita típica a Nidi (' + minsWord(en.session_median_min_all) + ' con tu familia)</div></div>'
+            + '<div class="foot">Abren Nidi ' + (en.sessions_per_user_day || 0) + ' veces por día cuando lo usan, y hacen ' + (en.events_per_session || 0) + ' cosas por visita.</div></div>'
+            + '<div class="card"><div class="title">Un momento que llega <span>' + en.received + ' ' + plural(en.received, 'momento', 'momentos') + '</span></div><div class="funnel">'
+            + stepRow('Lo abren', en.received_opened, en.received) + stepRow('En la primera hora', en.opened_within_1h, en.received) + stepRow('Responden en el día', en.answered_within_24h, en.received, 'var(--lagoon)')
+            + '</div><div class="foot">Tardan ' + minsWord(en.median_min_to_open) + ' en abrirlo. "Responden" es una nota al pie o un momento de vuelta.</div></div>'
+            + '<div class="card"><div class="title">Onboarding</div><div class="funnel">' + stepRow('Lo empiezan', en.onboarding_started, en.onboarding_started) + stepRow('Lo terminan', en.onboarding_completed, en.onboarding_started, 'var(--olive)') + '</div>'
+            + '<div class="foot">Les lleva ' + minsWord(en.onboarding_median_min) + '.' + (Object.keys(dropped).length ? ' Se quedaron en: ' + Object.keys(dropped).map(function (k) { return k + ' (' + dropped[k] + ')'; }).join(' · ') + '.' : ' Nadie se quedó a mitad de camino.') + '</div></div>'
             + '</div><div class="three" style="margin-top:10px">'
-            + '<div class="card"><div class="title">Onboarding</div><div class="funnel">' + stepRow('Empezaron', en.onboarding_started, en.onboarding_started) + stepRow('Terminaron', en.onboarding_completed, en.onboarding_started, 'var(--olive)') + '</div>'
-            + '<div class="foot">Tiempo típico: ' + minsWord(en.onboarding_median_min) + '.' + (Object.keys(dropped).length ? ' Se quedaron en: ' + Object.keys(dropped).map(function (k) { return (STEP_L[k] || k) + ' ' + dropped[k]; }).join(' · ') + '.' : '') + '</div></div>'
-            + '<div class="card"><div class="title">A qué hora comparten <span>hora de Ámsterdam</span></div>' + mini(en.by_hour, Array.from({ length: 24 }, function (_, i) { return i + ':00'; }), 'var(--olive)') + '</div>'
-            + '<div class="card"><div class="title">Qué día comparten</div>' + mini(en.by_weekday, ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], 'var(--lagoon)') + '<div class="foot">Paywall: ' + en.paywall_viewed + ' lo vieron · ' + en.purchase_started + ' tocaron pagar · ' + en.purchase_confirmed + ' pagaron.</div></div>'
+            + '<div class="card"><div class="title">A qué hora comparten <span>hora de Ámsterdam</span></div>' + hbars(en.by_hour, hourLabels, 'var(--olive)', 6)
+            + '<div class="foot">' + (peakHour == null ? 'Todavía sin momentos.' : 'La hora fuerte: ' + peakHour + ' h. Cada barra es una hora del día, desde el lanzamiento.') + '</div></div>'
+            + '<div class="card"><div class="title">Qué día comparten</div>' + hbars(en.by_weekday, ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], 'var(--lagoon)', 1)
+            + '<div class="foot">' + (peakDay == null ? 'Todavía sin momentos.' : 'El día fuerte: ' + dayNames[peakDay] + '. Desde el lanzamiento.') + '</div></div>'
+            + '<div class="card"><div class="title">Avisos y paywall</div><div class="funnel">' + stepRow('Aceptan recibir avisos', en.notif_granted, en.notif_asked)
+            + stepRow('Ven el paywall', en.paywall_viewed, en.paywall_viewed) + stepRow('Tocan pagar', en.purchase_started, en.paywall_viewed) + stepRow('Pagan', en.purchase_confirmed, en.paywall_viewed, 'var(--olive)') + '</div>'
+            + '<div class="foot">Cuántos avisos se abren se empieza a contar con la versión de hoy; aparece acá cuando haya datos.</div></div>'
             + '</div>';
 
           // nidis table
@@ -382,12 +409,31 @@
           m.gifts_list.forEach(function (g) { html += '<tr><td>' + esc(g.who) + '</td><td>' + dmy(g.since) + '</td><td>' + dmyLong(g.ends) + '</td><td class="quiet">' + esc(g.via) + '</td></tr>'; });
           html += '</table></div><div class="foot">500 códigos en total, válidos hasta el 31/01/2027, sin renovación automática. "Entregados" sale de los contactos marcados como regalo.</div></div></div>';
 
-          // campaigns
+          // the map: every place Nidi was taken to, by world, with what came back
           var CH_L = { facebook: 'Facebook', instagram: 'Instagram', whatsapp: 'WhatsApp', mail: 'Mail', slack: 'Slack', web: 'Web', press: 'Prensa', other: 'Otro' };
-          html += '<h2>Campañas <small>un link de Apple por lugar; Apple cuenta descargas, no clicks</small></h2><div class="card"><div class="tablewrap"><table><tr><th>Campaña</th><th>UTM (ct=)</th><th>Dónde</th><th>Desde</th><th class="num">Descargas</th><th></th></tr>';
-          d.campaigns.forEach(function (c) { html += '<tr><td>' + esc(c.name) + '</td><td><code>' + esc(c.ct) + '</code></td><td>' + esc(CH_L[c.channel] || c.channel) + ' <span class="quiet">· ' + esc(c.where_used) + '</span></td><td>' + dmy(c.since) + '</td><td class="num">' + c.downloads + '</td><td><button class="link" data-camp=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>'; });
-          html += '</table></div><div class="foot">Descargas = instalaciones que Apple atribuye a ese link (App Store Connect → Analytics → Acquisition → Campaigns, un día de atraso). Se copian a mano hasta conectar la API. Apple también muestra impresiones y visitas a la ficha por campaña; cuando conectemos la API entran solas.</div>'
-            + '<details class="add" id="campdetails"><summary>Agregar o editar campaña</summary><form class="row" id="campform"><input name="name" placeholder="nombre (ej. Haarlem Expats)" required maxlength="80" /><input name="ct" placeholder="ct= (ej. haarlem-expats)" required pattern="[a-z0-9_-]{1,40}" /><select name="channel">' + Object.keys(CH_L).map(function (k) { return '<option value="' + k + '">' + CH_L[k] + '</option>'; }).join('') + '</select><input name="where_used" placeholder="dónde exactamente" required /><input name="downloads" type="number" min="0" placeholder="descargas (Apple)" /><button class="primary" type="submit">Guardar</button></form></details></div>';
+          var TER_L = { nl_expats: 'Expats en Países Bajos', argentina: 'Argentina', friends: 'Amigos y familia', work: 'Trabajo', press: 'Prensa', web: 'nidi.life', social: 'Redes' };
+          var TER_ORDER = ['nl_expats', 'argentina', 'friends', 'work', 'press', 'social', 'web'];
+          var PK_L = { post: 'Post', mail: 'Mail', dm: 'Mensaje', story: 'Historia', link: 'Link', press: 'Nota', talk: 'Boca en boca' };
+          var bySrc = (s.web && s.web.by_source) || {};
+          var webFor = function (c) { if (c.ct === 'ig') return (bySrc.ig || 0) + (bySrc['ig-story'] || 0); if (c.ct === 'nidi_web') return null; return bySrc[c.ct] != null ? bySrc[c.ct] : null; };
+          var places = d.campaigns.slice().sort(function (a, b) { return String(b.since).localeCompare(String(a.since)); });
+          var ters = {}; places.forEach(function (c) { var t = c.territory || 'web'; ters[t] = ters[t] || { n: 0, dl: 0, aud: 0, last: null }; ters[t].n++; ters[t].dl += c.downloads || 0; ters[t].aud += c.audience || 0; if (!ters[t].last || c.since > ters[t].last) ters[t].last = c.since; });
+          var totalDl = places.reduce(function (a, c) { return a + (c.downloads || 0); }, 0);
+          html += '<h2>Dónde está Nidi <small>' + places.length + ' ' + plural(places.length, 'lugar', 'lugares') + ' en ' + Object.keys(ters).length + ' ' + plural(Object.keys(ters).length, 'mundo', 'mundos') + ' · cada lugar al que la llevamos y qué volvió</small></h2><div class="card"><div class="ter">'
+            + TER_ORDER.filter(function (t) { return ters[t]; }).map(function (t) { var x = ters[t]; return '<div><div class="n">' + x.n + '</div><div class="l">' + TER_L[t] + '</div><div class="s">' + (x.dl ? x.dl + ' ' + plural(x.dl, 'descarga', 'descargas') : 'sin descargas aún') + (x.aud ? ' · llega a ~' + x.aud.toLocaleString('es-AR') : '') + '<br>último: ' + dmy(x.last) + '</div></div>'; }).join('')
+            + '</div><div class="tablewrap"><table><tr><th>Cuándo</th><th>Dónde</th><th>Qué</th><th>Mundo</th><th class="num">Alcance</th><th class="num">Descargas</th><th class="num">Web</th><th>Qué pasó</th><th></th></tr>';
+          if (!places.length) html += '<tr><td colspan="9" class="quiet">Todavía en ningún lado.</td></tr>';
+          places.forEach(function (c) {
+            var wv = webFor(c);
+            html += '<tr><td>' + dmy(c.since) + '</td><td>' + esc(c.name) + '<br><span class="quiet">' + esc(c.where_used) + ' · <code>' + esc(c.ct) + '</code></span></td><td class="quiet">' + (PK_L[c.kind] || esc(c.kind || '')) + '<br>' + esc(CH_L[c.channel] || c.channel) + '</td><td class="quiet">' + (TER_L[c.territory] || esc(c.territory || '')) + '</td><td class="num quiet">' + (c.audience ? '~' + c.audience.toLocaleString('es-AR') : '—') + '</td><td class="num">' + (c.downloads || 0) + '</td><td class="num quiet">' + (wv == null ? '—' : wv) + '</td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-camp=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
+          });
+          html += '</table></div><div class="foot">Descargas: las que Apple atribuye al link de ese lugar (App Store Connect → Analytics → Acquisition → Campaigns, un día de atraso); se copian a mano hasta conectar la API' + (totalDl ? '; ' + totalDl + ' en total' : '') + '. Web: visitas a nidi.life que llegaron con el ?ref= de ese lugar (solo Instagram lo tiene). Alcance: cuánta gente podía verlo, lo cargás vos.</div>'
+            + '<details class="add" id="campdetails"><summary>Agregar o editar un lugar</summary><form class="row" id="campform"><input name="name" placeholder="nombre (ej. Haarlem Expats)" required maxlength="80" /><input name="ct" placeholder="ct= (ej. haarlem-expats)" required pattern="[a-z0-9_-]{1,40}" />'
+            + '<select name="kind">' + Object.keys(PK_L).map(function (k) { return '<option value="' + k + '">' + PK_L[k] + '</option>'; }).join('') + '</select>'
+            + '<select name="territory">' + TER_ORDER.map(function (k) { return '<option value="' + k + '">' + TER_L[k] + '</option>'; }).join('') + '</select>'
+            + '<select name="channel">' + Object.keys(CH_L).map(function (k) { return '<option value="' + k + '">' + CH_L[k] + '</option>'; }).join('') + '</select>'
+            + '<input name="where_used" placeholder="dónde exactamente" required /><input name="since" type="date" /><input name="audience" type="number" min="0" placeholder="alcance (personas)" /><input name="downloads" type="number" min="0" placeholder="descargas (Apple)" />'
+            + '<textarea class="full" name="note" placeholder="qué pasó ahí (sin emails)" maxlength="500"></textarea><div class="full"><button class="primary" type="submit">Guardar</button></div></form></details></div>';
 
           // contacts pipeline
           var STATUS_L = { sent: 'Enviado', replied: 'Respondió', no_answer: 'Sin respuesta', declined: 'No le interesa', done: 'Listo' };
@@ -484,12 +530,18 @@
           var pf = document.getElementById('campform'), pdet = document.getElementById('campdetails');
           pf.onsubmit = function (e) {
             e.preventDefault();
-            var fd = new FormData(pf), body = { action: 'campaign_upsert', ct: fd.get('ct'), where_used: fd.get('where_used'), name: fd.get('name'), channel: fd.get('channel') };
+            var fd = new FormData(pf), body = { action: 'campaign_upsert', ct: fd.get('ct'), where_used: fd.get('where_used'), name: fd.get('name'), channel: fd.get('channel'), kind: fd.get('kind'), territory: fd.get('territory'), note: fd.get('note') };
             if (fd.get('downloads') !== '') body.downloads = Number(fd.get('downloads'));
+            if (fd.get('audience') !== '') body.audience = Number(fd.get('audience'));
+            if (fd.get('since')) body.since = fd.get('since');
             api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se guardó: ' + err.message); });
           };
           Array.prototype.forEach.call(document.querySelectorAll('[data-camp]'), function (b) {
-            b.onclick = function () { var c = JSON.parse(b.getAttribute('data-camp')); pf.name.value = c.name; pf.ct.value = c.ct; pf.channel.value = c.channel; pf.where_used.value = c.where_used; pf.downloads.value = c.downloads; pdet.open = true; pdet.scrollIntoView({ behavior: 'smooth', block: 'start' }); pf.downloads.focus(); };
+            b.onclick = function () {
+              var c = JSON.parse(b.getAttribute('data-camp'));
+              pf.name.value = c.name; pf.ct.value = c.ct; pf.channel.value = c.channel; pf.kind.value = c.kind || 'link'; pf.territory.value = c.territory || 'web'; pf.where_used.value = c.where_used; pf.since.value = c.since || ''; pf.audience.value = c.audience == null ? '' : c.audience; pf.downloads.value = c.downloads; pf.note.value = c.note || '';
+              pdet.open = true; pdet.scrollIntoView({ behavior: 'smooth', block: 'start' }); pf.downloads.focus();
+            };
           });
         }
 
