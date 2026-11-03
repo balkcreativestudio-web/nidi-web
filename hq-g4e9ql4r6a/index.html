@@ -521,11 +521,10 @@
 
           // alerts
           html += '<div class="alerts">';
-          // Only what asks for a move from Maru: quiet nidis and stale
-          // invitations. A redeemed gift with no nidi yet is visible in the
-          // gifts table (Maru, 2026-11-03: not worth seeing first).
-          s.alerts = s.alerts.filter(function (a) { return a.kind !== 'redeemed_no_nidi'; });
-          if (!s.alerts.length) html += '<div class="alert none"><span class="tag">OK</span>Nada que atender: los nidis activos comparten y no hay invitaciones viejas.</div>';
+          // Only a stale invitation asks for a move from Maru. A quiet nidi lives
+          // in Ritmo and the reactivation push takes care of it (Maru, 2026-11-03);
+          // nothing to attend to means nothing here at all.
+          s.alerts = s.alerts.filter(function (a) { return a.kind === 'pending'; });
           s.alerts.forEach(function (a) { html += '<div class="alert ' + esc(a.kind) + '"><span class="tag">' + ({ quiet: 'Quieto', pending: 'Esperando', redeemed_no_nidi: 'Regalo sin nidi' })[a.kind] + '</span>' + esc(a.text) + '</div>'; });
           html += '</div>';
 
