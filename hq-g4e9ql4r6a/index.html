@@ -106,13 +106,14 @@
 
         function api(method, body) {
           return fetch(FN, { method: method, headers: { 'x-hq-token': token || '', 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, credentials: 'omit', cache: 'no-store' })
-            .then(function (r) { if (r.status === 401) { throw new Error('unauthorized'); } return r.json(); });
+            .then(function (r) { if (r.status === 401) { throw new Error('unauthorized'); } if (r.status === 503) { throw new Error('no_token'); } return r.json(); });
         }
 
         function load() {
           app.innerHTML = '<p class="quiet">Cargando…</p>';
           api('GET').then(render).catch(function (e) {
             if (e.message === 'unauthorized') { try { localStorage.removeItem(KEY); } catch (x) {} token = null; gate('Clave incorrecta.'); }
+            else if (e.message === 'no_token') { try { localStorage.removeItem(KEY); } catch (x) {} token = null; gate('Todavía no hay clave en el servidor: creá HQ_TOKEN en Supabase → Edge Functions → Secrets, y volvé a entrar con esa misma clave.'); }
             else app.innerHTML = '<p class="warn">No se pudo cargar. Probá de nuevo en un rato.</p><p><button class="ghost" onclick="location.reload()">Reintentar</button></p>';
           });
         }
