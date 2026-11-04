@@ -338,7 +338,7 @@
             if (country && W.countries[country]) return { lat: W.countries[country][0], lon: W.countries[country][1], label: regionName(country), city: false, country: country };
             return null;
           };
-          var FAMILY = ['matías', 'matias', 'cheli', 'lola', 'loli', 'marcelo', 'martu', 'male', 'michelle'];
+          var FAMILY = ['matías', 'matias', 'cheli', 'lola', 'loli', 'marcelo', 'martu', 'male', 'michelle', 'cris'];
           var first = function (n) { return String(n || '').trim().split(/\s+/)[0].replace(/^@/, '').toLowerCase(); };
           var sent = [], unplaced = [];
           (d.campaigns || []).forEach(function (c) {
@@ -622,8 +622,8 @@
             var weeks = gr.weeks || [], inv2 = gr.invitations || {};
             html += '<h2>Lo que importa <small>si las familias siguen, y si las invitaciones llegan</small></h2><div class="two">'
               + '<div class="card"><div class="title">Familias compartiendo <span>últimos 7 días</span></div><div class="kpi" style="border:0;padding:0"><div class="v">' + gr.both_ways_7d + '<small>de ' + gr.families + '</small></div><div class="d">compartieron en los dos sentidos' + (gr.any_7d > gr.both_ways_7d ? ' (' + gr.any_7d + ' con algún momento)' : '') + '</div></div>'
-              + hbars(weeks.map(function (w) { return w.both_ways; }), weeks.map(function (w) { return dmy(w.start + 'T12:00:00'); }), 'var(--rose)', weeks.length > 6 ? 2 : 1)
-              + '<div class="foot">Cada barra es una semana desde el lanzamiento, solo familias de afuera. Lo que hay que mirar es si en la semana 2 y la 4 siguen ahí.</div></div>'
+              + '<div class="funnel">' + weeks.map(function (w, i) { return stepRow('Semana ' + (i + 1) + ' · ' + dmy(w.start + 'T12:00:00'), w.both_ways, gr.families, 'var(--rose)'); }).join('') + '</div>'
+              + '<div class="foot">Familias de afuera que compartieron en los dos sentidos cada semana. Lo que hay que mirar es si en la semana 2 y la 4 siguen ahí.</div></div>'
               + '<div class="card"><div class="title">Invitaciones <span>familias de afuera</span></div><div class="funnel">' + stepRow('Enviadas', inv2.sent, inv2.sent) + stepRow('Aceptadas', inv2.accepted, inv2.sent, 'var(--olive)') + stepRow('Esperando', inv2.waiting, inv2.sent, 'var(--honey)') + stepRow('Esperando hace más de 3 días', inv2.waiting_3d, inv2.sent, 'var(--rose)') + '</div>'
               + '<div class="foot">' + (inv2.median_hours != null ? 'Tardan ' + minsWord(Number(inv2.median_hours) * 60) + ' en aceptarla. ' : '') + 'Por qué queda esperando no se puede saber desde acá.</div></div></div>';
           }
