@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "life.nidi.app",
+      "sha256_cert_fingerprints": [
+        "71:4E:7F:9A:7E:FB:48:BE:B8:57:76:79:EE:28:17:97:12:94:AE:A3:0F:A3:60:A6:78:91:15:BB:A9:2B:40:9C",
+        "3D:F2:D8:2D:5B:E1:78:3E:02:A6:31:6A:9A:FF:AA:72:38:45:FF:A5:C0:28:5F:75:5A:2C:4F:B6:DC:2B:22:6E"
+      ]
+    }
+  }
+]
