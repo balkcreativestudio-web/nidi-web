@@ -24,6 +24,7 @@
       :root {
         --cream:#f4efe7; --paper:#fffdf9; --ink:#2a241d; --ink2:#7a6f62; --ink3:#b0a596; --line:#e7dfd2; --line2:#efe8dc;
         --olive:#87995b; --olive-soft:#e4e8d5; --rose:#b5677d; --rose-soft:#f1dfe4; --honey:#c9962e; --honey-soft:#f3e7cc; --lagoon:#5f8f9a; --lagoon-soft:#dbe8ea; --sienna:#b0714f;
+        --c1:#5f7a2c; --c2:#1c8fb3; --c3:#bd7f06; --c4:#a84470;
         --serif:"Lora",Georgia,serif; --sans:"Hanken Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
       }
       * { box-sizing:border-box; }
@@ -67,6 +68,7 @@
 
       /* kpis */
       .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+      .kpi svg { color:var(--c1); }
       @media (max-width:640px) { .kpis { grid-template-columns:repeat(2,1fr); } }
       .kpi { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:14px 14px 10px; min-width:0; display:flex; flex-direction:column; gap:2px; }
       .kpi .k { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); }
@@ -178,6 +180,30 @@
       details.add summary::before { content:"+ "; }
       details.add[open] summary::before { content:"− "; }
 
+      /* rooms and controls */
+      .controls { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+      .tabs { display:flex; gap:2px; border-bottom:1px solid var(--line); margin:0 0 14px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+      .tabs::-webkit-scrollbar { display:none; }
+      .tabs button { border:0; background:transparent; font:inherit; font-size:14px; color:var(--ink2); padding:9px 12px; cursor:pointer; white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; }
+      .tabs button[aria-selected="true"] { color:var(--ink); border-bottom-color:var(--ink); font-weight:500; }
+      .q { flex:none; width:18px; height:18px; border:1px solid var(--line); border-radius:50%; background:transparent; color:var(--ink2); font-size:11px; line-height:1; padding:0; cursor:pointer; position:relative; }
+      .q::after { content:""; position:absolute; inset:-13px; }
+      .q[aria-expanded="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+      .def { margin:0 0 10px; font-size:13px; color:var(--ink2); }
+      .kpi .k { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+      .kpi .def { margin:6px 0 0; text-transform:none; letter-spacing:0; }
+      .title { align-items:center; gap:8px; }
+      .title em { font-style:normal; text-transform:none; letter-spacing:0; margin-left:4px; }
+      .chart .hit, .hb .hit { fill:transparent; }
+      .chart .hit:hover, .hb .hit:hover { fill:rgba(42,36,29,.05); }
+      .tip { position:fixed; z-index:20; max-width:280px; background:var(--ink); color:var(--paper); font-size:12px; padding:6px 9px; border-radius:8px; pointer-events:none; }
+      details.data { margin-top:8px; }
+      details.data summary { cursor:pointer; color:var(--ink2); font-size:12px; }
+      .rev { padding:8px 0; border-top:1px solid var(--line2); font-size:13px; }
+      .rev b { font-weight:500; }
+      table.sticky th:first-child, table.sticky td:first-child { position:sticky; left:-16px; background:var(--paper); min-width:128px; }
+      @media (max-width:560px) { header { flex-direction:column; align-items:flex-start; } .controls { justify-content:flex-start; } .kpi .v { font-size:30px; } .tabs button { font-size:13px; padding:9px 7px; } }
+
       /* gate */
       .gate { max-width:400px; margin:18vh auto 0; text-align:center; }
       .gate h1 { font-size:34px; }
@@ -198,8 +224,8 @@
         var FN = 'https://orqdnuikcdskmvorchly.supabase.co/functions/v1/hq-g4e9ql4r6a';
         var KEY = 'nidi-hq-token', RANGE_KEY = 'nidi-hq-range';
         var app = document.getElementById('app');
-        var token = null, range = 14, DATA = null;
-        try { token = localStorage.getItem(KEY); range = Number(localStorage.getItem(RANGE_KEY)) || 14; } catch (e) {}
+        var token = null, range = 14, DATA = null, TAB = 'resumen', VIEW = 'outside';
+        try { token = localStorage.getItem(KEY); range = Number(localStorage.getItem(RANGE_KEY)) || 14; TAB = localStorage.getItem('nidi-hq-tab') || TAB; VIEW = localStorage.getItem('nidi-hq-view') || VIEW; } catch (e) {}
 
         // ── helpers ─────────────────────────────────────────────────────
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
@@ -224,44 +250,89 @@
           var pts = vals.map(function (v, i) { return [(i / Math.max(1, n - 1)) * w, h - 2 - (v / max) * (h - 6)]; });
           var line = pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
           var area = line + ' L' + w + ' ' + h + ' L0 ' + h + ' Z';
-          var last = pts[pts.length - 1];
-          return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><path d="' + area + '" fill="' + color + '" opacity=".14"/><path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5" vector-effect="non-scaling-stroke"/><circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.4" fill="' + color + '" vector-effect="non-scaling-stroke"/></svg>';
+          return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><path d="' + area + '" fill="' + color + '" opacity=".14"/><path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>';
         }
 
-        // bar/line chart with gridlines, y labels and date ticks. keys: [{k, color, label, line?}]
+        // ── charts ──────────────────────────────────────────────────────
+        // Series take --c1..--c4 in that order, validated together. Text never
+        // wears a series color. One axis per chart: two scales are two charts.
+        function niceTop(max) {
+          var step = max <= 5 ? 1 : max <= 10 ? 2 : max <= 25 ? 5 : max <= 50 ? 10 : max <= 100 ? 20 : Math.ceil(max / 5 / 10) * 10;
+          return { step: step, top: Math.ceil(max / step) * step };
+        }
+        function barPath(x, y0, y1, w, rounded) {
+          var h = y0 - y1, r = rounded ? Math.min(4, w / 2, h) : 0;
+          return 'M' + x + ' ' + y0 + 'V' + (y1 + r) + (r ? 'Q' + x + ' ' + y1 + ' ' + (x + r) + ' ' + y1 : '') + 'H' + (x + w - r) + (r ? 'Q' + (x + w) + ' ' + y1 + ' ' + (x + w) + ' ' + (y1 + r) : '') + 'V' + y0 + 'Z';
+        }
+        // keys: [{k, color, label}]. opts.lines draws lines, otherwise stacked bars.
         function chart(series, keys, opts) {
           opts = opts || {};
-          var W = 600, H = 190, L = 28, R = 6, T = 10, B = 24, iw = W - L - R, ih = H - T - B, n = series.length;
-          var max = 1;
-          series.forEach(function (r) { var stack = 0; keys.forEach(function (k) { var v = Number(r[k.k]) || 0; if (opts.stacked && !k.line) stack += v; else max = Math.max(max, v); }); max = Math.max(max, stack); });
-          var step = max <= 5 ? 1 : max <= 10 ? 2 : max <= 25 ? 5 : max <= 50 ? 10 : max <= 100 ? 20 : Math.ceil(max / 5 / 10) * 10;
-          var top = Math.ceil(max / step) * step;
+          var W = window.innerWidth < 560 ? 340 : 600, H = 190, L = 28, R = opts.lines ? 12 : 6, T = 10, B = 24, iw = W - L - R, ih = H - T - B, n = series.length, max = 1;
+          series.forEach(function (r) { var st = 0; keys.forEach(function (k) { var v = Number(r[k.k]) || 0; st += v; max = Math.max(max, v); }); if (!opts.lines) max = Math.max(max, st); });
+          var nt = niceTop(max), top = nt.top, step = nt.step;
           var y = function (v) { return T + ih - (v / top) * ih; };
           var x = function (i) { return L + (i + 0.5) * (iw / n); };
           var out = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opts.label || '') + '">';
           for (var g = 0; g <= top; g += step) out += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(g) + '" y2="' + y(g) + '"/><text x="' + (L - 6) + '" y="' + (y(g) + 3) + '" text-anchor="end">' + g + '</text>';
-          var bw = Math.max(2, (iw / n) * 0.62);
-          series.forEach(function (r, i) {
-            var base = 0;
+          var bw = Math.min(26, Math.max(3, (iw / n) * 0.62));
+          if (opts.lines) {
             keys.forEach(function (k) {
-              if (k.line) return;
-              var v = Number(r[k.k]) || 0; if (!v) return;
-              var y1 = y(base + v), y0 = y(base);
-              out += '<rect x="' + (x(i) - bw / 2) + '" y="' + y1 + '" width="' + bw + '" height="' + Math.max(0, y0 - y1) + '" fill="' + k.color + '" rx="2"><title>' + esc(r.day) + ' · ' + esc(k.label) + ': ' + v + '</title></rect>';
-              if (opts.stacked) base += v;
+              var d = series.map(function (r, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(Number(r[k.k]) || 0).toFixed(1); }).join(' ');
+              out += '<path d="' + d + '" fill="none" stroke="' + k.color + '" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>';
+              var last = series[n - 1] || {}, lv = Number(last[k.k]) || 0;
+              out += '<circle cx="' + x(n - 1).toFixed(1) + '" cy="' + y(lv).toFixed(1) + '" r="4" fill="' + k.color + '" stroke="var(--paper)" stroke-width="2"/>';
             });
-          });
-          keys.forEach(function (k) {
-            if (!k.line) return;
-            var d = series.map(function (r, i) { return (i ? 'L' : 'M') + x(i) + ' ' + y(Number(r[k.k]) || 0); }).join(' ');
-            out += '<path d="' + d + '" fill="none" stroke="' + k.color + '" stroke-width="2" stroke-linejoin="round"/>';
-          });
-          var every = n > 16 ? 7 : n > 8 ? 2 : 1;
+          } else {
+            series.forEach(function (r, i) {
+              var base = 0, live = keys.filter(function (k) { return Number(r[k.k]) > 0; });
+              live.forEach(function (k, li) {
+                var v = Number(r[k.k]), y0 = y(base) - (base ? 2 : 0), y1 = Math.min(y0 - 1, y(base + v));
+                out += '<path d="' + barPath(x(i) - bw / 2, y0, y1, bw, li === live.length - 1) + '" fill="' + k.color + '"/>';
+                base += v;
+              });
+            });
+          }
+          var every = n > 16 ? 7 : n > 8 ? (W < 400 ? 3 : 2) : 1;
           series.forEach(function (r, i) { if ((n - 1 - i) % every === 0) out += '<text x="' + x(i) + '" y="' + (H - 6) + '" text-anchor="middle">' + dmy(r.day) + '</text>'; });
-          out += '<line class="axis" x1="' + L + '" x2="' + (W - R) + '" y1="' + (T + ih) + '" y2="' + (T + ih) + '"/></svg>';
-          return out;
+          out += '<line class="axis" x1="' + L + '" x2="' + (W - R) + '" y1="' + (T + ih) + '" y2="' + (T + ih) + '"/>';
+          // the hover layer: a whole day column answers, bigger than the mark
+          series.forEach(function (r, i) {
+            var tip = dmy(r.day) + keys.map(function (k) { return ' · ' + k.label + ': ' + (Number(r[k.k]) || 0); }).join('');
+            out += '<rect class="hit" x="' + (L + i * (iw / n)).toFixed(1) + '" y="' + T + '" width="' + (iw / n).toFixed(1) + '" height="' + ih + '" data-tip="' + esc(tip) + '"/>';
+          });
+          return out + '</svg>' + dataTable(series, keys);
         }
-        function legend(keys) { return '<div class="legend">' + keys.map(function (k) { return '<span><i style="background:' + k.color + '"></i>' + esc(k.label) + '</span>'; }).join('') + '</div>'; }
+        function dataTable(series, keys) {
+          return '<details class="data"><summary>Ver datos</summary><div class="tablewrap"><table><tr><th>Día</th>' + keys.map(function (k) { return '<th class="num">' + esc(k.label) + '</th>'; }).join('') + '</tr>'
+            + series.slice().reverse().filter(function (r) { return keys.some(function (k) { return Number(r[k.k]) > 0; }); }).map(function (r) { return '<tr><td>' + dmy(r.day) + '</td>' + keys.map(function (k) { return '<td class="num">' + (Number(r[k.k]) || 0) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div></details>';
+        }
+        function legend(keys) { if (keys.length < 2) return ''; return '<div class="legend">' + keys.map(function (k) { return '<span><i style="background:' + k.color + '"></i>' + esc(k.label) + '</span>'; }).join('') + '</div>'; }
+        // one bar per slot: hours of the day, days of the week, weeks
+        function hbars(arr, labels, color, every) {
+          arr = (arr || []).map(Number); var n = arr.length || 1, mx = Math.max.apply(null, arr.concat([1]));
+          var W = 300, H = 92, T = 14, B = 16, ih = H - T - B, gap = n > 12 ? 2 : 6, bw = (W - gap * (n - 1)) / n, out = '';
+          arr.forEach(function (v, i) {
+            var xx = i * (bw + gap), h = v ? Math.max(3, v / mx * ih) : 0;
+            if (v) out += '<path d="' + barPath(xx, T + ih, T + ih - h, bw, true) + '" fill="' + color + '"/>';
+            if (v && (n <= 12 || v === mx)) out += '<text x="' + (xx + bw / 2).toFixed(1) + '" y="' + (T + ih - h - 3).toFixed(1) + '" text-anchor="middle">' + v + '</text>';
+            if (i % every === 0 || i === n - 1) out += '<text x="' + (xx + bw / 2).toFixed(1) + '" y="' + (H - 3) + '" text-anchor="middle">' + esc(labels[i]) + '</text>';
+            out += '<rect class="hit" x="' + (xx - gap / 2).toFixed(1) + '" y="' + T + '" width="' + (bw + gap).toFixed(1) + '" height="' + ih + '" data-tip="' + esc(labels[i] + ': ' + v) + '"/>';
+          });
+          return '<svg class="hb" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(labels.map(function (l, i) { return l + ' ' + arr[i]; }).join(', ')) + '"><line class="axis" x1="0" x2="' + W + '" y1="' + (T + ih + 0.5) + '" y2="' + (T + ih + 0.5) + '"/>' + out + '</svg>';
+        }
+        function stepRow(label, n, tot, color, note) {
+          var w = tot ? pct(n || 0, tot) : 0;
+          return '<div class="step" data-tip="' + esc(label + ': ' + (n == null ? '—' : n) + (tot ? ' de ' + tot : '')) + '"><span>' + esc(label) + '</span><div class="bar"><i style="width:' + w + '%;background:' + (color || 'var(--c1)') + '"></i></div><span class="num">' + (n == null ? '—' : n) + '</span><span class="pct">' + (note != null ? esc(note) : tot && n != null ? w + '%' : '') + '</span></div>';
+        }
+        // a card: a title, one line behind the "?", and what it shows
+        function card(title, def, body, tail) {
+          return '<div class="card"><div class="title"><span>' + esc(title) + (tail ? ' <em>' + esc(tail) + '</em>' : '') + '</span>' + (def ? '<button class="q" type="button" aria-expanded="false" aria-label="Qué es ' + esc(title) + '">?</button>' : '') + '</div>' + (def ? '<p class="def" hidden>' + esc(def) + '</p>' : '') + body + '</div>';
+        }
+        function tile(k, def, v, unit, note, sparkHtml) {
+          return '<div class="kpi"><div class="k"><span>' + esc(k) + '</span>' + (def ? '<button class="q" type="button" aria-expanded="false" aria-label="Qué es ' + esc(k) + '">?</button>' : '') + '</div>' + (def ? '<p class="def" hidden>' + esc(def) + '</p>' : '') + '<div class="v">' + v + (unit ? '<small>' + esc(unit) + '</small>' : '') + '</div><div class="d">' + (note || '') + '</div>' + (sparkHtml || '') + '</div>';
+        }
+        function hoursWord(h) { if (h == null) return '—'; h = Number(h); if (h < 1) return Math.max(1, Math.round(h * 60)) + ' min'; if (h < 48) return Math.round(h) + ' h'; return Math.round(h / 24) + ' días'; }
+        function minsWord(m) { if (m == null) return '—'; m = Number(m); if (m < 1) return '< 1 min'; if (m < 60) return (m < 10 ? m.toFixed(1).replace('.', ',').replace(',0', '') : Math.round(m)) + ' min'; if (m < 60 * 48) return (m / 60).toFixed(1).replace('.', ',') + ' h'; return Math.round(m / 60 / 24) + ' días'; }
 
         // ── gate / api ──────────────────────────────────────────────────
         function gate(msg) {
@@ -499,195 +570,112 @@
         var mapResizeT = null;
         window.addEventListener('resize', function () { clearTimeout(mapResizeT); mapResizeT = setTimeout(drawMap, 200); });
 
+        // ── render ──────────────────────────────────────────────────────
+        // Five rooms, and Externos / Con familia applies to all of them. Test
+        // accounts are gone before the numbers get here (hq_group).
+        var TABS = [['resumen', 'Resumen'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos']];
+        var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
+        var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando', invited_check: 'La pregunta' };
+        var PLAN_L = { paid: 'Paga', gift: 'Año gratis', trial: 'Prueba', invited: 'Invitación' };
+        function nidiName(n) { return esc(n.a) + (n.b ? ' + ' + esc(n.b) : ' → ' + esc(n.invitee || 'la otra casa')); }
+        function sinceWord(iso) { if (!iso) return null; return (Date.now() - new Date(iso).getTime()) / 36e5; }
+        function health(hrs) { return hrs == null ? 'warn' : hrs < 24 ? 'ok' : hrs < 72 ? 'meh' : 'warn'; }
+
         function render() {
-          var d = DATA, s = d.stats, f = s.funnel, m = s.money, w = s.web, inv = s.invites, ret = s.retention;
-          var people = d.people || {};
+          var d = DATA, st = d.stats;
+          var s = (st.views && st.views[VIEW]) || st;
+          var gr = VIEW === 'with_family' && d.growth && d.growth.with_family ? d.growth.with_family : (d.growth || {});
           var all = s.series || [], ser = all.slice(-range), prev = all.slice(-range * 2, -range);
-          var today = all[all.length - 1] || {}, yest = all[all.length - 2] || {};
-          var activeNidis = s.nidis.filter(function (n) { return n.status === 'active'; });
-          var quiet = activeNidis.filter(function (n) { return n.quiet_days == null || n.quiet_days >= 2; });
-          // key: a series to draw; meter: a 0..1 share to draw instead; neither: the card keeps its height with air.
-          var kpi = function (k, v, dhtml, key, color, unit, meter) {
-            var tail = key ? spark(ser, key, color || 'var(--olive)') : meter != null ? '<div class="spacer"></div><div class="meter"><i style="width:' + Math.round(meter * 100) + '%"></i></div>' : '<div class="spacer"></div>';
-            return '<div class="kpi"><div class="k">' + esc(k) + '</div><div class="v">' + v + (unit ? '<small>' + esc(unit) + '</small>' : '') + '</div><div class="d">' + (dhtml || '') + '</div>' + tail + '</div>';
-          };
-          var rangeLabel = range + ' días';
-          var vsPrev = function (k) { return delta(sum(ser, k), sum(prev, k)) + ' <span class="quiet">vs ' + rangeLabel + ' anteriores</span>'; };
+          var html = '<header><div><h1>Nidi HQ</h1><div class="sub">Día ' + st.days_since_launch + ' · ' + esc(stamp(st.generated_at)) + ' · <button class="link" id="refresh">actualizar</button></div></div>'
+            + '<div class="controls"><div class="range" role="group" aria-label="A quién contar">'
+            + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
+            + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
+            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</nav>';
+          html += ({ resumen: tabResumen, adq: tabAdq, uso: tabUso, ret: tabRet, ing: tabIng })[TAB](d, st, s, gr, ser, prev);
+          html += '<h2>Accesos</h2><div class="links">'
+            + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect</a>'
+            + '<a href="https://play.google.com/console/u/1/developers/6039865059263874705/app/4974103052168493706/app-dashboard" target="_blank" rel="noopener">Google Play</a>'
+            + '<a href="https://app.revenuecat.com" target="_blank" rel="noopener">RevenueCat</a>'
+            + '<a href="https://supabase.com/dashboard/project/orqdnuikcdskmvorchly" target="_blank" rel="noopener">Supabase</a>'
+            + '<a href="https://www.instagram.com/hello.nidi/" target="_blank" rel="noopener">@hello.nidi</a>'
+            + '<a href="https://drive.google.com/drive/folders/1DipIvwK3fUR_YR85jdYm6CTT7WwJ-UdH" target="_blank" rel="noopener">Tandas de Instagram</a>'
+            + '<a href="https://nidi.life/prensa/" target="_blank" rel="noopener">Kit de prensa</a></div>';
+          html += '<footer><span>Solo vos ves esto. Sin emails, sin rastreo.</span><button class="link" id="logout">Borrar la clave de este dispositivo</button></footer>';
+          app.innerHTML = html;
+          wire();
+          wireNews();
+          drawMap();
+        }
 
-          var html = '<header><div><h1>Nidi HQ</h1><div class="sub">Día ' + s.days_since_launch + ' desde el lanzamiento · ' + esc(stamp(s.generated_at)) + ' · <button class="link" id="refresh">actualizar</button></div></div>'
-            + '<div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></header>';
-
-          // notifications: only what is new and worth knowing, until she closes it
-          html += newsHtml(d.news || []);
-
-          // alerts
-          html += '<div class="alerts">';
-          // Only a stale invitation asks for a move from Maru. A quiet nidi lives
-          // in Ritmo and the reactivation push takes care of it (Maru, 2026-11-03);
-          // nothing to attend to means nothing here at all.
-          s.alerts = s.alerts.filter(function (a) { return a.kind === 'pending'; });
-          s.alerts.forEach(function (a) { html += '<div class="alert ' + esc(a.kind) + '"><span class="tag">' + ({ quiet: 'Quieto', pending: 'Esperando', redeemed_no_nidi: 'Regalo sin nidi' })[a.kind] + '</span>' + esc(a.text) + '</div>'; });
-          html += '</div>';
-
-          // KPIs. A family is a nidi outside Maru's circle with BOTH homes
-          // in (Maru, 2026-11-03): Fer + Andrea is one, Gise + Alejandro is
-          // one. People with an account are not families yet.
-          var pendingNidis = s.nidis.filter(function (n) { return n.status === 'pending'; });
-          var famDelta = delta(sum(ser, 'activated'), sum(prev, 'activated'));
-          html += '<h2>Hoy <small>el gráfico es el día a día; la flecha, el período contra el anterior</small></h2><div class="kpis">'
-            + kpi('Familias', activeNidis.length, (pendingNidis.length ? '+' + pendingNidis.length + ' esperando a la otra casa' : 'nidis con las dos casas, sin tu familia'), 'activated', 'var(--olive)')
-            + kpi('Suscripciones', m.paid_active, '≈ USD ' + m.proceeds_usd_estimate + ' netos · Apple paga en enero', null, null, (function () { var a = m.paid_list.filter(function (p) { return p.product !== 'nidi_monthly'; }).length, mo = m.paid_list.length - a; return [a ? a + (a === 1 ? ' anual' : ' anuales') : '', mo ? mo + (mo === 1 ? ' mensual' : ' mensuales') : ''].filter(Boolean).join(' · '); })())
-            + kpi('Nidis gratis', m.gifts_redeemed, pct(m.gifts_redeemed, m.gifts_sent) + '% de los códigos entregados ya activos · ' + (m.gifts_total - m.gifts_sent) + ' libres', null, null, 'de ' + m.gifts_sent + ' entregados', m.gifts_sent ? m.gifts_redeemed / m.gifts_sent : 0)
-            + kpi('Momentos de familias', s.moments.outside_total, delta(sum(ser, 'moments_outside'), sum(prev, 'moments_outside')), 'moments_outside', 'var(--olive)')
-            + kpi('Instalaciones', f.installs, delta(sum(ser, 'installs'), sum(prev, 'installs')), 'installs', 'var(--lagoon)')
-            + kpi('Web', w.total, delta(sum(ser, 'web'), sum(prev, 'web')), 'web', 'var(--sienna)')
+        function tabResumen(d, st, s, gr, ser, prev) {
+          var active = s.nidis.filter(function (n) { return n.status === 'active'; });
+          var pending = s.nidis.filter(function (n) { return n.status === 'pending'; });
+          var m = s.money, en = s.engagement || {};
+          var html = newsHtml(d.news || []);
+          var alerts = (s.alerts || []).filter(function (a) { return a.kind === 'pending'; });
+          if (alerts.length) html += '<div class="alerts">' + alerts.map(function (a) { return '<div class="alert pending"><span class="tag">Esperando</span>' + esc(a.text) + '</div>'; }).join('') + '</div>';
+          html += '<div class="kpis">'
+            + tile('Familias', 'Nidis con las dos casas adentro.', active.length, '', pending.length ? '+' + pending.length + ' esperando a la otra casa' : '', spark(ser, 'activated', C1))
+            + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), 'esta semana')
+            + tile('Momentos', 'Fotos, audios y textos enviados desde el lanzamiento.', s.moments.total, '', s.moments.notes + ' ' + plural(s.moments.notes, 'nota', 'notas'), spark(ser, 'moments', C1))
+            + tile('Tiempo por día', 'Estimado: del primer al último evento de cada visita, por persona en un día que abrió Nidi. Nidi no mide la pantalla.', minsWord(en.minutes_per_active_day), '', String(en.sessions_per_user_day || 0).replace('.', ',') + ' visitas por día', spark(ser, 'minutes', C1))
+            + tile('Instalaciones', 'Dispositivos que abrieron Nidi por primera vez. Sin los de prueba.', s.funnel.installs, '', delta(sum(ser, 'installs'), sum(prev, 'installs')), spark(ser, 'installs', C1))
+            + tile('Suscripciones', 'Pagas reales y años gratis activos.', m.paid_active, plural(m.paid_active, 'paga', 'pagas'), m.gifts_redeemed + ' ' + plural(m.gifts_redeemed, 'año gratis', 'años gratis'))
             + '</div>';
-
-          // charts
-          var K_ACQ = [{ k: 'installs', color: 'var(--lagoon)', label: 'Instalaciones que abrieron' }, { k: 'accounts', color: 'var(--olive)', label: 'Cuentas' }, { k: 'activated', color: 'var(--honey)', label: 'Nidis activados' }];
-          var K_MOM = [{ k: 'moments_outside', color: 'var(--olive)', label: 'Momentos de familias' }, { k: 'moments', color: 'var(--olive-soft)', label: 'Todos (incluye tu familia)' }];
-          var K_WEB = [{ k: 'web_direct', color: 'var(--sienna)', label: 'Sin origen (WhatsApp, mail, escrito)' }, { k: 'web_ig', color: 'var(--rose)', label: 'Instagram' }, { k: 'web', color: 'var(--ink3)', label: 'Total', line: true }];
-          html += '<h2>Tendencias <small>' + rangeLabel + '</small></h2><div class="two">'
-            + '<div class="card"><div class="title">Adquisición</div>' + legend(K_ACQ) + chart(ser, K_ACQ, { label: 'Adquisición por día' }) + '</div>'
-            + '<div class="card"><div class="title">Momentos compartidos</div>' + legend(K_MOM) + chart(ser, [K_MOM[1], K_MOM[0]], { label: 'Momentos por día' }) + '</div>'
-            + '<div class="card"><div class="title">Web por origen</div>' + legend(K_WEB) + chart(ser, K_WEB, { stacked: true, label: 'Visitas por día' }) + '<div class="foot">"Sin origen" es un link abierto desde una app (WhatsApp, Slack, mail) o escrito a mano: el navegador no dice de dónde vino. Desde el lanzamiento: ' + Object.keys(w.by_source).map(function (k) { return esc(k === 'ig' ? 'Instagram (bio)' : k === 'directo' ? 'sin origen' : k) + ' ' + w.by_source[k]; }).join(' · ') + '</div></div>'
-            + (function () {
-                var bt = s.moments.by_type || {}, rows = [['Fotos', bt.photo || 0, 'var(--olive)'], ['Audios', bt.voice_note || 0, 'var(--lagoon)'], ['Textos', bt.text || 0, 'var(--honey)'], ['Notas al pie', s.moments.notes || 0, 'var(--sienna)']];
-                var mx = Math.max.apply(null, rows.map(function (r) { return r[1]; }).concat([1])), tot = rows.slice(0, 3).reduce(function (a, r) { return a + r[1]; }, 0);
-                return '<div class="card"><div class="title">Qué comparten <span>' + tot + ' momentos desde el lanzamiento</span></div><div class="funnel" style="margin-top:14px">' + rows.map(function (r) { return '<div class="step"><span>' + r[0] + '</span><div class="bar"><i style="width:' + Math.round(r[1] / mx * 100) + '%;background:' + r[2] + '"></i></div><span class="num">' + r[1] + '</span><span class="pct">' + (r[0] === 'Notas al pie' ? '' : pct(r[1], tot) + '%') + '</span></div>'; }).join('') + '</div><div class="foot">Las notas son respuestas escritas sobre un momento, no cuentan como momentos.</div></div>';
-              })()
-            + '<div class="card"><div class="title">Usuarios activos por día</div>' + legend([{ k: 'active_users', color: 'var(--lagoon)', label: 'Personas que abrieron Nidi' }]) + chart(ser, [{ k: 'active_users', color: 'var(--lagoon)', label: 'Activos' }], { label: 'Usuarios activos' }) + '<div class="foot">Incluye a tu familia. Cuando haya más familias, esta es la curva que importa.</div></div>'
+          var KM = [{ k: 'moments', color: C1, label: 'Momentos' }, { k: 'notes', color: C2, label: 'Notas' }];
+          html += '<div class="two" style="margin-top:10px">'
+            + card('Momentos y notas', 'Lo que se comparte cada día. La nota es una respuesta escrita sobre un momento.', legend(KM) + chart(ser, KM, { label: 'Momentos y notas por día' }))
+            + card('Cómo van las familias', 'Cuánto pasó desde la última vez que alguien compartió o respondió.', famNow(active))
             + '</div>';
+          return html;
+        }
+        function famNow(active) {
+          if (!active.length) return '<p class="quiet">Ninguna todavía.</p>';
+          return '<div class="funnel">' + active.map(function (n) {
+            var hrs = sinceWord(n.last_moment), c = health(hrs);
+            return '<div class="step" data-tip="' + esc(n.a + ' + ' + (n.b || '?') + ': ' + (hrs == null ? 'nunca compartieron' : 'hace ' + hoursWord(hrs))) + '"><span>' + esc(n.a) + ' + ' + esc(n.b || '?') + '</span><div class="bar"><i style="width:' + (hrs == null ? 100 : Math.min(100, Math.round(hrs / 96 * 100))) + '%;background:' + (c === 'ok' ? C1 : c === 'meh' ? C3 : C4) + '"></i></div><span class="num ' + c + '">' + (hrs == null ? 'nunca' : hoursWord(hrs)) + '</span><span class="pct">' + (c === 'ok' ? 'al día' : c === 'meh' ? 'tranquilo' : 'quieto') + '</span></div>';
+          }).join('') + '</div>';
+        }
 
-          // funnel + retention
-          var steps = [['Descargaron y abrieron', f.installs], ['Pusieron el email', f.signed_in], ['Crearon la cuenta', f.profile], ['Armaron un nidi', f.nidi], ['Invitaron a la otra casa', f.invited], ['La otra casa entró', f.activated], ['Alguien compartió', f.shared], ['Compartieron los dos', f.both_shared]];
-          html += '<h2>Embudo <small>desde el lanzamiento · % sobre el paso anterior</small></h2><div class="two"><div class="card"><div class="funnel">';
-          steps.forEach(function (st, i) {
-            var prevV = i ? steps[i - 1][1] : st[1];
-            html += '<div class="step"><span>' + esc(st[0]) + '</span><div class="bar"><i style="width:' + pct(st[1], f.installs) + '%"></i></div><span class="num">' + st[1] + '</span><span class="pct">' + (i ? pct(st[1], prevV) + '%' : '') + '</span></div>';
-          });
-          html += '</div><div class="foot">Apple cuenta además a quien bajó y no abrió (App Store Connect). ' + esc(s.ratings_note) + '</div></div>';
-          html += '<div class="card"><div class="title">Retención <span>personas de afuera · ' + ret.cohort + ' cuentas</span></div><div class="funnel">'
-            + '<div class="step"><span>Volvieron al día siguiente</span><div class="bar"><i style="width:' + pct(ret.d1, ret.eligible_d1) + '%"></i></div><span class="num">' + ret.d1 + '/' + ret.eligible_d1 + '</span><span class="pct">' + pct(ret.d1, ret.eligible_d1) + '%</span></div>'
-            + '<div class="step"><span>Volvieron en la 1ª semana</span><div class="bar"><i style="width:' + pct(ret.w1, ret.eligible_w1) + '%"></i></div><span class="num">' + ret.w1 + '/' + ret.eligible_w1 + '</span><span class="pct">' + (ret.eligible_w1 ? pct(ret.w1, ret.eligible_w1) + '%' : 'pronto') + '</span></div>'
-            + '<div class="step"><span>Activas en los últimos 7 días</span><div class="bar"><i style="width:' + pct(ret.last7, ret.cohort) + '%"></i></div><span class="num">' + ret.last7 + '/' + ret.cohort + '</span><span class="pct">' + pct(ret.last7, ret.cohort) + '%</span></div>'
-            + '<div class="step"><span>Compartieron algo</span><div class="bar"><i style="width:' + pct(ret.shared, ret.cohort) + '%"></i></div><span class="num">' + ret.shared + '/' + ret.cohort + '</span><span class="pct">' + pct(ret.shared, ret.cohort) + '%</span></div>'
-            + '</div><div class="foot">Invitaciones: ' + inv.sent + ' enviadas · ' + inv.opened + ' abiertas · ' + inv.accepted + ' aceptadas · ' + inv.pending + ' esperando.</div></div></div>';
-
-          // cadence
-          var cad = s.cadence || {}, gb = cad.gap_buckets || {};
-          var gbTot = (gb.same_day || 0) + (gb.one_to_three_days || 0) + (gb.three_plus_days || 0);
-          var hoursWord = function (h) { if (h == null) return '—'; if (h < 1) return Math.round(h * 60) + ' min'; if (h < 48) return Math.round(h) + ' h'; return (h / 24).toFixed(1) + ' días'; };
-          html += '<h2>Ritmo de compartir <small>cuánto pasa entre un momento y el siguiente, familias</small></h2><div class="two">'
-            + '<div class="card"><div class="title">Tiempo típico entre momentos</div><div class="kpi" style="border:0;padding:0"><div class="v">' + hoursWord(cad.median_gap_hours) + '</div><div class="d">mediana en ' + (cad.nidis_with_gaps || 0) + ' ' + plural(cad.nidis_with_gaps || 0, 'nidi', 'nidis') + ' con más de un momento</div></div>'
-            + '<div class="foot">Mide el tiempo entre momentos ya compartidos. El silencio de ahora, que todavía no cerró, está al lado.</div></div>'
-            + '<div class="card"><div class="title">Cada vuelta a compartir, por demora <span>' + gbTot + ' intervalos</span></div><div class="funnel">'
-            + '<div class="step"><span>El mismo día</span><div class="bar"><i style="width:' + pct(gb.same_day || 0, gbTot) + '%"></i></div><span class="num">' + (gb.same_day || 0) + '</span><span class="pct">' + pct(gb.same_day || 0, gbTot) + '%</span></div>'
-            + '<div class="step"><span>1 a 3 días</span><div class="bar"><i style="width:' + pct(gb.one_to_three_days || 0, gbTot) + '%;background:var(--honey)"></i></div><span class="num">' + (gb.one_to_three_days || 0) + '</span><span class="pct">' + pct(gb.one_to_three_days || 0, gbTot) + '%</span></div>'
-            + '<div class="step"><span>Más de 3 días</span><div class="bar"><i style="width:' + pct(gb.three_plus_days || 0, gbTot) + '%;background:var(--rose)"></i></div><span class="num">' + (gb.three_plus_days || 0) + '</span><span class="pct">' + pct(gb.three_plus_days || 0, gbTot) + '%</span></div>'
-            + '</div><div class="title" style="margin-top:18px">Ahora mismo, sin compartir desde hace</div>'
-            + (activeNidis.length ? activeNidis.map(function (n) {
-                var hrs = n.last_moment ? (Date.now() - new Date(n.last_moment).getTime()) / 36e5 : null;
-                var cls = hrs == null ? 'warn' : hrs < 24 ? 'ok' : hrs < 72 ? 'meh' : 'warn';
-                return '<div class="step"><span>' + esc(n.a) + ' + ' + esc(n.b || '?') + '</span><div class="bar"><i style="width:' + (hrs == null ? 100 : Math.min(100, Math.round(hrs / 96 * 100))) + '%;background:' + (cls === 'ok' ? 'var(--olive)' : cls === 'meh' ? 'var(--honey)' : 'var(--rose)') + '"></i></div><span class="num ' + cls + '">' + (hrs == null ? 'nunca' : hoursWord(hrs)) + '</span><span class="pct"></span></div>';
-              }).join('') : '<p class="quiet">Ningún nidi activo.</p>')
-            + '<div class="foot">Verde hasta 24 h, ámbar hasta 3 días, rojo después. La barra llena son 4 días.</div></div></div>';
-
-          // engagement
-          var en = s.engagement || {};
-          var minsWord = function (m) { if (m == null) return '—'; m = Number(m); if (m < 1) return '< 1 min'; if (m < 60) return Math.round(m) + ' min'; if (m < 60 * 48) return (m / 60).toFixed(1) + ' h'; return Math.round(m / 60 / 24) + ' días'; };
-          // small bar chart: one bar per slot, the count on top when there is one, a few labels under
-          var hbars = function (arr, labels, color, every) {
-            arr = (arr || []).map(Number); var n = arr.length || 1, mx = Math.max.apply(null, arr.concat([1]));
-            var W = 300, H = 84, T = 14, B = 16, ih = H - T - B, gap = n > 12 ? 1.5 : 6, bw = (W - gap * (n - 1)) / n, out = '';
-            arr.forEach(function (v, i) {
-              var x = i * (bw + gap), h = v ? Math.max(2, v / mx * ih) : 2;
-              out += '<rect x="' + x.toFixed(1) + '" y="' + (T + ih - h).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="1.5" fill="' + (v ? color : 'var(--line2)') + '"><title>' + esc(labels[i]) + ': ' + v + '</title></rect>';
-              if (v && (n <= 12 || v === mx)) out += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (T + ih - h - 3).toFixed(1) + '" text-anchor="middle">' + v + '</text>';
-              if (i % every === 0 || i === n - 1) out += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 3) + '" text-anchor="middle">' + esc(labels[i]) + '</text>';
-            });
-            return '<svg class="hb" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true"><line class="axis" x1="0" x2="' + W + '" y1="' + (T + ih + 0.5) + '" y2="' + (T + ih + 0.5) + '"/>' + out + '</svg>';
-          };
-          var stepRow = function (label, n, tot, color) { return '<div class="step"><span>' + label + '</span><div class="bar"><i style="width:' + pct(n, tot) + '%' + (color ? ';background:' + color : '') + '"></i></div><span class="num">' + (n == null ? '—' : n) + '</span><span class="pct">' + (tot && n != null ? pct(n, tot) + '%' : '') + '</span></div>'; };
-          var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando' };
-          var droppedRaw = en.onboarding_dropped_at || {}, dropped = {};
-          Object.keys(droppedRaw).forEach(function (k) { var l = STEP_L[k] || k; dropped[l] = (dropped[l] || 0) + droppedRaw[k]; });
-          var hourLabels = Array.from({ length: 24 }, function (_, i) { return i + ' h'; });
-          var peakHour = null; (en.by_hour || []).forEach(function (v, i) { if (v && (peakHour == null || v > en.by_hour[peakHour])) peakHour = i; });
-          var dayNames = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
-          var peakDay = null; (en.by_weekday || []).forEach(function (v, i) { if (v && (peakDay == null || v > en.by_weekday[peakDay])) peakDay = i; });
-          // the number to watch: families that keep sharing, and how invitations go
-          var gr = d.growth || null;
-          if (gr) {
-            var weeks = gr.weeks || [], inv2 = gr.invitations || {};
-            html += '<h2>Lo que importa <small>si las familias siguen, y si las invitaciones llegan</small></h2><div class="two">'
-              + '<div class="card"><div class="title">Familias compartiendo <span>últimos 7 días</span></div><div class="kpi" style="border:0;padding:0"><div class="v">' + gr.both_ways_7d + '<small>de ' + gr.families + '</small></div><div class="d">compartieron en los dos sentidos' + (gr.any_7d > gr.both_ways_7d ? ' (' + gr.any_7d + ' con algún momento)' : '') + '</div></div>'
-              + '<div class="funnel">' + weeks.map(function (w, i) { return stepRow('Semana ' + (i + 1) + ' · ' + dmy(w.start + 'T12:00:00'), w.both_ways, gr.families, 'var(--rose)'); }).join('') + '</div>'
-              + '<div class="foot">Familias de afuera que compartieron en los dos sentidos cada semana. Lo que hay que mirar es si en la semana 2 y la 4 siguen ahí.</div></div>'
-              + '<div class="card"><div class="title">Invitaciones <span>familias de afuera</span></div><div class="funnel">' + stepRow('Enviadas', inv2.sent, inv2.sent) + stepRow('Aceptadas', inv2.accepted, inv2.sent, 'var(--olive)') + stepRow('Esperando', inv2.waiting, inv2.sent, 'var(--honey)') + stepRow('Esperando hace más de 3 días', inv2.waiting_3d, inv2.sent, 'var(--rose)') + '</div>'
-              + '<div class="foot">' + (inv2.median_hours != null ? 'Tardan ' + minsWord(Number(inv2.median_hours) * 60) + ' en aceptarla. ' : '') + 'Por qué queda esperando no se puede saber desde acá.</div></div></div>';
-          }
-
-          html += '<h2>Uso <small>cómo usan Nidi las familias; donde dice "con tu familia", suma la tuya</small></h2><div class="three">'
-            + '<div class="card"><div class="title">Una sesión</div><div class="kpi" style="border:0;padding:0"><div class="v">' + minsWord(en.session_median_min) + '</div><div class="d">lo que dura una visita típica a Nidi (' + minsWord(en.session_median_min_all) + ' con tu familia)</div></div>'
-            + '<div class="foot">Abren Nidi ' + (en.sessions_per_user_day || 0) + ' veces por día cuando lo usan, y hacen ' + (en.events_per_session || 0) + ' cosas por visita.</div></div>'
-            + '<div class="card"><div class="title">Un momento que llega <span>' + en.received + ' ' + plural(en.received, 'momento', 'momentos') + '</span></div><div class="funnel">'
-            + stepRow('Lo abren', en.received_opened, en.received) + stepRow('En la primera hora', en.opened_within_1h, en.received) + stepRow('Responden en el día', en.answered_within_24h, en.received, 'var(--lagoon)')
-            + '</div><div class="foot">Tardan ' + minsWord(en.median_min_to_open) + ' en abrirlo. "Responden" es una nota al pie o un momento de vuelta.</div></div>'
-            + '<div class="card"><div class="title">Onboarding</div><div class="funnel">' + stepRow('Lo empiezan', en.onboarding_started, en.onboarding_started) + stepRow('Lo terminan', en.onboarding_completed, en.onboarding_started, 'var(--olive)') + '</div>'
-            + '<div class="foot">Les lleva ' + minsWord(en.onboarding_median_min) + '.' + (Object.keys(dropped).length ? ' Se quedaron en: ' + Object.keys(dropped).map(function (k) { return k + ' (' + dropped[k] + ')'; }).join(' · ') + '.' : ' Nadie se quedó a mitad de camino.') + '</div></div>'
-            + '</div><div class="three" style="margin-top:10px">'
-            + '<div class="card"><div class="title">A qué hora comparten <span>hora de Ámsterdam</span></div>' + hbars(en.by_hour, hourLabels, 'var(--olive)', 6)
-            + '<div class="foot">' + (peakHour == null ? 'Todavía sin momentos.' : 'La hora fuerte: ' + peakHour + ' h. Cada barra es una hora del día, desde el lanzamiento.') + '</div></div>'
-            + '<div class="card"><div class="title">Qué día comparten</div>' + hbars(en.by_weekday, ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], 'var(--lagoon)', 1)
-            + '<div class="foot">' + (peakDay == null ? 'Todavía sin momentos.' : 'El día fuerte: ' + dayNames[peakDay] + '. Desde el lanzamiento.') + '</div></div>'
-            + '<div class="card"><div class="title">Avisos y paywall</div><div class="funnel">' + stepRow('Aceptan recibir avisos', en.notif_granted, en.notif_asked)
-            + stepRow('Ven el paywall', en.paywall_viewed, en.paywall_viewed) + stepRow('Tocan pagar', en.purchase_started, en.paywall_viewed) + stepRow('Pagan', en.purchase_confirmed, en.paywall_viewed, 'var(--olive)') + '</div>'
-            + '<div class="foot">Cuántos avisos se abren se empieza a contar con la versión de hoy; aparece acá cuando haya datos.</div></div>'
+        function tabAdq(d, st, s, gr, ser) {
+          var f = s.funnel, w = st.web, en = s.engagement || {}, inv = gr.invitations || {};
+          var KA = [{ k: 'installs', color: C1, label: 'Instalaciones' }, { k: 'accounts', color: C2, label: 'Cuentas' }, { k: 'activated', color: C3, label: 'Nidis con las dos casas' }];
+          var webSer = ser.map(function (r) { return Object.assign({}, r, { web_other: Math.max(0, r.web - r.web_ig - r.web_direct) }); });
+          var KW = [{ k: 'web_direct', color: C1, label: 'Sin origen' }, { k: 'web_ig', color: C2, label: 'Instagram' }, { k: 'web_other', color: C3, label: 'Otros' }];
+          var steps = [['Abrieron la app', f.installs], ['Pusieron el email', f.signed_in], ['Crearon la cuenta', f.profile], ['Armaron un nidi', f.nidi], ['Invitaron', f.invited], ['La otra casa entró', f.activated], ['Alguien compartió', f.shared], ['Participaron las dos', f.both_shared]];
+          var dropped = {}, raw = en.onboarding_dropped_at || {}; Object.keys(raw).forEach(function (k) { var l = STEP_L[k] || k; dropped[l] = (dropped[l] || 0) + raw[k]; });
+          var dropTot = Object.keys(dropped).reduce(function (a, k) { return a + dropped[k]; }, 0);
+          var chan = {}; (d.campaigns || []).forEach(function (c) { var l = ({ facebook: 'Facebook', instagram: 'Instagram', whatsapp: 'WhatsApp', mail: 'Mail', slack: 'Slack', web: 'Web', press: 'Prensa', other: 'Otro' })[c.channel] || c.channel; chan[l] = chan[l] || { n: 0, dl: 0 }; chan[l].n++; chan[l].dl += Number(c.downloads) || 0; });
+          var chanKeys = Object.keys(chan).sort(function (a, b) { return chan[b].dl - chan[a].dl || chan[b].n - chan[a].n; });
+          var chanMax = Math.max.apply(null, chanKeys.map(function (k) { return chan[k].dl; }).concat([1]));
+          var html = '<div class="two">'
+            + card('Llegadas por día', 'Instalaciones, cuentas nuevas y nidis con las dos casas. Un dispositivo cuenta una vez.', legend(KA) + chart(ser, KA, { lines: true, label: 'Llegadas por día' }))
+            + card('Embudo', 'Desde el lanzamiento. El porcentaje es sobre el paso anterior.', '<div class="funnel">' + steps.map(function (x, i) { return stepRow(x[0], x[1], f.installs, C1, i ? pct(x[1], steps[i - 1][1]) + '%' : ''); }).join('') + '</div>')
+            + card('Visitas a la web', 'Visitas a nidi.life. "Sin origen" es un link abierto desde WhatsApp o mail, o escrito a mano. Instagram es solo quien tocó un link: Instagram no está conectado, así que no hay seguidores ni alcance.', legend(KW) + chart(webSer, KW, { label: 'Visitas por día' }), w.total + ' desde el lanzamiento')
+            + card('Descargas por canal', 'Las que Apple atribuye a cada link. Se cargan a mano en "Lugares y links".', chanKeys.length ? '<div class="funnel">' + chanKeys.map(function (k) { return stepRow(k, chan[k].dl, chanMax, C1, chan[k].n + ' ' + plural(chan[k].n, 'link', 'links')); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>', chanKeys.some(function (k) { return chan[k].dl; }) ? '' : 'ninguna cargada todavía')
+            + card('Invitaciones', 'Cuántas llegan a destino.' + (inv.median_hours != null ? ' Tardan ' + minsWord(Number(inv.median_hours) * 60) + ' en aceptarla.' : ''), '<div class="funnel">' + stepRow('Enviadas', inv.sent, inv.sent) + stepRow('Aceptadas', inv.accepted, inv.sent) + stepRow('Esperando', inv.waiting, inv.sent, C3) + '</div>')
+            + card('Dónde se quedan', 'El último paso del armado de quienes no lo terminaron.', dropTot ? '<div class="funnel">' + Object.keys(dropped).sort(function (a, b) { return dropped[b] - dropped[a]; }).map(function (k) { return stepRow(k, dropped[k], dropTot); }).join('') + '</div>' : '<p class="quiet">Nadie se quedó a mitad de camino.</p>', en.onboarding_completed + ' de ' + en.onboarding_started + ' lo terminan')
             + '</div>';
-
-          // nidis table
-          html += '<h2>Familias <small>' + activeNidis.length + ' con las dos casas · ' + pendingNidis.length + ' esperando</small></h2><div class="card"><div class="tablewrap"><table><tr><th>Familia</th><th>Estado</th><th class="num">Momentos</th><th>Quién manda</th><th>Último momento</th><th>Ritmo</th><th>Plan</th></tr>';
-          if (!s.nidis.length) html += '<tr><td colspan="7" class="quiet">Todavía ninguno.</td></tr>';
-          var personOf = function (name) { return people[String(name || '').trim().split(/\s+/)[0].toLowerCase()] || null; };
-          s.nidis.forEach(function (n) {
-            var hrs = n.last_moment ? (Date.now() - new Date(n.last_moment).getTime()) / 36e5 : null;
-            var health = n.status !== 'active' ? 'n' : hrs == null ? 'r' : hrs < 24 ? 'g' : hrs < 72 ? 'y' : 'r';
-            var tot = (n.moments_a + n.moments_b) || 1;
-            var pa = personOf(n.a), pb = personOf(n.b);
-            var plan = (pa && pa.paid) || (pb && pb.paid) ? '<span class="ok">Paga</span>'
-              : (pa && pa.gift) || (pb && pb.gift) ? '<span class="ok">Año gratis</span>'
-              : n.activated_at ? 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + 14 * 864e5).toISOString()) + '</span>'
-              : '<span class="quiet">Prueba, empieza cuando entre la otra casa</span>';
-            html += '<tr><td><span class="health ' + health + '"></span>' + esc(n.a) + (n.status === 'pending' ? ' <span class="quiet">→ ' + esc(n.invitee || 'la otra casa') + '</span>' : '') + '</td>'
-              + '<td><span class="pill ' + esc(n.status) + '">' + (n.status === 'active' ? 'activo' : n.status === 'pending' ? 'esperando' : esc(n.status)) + '</span>' + (n.status === 'pending' && n.pending_invite_at ? '<div class="quiet">' + (n.pending_invite_opened ? 'abrió la invitación' : 'no abrió la invitación') + '</div>' : '') + '</td>'
-              + '<td class="num">' + n.moments + '</td>'
-              + '<td><span class="quiet">' + esc(n.a) + ' ' + n.moments_a + ' · ' + esc(n.b || '—') + ' ' + n.moments_b + '</span><span class="bars2"><i style="width:' + pct(n.moments_a, tot) + '%;background:var(--olive)"></i><i style="width:' + pct(n.moments_b, tot) + '%;background:var(--lagoon)"></i></span></td>'
-              + '<td>' + (hrs == null ? '<span class="quiet">nunca</span>' : '<span class="' + (hrs < 24 ? 'ok' : hrs < 72 ? 'meh' : 'warn') + '">hace ' + hoursWord(hrs) + '</span>') + '</td>'
-              + '<td>' + (n.median_gap_hours == null ? '<span class="quiet">—</span>' : 'cada ~' + hoursWord(n.median_gap_hours)) + '</td>'
-              + '<td>' + plan + '</td></tr>';
-          });
-          html += '</table></div><div class="foot">Ritmo: tiempo típico entre dos momentos de esa familia. Plan: quién sostiene el nidi; la prueba son 14 días desde que entra la otra casa.</div></div>';
-
-          html += '<h2>Suscripciones <small>' + m.paid_active + ' pagas · ' + m.gifts_redeemed + ' de ' + m.gifts_sent + ' nidis gratis entregados ya activos</small></h2><div class="two">'
-            + '<div class="card"><div class="title">Pagas <span>' + m.paid_active + ' · ≈ USD ' + m.proceeds_usd_estimate + ' netos</span></div><div class="tablewrap"><table><tr><th>Quién</th><th>Plan</th><th>País</th><th class="num">Pagó</th><th>Renueva</th></tr>';
-          m.paid_list.forEach(function (p) { html += '<tr><td>' + esc(p.who) + '</td><td>' + (p.product === 'nidi_monthly' ? 'Mensual' : 'Anual') + '</td><td>' + esc(p.country || '—') + '</td><td class="num">' + (p.price != null ? Math.round(p.price) + ' ' + esc(p.currency || '') : '—') + '</td><td>' + dmyLong(p.ends) + '</td></tr>'; });
-          html += '</table></div><div class="foot">Neto estimado USD ' + m.proceeds_usd_estimate + ' tras el 15% de Apple e impuestos; el pago de Apple llega ~33 días después de cerrar el mes.</div></div>'
-            + '<div class="card"><div class="title">Nidis gratis (Friends &amp; Family) <span>' + m.gifts_redeemed + ' / ' + m.gifts_sent + ' entregados</span></div><div class="tablewrap"><table><tr><th>Quién</th><th>Desde</th><th>Termina</th><th>Cómo llegó</th></tr>';
-          m.gifts_list.forEach(function (g) { html += '<tr><td>' + esc(g.who) + '</td><td>' + dmy(g.since) + '</td><td>' + dmyLong(g.ends) + '</td><td class="quiet">' + esc(g.via) + '</td></tr>'; });
-          html += '</table></div><div class="foot">500 códigos en total, válidos hasta el 31/01/2027, sin renovación automática. "Entregados" sale de los contactos marcados como regalo.</div></div></div>';
+          var co = s.countries || {}, acc = co.accounts || {}, accK = Object.keys(acc), accT = accK.reduce(function (a, k) { return a + acc[k]; }, 0);
+          var ast = d.appstore || [], votes = ast.reduce(function (a, r) { return a + r.count; }, 0);
+          var reviews = []; ast.forEach(function (r) { (r.reviews || []).forEach(function (v) { reviews.push(Object.assign({ country: r.country }, v)); }); });
+          reviews.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+          html += '<div class="two" style="margin-top:10px">'
+            + card('Países', 'Dónde viven las personas con cuenta.', accK.length ? '<div class="funnel">' + accK.map(function (k) { return stepRow(k === '?' ? 'Sin dato' : regionName(k), acc[k], accT, C1); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>')
+            + card('App Store', 'Calificaciones y reseñas por país. Las descargas por país están en App Store Connect.', (ast.length ? '<table>' + ast.map(function (r) { return '<tr><td>' + esc(r.country) + '</td><td class="num">' + (r.rating != null ? r.rating.toFixed(1) + ' ★' : '—') + '</td><td class="num quiet">' + r.count + ' ' + plural(r.count, 'voto', 'votos') + '</td></tr>'; }).join('') + '</table>' : '<p class="quiet">Todavía ninguna.</p>') + (reviews.length ? '<details class="data"><summary>Reseñas (' + reviews.length + ')</summary>' + reviews.map(function (v) { return '<div class="rev"><b>' + '★'.repeat(v.rating) + '</b> ' + esc(v.title) + ' <span class="quiet">· ' + esc(v.author) + ' · ' + dmy(v.date) + '</span><div>' + esc(v.body) + '</div></div>'; }).join('') + '</details>' : ''), votes ? votes + ' ' + plural(votes, 'voto', 'votos') : '')
+            + '</div>';
 
           // the route map, and under it every link with its numbers
           var CH_L = { facebook: 'Facebook', instagram: 'Instagram', whatsapp: 'WhatsApp', mail: 'Mail', slack: 'Slack', web: 'Web', press: 'Prensa', other: 'Otro' };
           var PK_L = { post: 'Post', mail: 'Mail', dm: 'Mensaje', story: 'Historia', link: 'Link', press: 'Nota', talk: 'Boca en boca' };
           var countryOpts = function () { var W = window.NIDI_WORLD; if (!W) return ''; return '<option value="">País (si lo sabés)</option>' + Object.keys(W.countries).map(function (c) { return [regionName(c), c]; }).sort(function (a, b) { return a[0].localeCompare(b[0], 'es'); }).map(function (o) { return '<option value="' + o[1] + '">' + esc(o[0]) + '</option>'; }).join(''); };
           var places = d.campaigns.slice().sort(function (a, b) { return String(b.since).localeCompare(String(a.since)); });
-          html += '<h2>Dónde está Nidi <small>hasta dónde la llevaste y hasta dónde llegó sola</small></h2><div class="card"><div id="routemap"></div>'
-            + '<details class="add" id="campdetails" style="margin-top:14px"><summary>Links y lugares (' + places.length + ')</summary><div class="tablewrap" style="margin-top:8px"><table><tr><th>Cuándo</th><th>Dónde</th><th>Lugar</th><th class="num">Alcance</th><th class="num">Descargas</th><th>Qué pasó</th><th></th></tr>';
+          html += '<h2>Dónde está Nidi</h2><div class="card"><div id="routemap"></div>'
+            + '<details class="add" id="campdetails" style="margin-top:14px"><summary>Lugares y links (' + places.length + ')</summary><div class="tablewrap" style="margin-top:8px"><table><tr><th>Cuándo</th><th>Dónde</th><th>Lugar</th><th class="num">Alcance</th><th class="num">Descargas</th><th>Qué pasó</th><th></th></tr>';
           places.forEach(function (c) {
             html += '<tr><td>' + dmy(c.since) + '</td><td>' + esc(c.name) + '<br><span class="quiet">' + esc(c.where_used) + ' · <code>' + esc(c.ct) + '</code></span></td><td class="quiet">' + (c.place_country ? esc(c.place_city || regionName(c.place_country)) : '—') + '</td><td class="num quiet">' + (c.audience ? '~' + c.audience.toLocaleString('es-AR') : '—') + '</td><td class="num">' + (c.downloads || 0) + '</td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-camp=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
           });
-          html += '</table></div><div class="foot">Descargas: las que Apple atribuye al link de ese lugar (App Store Connect → Analytics → Acquisition → Campaigns, un día de atraso); se copian a mano hasta conectar la API. Alcance: cuánta gente podía verlo, lo cargás vos.</div>'
+          html += '</table></div>'
             + '<form class="row" id="campform"><input name="name" placeholder="nombre (ej. Haarlem Expats)" required maxlength="80" /><input name="ct" placeholder="ct= (ej. haarlem-expats)" required pattern="[a-z0-9_-]{1,40}" />'
             + '<select name="kind">' + Object.keys(PK_L).map(function (k) { return '<option value="' + k + '">' + PK_L[k] + '</option>'; }).join('') + '</select>'
             + '<select name="channel">' + Object.keys(CH_L).map(function (k) { return '<option value="' + k + '">' + CH_L[k] + '</option>'; }).join('') + '</select>'
@@ -695,12 +683,12 @@
             + '<textarea class="full" name="note" placeholder="qué pasó ahí (sin emails)" maxlength="500"></textarea><div class="full"><button class="primary" type="submit">Guardar</button></div></form></details></div>';
 
           // contacts pipeline
+          var people = d.people || {};
           var STATUS_L = { candidate: 'Candidata', sent: 'Enviado', replied: 'Respondió', no_answer: 'Sin respuesta', declined: 'No le interesa', done: 'Listo' };
           var inNidi = function (name) {
             var key = String(name || '').trim().split(/\s+/)[0].replace(/^@/, '').toLowerCase();
             var p = people[key]; if (!p) return '<span class="quiet">—</span>';
-            var bits = [];
-            bits.push('<span class="ok">cuenta</span>');
+            var bits = ['<span class="ok">cuenta</span>'];
             if (p.has_nidi) bits.push('<span class="ok">nidi</span>');
             if (p.activated) bits.push('<span class="ok">las dos casas</span>');
             if (p.paid) bits.push('<span class="ok">paga</span>'); else if (p.gift) bits.push('<span class="ok">año gratis</span>');
@@ -709,11 +697,10 @@
           };
           var KIND_L = { gift: 'regalo', pitch: 'prensa', post: 'post', review_ask: 'reseña', follow_up: 'seguimiento', other: 'otro' };
           var counts = {}; d.contacts.forEach(function (c) { counts[c.status] = (counts[c.status] || 0) + 1; });
-          var reached = d.contacts.filter(function (c) { return c.status !== 'candidate'; }).length;
-          html += '<h2>Contactos <small>' + reached + ' contactados · "Respuesta" la cargás vos; "En Nidi" lo lee la app sola</small></h2><div class="card"><div class="pipe">'
+          html += '<h2>Contactos</h2><div class="card"><div class="pipe">'
             + '<button data-filter="all" aria-pressed="' + (CONTACT_FILTER === 'all') + '"><div class="n">' + d.contacts.length + '</div><div class="l">Todos</div></button>'
             + ['candidate', 'sent', 'replied', 'no_answer', 'declined', 'done'].map(function (k) { return '<button data-filter="' + k + '" aria-pressed="' + (CONTACT_FILTER === k) + '"><div class="n">' + (counts[k] || 0) + '</div><div class="l">' + STATUS_L[k] + '</div></button>'; }).join('')
-            + '</div><div class="tablewrap"><table><tr><th>Quién</th><th>Canal</th><th>Qué</th><th>Cuándo</th><th>Respuesta</th><th>En Nidi (automático)</th><th>Nota</th><th></th></tr>';
+            + '</div><div class="tablewrap"><table><tr><th>Quién</th><th>Canal</th><th>Qué</th><th>Cuándo</th><th>Respuesta</th><th>En Nidi</th><th>Nota</th><th></th></tr>';
           d.contacts.filter(function (c) { return CONTACT_FILTER === 'all' || c.status === CONTACT_FILTER; }).forEach(function (c) {
             html += '<tr><td>' + esc(c.name) + '</td><td class="quiet">' + esc(c.channel) + '</td><td class="quiet">' + KIND_L[c.kind] + '</td><td>' + dmy(c.sent_at) + '</td><td><span class="pill ' + esc(c.status) + '">' + (STATUS_L[c.status] || esc(c.status)) + '</span></td><td class="quiet">' + inNidi(c.name) + '</td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-edit=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
           });
@@ -724,39 +711,90 @@
             + '<select name="status">' + Object.keys(STATUS_L).map(function (k) { return '<option value="' + k + '">' + STATUS_L[k] + '</option>'; }).join('') + '</select>'
             + '<input name="sent_at" type="date" /><input name="place_city" placeholder="Ciudad (si la sabés)" maxlength="60" /><select name="place_country">' + countryOpts() + '</select><textarea class="full" name="note" placeholder="nota (sin emails)" maxlength="500"></textarea>'
             + '<div class="full"><button class="primary" type="submit" id="contactsave">Guardar</button> <button type="button" class="ghost" id="contactclear">Limpiar</button> <button type="button" class="link" id="contactdelete" hidden>Borrar este contacto</button></div></form></details></div>';
+          return html;
+        }
 
-          // countries
-          var co = s.countries || { accounts: {}, web: {} };
-          var ctab = function (obj, label) { var ks = Object.keys(obj || {}); var tot = ks.reduce(function (a, k) { return a + obj[k]; }, 0); return '<div class="card"><div class="title">' + label + ' <span>' + tot + '</span></div><table>' + ks.map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="num">' + obj[k] + '</td><td style="width:40%"><div class="bar" style="height:8px;background:var(--line2);border-radius:4px"><i style="display:block;height:100%;width:' + pct(obj[k], tot) + '%;background:var(--lagoon);border-radius:4px"></i></div></td></tr>'; }).join('') + '</table></div>'; };
-          var ast = d.appstore || [];
-          var webKnown = {}; Object.keys(co.web || {}).forEach(function (k) { if (k !== '?') webKnown[k] = co.web[k]; });
-          html += '<h2>Países</h2><div class="three">' + ctab(co.accounts, 'Personas de afuera con cuenta') + (Object.keys(webKnown).length ? ctab(webKnown, 'Visitas a nidi.life') : '<div class="card"><div class="title">Visitas a nidi.life</div><p class="quiet" style="margin:0">La web no guarda el país de quien la visita (sin rastreo, a propósito). Los países de las descargas están en App Store Connect.</p></div>')
-            + '<div class="card"><div class="title">Calificaciones App Store <span>' + ast.reduce(function (a, r) { return a + r.count; }, 0) + '</span></div><table>' + (ast.length ? ast.map(function (r) { return '<tr><td>' + esc(r.country) + '</td><td class="num">' + (r.rating != null ? r.rating.toFixed(1) + ' ★' : '—') + '</td><td class="num quiet">' + r.count + ' ' + plural(r.count, 'voto', 'votos') + '</td></tr>'; }).join('') : '<tr><td class="quiet">Todavía ninguna.</td></tr>') + '</table><div class="foot">Las descargas por país están en App Store Connect hasta conectar la API.</div></div></div>';
-
-          // reviews
-          var reviews = []; ast.forEach(function (r) { r.reviews.forEach(function (v) { reviews.push(Object.assign({ country: r.country }, v)); }); });
-          reviews.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
-          html += '<h2>Reseñas escritas <small>' + reviews.length + ' · tal como se ven en el App Store</small></h2><div class="card">';
-          if (!reviews.length) html += '<p class="quiet" style="margin:0">Todavía ninguna. Las calificaciones con estrellas solas no traen texto.</p>';
-          reviews.forEach(function (v) { html += '<div style="padding:10px 0;border-bottom:1px solid var(--line2)"><div><strong>' + '★'.repeat(v.rating) + '<span class="quiet">' + '★'.repeat(5 - v.rating) + '</span></strong> &nbsp;' + esc(v.title) + ' <span class="quiet">· ' + esc(v.author) + ' · ' + esc(v.country) + ' · ' + dmy(v.date) + '</span></div><div class="quiet" style="margin-top:4px;color:var(--ink)">' + esc(v.body) + '</div></div>'; });
-          html += '</div>';
-
-          // links
-          html += '<h2>Accesos</h2><div class="links">'
-            + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect · Analytics</a>'
-            + '<a href="https://appstoreconnect.apple.com/apps/6774968835/distribution/ratings" target="_blank" rel="noopener">Reseñas</a>'
-            + '<a href="https://app.revenuecat.com" target="_blank" rel="noopener">RevenueCat</a>'
-            + '<a href="https://supabase.com/dashboard/project/orqdnuikcdskmvorchly" target="_blank" rel="noopener">Supabase</a>'
-            + '<a href="https://www.instagram.com/hello.nidi/" target="_blank" rel="noopener">@hello.nidi</a>'
-            + '<a href="https://drive.google.com/drive/folders/1DipIvwK3fUR_YR85jdYm6CTT7WwJ-UdH" target="_blank" rel="noopener">Tandas de Instagram</a>'
-            + '<a href="https://nidi.life/prensa/" target="_blank" rel="noopener">Kit de prensa</a>'
+        function tabUso(d, st, s, gr, ser) {
+          var en = s.engagement || {}, bt = s.moments.by_type || {}, tot = (bt.photo || 0) + (bt.voice_note || 0) + (bt.text || 0);
+          var html = '<div class="kpis">'
+            + tile('Momentos', 'Fotos, audios y textos enviados desde el lanzamiento.', s.moments.total, '', s.moments.last_24h + ' en 24 h')
+            + tile('Notas', 'Respuestas escritas sobre un momento. Muchas veces así responde la casa lejana.', s.moments.notes, '', '')
+            + tile('Tiempo por día', 'Estimado: del primer al último evento de cada visita, por persona en un día que abrió Nidi. Nidi no mide la pantalla.', minsWord(en.minutes_per_active_day), '', 'por persona')
+            + tile('Una visita', 'Lo que dura una visita típica, estimado igual. Las de un solo evento no cuentan.', minsWord(en.session_median_min), '', String(en.sessions_per_user_day || 0).replace('.', ',') + ' visitas por día')
+            + tile('Empiezan y envían', 'De las veces que abren para mandar algo, cuántas terminan enviándolo.', pct(en.capture_completed, en.capture_started) + '%', '', en.capture_completed + ' de ' + en.capture_started)
+            + tile('Avisos', 'Quienes aceptaron recibir avisos, y los avisos que se abrieron.', pct(en.notif_granted, en.notif_asked) + '%', '', en.push_opens + ' abiertos')
             + '</div>';
+          var KM = [{ k: 'minutes', color: C1, label: 'Minutos' }], KU = [{ k: 'active_users', color: C1, label: 'Personas' }];
+          html += '<div class="two" style="margin-top:10px">'
+            + card('Tiempo en Nidi por día', 'Minutos estimados sumando a todas las personas: del primer al último evento de cada visita, hasta 60 minutos por visita.', chart(ser, KM, { label: 'Minutos por día' }))
+            + card('Personas activas por día', 'Quienes abrieron Nidi ese día.', chart(ser, KU, { label: 'Personas activas por día' }))
+            + card('Qué comparten', 'Desde el lanzamiento. El porcentaje es sobre los momentos; las notas van aparte.', '<div class="funnel">' + stepRow('Fotos', bt.photo || 0, tot) + stepRow('Audios', bt.voice_note || 0, tot) + stepRow('Textos', bt.text || 0, tot) + stepRow('Notas', s.moments.notes || 0, Math.max(tot, s.moments.notes || 0), C2, '') + '</div>')
+            + card('Actividades o envío libre', 'Si lo que mandan salió de una actividad de Nidi o de "Algo de hoy".', '<div class="funnel">' + stepRow('De una actividad', s.moments.with_activity || 0, s.moments.total) + stepRow('Envío libre', s.moments.total - (s.moments.with_activity || 0), s.moments.total) + '</div>')
+            + card('Un momento que llega', 'Qué pasa con cada momento que llega a la otra casa. Responder es una nota o un momento de vuelta.', '<div class="funnel">' + stepRow('Lo abren', en.received_opened, en.received) + stepRow('En la primera hora', en.opened_within_1h, en.received) + stepRow('Responden en el día', en.answered_within_24h, en.received) + '</div>', en.median_min_to_open != null ? 'tardan ' + minsWord(en.median_min_to_open) : '')
+            + card('Cuándo comparten', 'Momentos por hora y día, hora de Ámsterdam.', hbars(en.by_hour, Array.from({ length: 24 }, function (_, i) { return i + ' h'; }), C1, 6) + '<div style="height:10px"></div>' + hbars(en.by_weekday, ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], C1, 1))
+            + '</div>';
+          // family by family
+          html += '<h2>Por familia</h2><div class="card"><div class="tablewrap"><table class="sticky"><tr><th>Familia</th><th class="num">Momentos</th><th class="num">Notas</th><th>Quién participa</th><th>Última vez</th><th>Ritmo</th><th>Plan</th></tr>';
+          if (!s.nidis.length) html += '<tr><td colspan="7" class="quiet">Todavía ninguna.</td></tr>';
+          var people = d.people || {};
+          var personOf = function (name) { return people[String(name || '').trim().split(/\s+/)[0].toLowerCase()] || null; };
+          s.nidis.slice().sort(function (a, b) { return (b.moments + b.notes) - (a.moments + a.notes); }).forEach(function (n) {
+            var hrs = sinceWord(n.last_moment);
+            var ta = n.moments_a + n.notes_a, tb = n.moments_b + n.notes_b, t = (ta + tb) || 1;
+            var pa = personOf(n.a), pb = personOf(n.b);
+            var plan = (pa && pa.paid) || (pb && pb.paid) ? 'Paga' : (pa && pa.gift) || (pb && pb.gift) ? 'Año gratis' : n.grp === 'family' ? '<span class="quiet">Familia</span>' : n.activated_at ? 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + 14 * 864e5).toISOString()) + '</span>' : '<span class="quiet">Prueba, sin empezar</span>';
+            html += '<tr><td><span class="health ' + (n.status !== 'active' ? 'n' : ({ ok: 'g', meh: 'y', warn: 'r' })[health(hrs)]) + '"></span>' + nidiName(n) + (n.status === 'pending' ? ' <span class="quiet">esperando</span>' : '') + '</td><td class="num">' + n.moments + '</td><td class="num">' + n.notes + '</td>'
+              + '<td><span class="quiet">' + esc(n.a) + ' ' + ta + (n.b ? ' · ' + esc(n.b) + ' ' + tb : '') + '</span><span class="bars2"><i style="width:' + pct(ta, t) + '%;background:' + C1 + '"></i><i style="width:' + pct(tb, t) + '%;background:' + C2 + '"></i></span></td>'
+              + '<td>' + (hrs == null ? '<span class="quiet">nunca</span>' : '<span class="' + health(hrs) + '">hace ' + hoursWord(hrs) + '</span>') + '</td>'
+              + '<td>' + (n.median_gap_hours == null ? '<span class="quiet">—</span>' : 'cada ~' + hoursWord(n.median_gap_hours)) + '</td><td>' + plan + '</td></tr>';
+          });
+          html += '</table></div></div>';
+          // person by person
+          var who = (st.people_detail || []).filter(function (p) { return VIEW === 'with_family' ? (p.group === 'outside' || p.days_active > 0) : p.group === 'outside'; });
+          html += '<h2>Por persona <small>desde el lanzamiento</small></h2><div class="card"><div class="tablewrap"><table class="sticky"><tr><th>Persona</th><th>Plan</th><th>Última vez</th><th class="num">Días</th><th class="num">Visitas</th><th class="num">Min</th><th class="num">Fotos</th><th class="num">Audios</th><th class="num">Textos</th><th class="num">Notas</th><th class="num">Abrió</th></tr>';
+          if (!who.length) html += '<tr><td colspan="11" class="quiet">Todavía nadie.</td></tr>';
+          who.forEach(function (p) {
+            var hrs = sinceWord(p.last_open);
+            var note = !p.has_profile ? 'sin terminar' + (p.last_step ? ': ' + (STEP_L[p.last_step] || p.last_step) : '') : p.with ? 'con ' + p.with : '';
+            html += '<tr><td>' + (p.name ? esc(p.name) : '<span class="quiet">Sin nombre · ' + dmy(p.at) + '</span>') + (p.group === 'family' ? ' <span class="pill">familia</span>' : '') + (note ? '<div class="quiet">' + esc(note) + '</div>' : '') + '</td><td>' + (p.has_profile || p.plan === 'gift' ? esc(PLAN_L[p.plan] || p.plan) : '<span class="quiet">—</span>') + '</td><td>' + (hrs == null ? '<span class="quiet">—</span>' : 'hace ' + hoursWord(hrs)) + '</td>'
+              + '<td class="num">' + p.days_active + '</td><td class="num">' + p.sessions + '</td><td class="num">' + (p.session_min == null ? '—' : String(p.session_min).replace('.', ',')) + '</td><td class="num">' + p.photos + '</td><td class="num">' + p.voices + '</td><td class="num">' + p.texts + '</td><td class="num">' + p.notes + '</td><td class="num">' + p.opened + '</td></tr>';
+          });
+          html += '</table></div></div>';
+          return html;
+        }
 
-          html += '<footer><span>Solo vos ves esto. Sin emails, sin rastreo.</span><button class="link" id="logout">Borrar la clave de este dispositivo</button></footer>';
-          app.innerHTML = html;
-          wire();
-          wireNews();
-          drawMap();
+        function tabRet(d, st, s, gr) {
+          var ret = s.retention, active = s.nidis.filter(function (n) { return n.status === 'active'; }), cad = s.cadence || {}, gb = cad.gap_buckets || {};
+          var gbTot = (gb.same_day || 0) + (gb.one_to_three_days || 0) + (gb.three_plus_days || 0), weeks = gr.weeks || [];
+          var html = '<div class="kpis">'
+            + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), 'esta semana')
+            + tile('Vuelven al otro día', 'De las cuentas con más de 48 h, cuántas abrieron Nidi al día siguiente.', ret.eligible_d1 ? pct(ret.d1, ret.eligible_d1) + '%' : '—', '', ret.d1 + ' de ' + ret.eligible_d1)
+            + tile('Ritmo', 'Tiempo típico entre un momento y el siguiente de una familia.', hoursWord(cad.median_gap_hours), '', 'mediana')
+            + '</div><div class="two" style="margin-top:10px">'
+            + card('Familias por semana', 'Familias donde las dos casas participaron cada semana. Lo que hay que mirar es si siguen en la semana 2 y la 4.', weeks.length ? '<div class="funnel">' + weeks.map(function (w) { return stepRow('Semana del ' + dmy(w.start + 'T12:00:00'), w.both_ways, gr.families, C1, 'de ' + (gr.families || 0)); }).join('') + '</div>' : '<p class="quiet">Todavía sin semanas.</p>')
+            + card('Quiénes vuelven', 'Cuentas nuevas desde el lanzamiento. La semana 1 se completa a los 8 días.', '<div class="funnel">' + stepRow('Al día siguiente', ret.d1, ret.eligible_d1) + stepRow('En la semana 1', ret.eligible_w1 ? ret.w1 : null, ret.eligible_w1, C1, ret.eligible_w1 ? null : 'pronto') + stepRow('En los últimos 7 días', ret.last7, ret.cohort) + stepRow('Participaron', ret.shared, ret.cohort) + '</div>', ret.cohort + ' ' + plural(ret.cohort, 'cuenta', 'cuentas'))
+            + card('Ahora mismo', 'Cuánto pasó desde la última participación de cada familia. Verde hasta 24 h, ámbar hasta 3 días, rojo después.', famNow(active))
+            + card('Cuánto tardan en volver', 'Tiempo entre dos momentos seguidos de una familia.', '<div class="funnel">' + stepRow('El mismo día', gb.same_day || 0, gbTot) + stepRow('1 a 3 días', gb.one_to_three_days || 0, gbTot) + stepRow('Más de 3 días', gb.three_plus_days || 0, gbTot) + '</div>')
+            + '</div>';
+          return html;
+        }
+
+        function tabIng(d, st, s) {
+          var m = s.money, en = s.engagement || {};
+          var html = '<div class="kpis">'
+            + tile('Pagas', 'Suscripciones reales activas. Las de prueba no cuentan.', m.paid_active, '', '')
+            + tile('Neto estimado', 'Después del 15% de la tienda e impuestos. Apple paga unos 33 días después de cerrar el mes.', 'USD ' + m.proceeds_usd_estimate, '', '')
+            + tile('Años gratis', 'Códigos canjeados y activos, sobre los entregados.', m.gifts_redeemed, 'de ' + m.gifts_sent, (m.gifts_total - m.gifts_sent) + ' libres')
+            + '</div><div style="margin-top:10px">'
+            + card('Paywall', 'Personas que lo vieron, tocaron pagar y pagaron.', '<div class="funnel">' + stepRow('Lo ven', en.paywall_viewed, en.paywall_viewed) + stepRow('Tocan pagar', en.purchase_started, en.paywall_viewed) + stepRow('Pagan', en.purchase_confirmed, en.paywall_viewed) + '</div>')
+            + '</div><h2>Pagas</h2><div class="card"><div class="tablewrap"><table><tr><th>Quién</th><th>Plan</th><th>País</th><th class="num">Pagó</th><th>Renueva</th></tr>';
+          if (!m.paid_list.length) html += '<tr><td colspan="5" class="quiet">Todavía nadie.</td></tr>';
+          m.paid_list.forEach(function (p) { html += '<tr><td>' + esc(p.who) + '</td><td>' + (String(p.product).indexOf('month') >= 0 ? 'Mensual' : 'Anual') + '</td><td>' + esc(p.country || '—') + '</td><td class="num">' + (p.price != null ? Math.round(p.price) + ' ' + esc(p.currency || '') : '—') + '</td><td>' + dmyLong(p.ends) + '</td></tr>'; });
+          html += '</table></div></div><h2>Años gratis</h2><div class="card"><div class="tablewrap"><table><tr><th>Quién</th><th>Desde</th><th>Termina</th><th>Cómo llegó</th></tr>';
+          if (!m.gifts_list.length) html += '<tr><td colspan="4" class="quiet">Todavía nadie.</td></tr>';
+          m.gifts_list.forEach(function (g) { html += '<tr><td>' + esc(g.who) + '</td><td>' + dmy(g.since) + '</td><td>' + dmyLong(g.ends) + '</td><td class="quiet">' + esc(g.via) + '</td></tr>'; });
+          html += '</table></div></div>';
+          return html;
         }
 
         function wire() {
@@ -765,7 +803,12 @@
           Array.prototype.forEach.call(document.querySelectorAll('[data-range]'), function (b) { b.onclick = function () { range = Number(b.getAttribute('data-range')); try { localStorage.setItem(RANGE_KEY, String(range)); } catch (e) {} render(); }; });
           Array.prototype.forEach.call(document.querySelectorAll('[data-filter]'), function (b) { b.onclick = function () { CONTACT_FILTER = b.getAttribute('data-filter'); render(); }; });
 
+          Array.prototype.forEach.call(document.querySelectorAll('[data-view]'), function (b) { b.onclick = function () { VIEW = b.getAttribute('data-view'); try { localStorage.setItem('nidi-hq-view', VIEW); } catch (e) {} render(); }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (b) { b.onclick = function () { TAB = b.getAttribute('data-tab'); try { localStorage.setItem('nidi-hq-tab', TAB); } catch (e) {} render(); window.scrollTo(0, 0); }; });
+          Array.prototype.forEach.call(document.querySelectorAll('.q'), function (b) { b.onclick = function (e) { e.stopPropagation(); var box = b.closest('.card,.kpi'), def = box && box.querySelector('.def'); if (!def) return; def.hidden = !def.hidden; b.setAttribute('aria-expanded', String(!def.hidden)); }; });
+
           var cf = document.getElementById('contactform'), cdet = document.getElementById('contactdetails'), del = document.getElementById('contactdelete');
+          if (!cf) return; // the forms live in Adquisición
           cf.onsubmit = function (e) {
             e.preventDefault();
             var fd = new FormData(cf), body = { action: 'contact_upsert' };
@@ -806,6 +849,20 @@
             };
           });
         }
+
+        // the hover layer: one tooltip, for whatever carries data-tip
+        var tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; document.body.appendChild(tip);
+        function showTip(e) {
+          var t = e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+          if (!t) { tip.hidden = true; return; }
+          tip.textContent = t.getAttribute('data-tip'); tip.hidden = false;
+          var p = e.touches ? e.touches[0] : e, w = tip.offsetWidth, x = Math.min(window.innerWidth - w - 8, Math.max(8, p.clientX - w / 2)), y = p.clientY - tip.offsetHeight - 12;
+          tip.style.left = x + 'px'; tip.style.top = Math.max(8, y) + 'px';
+        }
+        app.addEventListener('mousemove', showTip);
+        app.addEventListener('mouseleave', function () { tip.hidden = true; });
+        app.addEventListener('touchstart', showTip, { passive: true });
+        window.addEventListener('scroll', function () { tip.hidden = true; }, { passive: true });
 
         if (token) load(); else gate();
         document.addEventListener('visibilitychange', function () { if (!document.hidden && token && DATA) load(); });
