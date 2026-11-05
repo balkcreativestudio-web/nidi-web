@@ -170,10 +170,10 @@ EN = dict(
         ('How do I invite the other person?',
          'When you set up your nidi, you enter their name and email. Then '
          'send them the link from Today, by WhatsApp or whatever you use, '
-         'and an invitation also reaches their inbox. They get Nidi, tap I '
-         'was invited, and come in with that email. Nobody else can.'),
+         'and an invitation also reaches their inbox. They get Nidi, tap '
+         'Let\'s begin, and come in with that email. Nobody else can.'),
         ('I was invited. What do I do?',
-         'Get Nidi, tap I was invited and enter the email your invitation '
+         'Get Nidi, tap Let\'s begin and enter the email your invitation '
          'came to. We send you a code to come in. There is no invitation '
          'code to type.'),
         ('Can someone else from my home join?',
@@ -233,10 +233,10 @@ ES = dict(
         ('¿Cómo invito a la otra persona?',
          'Cuando armas tu nidi, escribes su nombre y su email. Después le '
          'mandas el link desde Hoy, por WhatsApp o por donde quieras, y '
-         'además le llega una invitación por email. Baja Nidi, toca Me '
-         'invitaron y entra con ese email. Nadie más puede.'),
+         'además le llega una invitación por email. Baja Nidi, toca Empecemos '
+         'y entra con ese email. Nadie más puede.'),
         ('Me invitaron. ¿Qué hago?',
-         'Baja Nidi, toca Me invitaron y escribe el email al que te llegó '
+         'Baja Nidi, toca Empecemos y escribe el email al que te llegó '
          'la invitación. Te mandamos un código para entrar. No hay ningún '
          'código de invitación para escribir.'),
         ('¿Puede sumarse alguien más de mi hogar?',
