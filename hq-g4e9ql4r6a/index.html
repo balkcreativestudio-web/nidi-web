@@ -204,6 +204,41 @@
       table.sticky th:first-child, table.sticky td:first-child { position:sticky; left:-16px; background:var(--paper); min-width:128px; }
       @media (max-width:560px) { header { flex-direction:column; align-items:flex-start; } .controls { justify-content:flex-start; } .kpi .v { font-size:30px; } .tabs button { font-size:13px; padding:9px 7px; } }
 
+      /* marketing: every action, what it cost, what it brought */
+      .kpis.four { grid-template-columns:repeat(4,1fr); }
+      @media (max-width:760px) { .kpis.four { grid-template-columns:repeat(2,1fr); } }
+      .goal-v { font-family:var(--serif); font-size:36px; line-height:1.05; }
+      .goal-v small { font-family:var(--sans); font-size:15px; color:var(--ink2); margin-left:6px; letter-spacing:.02em; }
+      .goal-bar { position:relative; height:10px; background:var(--line2); border-radius:5px; margin:16px 0 6px; }
+      .goal-bar i { position:absolute; left:0; top:0; bottom:0; background:var(--olive); border-radius:5px; }
+      .goal-bar b { position:absolute; top:-4px; bottom:-4px; width:2px; margin-left:-1px; background:var(--ink3); border-radius:1px; }
+      .goal-ticks { position:relative; height:16px; font-size:11px; color:var(--ink2); }
+      .goal-ticks span { position:absolute; transform:translateX(-50%); white-space:nowrap; }
+      .goal-ticks span.end { transform:translateX(-100%); }
+      .goal-ticks span.hit { color:var(--ink); font-weight:500; }
+      .pill.planned { background:var(--honey-soft); color:#7a5a16; }
+      .pill.paused { background:var(--rose-soft); color:var(--rose); }
+      table.mk td.nm { min-width:240px; }
+      table.mk td.when { white-space:nowrap; }
+      .mk-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+      .mk-top b { font-weight:500; }
+      .mk .meta { font-size:12px; color:var(--ink2); margin-top:2px; }
+      .mk .nt { font-size:13px; color:var(--ink2); margin-top:4px; max-width:34em; }
+      form.mkf { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); }
+      form.mkf .wide { grid-column:span 2; }
+      .f { display:flex; flex-direction:column; gap:4px; min-width:0; }
+      .f > span { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink2); }
+      @media (max-width:640px) {
+        .tablewrap.mkwrap { margin:0; padding:0; overflow:visible; }
+        table.mk, table.mk tbody, table.mk tr, table.mk td { display:block; }
+        table.mk thead { display:none; }
+        table.mk tr { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 12px; padding:14px 0; border-bottom:1px solid var(--line2); }
+        table.mk tr:last-child { border-bottom:0; }
+        table.mk td { padding:0; border:0; text-align:left; white-space:normal; }
+        table.mk td.nm { grid-column:1 / -1; min-width:0; }
+        table.mk td[data-l]::before { content:attr(data-l); display:block; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); margin-bottom:1px; }
+      }
+
       /* gate */
       .gate { max-width:400px; margin:18vh auto 0; text-align:center; }
       .gate h1 { font-size:34px; }
@@ -573,7 +608,7 @@
         // ── render ──────────────────────────────────────────────────────
         // Five rooms, and Externos / Con familia applies to all of them. Test
         // accounts are gone before the numbers get here (hq_group).
-        var TABS = [['resumen', 'Resumen'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos']];
+        var TABS = [['resumen', 'Resumen'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos'], ['mkt', 'Marketing']];
         var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
         var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando', invited_check: 'La pregunta' };
         var PLAN_L = { paid: 'Paga', gift: 'Año gratis', trial: 'Prueba', invited: 'Invitación' };
@@ -591,7 +626,7 @@
             + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
             + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</nav>';
-          html += ({ resumen: tabResumen, adq: tabAdq, uso: tabUso, ret: tabRet, ing: tabIng })[TAB](d, st, s, gr, ser, prev);
+          html += (({ resumen: tabResumen, adq: tabAdq, uso: tabUso, ret: tabRet, ing: tabIng, mkt: tabMkt })[TAB] || tabResumen)(d, st, s, gr, ser, prev);
           html += '<h2>Accesos</h2><div class="links">'
             + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect</a>'
             + '<a href="https://play.google.com/console/u/1/developers/6039865059263874705/app/4974103052168493706/app-dashboard" target="_blank" rel="noopener">Google Play</a>'
@@ -602,7 +637,11 @@
             + '<a href="https://nidi.life/prensa/" target="_blank" rel="noopener">Kit de prensa</a></div>';
           html += '<footer><span>Solo vos ves esto. Sin emails, sin rastreo.</span><button class="link" id="logout">Borrar la clave de este dispositivo</button></footer>';
           app.innerHTML = html;
+          // on a phone the last rooms sit past the edge: keep the open one in sight
+          var nav = app.querySelector('.tabs'), at = nav && nav.querySelector('[aria-selected="true"]');
+          if (at) { var nr = nav.getBoundingClientRect(), ar = at.getBoundingClientRect(); if (ar.right > nr.right) nav.scrollLeft += ar.right - nr.right + 12; }
           wire();
+          wireMk();
           wireNews();
           drawMap();
         }
@@ -801,6 +840,131 @@
           m.gifts_list.forEach(function (g) { html += '<tr><td>' + esc(g.who) + '</td><td>' + dmy(g.since) + '</td><td>' + dmyLong(g.ends) + '</td><td class="quiet">' + esc(g.via) + '</td></tr>'; });
           html += '</table></div></div>';
           return html;
+        }
+
+        // ── Marketing ───────────────────────────────────────────────────
+        // One row per action (hq_marketing), typed here. An empty result is
+        // "not known yet" and shows as —, never as 0. The goal (Maru,
+        // 2026-11-09): €1k net at least, €3k the target, €5k beyond, by 9/12.
+        var GOAL = { from: '2026-11-09', to: '2026-12-09', steps: [[1000, 'mínimo'], [3000, 'óptimo'], [5000, 'excede']] };
+        var MK_CH = { apple_ads: 'Apple Ads', ig_boost: 'Boost de Instagram', creators: 'Creadoras', press: 'Prensa', offer: 'Oferta', organic: 'Post orgánico', whatsapp: 'WhatsApp', other: 'Otro' };
+        var MK_KIND = { paid: 'Pago', free: 'Gratis', offer: 'Oferta' };
+        var MK_ST = { active: 'Activa', planned: 'Planeada', paused: 'Pausada', done: 'Terminada' };
+        function eur(n) { n = Math.round((Number(n) || 0) * 100) / 100; return '€' + n.toLocaleString('es-AR', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
+        function known(v) { return v !== null && v !== undefined && v !== ''; }
+        function costWord(cost, paid) { return paid ? '<span class="' + (cost <= 4 ? 'ok' : cost <= 8 ? 'meh' : 'warn') + '">' + eur(cost) + '</span>' : eur(cost); }
+        function day12(iso) { return dmy(iso + 'T12:00:00'); }
+
+        function tabMkt(d) {
+          var rows = d.marketing;
+          if (!Array.isArray(rows)) return card('Marketing', '', '<p class="quiet">El registro todavía no está activo: falta aplicar la migración hq_marketing y publicar la función.</p>');
+          // active first, and within each state what costs money first
+          var order = { active: 0, planned: 1, paused: 2, done: 3 }, korder = { paid: 0, offer: 1, free: 2 };
+          rows = rows.slice().sort(function (a, b) { return (order[a.status] - order[b.status]) || (korder[a.kind] - korder[b.kind]) || String(a.starts_on || '9999').localeCompare(String(b.starts_on || '9999')); });
+          var spent = sum(rows, 'spent_eur'), budget = sum(rows, 'budget_eur');
+          var withNet = rows.filter(function (r) { return known(r.net_eur); }), net = sum(withNet, 'net_eur');
+          var paidDl = rows.filter(function (r) { return r.kind === 'paid' && known(r.downloads); }), dlSpent = sum(paidDl, 'spent_eur'), dl = sum(paidDl, 'downloads');
+          var paidFam = rows.filter(function (r) { return r.kind === 'paid' && known(r.paying); }), famSpent = sum(paidFam, 'spent_eur'), fam = sum(paidFam, 'paying');
+          var html = '<div class="kpis four">'
+            + tile('Invertido', 'Lo gastado hasta hoy en todas las acciones. Lo previsto es la suma de los presupuestos.', eur(spent), '', budget ? 'de ' + eur(budget) + ' previstos' : '')
+            + tile('Ganado neto', 'Lo que dejaron las familias que pagaron, después de la tienda e impuestos. Se carga a mano en cada acción.', withNet.length ? eur(net) : '—', '', withNet.length ? (spent ? (net / spent).toFixed(1).replace('.', ',') + ' veces lo invertido' : '') : 'sin resultados cargados')
+            + tile('Costo por descarga', 'Solo acciones pagas con descargas cargadas: lo gastado dividido por sus descargas. Verde hasta €4, ámbar hasta €8, rojo después.', dl ? costWord(dlSpent / dl, true) : '—', '', dl ? dl + ' ' + plural(dl, 'descarga', 'descargas') + ' de acciones pagas' : paidDl.length && dlSpent ? '<span class="warn">' + eur(dlSpent) + ' sin descargas</span>' : 'sin descargas cargadas')
+            + tile('Costo por familia que paga', 'Solo acciones pagas con familias cargadas: lo gastado dividido por las familias que pagan.', fam ? eur(famSpent / fam) : '—', '', fam ? fam + ' ' + plural(fam, 'familia', 'familias') : paidFam.length && famSpent ? '<span class="warn">' + eur(famSpent) + ' sin familias</span>' : 'sin familias cargadas')
+            + '</div>';
+
+          // the 30-day goal
+          // 30 days: 9/11 is day 1, 8/12 day 30; it ends as 9/12 begins
+          var dayMs = 864e5, today = new Date(), end = new Date(GOAL.to + 'T00:00:00'), start = new Date(GOAL.from + 'T00:00:00');
+          var dayN = Math.min(30, Math.max(1, Math.floor((today - start) / dayMs) + 1)), left = Math.max(0, Math.ceil((end - today) / dayMs));
+          var top = GOAL.steps[GOAL.steps.length - 1][0], next = GOAL.steps.filter(function (g) { return net < g[0]; })[0];
+          var bar = '<div class="goal-bar" role="img" aria-label="' + esc(eur(net) + ' de ' + eur(top)) + '"><i style="width:' + Math.min(100, net / top * 100).toFixed(1) + '%"></i>'
+            + GOAL.steps.map(function (g) { return '<b style="left:' + (g[0] / top * 100) + '%"></b>'; }).join('') + '</div>'
+            + '<div class="goal-ticks">' + GOAL.steps.map(function (g, i) { return '<span class="' + (i === GOAL.steps.length - 1 ? 'end' : '') + (net >= g[0] ? ' hit' : '') + '" style="left:' + (g[0] / top * 100) + '%">€' + (g[0] / 1000) + 'k ' + g[1] + '</span>'; }).join('') + '</div>';
+          html += '<div style="margin-top:10px">' + card('Meta de 30 días', 'Suma de los € netos cargados en las acciones. €1k es el mínimo, €3k el óptimo y €5k excede lo esperado.',
+            '<div class="goal-v">' + eur(net) + '<small>' + (next ? 'de ' + eur(next[0]) + ' (' + next[1] + ')' : 'pasaste los €5k') + '</small></div><div class="d quiet">' + (left ? 'Día ' + dayN + ' de 30 · ' + (left === 1 ? 'falta 1 día' : 'faltan ' + left + ' días') : 'Terminó el 9/12') + '</div>' + bar,
+            'hasta el 9/12') + '</div>';
+
+          // the actions
+          var num = function (v) { return known(v) ? Number(v).toLocaleString('es-AR') : '<span class="quiet">—</span>'; };
+          html += '<h2>Acciones <small>' + rows.length + '</small></h2><div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th>Estado</th><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th><th class="num">Pagan</th><th class="num">Neto</th><th class="num">€/descarga</th></tr></thead><tbody>';
+          if (!rows.length) html += '<tr><td colspan="10" class="quiet">Todavía ninguna.</td></tr>';
+          rows.forEach(function (r) {
+            var when = r.starts_on ? day12(r.starts_on) + ' → ' + (r.ends_on ? day12(r.ends_on) : '') : r.ends_on ? 'hasta ' + day12(r.ends_on) : '<span class="quiet">sin fecha</span>';
+            var cpd = Number(r.spent_eur) > 0 && known(r.downloads) ? (Number(r.downloads) ? costWord(r.spent_eur / r.downloads, r.kind === 'paid') : '<span class="warn">sin descargas</span>') : '<span class="quiet">—</span>';
+            html += '<tr><td class="nm"><div class="mk-top"><b>' + esc(r.name) + '</b><button class="link" data-mk=\'' + esc(JSON.stringify(r)) + '\'>editar</button></div>'
+              + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + '</div>'
+              + (r.note ? '<div class="nt">' + esc(r.note) + '</div>' : '') + '</td>'
+              + '<td class="when" data-l="Cuándo">' + when + '</td>'
+              + '<td data-l="Estado"><span class="pill ' + esc(r.status) + '">' + esc(MK_ST[r.status] || r.status) + '</span></td>'
+              + '<td class="num" data-l="Gastado">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '</td>'
+              + '<td class="num" data-l="Descargas">' + num(r.downloads) + '</td>'
+              + '<td class="num" data-l="Cuentas">' + num(r.accounts) + '</td>'
+              + '<td class="num" data-l="Nidis">' + num(r.nidis) + '</td>'
+              + '<td class="num" data-l="Pagan">' + num(r.paying) + '</td>'
+              + '<td class="num" data-l="Neto">' + (known(r.net_eur) ? eur(r.net_eur) : '<span class="quiet">—</span>') + '</td>'
+              + '<td class="num" data-l="€/descarga">' + cpd + '</td></tr>';
+          });
+          html += '</tbody></table></div>';
+
+          var opts = function (map) { return Object.keys(map).map(function (k) { return '<option value="' + k + '">' + esc(map[k]) + '</option>'; }).join(''); };
+          var f = function (label, input, cls) { return '<label class="f' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span>' + input + '</label>'; };
+          var money = function (name) { return '<input name="' + name + '" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" autocomplete="off" />'; };
+          var count = function (name) { return '<input name="' + name + '" type="number" min="0" step="1" inputmode="numeric" />'; };
+          html += '<details class="add" id="mkdetails" style="margin-top:12px"><summary>Agregar acción</summary><form class="row mkf" id="mkform"><input type="hidden" name="id" />'
+            + f('Nombre', '<input name="name" required maxlength="80" />', 'wide')
+            + f('Canal', '<select name="channel">' + opts(MK_CH) + '</select>')
+            + f('Tipo', '<select name="kind">' + opts(MK_KIND) + '</select>')
+            + f('Estado', '<select name="status"><option value="planned">Planeada</option><option value="active">Activa</option><option value="paused">Pausada</option><option value="done">Terminada</option></select>')
+            + f('Empieza', '<input name="starts_on" type="date" />')
+            + f('Termina', '<input name="ends_on" type="date" />')
+            + f('Presupuesto €', money('budget_eur'))
+            + f('Gastado €', money('spent_eur'))
+            + f('Descargas', count('downloads'))
+            + f('Cuentas nuevas', count('accounts'))
+            + f('Nidis creados', count('nidis'))
+            + f('Familias que pagan', count('paying'))
+            + f('Neto ganado €', money('net_eur'))
+            + f('Link ct', '<input name="ct" placeholder="ej. ig-boost" pattern="[a-z0-9_\\-]{1,40}\\*?" maxlength="41" autocomplete="off" />')
+            + f('Notas', '<textarea name="note" maxlength="500" placeholder="sin emails"></textarea>', 'full')
+            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero.</p>'
+            + '<div class="full"><button class="primary" type="submit" id="mksave">Guardar</button> <button type="button" class="ghost" id="mkclear">Limpiar</button> <button type="button" class="link" id="mkdelete" hidden>Borrar esta acción</button></div></form></details></div>';
+          return html;
+        }
+
+        function wireMk() {
+          var mf = document.getElementById('mkform'), det = document.getElementById('mkdetails'), del = document.getElementById('mkdelete');
+          if (!mf) return;
+          var MONEY = ['budget_eur', 'spent_eur', 'net_eur'], COUNTS = ['downloads', 'accounts', 'nidis', 'paying'];
+          var reset = function () { mf.reset(); mf.id.value = ''; del.hidden = true; det.querySelector('summary').textContent = 'Agregar acción'; };
+          mf.onsubmit = function (e) {
+            e.preventDefault();
+            var fd = new FormData(mf), body = { action: 'marketing_upsert' }, bad = false;
+            ['name', 'channel', 'kind', 'status', 'starts_on', 'ends_on', 'ct', 'note'].forEach(function (k) { body[k] = String(fd.get(k) || '').trim(); });
+            MONEY.forEach(function (k) { var v = String(fd.get(k) || '').trim().replace(',', '.'); body[k] = v === '' ? null : Number(v); if (v !== '' && !isFinite(body[k])) bad = true; });
+            COUNTS.forEach(function (k) { var v = String(fd.get(k) || '').trim(); body[k] = v === '' ? null : Number(v); });
+            if (bad) { alert('Revisá los montos: solo números, con coma para los centavos.'); return; }
+            if (body.starts_on && body.ends_on && body.ends_on < body.starts_on) { alert('Termina antes de empezar.'); return; }
+            if (fd.get('id')) body.id = fd.get('id');
+            document.getElementById('mksave').disabled = true;
+            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert(err.message === 'bad_marketing' ? 'No se guardó: revisá los campos. Las notas no pueden llevar emails.' : 'No se guardó: ' + err.message); document.getElementById('mksave').disabled = false; });
+          };
+          document.getElementById('mkclear').onclick = reset;
+          del.onclick = function () {
+            if (!mf.id.value || !confirm('¿Borrar esta acción del registro?')) return;
+            api('POST', { action: 'marketing_delete', id: mf.id.value }).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se borró: ' + err.message); });
+          };
+          Array.prototype.forEach.call(document.querySelectorAll('[data-mk]'), function (b) {
+            b.onclick = function () {
+              var r = JSON.parse(b.getAttribute('data-mk'));
+              reset();
+              mf.id.value = r.id; mf.name.value = r.name; mf.channel.value = r.channel; mf.kind.value = r.kind; mf.status.value = r.status;
+              mf.starts_on.value = r.starts_on || ''; mf.ends_on.value = r.ends_on || ''; mf.ct.value = r.ct || ''; mf.note.value = r.note || '';
+              MONEY.forEach(function (k) { mf[k].value = known(r[k]) ? String(Number(r[k])).replace('.', ',') : ''; });
+              COUNTS.forEach(function (k) { mf[k].value = known(r[k]) ? r[k] : ''; });
+              del.hidden = false; det.open = true; det.querySelector('summary').textContent = 'Editando: ' + r.name;
+              det.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+          });
         }
 
         function wire() {
