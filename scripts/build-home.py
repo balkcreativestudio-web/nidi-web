@@ -25,7 +25,14 @@ import re
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 APP_LIVE = True
-APP_STORE_URL = 'https://apps.apple.com/app/id6774968835'
+APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8'
+
+# PLAY_LIVE: False until Google publishes Nidi on Google Play (the store
+# page answers 404 until then). Flip it and run this again, and a line
+# "On Android? Get it on Google Play" appears under each App Store button.
+# The invitation page (404.html) has its own PLAY_LIVE.
+PLAY_LIVE = False
+PLAY_URL = 'https://play.google.com/store/apps/details?id=life.nidi.app&referrer=utm_source%3Dnidi_web'
 
 # The wordmark artwork lives in index.html (every build script reads it
 # from there), so it is lifted from the page this overwrites.
@@ -36,7 +43,7 @@ WORDMARK_CTA = WORDMARK.replace('class="wordmark"', 'class="wordmark wordmark-cr
                        .replace('role="img" aria-label="nidi" ', '')
 
 TEMPLATE = r'''<!doctype html>
-<html lang="@@LANG@@" data-live="@@LIVE@@">
+<html lang="@@LANG@@" data-live="@@LIVE@@" data-play="@@PLAY@@">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -178,6 +185,9 @@ TEMPLATE = r'''<!doctype html>
       html[data-live="true"] .live-only { display: block; }
       html[data-live="true"] .soon-only { display: none; }
       html[data-live="true"] a.live-only.btn { display: inline-flex; }
+      .play-only { display: none; }
+      html[data-play="true"] .play-only { display: block; }
+      .play-only a { color: inherit; }
       @media (max-width: 520px) { form.wl { flex-direction: column; } form.wl .btn { width: 100%; } }
 
       /* ── Header ───────────────────────────────────────────────────── */
@@ -927,8 +937,22 @@ TEMPLATE = r'''<!doctype html>
           var p = location.pathname;
           // The label on our own links (nidi.life/?ref=ig in the Instagram bio). The function keeps only ig, ig-story, wa or li.
           var ref = (location.search.match(/[?&]ref=(ig|ig-story|wa|li)(?:&|$)/) || [])[1] || null;
-          var body = JSON.stringify({ path: p.indexOf("/join/") === 0 ? "/join/:code" : p, referrer: document.referrer || null, lang: document.documentElement.lang === "es" ? "es" : "en", ref: ref });
-          fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: body, credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});
+          // The time zone the browser is set to. The function turns it into a country (AR, NL) and stores only that (2026-11-09).
+          var tz = null;
+          try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) {}
+          var send = function (extra) {
+            var o = { path: p.indexOf("/join/") === 0 ? "/join/:code" : p, lang: document.documentElement.lang === "es" ? "es" : "en", ref: ref, tz: tz };
+            for (var k in extra) o[k] = extra[k];
+            fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(o), credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});
+          };
+          send({ referrer: document.referrer || null });
+          // A tap on a store button counts as a click: which store, on which page, nothing else (2026-11-09).
+          document.addEventListener("click", function (e) {
+            var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+            if (!a) return;
+            var t = /^https:\/\/apps\.apple\.com\//.test(a.href) ? "app_store" : /^https:\/\/play\.google\.com\/store\//.test(a.href) ? "google_play" : null;
+            if (t) send({ click: t });
+          }, true);
         } catch (e) {}
       })();
     </script>
@@ -947,6 +971,7 @@ FORM = '''<div class="wl-wrap">
               <p class="wl-note soon-only">[[Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks. ||| Muy pronto en el App Store, para iPhone. Android viene en camino. Dos semanas gratis.]]</p>
               <a class="btn live-only" href="@@STORE@@">[[Let's begin ||| Empecemos]]</a>
               <p class="wl-note live-only">[[On the App Store, for iPhone. Free for two weeks. ||| En el App Store, para iPhone. Dos semanas gratis.]]</p>
+              <p class="wl-note play-only">[[On Android? <a href="@@PLAYURL@@">Get it on Google Play</a> ||| ¿Tienes Android? <a href="@@PLAYURL@@">Descárgala en Google Play</a>]]</p>
             </div>'''
 
 SITEMAP = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -1021,6 +1046,8 @@ def render(lang):
               .replace('@@WORDMARK_CTA@@', WORDMARK_CTA)
               .replace('@@STORE@@', APP_STORE_URL)
               .replace('@@LIVE@@', 'true' if APP_LIVE else 'false')
+              .replace('@@PLAYURL@@', PLAY_URL.replace('&', '&amp;'))
+              .replace('@@PLAY@@', 'true' if PLAY_LIVE else 'false')
               .replace('@@LANG@@', lang)
               .replace('@@TITLE@@', m['title']).replace('@@DESC@@', m['desc'])
               .replace('@@OGLOCALE@@', m['og_locale']).replace('@@OGALT@@', m['og_alt'])

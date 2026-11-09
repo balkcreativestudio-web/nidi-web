@@ -467,6 +467,8 @@
       .home {
         color: var(--ink);
       }
+      /* The Google Play line under step 1, once PLAY_LIVE is on. */
+      #step1 small a { color: inherit; }
     </style>
   </head>
 
@@ -541,6 +543,11 @@
       // exist yet.
       var APP_LIVE = true;
       var APP_STORE_URL = "https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8";
+      // Flip to true when Google publishes Nidi (the store page answers
+      // 404 until then): a Google Play line appears under step 1. The
+      // home page has its own PLAY_LIVE in scripts/build-home.py.
+      var PLAY_LIVE = false;
+      var PLAY_URL = "https://play.google.com/store/apps/details?id=life.nidi.app&referrer=utm_source%3Dnidi_web";
 
       // "Nidi" with a capital wherever the words mean the app
       // (docs/voice.md in nidi-app), as in the share message and the
@@ -566,6 +573,7 @@
           step3Note: "We'll send you a code to come in.",
           open: "Already have Nidi? Open it",
           storeLink: "Get Nidi",
+          playLink: "On Android? Get it on Google Play",
           storeSoon: "Coming to the App Store very soon.",
           missingTitle: "This page doesn't exist.",
           home: "Go to nidi.life",
@@ -591,6 +599,7 @@
           // Neutral Spanish (tú) since 2026-10-20.
           open: "¿Ya tienes Nidi? Ábrela",
           storeLink: "Descarga Nidi",
+          playLink: "¿Tienes Android? Descárgala en Google Play",
           storeSoon: "Llega al App Store muy pronto.",
           missingTitle: "Esta página no existe.",
           home: "Ir a nidi.life",
@@ -677,6 +686,14 @@
           a.href = APP_STORE_URL;
           a.textContent = c.storeLink;
           body.appendChild(a);
+          if (PLAY_LIVE) {
+            var play = document.createElement("small");
+            var pa = document.createElement("a");
+            pa.href = PLAY_URL;
+            pa.textContent = c.playLink;
+            play.appendChild(pa);
+            body.appendChild(play);
+          }
         } else {
           body.textContent = c.step1;
           var soon = document.createElement("small");
@@ -753,6 +770,8 @@
             path: /^\/join(\/|$)/i.test(p) ? "/join/:code" : p,
             referrer: document.referrer || null,
             lang: document.documentElement.lang === "es" ? "es" : "en",
+            // The browser's time zone; the function keeps only the country it means (2026-11-09).
+            tz: (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) { return null; } })(),
           });
           var url =
             "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view";
@@ -775,6 +794,28 @@
             keepalive: true,
             mode: "cors",
           }).catch(function () {});
+          // A tap on a store button or on "Already have Nidi? Open it"
+          // counts as a click: which one, on this page, nothing else
+          // (2026-11-09). Same rules as the visit above.
+          document.addEventListener("click", function (e) {
+            var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+            if (!a) return;
+            var h = a.getAttribute("href") || "";
+            var t = /^https:\/\/apps\.apple\.com\//.test(h) ? "app_store"
+              : /^https:\/\/play\.google\.com\/store\//.test(h) ? "google_play"
+              : /^nidi:/.test(h) ? "open_app" : null;
+            if (!t) return;
+            var tz = null;
+            try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e2) {}
+            fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ click: t, path: /^\/join(\/|$)/i.test(p) ? "/join/:code" : p, lang: document.documentElement.lang === "es" ? "es" : "en", tz: tz }),
+              credentials: "omit",
+              keepalive: true,
+              mode: "cors",
+            }).catch(function () {});
+          }, true);
         } catch (e) {}
       })();
     </script>

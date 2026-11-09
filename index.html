@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-live="true">
+<html lang="en" data-live="true" data-play="false">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -141,6 +141,9 @@
       html[data-live="true"] .live-only { display: block; }
       html[data-live="true"] .soon-only { display: none; }
       html[data-live="true"] a.live-only.btn { display: inline-flex; }
+      .play-only { display: none; }
+      html[data-play="true"] .play-only { display: block; }
+      .play-only a { color: inherit; }
       @media (max-width: 520px) { form.wl { flex-direction: column; } form.wl .btn { width: 100%; } }
 
       /* ── Header ───────────────────────────────────────────────────── */
@@ -499,6 +502,7 @@
               <p class="wl-note soon-only">Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks.</p>
               <a class="btn live-only" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8">Let's begin</a>
               <p class="wl-note live-only">On the App Store, for iPhone. Free for two weeks.</p>
+              <p class="wl-note play-only">On Android? <a href="https://play.google.com/store/apps/details?id=life.nidi.app&amp;referrer=utm_source%3Dnidi_web">Get it on Google Play</a></p>
             </div>
             </div>
           </div>
@@ -749,6 +753,7 @@
               <p class="wl-note soon-only">Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks.</p>
               <a class="btn live-only" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8">Let's begin</a>
               <p class="wl-note live-only">On the App Store, for iPhone. Free for two weeks.</p>
+              <p class="wl-note play-only">On Android? <a href="https://play.google.com/store/apps/details?id=life.nidi.app&amp;referrer=utm_source%3Dnidi_web">Get it on Google Play</a></p>
             </div>
           </div>
         </div>
@@ -912,8 +917,22 @@
           var p = location.pathname;
           // The label on our own links (nidi.life/?ref=ig in the Instagram bio). The function keeps only ig, ig-story, wa or li.
           var ref = (location.search.match(/[?&]ref=(ig|ig-story|wa|li)(?:&|$)/) || [])[1] || null;
-          var body = JSON.stringify({ path: p.indexOf("/join/") === 0 ? "/join/:code" : p, referrer: document.referrer || null, lang: document.documentElement.lang === "es" ? "es" : "en", ref: ref });
-          fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: body, credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});
+          // The time zone the browser is set to. The function turns it into a country (AR, NL) and stores only that (2026-11-09).
+          var tz = null;
+          try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) {}
+          var send = function (extra) {
+            var o = { path: p.indexOf("/join/") === 0 ? "/join/:code" : p, lang: document.documentElement.lang === "es" ? "es" : "en", ref: ref, tz: tz };
+            for (var k in extra) o[k] = extra[k];
+            fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(o), credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});
+          };
+          send({ referrer: document.referrer || null });
+          // A tap on a store button counts as a click: which store, on which page, nothing else (2026-11-09).
+          document.addEventListener("click", function (e) {
+            var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+            if (!a) return;
+            var t = /^https:\/\/apps\.apple\.com\//.test(a.href) ? "app_store" : /^https:\/\/play\.google\.com\/store\//.test(a.href) ? "google_play" : null;
+            if (t) send({ click: t });
+          }, true);
         } catch (e) {}
       })();
     </script>

@@ -453,6 +453,8 @@
             path: p.indexOf("/join/") === 0 ? "/join/:code" : p,
             referrer: document.referrer || null,
             lang: document.documentElement.lang === "es" ? "es" : "en",
+            // The browser's time zone; the function keeps only the country it means (2026-11-09).
+            tz: (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) { return null; } })(),
           });
           var url =
             "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view";
