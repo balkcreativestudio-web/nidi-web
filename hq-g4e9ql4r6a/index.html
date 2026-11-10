@@ -680,8 +680,7 @@
           var pending = s.nidis.filter(function (n) { return n.status === 'pending'; });
           var m = s.money, en = s.engagement || {};
           var html = newsHtml(d.news || []);
-          var alerts = (s.alerts || []).filter(function (a) { return a.kind === 'pending'; });
-          if (alerts.length) html += '<div class="alerts">' + alerts.map(function (a) { return '<div class="alert pending"><span class="tag">Esperando</span>' + esc(a.text) + '</div>'; }).join('') + '</div>';
+          // an invitation waiting more than two days now comes as news, closed like the rest (2026-11-10)
           html += '<div class="kpis">'
             + tile('Familias', 'Nidis con las dos casas adentro.', active.length, '', pending.length ? '+' + pending.length + ' esperando a la otra casa' : '', spark(ser, 'activated', C1))
             + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), 'esta semana')
