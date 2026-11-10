@@ -223,7 +223,10 @@
       .mk-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
       .mk-top b { font-weight:500; }
       .mk .meta { font-size:12px; color:var(--ink2); margin-top:2px; }
-      .mk .nt { font-size:13px; color:var(--ink2); margin-top:4px; max-width:34em; }
+      .mk .nt { font-size:13px; color:var(--ink2); margin-top:2px; max-width:34em; }
+      .mk .nt summary { cursor:pointer; color:var(--ink3); font-size:12px; list-style:none; text-decoration:underline; text-underline-offset:2px; }
+      .mk .nt summary::-webkit-details-marker { display:none; }
+      .mk .nt[open] summary { margin-bottom:4px; }
       form.mkf { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); }
       form.mkf .wide { grid-column:span 2; }
       .f { display:flex; flex-direction:column; gap:4px; min-width:0; }
@@ -417,7 +420,6 @@
         }
 
         // ── render ──────────────────────────────────────────────────────
-        var CONTACT_FILTER = 'all';
         // ── Notifications ───────────────────────────────────────────────
         function agoWord(iso) {
           if (!iso) return '';
@@ -619,7 +621,7 @@
             + '<div class="rm-list"><div><h3>Se fue sola <span>' + lOwn.length + '</span></h3>' + (lOwn.length ? lOwn.map(rowHtml).join('') : '<p class="quiet" style="margin:6px 0">Nada todavía.</p>') + '</div>'
             + '<div><h3>La mandaste vos <span>' + lSent.length + '</span></h3>' + (lSent.length ? lSent.map(rowHtml).join('') : '<p class="quiet" style="margin:6px 0">Nada acá.</p>') + '</div>'
             + (lFam.length ? '<div><h3>Tu familia, no suma <span>' + lFam.length + '</span></h3>' + lFam.map(rowHtml).join('') + '</div>' : '') + '</div>'
-            + (M.unplaced.length ? '<p class="rm-none"><b style="font-weight:500;color:var(--ink)">Sin lugar en el mapa:</b> ' + esc(M.unplaced.join(', ')) + '. Se cargan con "editar", en Contactos o en los links de abajo.</p>' : '');
+            + (M.unplaced.length ? '<p class="rm-none"><b style="font-weight:500;color:var(--ink)">Sin lugar en el mapa:</b> ' + esc(M.unplaced.join(', ')) + '. Se cargan con "editar" en los links de abajo.</p>' : '');
 
           Array.prototype.forEach.call(box.querySelectorAll('[data-mapview]'), function (b) { b.onclick = function () { MAP.view = b.getAttribute('data-mapview'); MAP.sel = null; drawMap(); }; });
           Array.prototype.forEach.call(box.querySelectorAll('[data-node]'), function (g) { g.onclick = function () { if (g.hasAttribute('data-cluster')) { MAP.view = 'nl'; MAP.sel = null; drawMap(); return; } var k = g.getAttribute('data-node'); MAP.sel = MAP.sel === k ? null : k; drawMap(); }; });
@@ -755,35 +757,6 @@
             + '<input name="where_used" placeholder="dónde exactamente" required /><input name="place_city" placeholder="Ciudad (si tiene)" maxlength="60" /><select name="place_country">' + countryOpts() + '</select><input name="since" type="date" /><input name="audience" type="number" min="0" placeholder="alcance (personas)" /><input name="downloads" type="number" min="0" placeholder="descargas (Apple)" />'
             + '<textarea class="full" name="note" placeholder="qué pasó ahí (sin emails)" maxlength="500"></textarea><div class="full"><button class="primary" type="submit">Guardar</button></div></form></details></div>';
 
-          // contacts pipeline
-          var people = d.people || {};
-          var STATUS_L = { candidate: 'Candidata', sent: 'Enviado', replied: 'Respondió', no_answer: 'Sin respuesta', declined: 'No le interesa', done: 'Listo' };
-          var inNidi = function (name) {
-            var key = String(name || '').trim().split(/\s+/)[0].replace(/^@/, '').toLowerCase();
-            var p = people[key]; if (!p) return '<span class="quiet">—</span>';
-            var bits = ['<span class="ok">cuenta</span>'];
-            if (p.has_nidi) bits.push('<span class="ok">nidi</span>');
-            if (p.activated) bits.push('<span class="ok">las dos casas</span>');
-            if (p.paid) bits.push('<span class="ok">paga</span>'); else if (p.gift) bits.push('<span class="ok">año gratis</span>');
-            if (p.moments) bits.push(p.moments + ' ' + plural(p.moments, 'momento', 'momentos'));
-            return bits.join(' · ');
-          };
-          var KIND_L = { gift: 'regalo', pitch: 'prensa', post: 'post', review_ask: 'reseña', follow_up: 'seguimiento', other: 'otro' };
-          var counts = {}; d.contacts.forEach(function (c) { counts[c.status] = (counts[c.status] || 0) + 1; });
-          html += '<h2>Contactos</h2><div class="card"><div class="pipe">'
-            + '<button data-filter="all" aria-pressed="' + (CONTACT_FILTER === 'all') + '"><div class="n">' + d.contacts.length + '</div><div class="l">Todos</div></button>'
-            + ['candidate', 'sent', 'replied', 'no_answer', 'declined', 'done'].map(function (k) { return '<button data-filter="' + k + '" aria-pressed="' + (CONTACT_FILTER === k) + '"><div class="n">' + (counts[k] || 0) + '</div><div class="l">' + STATUS_L[k] + '</div></button>'; }).join('')
-            + '</div><div class="tablewrap"><table><tr><th>Quién</th><th>Canal</th><th>Qué</th><th>Cuándo</th><th>Respuesta</th><th>En Nidi</th><th>Nota</th><th></th></tr>';
-          d.contacts.filter(function (c) { return CONTACT_FILTER === 'all' || c.status === CONTACT_FILTER; }).forEach(function (c) {
-            html += '<tr><td>' + esc(c.name) + '</td><td class="quiet">' + esc(c.channel) + '</td><td class="quiet">' + KIND_L[c.kind] + '</td><td>' + dmy(c.sent_at) + '</td><td><span class="pill ' + esc(c.status) + '">' + (STATUS_L[c.status] || esc(c.status)) + '</span></td><td class="quiet">' + inNidi(c.name) + '</td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-edit=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
-          });
-          html += '</table></div>'
-            + '<details class="add" id="contactdetails"><summary>Agregar contacto</summary><form class="row" id="contactform"><input type="hidden" name="id" /><input name="name" placeholder="nombre o @handle" required maxlength="80" />'
-            + '<select name="channel"><option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option><option value="email">Email</option><option value="facebook">Facebook</option><option value="in_person">En persona</option><option value="other">Otro</option></select>'
-            + '<select name="kind">' + Object.keys(KIND_L).map(function (k) { return '<option value="' + k + '">' + KIND_L[k] + '</option>'; }).join('') + '</select>'
-            + '<select name="status">' + Object.keys(STATUS_L).map(function (k) { return '<option value="' + k + '">' + STATUS_L[k] + '</option>'; }).join('') + '</select>'
-            + '<input name="sent_at" type="date" /><input name="place_city" placeholder="Ciudad (si la sabés)" maxlength="60" /><select name="place_country">' + countryOpts() + '</select><textarea class="full" name="note" placeholder="nota (sin emails)" maxlength="500"></textarea>'
-            + '<div class="full"><button class="primary" type="submit" id="contactsave">Guardar</button> <button type="button" class="ghost" id="contactclear">Limpiar</button> <button type="button" class="link" id="contactdelete" hidden>Borrar este contacto</button></div></form></details></div>';
           return html;
         }
 
@@ -890,7 +863,7 @@
           var html = '<div class="kpis">'
             + tile('Pagas', 'Suscripciones reales activas. Las de prueba no cuentan.', m.paid_active, '', '')
             + tile('Neto estimado', 'Después del 15% de la tienda e impuestos. Apple paga unos 33 días después de cerrar el mes.', 'USD ' + m.proceeds_usd_estimate, '', '')
-            + tile('Años gratis', 'Códigos canjeados y activos, sobre los entregados.', m.gifts_redeemed, 'de ' + m.gifts_sent, (m.gifts_total - m.gifts_sent) + ' libres')
+            + tile('Años gratis', 'Códigos canjeados y activos, según la tienda. Los códigos entregados y los que quedan están en el sheet de códigos.', m.gifts_redeemed, plural(m.gifts_redeemed, 'canjeado', 'canjeados'), '')
             + '</div><div style="margin-top:10px">'
             + card('Paywall', 'Personas que lo vieron, tocaron pagar y pagaron.', '<div class="funnel">' + stepRow('Lo ven', en.paywall_viewed, en.paywall_viewed) + stepRow('Tocan pagar', en.purchase_started, en.paywall_viewed) + stepRow('Pagan', en.purchase_confirmed, en.paywall_viewed) + '</div>')
             + '</div><h2>Pagas</h2><div class="card"><div class="tablewrap"><table><tr><th>Quién</th><th>Plan</th><th>País</th><th class="num">Pagó</th><th>Renueva</th></tr>';
@@ -1112,7 +1085,7 @@
             var cpd = Number(r.spent_eur) > 0 && known(r.downloads) ? (Number(r.downloads) ? costWord(r.spent_eur / r.downloads, r.kind === 'paid') : '<span class="warn">sin descargas</span>') : '<span class="quiet">—</span>';
             html += '<tr><td class="nm"><div class="mk-top"><b>' + esc(r.name) + '</b><button class="link" data-mk=\'' + esc(JSON.stringify(r)) + '\'>editar</button></div>'
               + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + '</div>'
-              + (r.note ? '<div class="nt">' + esc(r.note) + '</div>' : '') + '</td>'
+              + (r.note ? '<details class="nt"><summary>ver detalle</summary><div>' + esc(r.note) + '</div></details>' : '') + '</td>'
               + '<td class="when" data-l="Cuándo">' + when + '</td>'
               + '<td data-l="Estado"><span class="pill ' + esc(r.status) + '">' + esc(MK_ST[r.status] || r.status) + '</span></td>'
               + '<td class="num" data-l="Gastado">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '</td>'
@@ -1190,37 +1163,12 @@
           document.getElementById('refresh').onclick = load;
           document.getElementById('logout').onclick = function () { try { localStorage.removeItem(KEY); } catch (e) {} token = null; DATA = null; gate(); };
           Array.prototype.forEach.call(document.querySelectorAll('[data-range]'), function (b) { b.onclick = function () { range = Number(b.getAttribute('data-range')); try { localStorage.setItem(RANGE_KEY, String(range)); } catch (e) {} render(); }; });
-          Array.prototype.forEach.call(document.querySelectorAll('[data-filter]'), function (b) { b.onclick = function () { CONTACT_FILTER = b.getAttribute('data-filter'); render(); }; });
 
           Array.prototype.forEach.call(document.querySelectorAll('[data-view]'), function (b) { b.onclick = function () { VIEW = b.getAttribute('data-view'); try { localStorage.setItem('nidi-hq-view', VIEW); } catch (e) {} render(); }; });
           Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (b) { b.onclick = function () { TAB = b.getAttribute('data-tab'); try { localStorage.setItem('nidi-hq-tab', TAB); } catch (e) {} render(); window.scrollTo(0, 0); }; });
           Array.prototype.forEach.call(document.querySelectorAll('.q'), function (b) { b.onclick = function (e) { e.stopPropagation(); var box = b.closest('.card,.kpi'), def = box && box.querySelector('.def'); if (!def) return; def.hidden = !def.hidden; b.setAttribute('aria-expanded', String(!def.hidden)); }; });
 
-          var cf = document.getElementById('contactform'), cdet = document.getElementById('contactdetails'), del = document.getElementById('contactdelete');
-          if (!cf) return; // the forms live in Adquisición
-          cf.onsubmit = function (e) {
-            e.preventDefault();
-            var fd = new FormData(cf), body = { action: 'contact_upsert' };
-            fd.forEach(function (v, k) { body[k] = v; });
-            if (!body.id) delete body.id;
-            document.getElementById('contactsave').disabled = true;
-            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se guardó: ' + err.message); document.getElementById('contactsave').disabled = false; });
-          };
-          document.getElementById('contactclear').onclick = function () { cf.reset(); cf.id.value = ''; del.hidden = true; cdet.querySelector('summary').textContent = 'Agregar contacto'; EDITING = false; };
-          del.onclick = function () {
-            if (!cf.id.value || !confirm('¿Borrar este contacto?')) return;
-            api('POST', { action: 'contact_delete', id: cf.id.value }).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se borró: ' + err.message); });
-          };
-          Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function (b) {
-            b.onclick = function () {
-              var c = JSON.parse(b.getAttribute('data-edit'));
-              cf.id.value = c.id; cf.name.value = c.name; cf.channel.value = c.channel; cf.kind.value = c.kind; cf.status.value = c.status; cf.sent_at.value = c.sent_at || ''; cf.place_city.value = c.place_city || ''; cf.place_country.value = c.place_country || ''; cf.note.value = c.note || '';
-              del.hidden = false; cdet.open = true; cdet.querySelector('summary').textContent = 'Editando: ' + c.name; EDITING = true;
-              cdet.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              cf.status.focus();
-            };
-          });
-
+          if (!document.getElementById('campform')) return; // the forms live in Adquisición
           var pf = document.getElementById('campform'), pdet = document.getElementById('campdetails');
           pf.onsubmit = function (e) {
             e.preventDefault();
