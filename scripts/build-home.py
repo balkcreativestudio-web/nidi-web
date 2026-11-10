@@ -31,7 +31,7 @@ APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6774968835?pt=12897300
 # page answers 404 until then). Flip it and run this again, and a line
 # "On Android? Get it on Google Play" appears under each App Store button.
 # The invitation page (404.html) has its own PLAY_LIVE.
-PLAY_LIVE = False
+PLAY_LIVE = True
 PLAY_URL = 'https://play.google.com/store/apps/details?id=life.nidi.app&referrer=utm_source%3Dnidi_web'
 
 # The wordmark artwork lives in index.html (every build script reads it
