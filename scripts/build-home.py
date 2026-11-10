@@ -33,7 +33,7 @@ APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6774968835?pt=12897300
 # Play badge shows next to the App Store one.
 # The invitation page (404.html) has its own PLAY_LIVE.
 PLAY_LIVE = True
-PLAY_URL = 'https://play.google.com/store/apps/details?id=life.nidi.app&referrer=utm_source%3Dnidi_web'
+PLAY_URL = 'https://play.google.com/store/apps/details?id=life.nidi.app&referrer=utm_source%3Dnidi_web%26utm_medium%3Dweb%26utm_campaign%3Dnidi_web'
 
 # The wordmark artwork lives in index.html (every build script reads it
 # from there), so it is lifted from the page this overwrites.
@@ -977,6 +977,21 @@ TEMPLATE = r'''<!doctype html>
         var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
         if (ios) a.href = "@@STORE@@";
         else if (/Android/.test(ua) && document.documentElement.getAttribute("data-play") === "true") a.href = "@@PLAYURL_RAW@@";
+      })();
+      // Where the visit came from goes on to the store (2026-11-10): nidi.life/?ref=ig-boost makes every store link
+      // ct=ig-boost on the App Store and utm_source/utm_campaign=ig-boost on Google Play, so each download keeps its
+      // origin in App Store Connect and Play Console. Without ?ref the links stay nidi_web.
+      (function () {
+        var ref = (location.search.match(/[?&]ref=([a-z0-9_-]{1,40})(?:&|$)/i) || [])[1];
+        if (!ref) return;
+        ref = ref.toLowerCase();
+        var play = "https://play.google.com/store/apps/details?id=life.nidi.app&referrer=" + encodeURIComponent("utm_source=" + ref + "&utm_medium=web&utm_campaign=" + ref);
+        var links = document.querySelectorAll("a[href]");
+        for (var i = 0; i < links.length; i++) {
+          var h = links[i].href;
+          if (/^https:\/\/apps\.apple\.com\//.test(h)) links[i].href = h.replace(/([?&]ct=)[^&]*/, "$1" + ref);
+          else if (/^https:\/\/play\.google\.com\/store\//.test(h)) links[i].href = play;
+        }
       })();
     </script>
   </body>
