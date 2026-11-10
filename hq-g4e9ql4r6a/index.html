@@ -260,6 +260,9 @@
         var KEY = 'nidi-hq-token', RANGE_KEY = 'nidi-hq-range';
         var app = document.getElementById('app');
         var token = null, range = 14, DATA = null, TAB = 'resumen', VIEW = 'outside';
+        // EDITING: a form holds something not saved yet (typed, or a row opened to
+        // edit). Coming back to the tab then skips the reload, which would wipe it.
+        var EDITING = false;
         try { token = localStorage.getItem(KEY); range = Number(localStorage.getItem(RANGE_KEY)) || 14; TAB = localStorage.getItem('nidi-hq-tab') || TAB; VIEW = localStorage.getItem('nidi-hq-view') || VIEW; } catch (e) {}
 
         // ── helpers ─────────────────────────────────────────────────────
@@ -617,6 +620,7 @@
         function health(hrs) { return hrs == null ? 'warn' : hrs < 24 ? 'ok' : hrs < 72 ? 'meh' : 'warn'; }
 
         function render() {
+          EDITING = false;
           var d = DATA, st = d.stats;
           var s = (st.views && st.views[VIEW]) || st;
           var gr = VIEW === 'with_family' && d.growth && d.growth.with_family ? d.growth.with_family : (d.growth || {});
@@ -968,7 +972,7 @@
           var mf = document.getElementById('mkform'), det = document.getElementById('mkdetails'), del = document.getElementById('mkdelete');
           if (!mf) return;
           var MONEY = ['budget_eur', 'spent_eur', 'net_eur'], COUNTS = ['downloads', 'accounts', 'nidis', 'paying'];
-          var reset = function () { mf.reset(); mf.id.value = ''; del.hidden = true; det.querySelector('summary').textContent = 'Agregar acción'; };
+          var reset = function () { mf.reset(); mf.id.value = ''; del.hidden = true; det.querySelector('summary').textContent = 'Agregar acción'; EDITING = false; };
           mf.onsubmit = function (e) {
             e.preventDefault();
             var fd = new FormData(mf), body = { action: 'marketing_upsert' }, bad = false;
@@ -994,7 +998,7 @@
               mf.starts_on.value = r.starts_on || ''; mf.ends_on.value = r.ends_on || ''; mf.ct.value = r.ct || ''; mf.note.value = r.note || '';
               MONEY.forEach(function (k) { mf[k].value = known(r[k]) ? String(Number(r[k])).replace('.', ',') : ''; });
               COUNTS.forEach(function (k) { mf[k].value = known(r[k]) ? r[k] : ''; });
-              del.hidden = false; det.open = true; det.querySelector('summary').textContent = 'Editando: ' + r.name;
+              del.hidden = false; det.open = true; det.querySelector('summary').textContent = 'Editando: ' + r.name; EDITING = true;
               det.scrollIntoView({ behavior: 'smooth', block: 'start' });
             };
           });
@@ -1020,7 +1024,7 @@
             document.getElementById('contactsave').disabled = true;
             api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se guardó: ' + err.message); document.getElementById('contactsave').disabled = false; });
           };
-          document.getElementById('contactclear').onclick = function () { cf.reset(); cf.id.value = ''; del.hidden = true; cdet.querySelector('summary').textContent = 'Agregar contacto'; };
+          document.getElementById('contactclear').onclick = function () { cf.reset(); cf.id.value = ''; del.hidden = true; cdet.querySelector('summary').textContent = 'Agregar contacto'; EDITING = false; };
           del.onclick = function () {
             if (!cf.id.value || !confirm('¿Borrar este contacto?')) return;
             api('POST', { action: 'contact_delete', id: cf.id.value }).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se borró: ' + err.message); });
@@ -1029,7 +1033,7 @@
             b.onclick = function () {
               var c = JSON.parse(b.getAttribute('data-edit'));
               cf.id.value = c.id; cf.name.value = c.name; cf.channel.value = c.channel; cf.kind.value = c.kind; cf.status.value = c.status; cf.sent_at.value = c.sent_at || ''; cf.place_city.value = c.place_city || ''; cf.place_country.value = c.place_country || ''; cf.note.value = c.note || '';
-              del.hidden = false; cdet.open = true; cdet.querySelector('summary').textContent = 'Editando: ' + c.name;
+              del.hidden = false; cdet.open = true; cdet.querySelector('summary').textContent = 'Editando: ' + c.name; EDITING = true;
               cdet.scrollIntoView({ behavior: 'smooth', block: 'start' });
               cf.status.focus();
             };
@@ -1048,7 +1052,7 @@
             b.onclick = function () {
               var c = JSON.parse(b.getAttribute('data-camp'));
               pf.name.value = c.name; pf.ct.value = c.ct; pf.channel.value = c.channel; pf.kind.value = c.kind || 'link'; pf.where_used.value = c.where_used; pf.place_city.value = c.place_city || ''; pf.place_country.value = c.place_country || ''; pf.since.value = c.since || ''; pf.audience.value = c.audience == null ? '' : c.audience; pf.downloads.value = c.downloads; pf.note.value = c.note || '';
-              pdet.open = true; pdet.scrollIntoView({ behavior: 'smooth', block: 'start' }); pf.downloads.focus();
+              pdet.open = true; EDITING = true; pdet.scrollIntoView({ behavior: 'smooth', block: 'start' }); pf.downloads.focus();
             };
           });
         }
@@ -1068,7 +1072,10 @@
         window.addEventListener('scroll', function () { tip.hidden = true; }, { passive: true });
 
         if (token) load(); else gate();
-        document.addEventListener('visibilitychange', function () { if (!document.hidden && token && DATA) load(); });
+        var markEditing = function (e) { if (e.target && e.target.closest && e.target.closest('form')) EDITING = true; };
+        app.addEventListener('input', markEditing);
+        app.addEventListener('change', markEditing);
+        document.addEventListener('visibilitychange', function () { if (!document.hidden && token && DATA && !EDITING) load(); });
       })();
     </script>
   </body>
