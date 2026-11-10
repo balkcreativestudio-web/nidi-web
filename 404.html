@@ -508,8 +508,8 @@
         <h2 class="how" data-i18n="howTitle">How to come in</h2>
         <ol class="steps">
           <li id="step1"></li>
-          <li><span><span data-i18n="step2">Open it and tap</span> <i data-i18n="invitedButton">“Let's begin”</i></span></li>
-          <li><span><span data-i18n="step3">Enter the email this invitation came to</span><small data-i18n="step3Note">We'll send you a code to come in.</small></span></li>
+          <li id="step2Row"><span><span data-i18n="step2">Open it and tap</span> <i data-i18n="invitedButton">“Let's begin”</i></span></li>
+          <li id="step3Row"><span><span data-i18n="step3">Enter the email this invitation came to</span><small data-i18n="step3Note">We'll send you a code to come in.</small></span></li>
         </ol>
 
         <!-- Kept, demoted. It cannot work for somebody without the app,
@@ -578,6 +578,9 @@
           step3: "Enter the email this invitation came to",
           step3Note: "We'll send you a code to come in.",
           open: "Already have Nidi? Open it",
+          step2Link: "Come back to this message and tap the link again",
+          step3Link: "Sign in with your email",
+          step3LinkNote: "We'll send you a code to come in.",
           storeLink: "Get Nidi",
           appStoreBadge: "Download on the App Store",
           playBadge: "Get it on Google Play",
@@ -605,6 +608,9 @@
           step3Note: "Te enviamos un código para entrar.",
           // Neutral Spanish (tú) since 2026-10-20.
           open: "¿Ya tienes Nidi? Ábrela",
+          step2Link: "Vuelve a este mensaje y toca el link otra vez",
+          step3Link: "Entra con tu email",
+          step3LinkNote: "Te enviamos un código para entrar.",
           storeLink: "Descarga Nidi",
           appStoreBadge: "Consíguelo en el App Store",
           playBadge: "Descargar en Google Play",
@@ -630,6 +636,27 @@
       // not-found page.
       var isInvite = /^\/join(\/[a-z0-9-]{3,64})?\/?$/i.test(location.pathname);
 
+      // Since nidi-app v5 (2026-11-10) a link invitation's code is the way
+      // in, once: /join/<code> opens Nidi holding it. The page never shows,
+      // stores or sends it; it only puts it back in the one link that opens
+      // the app ("¿Ya tienes Nidi? Ábrela") and swaps steps 2 and 3.
+      // "invitation" is the email's button, not a code.
+      var linkMatch = location.pathname.match(/^\/join\/([a-z0-9-]{3,64})\/?$/i);
+      var linkCode = linkMatch && linkMatch[1].toLowerCase() !== "invitation" ? linkMatch[1].toLowerCase() : null;
+
+      // The store does not carry the link through the install, so a tap on
+      // a store badge copies it (2026-11-10). When she opens Nidi from the
+      // store and answers "Sí, me invitaron", the app finds it there.
+      // Copied only on that tap, and only this link.
+      function copyInvite() {
+        if (!linkCode) return;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText("https://nidi.life/join/" + linkCode).catch(function () {});
+          }
+        } catch (e) {}
+      }
+
       document.getElementById(isInvite ? "invite" : "missing").hidden = false;
 
       var lang = "en";
@@ -654,6 +681,24 @@
         // Both documents live on nidi.life, one page per language
         // (2026-09-16). This page had been left behind pointing at
         // iubenda's own pages, which look like someone else's product.
+        if (linkCode) {
+          var s2 = document.getElementById("step2Row");
+          s2.textContent = "";
+          var s2b = document.createElement("span");
+          s2b.textContent = noWidow(c.step2Link);
+          s2.appendChild(s2b);
+          var s3 = document.getElementById("step3Row");
+          s3.textContent = "";
+          var s3b = document.createElement("span");
+          var s3t = document.createElement("span");
+          s3t.textContent = noWidow(c.step3Link);
+          var s3n = document.createElement("small");
+          s3n.textContent = noWidow(c.step3LinkNote);
+          s3b.appendChild(s3t);
+          s3b.appendChild(s3n);
+          s3.appendChild(s3b);
+          document.getElementById("open").href = "nidi://join/" + encodeURIComponent(linkCode);
+        }
         document.getElementById("privacy").href = c.privacyUrl;
         document.getElementById("terms").href = c.termsUrl;
         document.querySelector(".lang").setAttribute("aria-label", c.nav);
@@ -702,10 +747,16 @@
             img.alt = alt;
             if (cls) img.className = lang;
             link.appendChild(img);
+            link.addEventListener("click", copyInvite);
             return link;
           };
-          stores.appendChild(badge(APP_STORE_URL, "/assets/badges/app-store-" + lang + ".svg", c.appStoreBadge, ""));
-          if (PLAY_LIVE) stores.appendChild(badge(PLAY_URL, "/assets/badges/google-play-" + lang + ".png", c.playBadge, "gp"));
+          // The phone decides (2026-11-10): an iPhone sees only the App
+          // Store, an Android phone only Google Play, a computer both.
+          var ua = navigator.userAgent || "";
+          var onAndroid = /android/i.test(ua);
+          var onIPhone = !onAndroid && (/iphone|ipad|ipod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+          if (!(onAndroid && PLAY_LIVE)) stores.appendChild(badge(APP_STORE_URL, "/assets/badges/app-store-" + lang + ".svg", c.appStoreBadge, ""));
+          if (PLAY_LIVE && !onIPhone) stores.appendChild(badge(PLAY_URL, "/assets/badges/google-play-" + lang + ".png", c.playBadge, "gp"));
           body.appendChild(stores);
         } else {
           body.textContent = c.step1;
