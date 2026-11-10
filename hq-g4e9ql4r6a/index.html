@@ -759,6 +759,39 @@
           return html;
         }
 
+        // How much of what happens comes from an activity (2026-11-10). Every
+        // interaction counts: moments and notes. The welcome activity is left
+        // out. Once the Today card ships (app_config today_activity_card_at),
+        // the same families are compared over the same number of days before
+        // and after, and the nidis that started after it are shown apart.
+        function activityCard(a) {
+          if (!a || !a.days) return card('Actividades', 'Qué parte de lo que pasa sale de una actividad.', '<p class="quiet">Sin datos todavía.</p>');
+          var days = a.days.map(function (r) {
+            return { day: r.day, act: r.act_old + r.act_new, free: r.free_old + r.free_new, notes: r.notes_old + r.notes_new,
+              ao: r.act_old, to: r.act_old + r.free_old + r.notes_old, an: r.act_new, tn: r.act_new + r.free_new + r.notes_new };
+          });
+          var share = function (rows, a, t) { var x = 0, y = 0; rows.forEach(function (r) { x += r[a]; y += r[t]; }); return { p: pct(x, y), x: x, y: y }; };
+          var all = days.map(function (r) { return Object.assign({ tot: r.act + r.free + r.notes }, r); });
+          var last7 = share(all.slice(-7), 'act', 'tot'), since = share(all, 'act', 'tot');
+          var K = [{ k: 'act', color: C1, label: 'De una actividad' }, { k: 'free', color: C3, label: 'Momento libre' }, { k: 'notes', color: C2, label: 'Notas' }];
+          var body = '<div class="funnel">'
+            + stepRow('Últimos 7 días', last7.x, last7.y || 1, C1, last7.p + '%')
+            + stepRow('Desde el lanzamiento', since.x, since.y || 1, C1, since.p + '%') + '</div>';
+          if (a.card_at) {
+            var cd = String(a.card_at).slice(0, 10), i = all.findIndex(function (r) { return r.day >= cd; });
+            if (i < 0) i = all.length;
+            var n = Math.min(all.length - i, i), before = share(all.slice(i - n, i), 'ao', 'to'), after = share(all.slice(i, i + n), 'ao', 'to'), fresh = share(all.slice(i), 'an', 'tn');
+            body += '<div class="funnel" style="margin-top:10px">'
+              + stepRow(n + ' ' + plural(n, 'día', 'días') + ' antes', before.x, before.y || 1, C3, before.p + '%')
+              + stepRow(n + ' ' + plural(n, 'día', 'días') + ' después', after.x, after.y || 1, C1, after.p + '%')
+              + stepRow('Nidis nuevos', fresh.x, fresh.y || 1, C2, fresh.y ? fresh.p + '%' : '—') + '</div>'
+              + '<p class="quiet">Antes y después: las mismas familias, que ya estaban antes de la tarjeta (' + dmy(cd) + '), la misma cantidad de días. Los nidis que empezaron después van aparte.</p>';
+          } else {
+            body += '<p class="quiet">Cuando salga la tarjeta de Hoy, acá aparece la comparación antes y después.</p>';
+          }
+          return card('Actividades', 'Qué parte de todo lo que pasa sale de una actividad: fotos, audios y textos, y también las notas. La actividad de bienvenida no cuenta. Los corazones no tienen fecha y quedan afuera.',
+            legend(K) + chart(all, K, { label: 'Interacciones por día' }) + body, last7.p + '% esta semana');
+        }
         function tabUso(d, st, s, gr, ser) {
           var en = s.engagement || {}, bt = s.moments.by_type || {}, tot = (bt.photo || 0) + (bt.voice_note || 0) + (bt.text || 0);
           var html = '<div class="kpis">'
@@ -774,7 +807,7 @@
             + card('Tiempo en Nidi por día', 'Minutos estimados sumando a todas las personas: del primer al último evento de cada visita, hasta 60 minutos por visita.', chart(ser, KM, { label: 'Minutos por día' }))
             + card('Personas activas por día', 'Quienes abrieron Nidi ese día.', chart(ser, KU, { label: 'Personas activas por día' }))
             + card('Qué comparten', 'Desde el lanzamiento. El porcentaje es sobre los momentos; las notas van aparte.', '<div class="funnel">' + stepRow('Fotos', bt.photo || 0, tot) + stepRow('Audios', bt.voice_note || 0, tot) + stepRow('Textos', bt.text || 0, tot) + stepRow('Notas', s.moments.notes || 0, Math.max(tot, s.moments.notes || 0), C2, '') + '</div>')
-            + card('Actividades o envío libre', 'Si lo que mandan salió de una actividad de Nidi o de "Algo de hoy".', '<div class="funnel">' + stepRow('De una actividad', s.moments.with_activity || 0, s.moments.total) + stepRow('Envío libre', s.moments.total - (s.moments.with_activity || 0), s.moments.total) + '</div>')
+            + activityCard(gr.activity)
             + card('Un momento que llega', 'Qué pasa con cada momento que llega a la otra casa. Responder es una nota o un momento de vuelta.', '<div class="funnel">' + stepRow('Lo abren', en.received_opened, en.received) + stepRow('En la primera hora', en.opened_within_1h, en.received) + stepRow('Responden en el día', en.answered_within_24h, en.received) + '</div>', en.median_min_to_open != null ? 'tardan ' + minsWord(en.median_min_to_open) : '')
             + card('Cuándo comparten', 'Momentos por hora y día, hora de Ámsterdam.', hbars(en.by_hour, Array.from({ length: 24 }, function (_, i) { return i + ' h'; }), C1, 6) + '<div style="height:10px"></div>' + hbars(en.by_weekday, ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], C1, 1))
             + '</div>';
