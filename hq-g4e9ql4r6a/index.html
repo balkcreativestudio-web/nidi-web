@@ -239,6 +239,28 @@
         table.mk td[data-l]::before { content:attr(data-l); display:block; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); margin-bottom:1px; }
       }
 
+      /* changes: each one, the same measure before and after */
+      .ch-list { display:flex; flex-direction:column; gap:10px; }
+      .ch-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+      .ch-top b { font-weight:500; font-size:16px; }
+      .ch .meta { font-size:12px; color:var(--ink2); margin-top:2px; }
+      .ch-metric { font-size:13px; color:var(--ink2); margin:12px 0 6px; }
+      .ch-ba { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; border-top:1px solid var(--line2); border-bottom:1px solid var(--line2); padding:10px 0; }
+      .ch-ba > div { min-width:0; display:flex; flex-direction:column; gap:1px; }
+      .ch-ba .k { font-size:10px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); }
+      .ch-ba .v { font-family:var(--serif); font-size:28px; line-height:1.1; }
+      .ch-ba .v small { font-family:var(--sans); font-size:13px; color:var(--ink2); margin-left:4px; }
+      .ch-ba .quiet { font-size:12px; }
+      .ch-say { margin:10px 0 0; font-size:14px; }
+      .ch-say b { font-weight:500; }
+      .ch .nt { font-size:13px; color:var(--ink2); margin-top:6px; }
+      .ch .actions { margin-top:6px; }
+      .pill.works { background:var(--olive-soft); color:#4d5c2a; }
+      .pill.no { background:var(--rose-soft); color:var(--rose); }
+      .pill.unclear,.pill.decide { background:var(--honey-soft); color:#7a5a16; }
+      .pill.measuring { background:var(--lagoon-soft); color:#3c6670; }
+      @media (max-width:560px) { .ch-ba .v { font-size:24px; } }
+
       /* gate */
       .gate { max-width:400px; margin:18vh auto 0; text-align:center; }
       .gate h1 { font-size:34px; }
@@ -609,9 +631,9 @@
         window.addEventListener('resize', function () { clearTimeout(mapResizeT); mapResizeT = setTimeout(drawMap, 200); });
 
         // ── render ──────────────────────────────────────────────────────
-        // Five rooms, and Externos / Con familia applies to all of them. Test
+        // Seven rooms, and Externos / Con familia applies to all of them. Test
         // accounts are gone before the numbers get here (hq_group).
-        var TABS = [['resumen', 'Resumen'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos'], ['mkt', 'Marketing']];
+        var TABS = [['resumen', 'Resumen'], ['cambios', 'Cambios'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos'], ['mkt', 'Marketing']];
         var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
         var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando', invited_check: 'La pregunta' };
         var PLAN_L = { paid: 'Paga', gift: 'Año gratis', trial: 'Prueba', invited: 'Invitación' };
@@ -630,7 +652,7 @@
             + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
             + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</nav>';
-          html += (({ resumen: tabResumen, adq: tabAdq, uso: tabUso, ret: tabRet, ing: tabIng, mkt: tabMkt })[TAB] || tabResumen)(d, st, s, gr, ser, prev);
+          html += (({ resumen: tabResumen, cambios: tabCambios, adq: tabAdq, uso: tabUso, ret: tabRet, ing: tabIng, mkt: tabMkt })[TAB] || tabResumen)(d, st, s, gr, ser, prev);
           html += '<h2>Accesos</h2><div class="links">'
             + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect</a>'
             + '<a href="https://play.google.com/console/u/1/developers/6039865059263874705/app/4974103052168493706/app-dashboard" target="_blank" rel="noopener">Google Play</a>'
@@ -646,6 +668,7 @@
           if (at) { var nr = nav.getBoundingClientRect(), ar = at.getBoundingClientRect(); if (ar.right > nr.right) nav.scrollLeft += ar.right - nr.right + 12; }
           wire();
           wireMk();
+          wireCh();
           wireNews();
           drawMap();
         }
@@ -705,6 +728,7 @@
             + card('Invitaciones', 'Cuántas llegan a destino.' + (inv.median_hours != null ? ' Tardan ' + minsWord(Number(inv.median_hours) * 60) + ' en aceptarla.' : ''), '<div class="funnel">' + stepRow('Enviadas', inv.sent, inv.sent) + stepRow('Aceptadas', inv.accepted, inv.sent) + stepRow('Esperando', inv.waiting, inv.sent, C3) + '</div>')
             + card('Dónde se quedan', 'El último paso del armado de quienes no lo terminaron.', dropTot ? '<div class="funnel">' + Object.keys(dropped).sort(function (a, b) { return dropped[b] - dropped[a]; }).map(function (k) { return stepRow(k, dropped[k], dropTot); }).join('') + '</div>' : '<p class="quiet">Nadie se quedó a mitad de camino.</p>', en.onboarding_completed + ' de ' + en.onboarding_started + ' lo terminan')
             + '</div>';
+          html += playSection(d.play, range);
           var co = s.countries || {}, acc = co.accounts || {}, accK = Object.keys(acc), accT = accK.reduce(function (a, k) { return a + acc[k]; }, 0);
           var ast = d.appstore || [], votes = ast.reduce(function (a, r) { return a + r.count; }, 0);
           var reviews = []; ast.forEach(function (r) { (r.reviews || []).forEach(function (v) { reviews.push(Object.assign({ country: r.country }, v)); }); });
@@ -877,6 +901,164 @@
           m.gifts_list.forEach(function (g) { html += '<tr><td>' + esc(g.who) + '</td><td>' + dmy(g.since) + '</td><td>' + dmyLong(g.ends) + '</td><td class="quiet">' + esc(g.via) + '</td></tr>'; });
           html += '</table></div></div>';
           return html;
+        }
+
+        // ── Google Play (2026-11-10) ────────────────────────────────────
+        // Play Console's own daily numbers, read once a day by play-sync from
+        // its bulk reports. Google posts each day 3 to 7 days late, so the
+        // chart ends where Google's data ends, not today.
+        var PLAY_GRP = { search: 'Búsqueda en Play', explore: 'Explorar en Play', referral: 'Link de afuera', other: 'Otros' };
+        function playSection(p, range) {
+          var head = '<h2>Google Play <small>la ficha de la tienda</small></h2>';
+          if (!p) return head + card('Google Play', '', '<p class="quiet">Todavía no está activo: falta aplicar la migración y publicar la función.</p>');
+          if (!p.files) return head + card('Google Play', 'Los números de Play Console, leídos una vez por día de sus informes.', '<p class="quiet">Esperando la conexión con Google Play: falta que la cuenta de servicio pueda leer los informes de Play Console. Cuando lea el primero, acá aparecen las visitas a la ficha, de dónde vienen, qué buscaron y las instalaciones.</p>');
+          var days = (p.days || []).slice(-range), until = p.last_day ? 'hasta el ' + dmy(p.last_day + 'T12:00:00') : '';
+          var KP = [{ k: 'search', color: C1, label: PLAY_GRP.search }, { k: 'explore', color: C2, label: PLAY_GRP.explore }, { k: 'referral', color: C3, label: PLAY_GRP.referral }, { k: 'other', color: C4, label: PLAY_GRP.other }];
+          var KI = [{ k: 'acquisitions', color: C1, label: 'Desde la ficha' }, { k: 'installs', color: C2, label: 'Todas' }];
+          var vis = 0, acq = 0; (p.sources || []).forEach(function (r) { vis += Number(r.visitors) || 0; acq += Number(r.acquisitions) || 0; });
+          var top = function (rows, k) { return Math.max.apply(null, rows.map(function (r) { return Number(r[k]) || 0; }).concat([1])); };
+          var inst = function (n) { return (Number(n) || 0) + ' inst.'; };
+          var instLong = function (n) { n = Number(n) || 0; return n + ' ' + plural(n, 'instalación', 'instalaciones'); };
+          var terms = p.terms || [], links = p.links || [], cos = p.countries || [], srcs = p.sources || [];
+          return head + '<div class="two">'
+            + card('Visitas a la ficha', 'Personas que vieron la ficha de Nidi en Google Play cada día, según de dónde llegaron. Google las publica con 3 a 7 días de atraso.', legend(KP) + chart(days, KP, { label: 'Visitas a la ficha de Play por día' }), until)
+            + card('Instalaciones en Android', '"Desde la ficha": quienes instalaron después de ver la ficha. "Todas": cualquier instalación nueva, también las que no pasan por la ficha.', legend(KI) + chart(days, KI, { lines: true, label: 'Instalaciones de Play por día' }), until)
+            + card('De dónde llegan', 'Visitas a la ficha desde que salió Android, el 10/11. A la derecha, las instalaciones desde la ficha (inst.).', srcs.length ? '<div class="funnel">' + srcs.map(function (r) { return stepRow(r.group !== 'other' ? PLAY_GRP[r.group] : (r.source || 'Sin dato'), r.visitors, vis, C1, inst(r.acquisitions)); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>', vis + ' ' + plural(vis, 'visita', 'visitas') + ' · ' + instLong(acq))
+            + card('Qué buscaron', 'Lo que escribieron en el buscador de Play antes de llegar a la ficha, desde el 10/11. Google junta las búsquedas chicas en "Other". A la derecha, las instalaciones (inst.).', terms.length ? '<div class="funnel">' + terms.map(function (r) { return stepRow(r.term, r.visitors, top(terms, 'visitors'), C1, inst(r.acquisitions)); }).join('') + '</div>' : '<p class="quiet">Ninguna búsqueda todavía.</p>')
+            + card('Links de afuera', 'Visitas que llegaron con un link con utm, como los de nidi.life (?ref=… se convierte en utm_source y utm_campaign), desde el 10/11. A la derecha, las instalaciones (inst.).', links.length ? '<div class="funnel">' + links.map(function (r) { var l = r.utm_campaign && r.utm_campaign !== r.utm_source ? r.utm_campaign + ' · ' + (r.utm_source || '—') : (r.utm_campaign || r.utm_source); return stepRow(l, r.visitors, top(links, 'visitors'), C3, inst(r.acquisitions)); }).join('') + '</div>' : '<p class="quiet">Ninguno todavía.</p>')
+            + card('Países en Play', 'Visitas a la ficha por país desde el 10/11. A la derecha, las instalaciones desde la ficha (inst.).', cos.length ? '<div class="funnel">' + cos.map(function (r) { return stepRow(/^[A-Z]{2}$/.test(r.country) ? regionName(r.country) : r.country, r.visitors, top(cos, 'visitors'), C1, inst(r.acquisitions)); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>')
+            + '</div>';
+        }
+
+        // ── Cambios (2026-11-10) ────────────────────────────────────────
+        // Every change that reaches people, with the same measure before and
+        // after it (hq_changes; the story of each is in the registro). The
+        // numbers come from the database; the verdict is Maru's.
+        var CH_METRIC = {
+          play_search_visitors: { label: 'Visitas a la ficha de Play que llegan desde la búsqueda, por día.', unit: 'day' },
+          activity_share: { label: 'De todo lo que se comparte, qué parte sale de una actividad. Solo las familias que ya estaban antes.', unit: 'share' },
+          own_nidi_saved: { label: 'De quienes empiezan su propio nidi, cuántos lo guardan.', unit: 'share' },
+          paywall_purchase: { label: 'De quienes ven la pantalla de pago, cuántos pagan.', unit: 'share' }
+        };
+        var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
+        function todayAms() { try { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
+        function chValue(m, unit) {
+          if (!m || !Number(m.den)) return null;
+          return unit === 'share' ? Number(m.num) / Number(m.den) * 100 : Number(m.num) / Number(m.den);
+        }
+        function chWord(v, unit) {
+          if (v == null) return '—';
+          if (unit === 'share') return Math.round(v) + '<small>%</small>';
+          return (v < 10 ? (Math.round(v * 10) / 10).toString().replace('.', ',') : Math.round(v)) + '<small>por día</small>';
+        }
+        function chDetail(m, unit) {
+          if (!m) return '';
+          var span = day12(m.from) + (m.to !== m.from ? '–' + day12(m.to) : '') + ' · ' + m.days + ' ' + plural(m.days, 'día', 'días');
+          return (unit === 'share' ? m.num + ' de ' + m.den : m.num + ' en total') + '<br>' + span;
+        }
+        function chState(c, today) {
+          if (c.verdict) return c.verdict;
+          if (!c.shipped_on) return 'waiting_ship';
+          if (!c.after) return 'waiting_data';
+          var enough = c.min_sample && c.after.den >= c.min_sample;
+          return (c.decide && today >= c.decide) || enough ? 'decide' : 'measuring';
+        }
+        function chCompare(c, unit) {
+          var b = chValue(c.before, unit), a = chValue(c.after, unit);
+          if (a == null) return '';
+          var cmp = '';
+          if (b != null) {
+            var d = a - b, cls = d > 0 ? 'up' : d < 0 ? 'down' : 'flat';
+            cmp = '<span class="delta ' + cls + '">' + (d > 0 ? '▲ +' : d < 0 ? '▼ ' : '· ') + (unit === 'share' ? Math.round(d) + ' ' + plural(Math.abs(Math.round(d)), 'punto', 'puntos') : (b ? Math.round(d / b * 100) + '%' : chWord(d, unit).replace(/<[^>]+>/g, ' '))) + '</span>';
+          }
+          return cmp;
+        }
+        function chSay(c, unit, state, today) {
+          var a = chValue(c.after, unit), b = chValue(c.before, unit), bits = [];
+          if (state === 'waiting_ship') return 'Todavía no salió. Cuando salga, cargá el día en "editar" y empieza a medir.';
+          if (state === 'waiting_data') return unit === 'day' ? 'Salió el ' + day12(c.shipped_on) + '. Google publica los números con 3 a 7 días de atraso: el "después" aparece cuando lleguen.' : 'Salió el ' + day12(c.shipped_on) + '. Todavía no hay un día completo después.';
+          // while it is still measuring, the line is a reading so far, not a verdict
+          var sofar = state === 'measuring', say = function (cls, now, fin) { return '<b' + (cls ? ' class="' + cls + '"' : '') + '>' + (sofar ? now : fin) + '</b>'; };
+          if (a == null) bits.push('Todavía nadie en el "después".');
+          else if (c.goal != null) bits.push(a >= Number(c.goal) ? say('ok', 'Por ahora llega a la meta.', 'Llega a la meta.') : say('warn', 'Por ahora no llega a la meta.', 'No llega a la meta.'));
+          else if (b != null) bits.push(a > b ? say('ok', 'Por ahora, mejor que antes.', 'Mejor que antes.') : a < b ? say('warn', 'Por ahora, peor que antes.', 'Peor que antes.') : say('', 'Por ahora, igual que antes.', 'Igual que antes.'));
+          if (unit === 'share' && c.after && c.after.den > 0 && c.after.den < 10) bits.push('Con ' + c.after.den + ' ' + plural(c.after.den, 'caso', 'casos') + ' es una señal, no una prueba.');
+          if (state === 'measuring') {
+            var left = c.decide ? Math.round((new Date(c.decide + 'T12:00:00') - new Date(today + 'T12:00:00')) / 864e5) : null;
+            if (c.min_sample && c.after) bits.push('Se decide con ' + c.min_sample + ' ' + plural(c.min_sample, 'caso', 'casos') + ' (van ' + c.after.den + ')' + (c.decide ? ' o el ' + day12(c.decide) : '') + '.');
+            else if (left != null) bits.push(left === 1 ? 'Falta 1 día para decidir.' : 'Faltan ' + left + ' días para decidir.');
+          }
+          if (state === 'decide') bits.push('Toca decidir: elegí el veredicto en "editar".');
+          return bits.join(' ');
+        }
+        function chExtra(c) {
+          var a = c.after;
+          if (!a) return '';
+          if (c.metric === 'play_search_visitors') {
+            var t = (a.terms || []).map(function (x) { return esc(x.term) + ' (' + x.visitors + ')'; });
+            return (t.length ? 'Búsquedas después: ' + t.join(', ') + '. ' : 'Sin búsquedas con nombre todavía. ') + a.acquisitions + ' ' + plural(Number(a.acquisitions), 'instalación', 'instalaciones') + ' desde la búsqueda.';
+          }
+          if (c.metric === 'own_nidi_saved') return 'Después: en ' + a.activated + ' de ' + a.num + ' ' + plural(Number(a.num), 'nidi guardado', 'nidis guardados') + ' ya entró la otra casa' + (c.before ? ' (antes: ' + c.before.activated + ' de ' + c.before.num + ')' : '') + '.';
+          if (c.metric === 'paywall_purchase') return 'Compras después: ' + a.annual + ' ' + plural(Number(a.annual), 'anual', 'anuales') + ' y ' + a.monthly + ' ' + plural(Number(a.monthly), 'mensual', 'mensuales') + (c.before ? ' (antes: ' + c.before.annual + ' y ' + c.before.monthly + ')' : '') + '.';
+          if (c.metric === 'activity_share') return Number(a.new_den) ? 'Los nidis que empezaron después, aparte: ' + pct(a.new_num, a.new_den) + '% (' + a.new_num + ' de ' + a.new_den + ').' : '';
+          return '';
+        }
+        function tabCambios(d) {
+          var all = d.changes;
+          if (!all) return card('Cambios', '', '<p class="quiet">Todavía no está activo: falta aplicar la migración y publicar la función.</p>');
+          var rows = (VIEW === 'with_family' && all.with_family) ? all.with_family : (all.outside || []);
+          var today = todayAms(), counts = {};
+          rows.forEach(function (c) { var st = chState(c, today); counts[st] = (counts[st] || 0) + 1; });
+          var parts = [['decide', 'para decidir'], ['measuring', 'midiendo'], ['waiting_data', 'esperando datos'], ['waiting_ship', 'esperando que salga'], ['works', 'funcionan'], ['no', 'no funcionan'], ['unclear', 'sin veredicto claro']].filter(function (p) { return counts[p[0]]; }).map(function (p) { return '<b>' + counts[p[0]] + '</b> ' + (counts[p[0]] === 1 ? p[1].replace(/n$/, '') : p[1]); });
+          var html = '<p class="rm-head">' + rows.length + ' ' + plural(rows.length, 'cambio', 'cambios') + (parts.length ? ': ' + parts.join(', ') + '.' : '.') + '</p><div class="ch-list">';
+          if (!rows.length) html += card('Cambios', '', '<p class="quiet">Ninguno todavía.</p>');
+          rows.forEach(function (c) {
+            var m = CH_METRIC[c.metric] || { label: c.metric, unit: 'share' }, st = chState(c, today);
+            var when = [c.platforms ? esc(c.platforms) : '', c.shipped_on ? 'salió el ' + day12(c.shipped_on) : 'no salió todavía', c.decide ? 'se decide el ' + day12(c.decide) : ''].filter(Boolean).join(' · ');
+            html += '<div class="card ch"><div class="ch-top"><div><b>' + esc(c.title) + '</b><div class="meta">' + when + '</div></div><span class="pill ' + esc(st) + '">' + esc(CH_ST[st] || st) + '</span></div>'
+              + '<div class="ch-metric">' + esc(m.label) + '</div>'
+              + '<div class="ch-ba"><div><span class="k">Antes</span><span class="v">' + chWord(chValue(c.before, m.unit), m.unit) + '</span><span class="quiet">' + (c.before ? chDetail(c.before, m.unit) : c.shipped_on ? '' : 'desde el ' + (c.baseline_from ? day12(c.baseline_from) : '—')) + '</span></div>'
+              + '<div><span class="k">Después</span><span class="v">' + chWord(chValue(c.after, m.unit), m.unit) + '</span><span class="quiet">' + (c.after ? chCompare(c, m.unit) + (chCompare(c, m.unit) ? '<br>' : '') + chDetail(c.after, m.unit) : '') + '</span></div>'
+              + '<div><span class="k">Meta</span><span class="v">' + (c.goal != null ? chWord(Number(c.goal), m.unit) : '<small style="margin:0">mejor que antes</small>') + '</span><span class="quiet">' + (c.min_sample ? 'con ' + c.min_sample + ' casos o más' : '') + '</span></div></div>'
+              + '<p class="ch-say">' + chSay(c, m.unit, st, today) + '</p>'
+              + (chExtra(c) ? '<div class="nt">' + chExtra(c) + '</div>' : '')
+              + (c.note ? '<div class="nt">' + esc(c.note) + '</div>' : '')
+              + '<div class="actions"><button class="link" data-ch=\'' + esc(JSON.stringify({ id: c.id, title: c.title, shipped_on: c.shipped_on, decide_on: c.decide_on, decide_days: c.decide_days, verdict: c.verdict, note: c.note })) + '\'>editar</button></div></div>';
+          });
+          html += '</div>';
+          html += '<details class="add" id="chdetails" style="margin-top:12px" hidden><summary>Editar</summary><form class="row mkf" id="chform"><input type="hidden" name="id" />'
+            + '<label class="f"><span>Salió el</span><input name="shipped_on" type="date" /></label>'
+            + '<label class="f"><span>Se decide el</span><input name="decide_on" type="date" /></label>'
+            + '<label class="f"><span>Veredicto</span><select name="verdict"><option value="">Sin decidir</option><option value="works">Funciona</option><option value="no">No funciona</option><option value="unclear">No se sabe</option></select></label>'
+            + '<label class="f full"><span>Nota</span><textarea name="note" maxlength="500" placeholder="sin emails"></textarea></label>'
+            + '<p class="quiet full" id="chhint" style="margin:0"></p>'
+            + '<div class="full"><button class="primary" type="submit" id="chsave">Guardar</button> <button type="button" class="ghost" id="chcancel">Cancelar</button></div></form></details>';
+          html += '<p class="quiet" style="margin-top:14px">Antes y después usan la misma medida, en días de Ámsterdam; el día que sale cuenta como después. "Después" termina el día de decidir, así que un cambio decidido guarda sus números. La historia de cada cambio está en docs/registro-de-cambios.md.</p>';
+          return html;
+        }
+        function wireCh() {
+          var cf = document.getElementById('chform'), det = document.getElementById('chdetails');
+          if (!cf) return;
+          var close = function () { cf.reset(); det.hidden = true; det.open = false; EDITING = false; };
+          cf.onsubmit = function (e) {
+            e.preventDefault();
+            var fd = new FormData(cf), body = { action: 'change_update', id: fd.get('id') };
+            ['shipped_on', 'decide_on', 'verdict', 'note'].forEach(function (k) { body[k] = String(fd.get(k) || '').trim(); });
+            if (body.shipped_on && body.decide_on && body.decide_on < body.shipped_on) { alert('Se decide antes de salir.'); return; }
+            document.getElementById('chsave').disabled = true;
+            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(function (err) { alert(err.message === 'bad_change' ? 'No se guardó: revisá las fechas. Las notas no pueden llevar emails.' : 'No se guardó: ' + err.message); document.getElementById('chsave').disabled = false; });
+          };
+          document.getElementById('chcancel').onclick = close;
+          Array.prototype.forEach.call(document.querySelectorAll('[data-ch]'), function (b) {
+            b.onclick = function () {
+              var c = JSON.parse(b.getAttribute('data-ch'));
+              cf.reset();
+              cf.id.value = c.id; cf.shipped_on.value = c.shipped_on || ''; cf.decide_on.value = c.decide_on || ''; cf.verdict.value = c.verdict || ''; cf.note.value = c.note || '';
+              document.getElementById('chhint').textContent = c.decide_days ? 'Si "Se decide el" queda vacío: ' + c.decide_days + ' días después de que sale.' : '';
+              det.hidden = false; det.open = true; det.querySelector('summary').textContent = 'Editando: ' + c.title; EDITING = true;
+              det.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+          });
         }
 
         // ── Marketing ───────────────────────────────────────────────────
