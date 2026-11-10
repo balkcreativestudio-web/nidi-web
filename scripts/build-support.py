@@ -186,9 +186,11 @@ EN = dict(
          'subscription: one home subscribing is enough for both, and one '
          'subscription covers up to three nidis.'),
         ('How do I cancel?',
-         'Subscriptions are handled by Apple, not by us. On your iPhone open '
-         'Settings, tap your name, then Subscriptions, and cancel there. It '
-         'stays active until the end of the period you already paid for.'),
+         'Subscriptions are handled by Apple and Google, not by us. On '
+         'iPhone, open Settings, tap your name, then Subscriptions, and '
+         'cancel there. On Android, open Google Play, tap your picture, '
+         'then Payments & subscriptions, Subscriptions, and cancel there. '
+         'It stays active until the end of the period you already paid for.'),
         ('What happens to our moments if the subscription stops?',
          'Nothing is deleted. Everything you have already sent each other '
          'stays in Memory and can still be opened and listened to. What '
@@ -202,7 +204,7 @@ EN = dict(
          'stored privately and are not public, not searchable, and not '
          'shown to anyone else. We do not sell anything to anyone.'),
         ('I am not getting notifications.',
-         'Check that notifications are allowed for Nidi in your iPhone '
+         'Check that notifications are allowed for Nidi in your phone\'s '
          'settings, and that Quiet hours in the app are not covering the '
          'time you expect them. If it still happens, write to us.'),
         ('What languages does Nidi speak?',
@@ -249,10 +251,11 @@ ES = dict(
          'uno de los dos hogares se suscriba alcanza para los dos, y una '
          'suscripción cubre hasta tres nidis.'),
         ('¿Cómo doy de baja la suscripción?',
-         'Las suscripciones las maneja Apple, no nosotros. En tu iPhone '
-         'entra a Configuración, toca tu nombre, después Suscripciones, y '
-         'cancela ahí. Sigue activa hasta que termine el período que ya '
-         'pagaste.'),
+         'Las suscripciones las manejan Apple y Google, no nosotros. En '
+         'iPhone, entra a Configuración, toca tu nombre, después '
+         'Suscripciones, y cancela ahí. En Android, abre Google Play, toca '
+         'tu foto, después Pagos y suscripciones, Suscripciones, y cancela '
+         'ahí. Sigue activa hasta que termine el período que ya pagaste.'),
         ('¿Qué pasa con nuestros momentos si se corta la suscripción?',
          'No se borra nada. Todo lo que ya se mandaron queda en Recuerdos '
          'y se puede seguir abriendo y escuchando. Lo que se pausa es '
@@ -269,7 +272,7 @@ ES = dict(
          'nadie.'),
         ('No me llegan las notificaciones.',
          'Revisa que Nidi tenga permitidas las notificaciones en la '
-         'configuración del iPhone, y que las Horas de silencio de la app '
+         'configuración de tu teléfono, y que las Horas de silencio de la app '
          'no estén tapando el horario en que las esperas. Si sigue '
          'pasando, escríbenos.'),
         ('¿En qué idiomas funciona Nidi?',
