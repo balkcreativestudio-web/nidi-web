@@ -209,8 +209,8 @@ EN = dict(
          'time you expect them. If it still happens, write to us.'),
         ('What languages does Nidi speak?',
          'Nidi follows your phone: it is in English or Spanish, and each of '
-         'you reads in your own language, even inside the same nidi. It also '
-         'writes down your voice notes, and for now it only listens in '
+         'you reads in your own language, even inside the same nidi. On '
+         'iPhone it also writes down your voice notes, and for now it only listens in '
          'English and Spanish. If you record in another language it will '
          'still send, and the words it wrote will be wrong: clear them on '
          'the screen before you send and write what you said yourself, in '
@@ -278,7 +278,7 @@ ES = dict(
         ('¿En qué idiomas funciona Nidi?',
          'Nidi sigue el idioma de tu teléfono: está en español o en inglés, '
          'y cada persona lee en su propio idioma, aunque estén en el mismo '
-         'nidi. También escribe tus notas de voz, y por ahora solo escucha '
+         'nidi. En iPhone también escribe tus notas de voz, y por ahora solo escucha '
          'en español y en inglés. Si grabas en otro idioma la nota se manda '
          'igual, pero las palabras van a estar mal: bórralas en la pantalla '
          'antes de mandar y escribe tú lo que dijiste, en cualquier '
