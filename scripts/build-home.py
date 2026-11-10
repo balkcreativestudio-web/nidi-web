@@ -15,7 +15,9 @@ trust, the app, questions, one last ask), in Nidi's own voice.
 
 APP_LIVE: False until Apple releases the app. While it is False, every
 call to action is the email form; flip it and run this again and they
-all become "Let's begin" on the App Store (was "Take a look"; Maru, 2026-10-31: the same words as the first button in the app).
+all become the store badges. Since 2026-11-10 (Maru: "debería tener los íconos de Apple y Google Play para que cada uno descargue lo que necesita"):
+the official App Store and Google Play badges side by side, no "Let's begin", no line about iPhone or Android, and the two free weeks
+said only in "Free to start". The header button "Download" goes to the right store on a phone and to the badges elsewhere.
 
 Run from the repo root:  python3 scripts/build-home.py
 """
@@ -27,9 +29,8 @@ ROOT = os.path.join(os.path.dirname(__file__), '..')
 APP_LIVE = True
 APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8'
 
-# PLAY_LIVE: False until Google publishes Nidi on Google Play (the store
-# page answers 404 until then). Flip it and run this again, and a line
-# "On Android? Get it on Google Play" appears under each App Store button.
+# PLAY_LIVE: True since Google published Nidi on 2026-11-10: the Google
+# Play badge shows next to the App Store one.
 # The invitation page (404.html) has its own PLAY_LIVE.
 PLAY_LIVE = True
 PLAY_URL = 'https://play.google.com/store/apps/details?id=life.nidi.app&referrer=utm_source%3Dnidi_web'
@@ -188,6 +189,18 @@ TEMPLATE = r'''<!doctype html>
       .play-only { display: none; }
       html[data-play="true"] .play-only { display: block; }
       .play-only a { color: inherit; }
+      /* The store badges, official artwork in /assets/badges (self-hosted: no visitor talks to Apple or Google until they tap).
+         Both stand 48px tall; Google's PNG carries transparent padding, cropped by its box. */
+      .stores { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      html[data-live="true"] .stores.live-only { display: flex; }
+      .store { display: block; line-height: 0; border-radius: 9px; }
+      .store img { display: block; height: 48px; width: auto; }
+      .store.gp { width: 161px; height: 48px; overflow: hidden; }
+      html[data-play="true"] .store.gp.play-only { display: block; }
+      .store.gp img.en { height: 71.4px; margin: -11.7px 0 0 -11.7px; }
+      .store.gp img.es { height: 62.5px; margin: -7.3px 0 0 0; }
+      .store:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+      .finale .stores { justify-content: center; }
       @media (max-width: 520px) { form.wl { flex-direction: column; } form.wl .btn { width: 100%; } }
 
       /* ── Header ───────────────────────────────────────────────────── */
@@ -520,7 +533,7 @@ TEMPLATE = r'''<!doctype html>
           <a href="/es/" hreflang="es" lang="es" data-pick="es" @@CUR_ES@@>ES</a>
         </nav>
         <a class="btn btn-sm soon-only" href="#start">[[Stay close. ||| Avísame.]]</a>
-        <a class="btn btn-sm live-only" href="@@STORE@@">[[Let's begin ||| Empecemos]]</a>
+        <a class="btn btn-sm live-only" id="get" href="#start">[[Download ||| Descargar]]</a>
       </div>
     </header>
 
@@ -763,7 +776,6 @@ TEMPLATE = r'''<!doctype html>
             <details><summary>[[What languages does it speak? ||| ¿En qué idiomas está?]]</summary><div>[[English and Spanish, each person in their own language. Voice notes in either can arrive written out. ||| Español e inglés, cada persona en su idioma. Los audios en cualquiera de los dos pueden llegar también escritos.]]</div></details>
             <details><summary>[[How old is the child? ||| ¿Para qué edades es?]]</summary><div>[[From the first months to six years old, with activities chosen for their age. Up to three, the home where the child lives also keeps their firsts. ||| Desde los primeros meses hasta los seis años, con actividades elegidas para cada edad. Hasta los tres, el hogar donde crece también guarda sus primeras veces.]]</div></details>
             <details><summary>[[What happens if we stop the subscription? ||| ¿Qué pasa si dejamos la suscripción?]]</summary><div>[[The nidi pauses for now and nothing new can be added, but everything already shared stays in Memory for anyone in it. You can manage or cancel a subscription anytime in your iPhone's Settings. ||| El nidi queda en pausa, por ahora, y no se puede sumar nada nuevo, pero todo lo compartido sigue en Recuerdos para cualquiera del nidi. La suscripción la manejas o la cancelas cuando quieras en Ajustes del iPhone.]]</div></details>
-            <details><summary>[[Is there an Android version? ||| ¿Hay versión para Android?]]</summary><div>[[Not yet. Nidi comes first to iPhone, and Android is on its way.<span class="soon-only"> Leave your email and we will write when it is ready.</span> ||| Todavía no. Nidi sale primero para iPhone, y Android viene en camino.<span class="soon-only"> Deja tu email y te escribimos cuando esté listo.</span>]]</div></details>
           </div>
         </div>
       </section>
@@ -956,6 +968,17 @@ TEMPLATE = r'''<!doctype html>
         } catch (e) {}
       })();
     </script>
+    <!-- "Download" in the header (2026-11-10): the right store on a phone, the badges at the top elsewhere. -->
+    <script>
+      (function () {
+        var a = document.getElementById("get");
+        if (!a) return;
+        var ua = navigator.userAgent || "";
+        var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        if (ios) a.href = "@@STORE@@";
+        else if (/Android/.test(ua) && document.documentElement.getAttribute("data-play") === "true") a.href = "@@PLAYURL_RAW@@";
+      })();
+    </script>
   </body>
 </html>
 '''
@@ -969,9 +992,10 @@ FORM = '''<div class="wl-wrap">
               <p class="wl-done" hidden role="status">[[You're in. We'll write when Nidi is ready. ||| Listo. Te escribimos cuando Nidi esté disponible.]]</p>
               <p class="wl-error" hidden role="alert"></p>
               <p class="wl-note soon-only">[[Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks. ||| Muy pronto en el App Store, para iPhone. Android viene en camino. Dos semanas gratis.]]</p>
-              <a class="btn live-only" href="@@STORE@@">[[Let's begin ||| Empecemos]]</a>
-              <p class="wl-note live-only">[[On the App Store, for iPhone. Free for two weeks. ||| En el App Store, para iPhone. Dos semanas gratis.]]</p>
-              <p class="wl-note play-only">[[On Android? <a href="@@PLAYURL@@">Get it on Google Play</a> ||| ¿Tienes Android? <a href="@@PLAYURL@@">Descárgala en Google Play</a>]]</p>
+              <div class="stores live-only">
+                <a class="store" href="@@STORE@@"><img src="/assets/badges/app-store-@@LANG@@.svg" alt="[[Download on the App Store ||| Consíguelo en el App Store]]" width="144" height="48" /></a>
+                <a class="store gp play-only" href="@@PLAYURL@@"><img class="@@LANG@@" src="/assets/badges/google-play-@@LANG@@.png" alt="[[Get it on Google Play ||| Descargar en Google Play]]" /></a>
+              </div>
             </div>'''
 
 SITEMAP = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -1046,6 +1070,7 @@ def render(lang):
               .replace('@@WORDMARK_CTA@@', WORDMARK_CTA)
               .replace('@@STORE@@', APP_STORE_URL)
               .replace('@@LIVE@@', 'true' if APP_LIVE else 'false')
+              .replace('@@PLAYURL_RAW@@', PLAY_URL)
               .replace('@@PLAYURL@@', PLAY_URL.replace('&', '&amp;'))
               .replace('@@PLAY@@', 'true' if PLAY_LIVE else 'false')
               .replace('@@LANG@@', lang)

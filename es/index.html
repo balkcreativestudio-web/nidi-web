@@ -144,6 +144,18 @@
       .play-only { display: none; }
       html[data-play="true"] .play-only { display: block; }
       .play-only a { color: inherit; }
+      /* The store badges, official artwork in /assets/badges (self-hosted: no visitor talks to Apple or Google until they tap).
+         Both stand 48px tall; Google's PNG carries transparent padding, cropped by its box. */
+      .stores { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      html[data-live="true"] .stores.live-only { display: flex; }
+      .store { display: block; line-height: 0; border-radius: 9px; }
+      .store img { display: block; height: 48px; width: auto; }
+      .store.gp { width: 161px; height: 48px; overflow: hidden; }
+      html[data-play="true"] .store.gp.play-only { display: block; }
+      .store.gp img.en { height: 71.4px; margin: -11.7px 0 0 -11.7px; }
+      .store.gp img.es { height: 62.5px; margin: -7.3px 0 0 0; }
+      .store:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+      .finale .stores { justify-content: center; }
       @media (max-width: 520px) { form.wl { flex-direction: column; } form.wl .btn { width: 100%; } }
 
       /* ── Header ───────────────────────────────────────────────────── */
@@ -476,7 +488,7 @@
           <a href="/es/" hreflang="es" lang="es" data-pick="es" aria-current="true">ES</a>
         </nav>
         <a class="btn btn-sm soon-only" href="#start">Avísame.</a>
-        <a class="btn btn-sm live-only" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8">Empecemos</a>
+        <a class="btn btn-sm live-only" id="get" href="#start">Descargar</a>
       </div>
     </header>
 
@@ -500,9 +512,10 @@
               <p class="wl-done" hidden role="status">Listo. Te escribimos cuando Nidi esté disponible.</p>
               <p class="wl-error" hidden role="alert"></p>
               <p class="wl-note soon-only">Muy pronto en el App Store, para iPhone. Android viene en camino. Dos semanas gratis.</p>
-              <a class="btn live-only" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8">Empecemos</a>
-              <p class="wl-note live-only">En el App Store, para iPhone. Dos semanas gratis.</p>
-              <p class="wl-note play-only">¿Tienes Android? <a href="https://play.google.com/store/apps/details?id=life.nidi.app&amp;referrer=utm_source%3Dnidi_web">Descárgala en Google Play</a></p>
+              <div class="stores live-only">
+                <a class="store" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8"><img src="/assets/badges/app-store-es.svg" alt="Consíguelo en el App Store" width="144" height="48" /></a>
+                <a class="store gp play-only" href="https://play.google.com/store/apps/details?id=life.nidi.app&amp;referrer=utm_source%3Dnidi_web"><img class="es" src="/assets/badges/google-play-es.png" alt="Descargar en Google Play" /></a>
+              </div>
             </div>
             </div>
           </div>
@@ -731,7 +744,6 @@
             <details><summary>¿En qué idiomas está?</summary><div>Español e inglés, cada persona en su idioma. Los audios en cualquiera de los dos pueden llegar también escritos.</div></details>
             <details><summary>¿Para qué edades es?</summary><div>Desde los primeros meses hasta los seis años, con actividades elegidas para cada edad. Hasta los tres, el hogar donde crece también guarda sus primeras veces.</div></details>
             <details><summary>¿Qué pasa si dejamos la suscripción?</summary><div>El nidi queda en pausa, por ahora, y no se puede sumar nada nuevo, pero todo lo compartido sigue en Recuerdos para cualquiera del nidi. La suscripción la manejas o la cancelas cuando quieras en Ajustes del iPhone.</div></details>
-            <details><summary>¿Hay versión para Android?</summary><div>Todavía no. Nidi sale primero para iPhone, y Android viene en camino.<span class="soon-only"> Deja tu email y te escribimos cuando esté listo.</span></div></details>
           </div>
         </div>
       </section>
@@ -751,9 +763,10 @@
               <p class="wl-done" hidden role="status">Listo. Te escribimos cuando Nidi esté disponible.</p>
               <p class="wl-error" hidden role="alert"></p>
               <p class="wl-note soon-only">Muy pronto en el App Store, para iPhone. Android viene en camino. Dos semanas gratis.</p>
-              <a class="btn live-only" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8">Empecemos</a>
-              <p class="wl-note live-only">En el App Store, para iPhone. Dos semanas gratis.</p>
-              <p class="wl-note play-only">¿Tienes Android? <a href="https://play.google.com/store/apps/details?id=life.nidi.app&amp;referrer=utm_source%3Dnidi_web">Descárgala en Google Play</a></p>
+              <div class="stores live-only">
+                <a class="store" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8"><img src="/assets/badges/app-store-es.svg" alt="Consíguelo en el App Store" width="144" height="48" /></a>
+                <a class="store gp play-only" href="https://play.google.com/store/apps/details?id=life.nidi.app&amp;referrer=utm_source%3Dnidi_web"><img class="es" src="/assets/badges/google-play-es.png" alt="Descargar en Google Play" /></a>
+              </div>
             </div>
           </div>
         </div>
@@ -934,6 +947,17 @@
             if (t) send({ click: t });
           }, true);
         } catch (e) {}
+      })();
+    </script>
+    <!-- "Download" in the header (2026-11-10): the right store on a phone, the badges at the top elsewhere. -->
+    <script>
+      (function () {
+        var a = document.getElementById("get");
+        if (!a) return;
+        var ua = navigator.userAgent || "";
+        var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        if (ios) a.href = "https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8";
+        else if (/Android/.test(ua) && document.documentElement.getAttribute("data-play") === "true") a.href = "https://play.google.com/store/apps/details?id=life.nidi.app&referrer=utm_source%3Dnidi_web";
       })();
     </script>
   </body>

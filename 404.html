@@ -467,8 +467,14 @@
       .home {
         color: var(--ink);
       }
-      /* The Google Play line under step 1, once PLAY_LIVE is on. */
-      #step1 small a { color: inherit; }
+      /* Step 1: the official App Store and Google Play badges, 48px tall
+         (Google's PNG carries transparent padding, cropped by its box). */
+      .stores { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      .store { display: block; line-height: 0; border-radius: 9px; }
+      .store img { display: block; height: 48px; width: auto; }
+      .store.gp { width: 161px; height: 48px; overflow: hidden; }
+      .store.gp img.en { height: 71.4px; margin: -11.7px 0 0 -11.7px; }
+      .store.gp img.es { height: 62.5px; margin: -7.3px 0 0 0; }
     </style>
   </head>
 
@@ -573,7 +579,8 @@
           step3Note: "We'll send you a code to come in.",
           open: "Already have Nidi? Open it",
           storeLink: "Get Nidi",
-          playLink: "On Android? Get it on Google Play",
+          appStoreBadge: "Download on the App Store",
+          playBadge: "Get it on Google Play",
           storeSoon: "Coming to the App Store very soon.",
           missingTitle: "This page doesn't exist.",
           home: "Go to nidi.life",
@@ -599,7 +606,8 @@
           // Neutral Spanish (tú) since 2026-10-20.
           open: "¿Ya tienes Nidi? Ábrela",
           storeLink: "Descarga Nidi",
-          playLink: "¿Tienes Android? Descárgala en Google Play",
+          appStoreBadge: "Consíguelo en el App Store",
+          playBadge: "Descargar en Google Play",
           storeSoon: "Llega al App Store muy pronto.",
           missingTitle: "Esta página no existe.",
           home: "Ir a nidi.life",
@@ -681,19 +689,24 @@
         step1.className = APP_LIVE ? "has-action" : "";
         var body = document.createElement("span");
         if (APP_LIVE) {
-          var a = document.createElement("a");
-          a.className = "storeAction";
-          a.href = APP_STORE_URL;
-          a.textContent = c.storeLink;
-          body.appendChild(a);
-          if (PLAY_LIVE) {
-            var play = document.createElement("small");
-            var pa = document.createElement("a");
-            pa.href = PLAY_URL;
-            pa.textContent = c.playLink;
-            play.appendChild(pa);
-            body.appendChild(play);
-          }
+          // The two official store badges side by side (2026-11-10, Maru:
+          // each person downloads what they need; no line about Android).
+          var stores = document.createElement("span");
+          stores.className = "stores";
+          var badge = function (href, src, alt, cls) {
+            var link = document.createElement("a");
+            link.className = "store" + (cls ? " " + cls : "");
+            link.href = href;
+            var img = document.createElement("img");
+            img.src = src;
+            img.alt = alt;
+            if (cls) img.className = lang;
+            link.appendChild(img);
+            return link;
+          };
+          stores.appendChild(badge(APP_STORE_URL, "/assets/badges/app-store-" + lang + ".svg", c.appStoreBadge, ""));
+          if (PLAY_LIVE) stores.appendChild(badge(PLAY_URL, "/assets/badges/google-play-" + lang + ".png", c.playBadge, "gp"));
+          body.appendChild(stores);
         } else {
           body.textContent = c.step1;
           var soon = document.createElement("small");
