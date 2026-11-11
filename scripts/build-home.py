@@ -947,8 +947,10 @@ TEMPLATE = r'''<!doctype html>
           if (location.search.indexOf("notrack") > -1) localStorage.setItem("nidi-notrack", "1");
           if (localStorage.getItem("nidi-notrack")) return;
           var p = location.pathname;
-          // The label on our own links (nidi.life/?ref=ig in the Instagram bio). The function keeps only ig, ig-story, wa or li.
-          var ref = (location.search.match(/[?&]ref=(ig|ig-story|wa|li)(?:&|$)/) || [])[1] || null;
+          // The label on our own links (nidi.life/?ref=ig in the Instagram bio, ?ref=fam in a WhatsApp group). Any label shaped
+          // like ours is sent; the function keeps it only if it is ig, ig-story, wa, li or a ct typed in HQ > Marketing (2026-11-11).
+          var ref = (location.search.match(/[?&]ref=([a-z0-9_-]{1,40})(?:&|$)/i) || [])[1] || null;
+          if (ref) ref = ref.toLowerCase();
           // The time zone the browser is set to. The function turns it into a country (AR, NL) and stores only that (2026-11-09).
           var tz = null;
           try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) {}

@@ -711,6 +711,7 @@
           var KC = [{ k: 'app_store', color: C1, label: 'App Store' }, { k: 'google_play', color: C2, label: 'Google Play' }, { k: 'open_app', color: C3, label: 'Ábrela (invitación)' }];
           var PATH_L = { '/': 'Inicio (en)', '/es/': 'Inicio (es)', '/join/:code': 'Invitación', '/other': 'Otras páginas' };
           var clkPath = Object.keys(w.clicks_by_path || {}).sort(function (a, b) { return w.clicks_by_path[b] - w.clicks_by_path[a]; });
+          var wr = d.web_refs || {}, webRefK = Object.keys(wr).sort(function (a, b) { return wr[b].visits - wr[a].visits || wr[b].clicks - wr[a].clicks; }), webRefMax = Math.max.apply(null, webRefK.map(function (k) { return wr[k].visits; }).concat([1])), webRefT = webRefK.reduce(function (a, k) { return a + wr[k].visits; }, 0);
           var webCo = w.by_country || {}, webCoK = Object.keys(webCo).sort(function (a, b) { return webCo[b] - webCo[a]; }), webCoT = webCoK.reduce(function (a, k) { return a + webCo[k]; }, 0);
           var KW = [{ k: 'web_direct', color: C1, label: 'Sin origen' }, { k: 'web_ig', color: C2, label: 'Instagram' }, { k: 'web_other', color: C3, label: 'Otros' }];
           var steps = [['Abrieron la app', f.installs], ['Pusieron el email', f.signed_in], ['Crearon la cuenta', f.profile], ['Armaron un nidi', f.nidi], ['Invitaron', f.invited], ['La otra casa entró', f.activated], ['Alguien compartió', f.shared], ['Participaron las dos', f.both_shared]];
@@ -722,8 +723,9 @@
           var html = '<div class="two">'
             + card('Llegadas por día', 'Instalaciones, cuentas nuevas y nidis con las dos casas. Un dispositivo cuenta una vez.', legend(KA) + chart(ser, KA, { lines: true, label: 'Llegadas por día' }))
             + card('Embudo', 'Desde el lanzamiento. El porcentaje es sobre el paso anterior.', '<div class="funnel">' + steps.map(function (x, i) { return stepRow(x[0], x[1], f.installs, C1, i ? pct(x[1], steps[i - 1][1]) + '%' : ''); }).join('') + '</div>')
-            + card('Visitas a la web', 'Visitas a nidi.life. "Sin origen" es un link abierto desde WhatsApp o mail, o escrito a mano. Instagram es solo quien tocó un link: Instagram no está conectado, así que no hay seguidores ni alcance.', legend(KW) + chart(webSer, KW, { label: 'Visitas por día' }), w.total + ' desde el lanzamiento')
+            + card('Visitas a la web', 'Visitas a nidi.life. "Sin origen" es un link sin etiqueta abierto desde WhatsApp o mail, o escrito a mano. Los links con etiqueta (?ref=fam, ?ref=bb…) entran en "Otros" y se ven uno por uno en "Visitas por link". Instagram es solo quien tocó un link: Instagram no está conectado, así que no hay seguidores ni alcance.', legend(KW) + chart(webSer, KW, { label: 'Visitas por día' }), w.total + ' desde el lanzamiento')
             + card('Clicks en la web', 'Toques en los botones de nidi.life desde el 9/11: App Store, Google Play, y "¿Ya tienes Nidi? Ábrela" en la página de invitación. Cuenta toques, no personas.', legend(KC) + chart(w.clicks_daily || [], KC, { label: 'Clicks por día' }) + (clkPath.length ? '<div class="funnel" style="margin-top:10px">' + clkPath.map(function (k) { return stepRow(PATH_L[k] || k, w.clicks_by_path[k], w.clicks_total, C1); }).join('') + '</div>' : ''), (w.clicks_total || 0) + ' ' + plural(w.clicks_total || 0, 'click', 'clicks'))
+            + card('Visitas por link', 'Cada link que publicamos con su etiqueta (nidi.life/?ref=fam): visitas a la web y toques en App Store o Google Play. Cuenta desde el 11/11; antes la web descartaba todas las etiquetas menos ig, ig-story, wa y li, y esas visitas quedaron en "Sin origen". Una etiqueta se cuenta cuando está en "Link ct" de Marketing.', webRefK.length ? '<div class="funnel">' + webRefK.map(function (k) { return stepRow(refLabel(k, d.marketing), wr[k].visits, webRefMax, C1, wr[k].clicks + ' ' + plural(wr[k].clicks, 'click', 'clicks')); }).join('') + '</div>' : '<p class="quiet">' + (d.web_refs ? 'Todavía ninguna visita con etiqueta.' : 'Sin datos: falta publicar la función del HQ.') + '</p>', webRefK.length ? webRefT + ' ' + plural(webRefT, 'visita', 'visitas') + ' con etiqueta' : '')
             + card('Países de las visitas', 'De dónde es cada visita a nidi.life, por la zona horaria del navegador. Solo se guarda el país. Se sabe desde el 9/11.', webCoK.length ? '<div class="funnel">' + webCoK.map(function (k) { return stepRow(regionName(k), webCo[k], webCoT, C1, (w.clicks_by_country || {})[k] ? w.clicks_by_country[k] + ' ' + plural(w.clicks_by_country[k], 'click', 'clicks') : ''); }).join('') + (w.no_country_since ? stepRow('Sin dato', w.no_country_since, webCoT + w.no_country_since, C3) : '') + '</div>' : '<p class="quiet">Sin datos todavía.</p>')
             + card('Descargas por canal', 'Las que Apple atribuye a cada link. Se cargan a mano en "Lugares y links".', chanKeys.length ? '<div class="funnel">' + chanKeys.map(function (k) { return stepRow(k, chan[k].dl, chanMax, C1, chan[k].n + ' ' + plural(chan[k].n, 'link', 'links')); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>', chanKeys.some(function (k) { return chan[k].dl; }) ? '' : 'ninguna cargada todavía')
             + card('Invitaciones', 'Cuántas llegan a destino.' + (inv.median_hours != null ? ' Tardan ' + minsWord(Number(inv.median_hours) * 60) + ' en aceptarla.' : ''), '<div class="funnel">' + stepRow('Enviadas', inv.sent, inv.sent) + stepRow('Aceptadas', inv.accepted, inv.sent) + stepRow('Esperando', inv.waiting, inv.sent, C3) + '</div>')
@@ -1045,6 +1047,27 @@
         function known(v) { return v !== null && v !== undefined && v !== ''; }
         function costWord(cost, paid) { return paid ? '<span class="' + (cost <= 4 ? 'ok' : cost <= 8 ? 'meh' : 'warn') + '">' + eur(cost) + '</span>' : eur(cost); }
         function day12(iso) { return dmy(iso + 'T12:00:00'); }
+        // Visits and store taps per link label (2026-11-11): d.web_refs comes from
+        // site_views/site_clicks. A ct ending in "*" covers every label that starts
+        // with it (cr-* is every creator). Counted from 11/11: before that the web
+        // kept only ig, ig-story, wa and li.
+        var REF_L = { ig: 'Instagram (bio)', 'ig-story': 'Historia de Instagram', wa: 'WhatsApp', li: 'LinkedIn' };
+        function ctMatches(ct, ref) {
+          if (!ct) return false;
+          ct = String(ct).toLowerCase();
+          return ct.slice(-1) === '*' ? ref.length > ct.length - 1 && ref.indexOf(ct.slice(0, -1)) === 0 : ref === ct;
+        }
+        function refsFor(ct, wr) {
+          var t = { visits: 0, clicks: 0 };
+          Object.keys(wr || {}).forEach(function (k) { if (ctMatches(ct, k)) { t.visits += wr[k].visits; t.clicks += wr[k].clicks; } });
+          return t;
+        }
+        function refLabel(ref, rows) {
+          var exact = (rows || []).filter(function (r) { return r.ct && String(r.ct).toLowerCase() === ref; })[0];
+          if (exact) return exact.name;
+          var pre = (rows || []).filter(function (r) { return r.ct && String(r.ct).slice(-1) === '*' && ctMatches(r.ct, ref); })[0];
+          return pre ? pre.name + ' (' + ref + ')' : REF_L[ref] || ref;
+        }
 
         function tabMkt(d) {
           var rows = d.marketing;
@@ -1083,7 +1106,7 @@
             var when = r.starts_on ? day12(r.starts_on) + ' → ' + (r.ends_on ? day12(r.ends_on) : '') : r.ends_on ? 'hasta ' + day12(r.ends_on) : '<span class="quiet">sin fecha</span>';
             var cpd = Number(r.spent_eur) > 0 && known(r.downloads) ? (Number(r.downloads) ? costWord(r.spent_eur / r.downloads, r.kind === 'paid') : '<span class="warn">sin descargas</span>') : '<span class="quiet">—</span>';
             html += '<tr><td class="nm"><div class="mk-top"><b>' + esc(r.name) + '</b><button class="link" data-mk=\'' + esc(JSON.stringify(r)) + '\'>editar</button></div>'
-              + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + '</div>'
+              + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + (r.ct && d.web_refs ? (function (t) { return ' · ' + t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'); })(refsFor(r.ct, d.web_refs)) : '') + '</div>'
               + (r.note ? '<details class="nt"><summary>ver detalle</summary><div>' + esc(r.note) + '</div></details>' : '') + '</td>'
               + '<td class="when" data-l="Cuándo">' + when + '</td>'
               + '<td data-l="Estado"><span class="pill ' + esc(r.status) + '">' + esc(MK_ST[r.status] || r.status) + '</span></td>'
