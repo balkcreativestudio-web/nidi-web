@@ -912,6 +912,10 @@
           play_search_visitors: { label: 'Visitas a la ficha de Play que llegan desde la búsqueda, por día.', unit: 'day' },
           activity_share: { label: 'De todo lo que se comparte, qué parte sale de una actividad. Solo las familias que ya estaban antes.', unit: 'share' },
           own_nidi_saved: { label: 'De quienes empiezan su propio nidi, cuántos lo guardan.', unit: 'share' },
+          // 2026-11-11: link against email by the flow each attempt ran, over
+          // the same days, family in (hq_own_nidi_flow). Not by date: after
+          // 10/11 some still ran the email flow from the store's bundle.
+          own_nidi_by_flow: { label: 'De quienes empiezan un nidi, en cuántos entra la otra casa. Por el camino que vio cada uno, no por fecha. Cuenta familia, no cuentas de prueba.', unit: 'share', ba: ['Con email', 'Con link'], than: 'con email', none: 'Todavía nadie con link.' },
           paywall_purchase: { label: 'De quienes ven la pantalla de pago, cuántos pagan.', unit: 'share' }
         };
         var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
@@ -943,7 +947,7 @@
           var cmp = '';
           if (b != null) {
             var d = a - b, cls = d > 0 ? 'up' : d < 0 ? 'down' : 'flat';
-            cmp = '<span class="delta ' + cls + '">' + (d > 0 ? '▲ +' : d < 0 ? '▼ ' : '· ') + (unit === 'share' ? Math.round(d) + ' ' + plural(Math.abs(Math.round(d)), 'punto', 'puntos') : (b ? Math.round(d / b * 100) + '%' : chWord(d, unit).replace(/<[^>]+>/g, ' '))) + '</span>';
+            cmp = '<span class="delta ' + cls + '">' + (d > 0 ? '▲ +' : d < 0 ? '▼ ' : '· ') + (unit === 'share' ? Math.abs(Math.round(d)) + ' ' + plural(Math.abs(Math.round(d)), 'punto', 'puntos') : (b ? Math.abs(Math.round(d / b * 100)) + '%' : chWord(d, unit).replace(/<[^>]+>/g, ' '))) + '</span>';
           }
           return cmp;
         }
@@ -952,10 +956,11 @@
           if (state === 'waiting_ship') return 'Todavía no salió. Cuando salga, cargá el día en "editar" y empieza a medir.';
           if (state === 'waiting_data') return unit === 'day' ? 'Salió el ' + day12(c.shipped_on) + '. Google publica los números con 3 a 7 días de atraso: el "después" aparece cuando lleguen.' : 'Salió el ' + day12(c.shipped_on) + '. Todavía no hay un día completo después.';
           // while it is still measuring, the line is a reading so far, not a verdict
+          var md = CH_METRIC[c.metric] || {}, than = md.than || 'antes';
           var sofar = state === 'measuring', say = function (cls, now, fin) { return '<b' + (cls ? ' class="' + cls + '"' : '') + '>' + (sofar ? now : fin) + '</b>'; };
-          if (a == null) bits.push('Todavía nadie en el "después".');
+          if (a == null) bits.push(md.none || 'Todavía nadie en el "después".');
           else if (c.goal != null) bits.push(a >= Number(c.goal) ? say('ok', 'Por ahora llega a la meta.', 'Llega a la meta.') : say('warn', 'Por ahora no llega a la meta.', 'No llega a la meta.'));
-          else if (b != null) bits.push(a > b ? say('ok', 'Por ahora, mejor que antes.', 'Mejor que antes.') : a < b ? say('warn', 'Por ahora, peor que antes.', 'Peor que antes.') : say('', 'Por ahora, igual que antes.', 'Igual que antes.'));
+          else if (b != null) bits.push(a > b ? say('ok', 'Por ahora, mejor que ' + than + '.', 'Mejor que ' + than + '.') : a < b ? say('warn', 'Por ahora, peor que ' + than + '.', 'Peor que ' + than + '.') : say('', 'Por ahora, igual que ' + than + '.', 'Igual que ' + than + '.'));
           if (unit === 'share' && c.after && c.after.den > 0 && c.after.den < 10) bits.push('Con ' + c.after.den + ' ' + plural(c.after.den, 'caso', 'casos') + ' es una señal, no una prueba.');
           if (state === 'measuring') {
             var left = c.decide ? Math.round((new Date(c.decide + 'T12:00:00') - new Date(today + 'T12:00:00')) / 864e5) : null;
@@ -973,6 +978,11 @@
             return (t.length ? 'Búsquedas después: ' + t.join(', ') + '. ' : 'Sin búsquedas con nombre todavía. ') + a.acquisitions + ' ' + plural(Number(a.acquisitions), 'instalación', 'instalaciones') + ' desde la búsqueda.';
           }
           if (c.metric === 'own_nidi_saved') return 'Después: en ' + a.activated + ' de ' + a.num + ' ' + plural(Number(a.num), 'nidi guardado', 'nidis guardados') + ' ya entró la otra casa' + (c.before ? ' (antes: ' + c.before.activated + ' de ' + c.before.num + ')' : '') + '.';
+          if (c.metric === 'own_nidi_by_flow') {
+            var b = c.before || {};
+            return 'Con link: guardaron su nidi ' + a.saved + ' de ' + a.den + '.'
+              + ' Con email: lo guardaron ' + b.saved + ' de ' + b.den + (Number(b.left_other_house) ? ', y ' + b.left_other_house + ' se ' + (Number(b.left_other_house) === 1 ? 'fue' : 'fueron') + ' en "La otra casa", donde se pedía el email' : '') + '.';
+          }
           if (c.metric === 'paywall_purchase') return 'Compras después: ' + a.annual + ' ' + plural(Number(a.annual), 'anual', 'anuales') + ' y ' + a.monthly + ' ' + plural(Number(a.monthly), 'mensual', 'mensuales') + (c.before ? ' (antes: ' + c.before.annual + ' y ' + c.before.monthly + ')' : '') + '.';
           if (c.metric === 'activity_share') return Number(a.new_den) ? 'Los nidis que empezaron después, aparte: ' + pct(a.new_num, a.new_den) + '% (' + a.new_num + ' de ' + a.new_den + ').' : '';
           return '';
@@ -991,9 +1001,9 @@
             var when = [c.platforms ? esc(c.platforms) : '', c.shipped_on ? 'salió el ' + day12(c.shipped_on) : 'no salió todavía', c.decide ? 'se decide el ' + day12(c.decide) : ''].filter(Boolean).join(' · ');
             html += '<div class="card ch"><div class="ch-top"><div><b>' + esc(c.title) + '</b><div class="meta">' + when + '</div></div><span class="pill ' + esc(st) + '">' + esc(CH_ST[st] || st) + '</span></div>'
               + '<div class="ch-metric">' + esc(m.label) + '</div>'
-              + '<div class="ch-ba"><div><span class="k">Antes</span><span class="v">' + chWord(chValue(c.before, m.unit), m.unit) + '</span><span class="quiet">' + (c.before ? chDetail(c.before, m.unit) : c.shipped_on ? '' : 'desde el ' + (c.baseline_from ? day12(c.baseline_from) : '—')) + '</span></div>'
-              + '<div><span class="k">Después</span><span class="v">' + chWord(chValue(c.after, m.unit), m.unit) + '</span><span class="quiet">' + (c.after ? chCompare(c, m.unit) + (chCompare(c, m.unit) ? '<br>' : '') + chDetail(c.after, m.unit) : '') + '</span></div>'
-              + '<div><span class="k">Meta</span><span class="v">' + (c.goal != null ? chWord(Number(c.goal), m.unit) : '<small style="margin:0">mejor que antes</small>') + '</span><span class="quiet">' + (c.min_sample ? 'con ' + c.min_sample + ' casos o más' : '') + '</span></div></div>'
+              + '<div class="ch-ba"><div><span class="k">' + (m.ba ? m.ba[0] : 'Antes') + '</span><span class="v">' + chWord(chValue(c.before, m.unit), m.unit) + '</span><span class="quiet">' + (c.before ? chDetail(c.before, m.unit) : c.shipped_on ? '' : 'desde el ' + (c.baseline_from ? day12(c.baseline_from) : '—')) + '</span></div>'
+              + '<div><span class="k">' + (m.ba ? m.ba[1] : 'Después') + '</span><span class="v">' + chWord(chValue(c.after, m.unit), m.unit) + '</span><span class="quiet">' + (c.after ? chCompare(c, m.unit) + (chCompare(c, m.unit) ? '<br>' : '') + chDetail(c.after, m.unit) : '') + '</span></div>'
+              + '<div><span class="k">Meta</span><span class="v">' + (c.goal != null ? chWord(Number(c.goal), m.unit) : '<small style="margin:0">mejor que ' + (m.than || 'antes') + '</small>') + '</span><span class="quiet">' + (c.min_sample ? 'con ' + c.min_sample + ' casos o más' : '') + '</span></div></div>'
               + '<p class="ch-say">' + chSay(c, m.unit, st, today) + '</p>'
               + (chExtra(c) ? '<div class="nt">' + chExtra(c) + '</div>' : '')
               + (c.note ? '<div class="nt">' + esc(c.note) + '</div>' : '')
