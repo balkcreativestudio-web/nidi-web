@@ -1079,7 +1079,7 @@
           return pre ? pre.name + ' (' + ref + ')' : REF_L[ref] || ref;
         }
 
-        function tabMkt(d) {
+        function tabMkt(d, st, s) {
           var rows = d.marketing;
           if (!Array.isArray(rows)) return card('Marketing', '', '<p class="quiet">El registro todavía no está activo: falta aplicar la migración hq_marketing y publicar la función.</p>');
           // active first, and within each state what costs money first
@@ -1097,16 +1097,23 @@
             + '</div>';
 
           // the 30-day goal
+          // Payments from 1/11 to 8/11 count too (Finance, 2026-11-11: the
+          // annual payments of 1/11 go toward the €1k). No action row covers
+          // them, so they are added here, net as in the pace email: annual €70,
+          // monthly €7 (no launch price before 10/11).
+          var early = ((s && s.money && s.money.paid_list) || []).filter(function (p) { var dd = String(p.since || '').slice(0, 10); return dd >= '2026-11-01' && dd < GOAL.from; });
+          var earlyNet = early.reduce(function (a, p) { return a + (String(p.product).indexOf('month') >= 0 ? 7 : 70); }, 0);
+          var goalNet = net + earlyNet;
           // 30 days: 9/11 is day 1, 8/12 day 30; it ends as 9/12 begins
           var dayMs = 864e5, today = new Date(), end = new Date(GOAL.to + 'T00:00:00'), start = new Date(GOAL.from + 'T00:00:00');
           var dayN = Math.min(30, Math.max(1, Math.floor((today - start) / dayMs) + 1)), left = Math.max(0, Math.ceil((end - today) / dayMs));
-          var top = GOAL.steps[GOAL.steps.length - 1][0], next = GOAL.steps.filter(function (g) { return net < g[0]; })[0];
-          var bar = '<div class="goal-bar" role="img" aria-label="' + esc(eur(net) + ' de ' + eur(top)) + '"><i style="width:' + Math.min(100, net / top * 100).toFixed(1) + '%"></i>'
+          var top = GOAL.steps[GOAL.steps.length - 1][0], next = GOAL.steps.filter(function (g) { return goalNet < g[0]; })[0];
+          var bar = '<div class="goal-bar" role="img" aria-label="' + esc(eur(goalNet) + ' de ' + eur(top)) + '"><i style="width:' + Math.min(100, goalNet / top * 100).toFixed(1) + '%"></i>'
             + GOAL.steps.map(function (g) { return '<b style="left:' + (g[0] / top * 100) + '%"></b>'; }).join('') + '</div>'
-            + '<div class="goal-ticks">' + GOAL.steps.map(function (g, i) { return '<span class="' + (i === GOAL.steps.length - 1 ? 'end' : '') + (net >= g[0] ? ' hit' : '') + '" style="left:' + (g[0] / top * 100) + '%">€' + (g[0] / 1000) + 'k ' + g[1] + '</span>'; }).join('') + '</div>';
-          html += '<div style="margin-top:10px">' + card('Meta de 30 días', 'Suma de los € netos cargados en las acciones. €1k es el mínimo, €3k el óptimo y €5k excede lo esperado.',
-            '<div class="goal-v">' + eur(net) + '<small>' + (next ? 'de ' + eur(next[0]) + ' (' + next[1] + ')' : 'pasaste los €5k') + '</small></div><div class="d quiet">' + (left ? 'Día ' + dayN + ' de 30 · ' + (left === 1 ? 'falta 1 día' : 'faltan ' + left + ' días') : 'Terminó el 9/12') + '</div>' + bar,
-            'hasta el 9/12') + '</div>';
+            + '<div class="goal-ticks">' + GOAL.steps.map(function (g, i) { return '<span class="' + (i === GOAL.steps.length - 1 ? 'end' : '') + (goalNet >= g[0] ? ' hit' : '') + '" style="left:' + (g[0] / top * 100) + '%">€' + (g[0] / 1000) + 'k ' + g[1] + '</span>'; }).join('') + '</div>';
+          html += '<div style="margin-top:10px">' + card('Meta de 30 días', 'Suma de los € netos cargados en las acciones, más los pagos del 1/11 al 8/11, que ninguna acción trajo (anual €70 neto, mensual €7). €1k es el mínimo, €3k el óptimo y €5k excede lo esperado.',
+            '<div class="goal-v">' + eur(goalNet) + '<small>' + (next ? 'de ' + eur(next[0]) + ' (' + next[1] + ')' : 'pasaste los €5k') + '</small></div><div class="d quiet">' + (left ? 'Día ' + dayN + ' de 30 · ' + (left === 1 ? 'falta 1 día' : 'faltan ' + left + ' días') : 'Terminó el 9/12') + '</div>' + bar,
+            (earlyNet ? 'incluye ' + eur(earlyNet) + ' de ' + early.length + ' ' + plural(early.length, 'pago', 'pagos') + ' del 1/11 al 8/11 · ' : '') + 'hasta el 9/12') + '</div>';
 
           // the actions
           var num = function (v) { return known(v) ? Number(v).toLocaleString('es-AR') : '<span class="quiet">—</span>'; };
