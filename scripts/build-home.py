@@ -86,16 +86,21 @@ TEMPLATE = r'''<!doctype html>
       // browser set to Spanish goes to /es/ once, and a choice made with the
       // EN / ES links is kept. The Spanish address is never moved unless the
       // link says ?lang=en, so a shared Spanish link stays Spanish.
+      // Every other part of the link (?ref=ar-london) travels with the move,
+      // or the visit and the store buttons lose their label (2026-11-12).
       (function () {
-        var here = "@@LANG@@", q = new URLSearchParams(location.search).get("lang"), stored = null;
+        var params = new URLSearchParams(location.search);
+        var here = "@@LANG@@", q = params.get("lang"), stored = null;
         try { stored = localStorage.getItem("nidi-lang"); } catch (e) {}
+        params.delete("lang");
+        var rest = params.toString() ? "?" + params.toString() : "";
         var go = null;
         if (here === "en") {
           var wantEs = q ? q === "es" : stored ? stored === "es" : (navigator.language || "").toLowerCase().indexOf("es") === 0;
           if (wantEs) go = "/es/";
         } else if (q === "en") go = "/";
-        if (go) location.replace(go + location.hash);
-        else if (q) history.replaceState(null, "", location.pathname + location.hash);
+        if (go) location.replace(go + rest + location.hash);
+        else if (q) history.replaceState(null, "", location.pathname + rest + location.hash);
       })();
     </script>
     <style>
