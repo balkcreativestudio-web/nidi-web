@@ -686,15 +686,49 @@
             + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), 'esta semana')
             + tile('Momentos', 'Fotos, audios y textos enviados desde el lanzamiento.', s.moments.total, '', s.moments.notes + ' ' + plural(s.moments.notes, 'nota', 'notas'), spark(ser, 'moments', C1))
             + tile('Tiempo por día', 'Estimado: del primer al último evento de cada visita, por persona en un día que abrió Nidi. Nidi no mide la pantalla.', minsWord(en.minutes_per_active_day), '', String(en.sessions_per_user_day || 0).replace('.', ',') + ' visitas por día', spark(ser, 'minutes', C1))
-            + tile('Instalaciones', 'Dispositivos que abrieron Nidi por primera vez. Sin los de prueba.', s.funnel.installs, '', delta(sum(ser, 'installs'), sum(prev, 'installs')), spark(ser, 'installs', C1))
-            + tile('Suscripciones', 'Pagas reales y años gratis activos.', m.paid_active, plural(m.paid_active, 'paga', 'pagas'), m.gifts_redeemed + ' ' + plural(m.gifts_redeemed, 'año gratis', 'años gratis'))
+            + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez desde el lanzamiento (31/10). No cuenta los que entraron con una cuenta de prueba, pero sí un teléfono de prueba que nunca entró a ninguna cuenta.', s.funnel.installs, '', installsWeek(s.series || []), spark(ser, 'installs', C1))
+            + tile('Suscripciones', 'Personas de esta vista que pagan, y las que tienen tiempo gratis activo: un año (códigos) o meses (founding families y creadoras). Ingresos muestra todos los pagos, también los de la familia.', m.view_paid_active != null ? m.view_paid_active : m.paid_active, plural(m.view_paid_active != null ? m.view_paid_active : m.paid_active, 'paga', 'pagas'), m.gifts_years != null ? m.gifts_years + ' con un año gratis · ' + m.gifts_months + ' con meses gratis' : m.gifts_redeemed + ' con tiempo gratis')
             + '</div>';
           var KM = [{ k: 'moments', color: C1, label: 'Momentos' }, { k: 'notes', color: C2, label: 'Notas' }];
           html += '<div class="two" style="margin-top:10px">'
             + card('Momentos y notas', 'Lo que se comparte cada día. La nota es una respuesta escrita sobre un momento.', legend(KM) + chart(ser, KM, { label: 'Momentos y notas por día' }))
             + card('Cómo van las familias', 'Cuánto pasó desde la última vez que alguien compartió o respondió.', famNow(active))
             + '</div>';
+          html += '<div style="margin-top:10px">' + leftCard(s.left, s.store_deletions) + '</div>';
           return html;
+        }
+        // Installs this week against the week before, both after launch
+        // (2026-11-12): the old line compared 28 days that began before
+        // launch with nothing, and read "▲ 30" next to a total of 24.
+        function installsWeek(all) {
+          var post = all.filter(function (r) { return String(r.day) >= '2026-10-31'; });
+          var w = sum(post.slice(-7), 'installs'), w0 = post.length >= 14 ? sum(post.slice(-14, -7), 'installs') : null;
+          if (w0 == null) return w + ' en los últimos 7 días';
+          var d = w - w0, cls = d > 0 ? 'up' : d < 0 ? 'down' : 'flat';
+          return '<span class="delta ' + cls + '">' + w + ' en 7 días</span> <span class="quiet">' + w0 + ' la semana anterior</span>';
+        }
+        // Who left (2026-11-12, Maru: "¿no deberíamos contemplar si alguien
+        // borra la app?"). A phone that no longer has Nidi answers a push
+        // with DeviceNotRegistered; push-receipts keeps that answer. Quiet
+        // is 14 days without opening. The stores' own counts, without names,
+        // go underneath.
+        function leftCard(l, sd) {
+          if (!l) return card('Se fueron', '', '<p class="quiet">Todavía no está activo: falta aplicar la migración.</p>');
+          var n = (l.app_gone || 0) + (l.quiet_14d || 0);
+          var rows = (l.list || []).map(function (p) {
+            var gone = p.why === 'app_gone';
+            var when = gone ? 'borró la app · ' + dmy(p.app_gone_at) : 'sin abrir Nidi desde el ' + dmy(p.last_seen);
+            return '<div class="step"><span>' + esc(p.name || '?') + (p.with ? ' <span class="quiet">con ' + esc(p.with) + '</span>' : '') + '</span><div class="bar"><i style="width:100%;background:' + (gone ? C4 : C3) + '"></i></div><span class="num ' + (gone ? 'warn' : 'meh') + '">' + (gone ? 'borró' : 'quieto') + '</span><span class="pct">' + esc(when) + '</span></div>';
+          }).join('');
+          var stores = [];
+          if (sd && sd.apple_last_day) stores.push('App Store: ' + sd.apple_28d + ' ' + plural(sd.apple_28d, 'borrado', 'borrados') + ' en 28 días (hasta el ' + dmy(sd.apple_last_day + 'T12:00:00') + ')');
+          else stores.push('App Store: el informe de borrados llega con unos 2 días de atraso desde el 12/11');
+          if (sd && sd.play_last_day) stores.push('Google Play: ' + sd.play_28d + ' ' + plural(sd.play_28d, 'desinstalación', 'desinstalaciones') + ' en 28 días');
+          else stores.push('Google Play: llega cuando se conecten los informes de Play');
+          var body = (rows ? '<div class="funnel">' + rows + '</div>' : '<p class="quiet">Nadie por ahora.</p>')
+            + '<p class="quiet" style="margin-top:8px">' + esc(stores.join(' · ')) + '</p>';
+          var note = n + ' de ' + (l.people || 0) + ' ' + plural(l.people || 0, 'persona', 'personas') + ' · ' + (l.with_push || 0) + ' con notificaciones, que es como se detecta un borrado';
+          return card('Se fueron', 'Personas de los nidis de esta vista que borraron la app (una notificación rebotó porque el teléfono ya no tiene Nidi) o que llevan 14 días sin abrirla. Abajo, lo que cuentan las tiendas, sin nombres. Quien no tiene notificaciones activas solo aparece por los 14 días.', body, note);
         }
         function famNow(active) {
           if (!active.length) return '<p class="quiet">Ninguna todavía.</p>';
