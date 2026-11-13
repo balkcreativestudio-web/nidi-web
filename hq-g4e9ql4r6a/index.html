@@ -284,6 +284,25 @@
       .rs-row.st-mid td:first-child { box-shadow:inset 3px 0 0 #e2b866; } .rs-row.st-win td:first-child { box-shadow:inset 3px 0 0 #a9bb83; } .rs-row.st-lose td:first-child { box-shadow:inset 3px 0 0 #d79aa9; }
       .rs-read { margin:0; padding:0 0 0 18px; font-size:14px; } .rs-read li { margin:0 0 8px; } .rs-read b { font-weight:500; }
       .tt-row > td:first-child { min-width:210px; } .tt-table td.tt-m { min-width:140px; } .tt-table .r .tt-n { white-space:normal; min-width:70px; }
+      /* phones (2026-11-13, Maru: "el HQ debería ser responsive"): the rooms
+         wrap onto two lines, Tests keeps Test · Cambio · Estado, and every
+         other table with four or more columns becomes one block per row,
+         each value under its column name (stackTables). */
+      @media (max-width:640px) {
+        .tabs { flex-wrap:wrap; overflow:visible; row-gap:0; }
+        .tt-table .hide-s { display:none; }
+        .tt-row > td:first-child { min-width:0; }
+        .tt-table td, .tt-table th { padding-left:8px; padding-right:8px; }
+        .tablewrap.stw { margin:0; padding:0; overflow:visible; }
+        table.st, table.st tbody, table.st tr, table.st td, table.st th { display:block; }
+        table.st thead, table.st tr.st-head { display:none; }
+        table.st tr { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 12px; padding:12px 0; border-bottom:1px solid var(--line2); }
+        table.st tr:last-child { border-bottom:0; }
+        table.st td { padding:0; border:0; text-align:left !important; white-space:normal; min-width:0; }
+        table.st td:first-child { grid-column:1 / -1; font-weight:500; }
+        table.st td[data-l]:not(:first-child)::before { content:attr(data-l); display:block; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); margin-bottom:1px; font-weight:400; }
+        table.st td:empty { display:none; }
+      }
       .ch-list { display:flex; flex-direction:column; gap:10px; }
       .ch-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
       .ch-top b { font-weight:500; font-size:16px; }
@@ -684,6 +703,24 @@
         function sinceWord(iso) { if (!iso) return null; return (Date.now() - new Date(iso).getTime()) / 36e5; }
         function health(hrs) { return hrs == null ? 'warn' : hrs < 24 ? 'ok' : hrs < 72 ? 'meh' : 'warn'; }
 
+        // On a phone a wide table reads as one block per row (see the CSS).
+        function stackTables(root) {
+          Array.prototype.forEach.call(root.querySelectorAll('table'), function (t) {
+            if (t.classList.contains('mk') || t.classList.contains('tt-table') || t.closest('details')) return;
+            var head = t.querySelector('thead tr') || t.querySelector('tr');
+            if (!head) return;
+            var names = Array.prototype.map.call(head.children, function (c) { return c.tagName === 'TH' ? c.textContent.trim() : null; });
+            if (names.length < 4 || names.every(function (n) { return !n; })) return;
+            t.classList.add('st');
+            if (!t.querySelector('thead')) head.classList.add('st-head');
+            var wrap = t.closest('.tablewrap'); if (wrap) wrap.classList.add('stw');
+            Array.prototype.forEach.call(t.querySelectorAll('tr'), function (tr) {
+              if (tr === head) return;
+              var i = 0;
+              Array.prototype.forEach.call(tr.children, function (td) { if (names[i]) td.setAttribute('data-l', names[i]); i += Number(td.getAttribute('colspan')) || 1; });
+            });
+          });
+        }
         function render() {
           EDITING = false;
           var d = DATA, st = d.stats;
@@ -709,6 +746,7 @@
           // on a phone the last rooms sit past the edge: keep the open one in sight
           var nav = app.querySelector('.tabs'), at = nav && nav.querySelector('[aria-selected="true"]');
           if (at) { var nr = nav.getBoundingClientRect(), ar = at.getBoundingClientRect(); if (ar.right > nr.right) nav.scrollLeft += ar.right - nr.right + 12; }
+          stackTables(app);
           wire();
           wireMk();
           wireCh();
@@ -1264,15 +1302,15 @@
             + '<div class="kpi"><span class="k">Próximo veredicto</span><span class="v">' + (nextDay ? day12(nextDay) : '—') + '</span><span class="spacer"></span><span class="d">' + nextNames.join(' · ') + '</span></div>'
             + '<div class="kpi"><span class="k">Mejor señal hasta hoy</span><span class="v">' + best.v + '</span><span class="spacer"></span><span class="d">' + best.d + '</span></div></div>';
           html += '<div class="card tt"><div class="tt-h"><span>Tests</span><span>Ordenados por fecha de decisión · tocá una fila para abrirla</span></div><table class="tt-table"><thead><tr>'
-            + '<th>Test</th><th class="hide-m">Mide</th><th class="r">Antes</th><th class="r">Después</th><th class="r">Cambio</th><th class="r hide-m">Muestra</th><th class="hide-m">Decide</th><th>Estado</th></tr></thead><tbody>';
+            + '<th>Test</th><th class="hide-m">Mide</th><th class="r hide-s">Antes</th><th class="r hide-s">Después</th><th class="r">Cambio</th><th class="r hide-m">Muestra</th><th class="hide-m">Decide</th><th>Estado</th></tr></thead><tbody>';
           info.forEach(function (x) {
             var c = x.c, m = x.m, s = x.s, bs = ttSide(c.before, m.unit), as = ttSide(c.after, m.unit), open = TT_OPEN[c.id] != null ? TT_OPEN[c.id] : !!c.reading;
             var measure = c.measure || m.label;
             html += '<tr class="tt-row st-' + s.st + (open ? ' sel' : '') + '" data-tt="' + esc(c.id) + '">'
               + '<td><div class="tt-t">' + esc(c.title) + ' <span class="tt-caret">' + (open ? '▾' : '▸') + '</span></div><div class="tt-s">' + esc(c.summary || '') + '</div></td>'
               + '<td class="hide-m tt-m">' + esc(measure) + '</td>'
-              + '<td class="r">' + bs.v + '<div class="tt-n">' + bs.n + '</div></td>'
-              + '<td class="r">' + as.v + '<div class="tt-n">' + as.n + '</div></td>'
+              + '<td class="r hide-s">' + bs.v + '<div class="tt-n">' + bs.n + '</div></td>'
+              + '<td class="r hide-s">' + as.v + '<div class="tt-n">' + as.n + '</div></td>'
               + '<td class="r">' + ttDelta(c, m.unit, s.st) + '</td>'
               + '<td class="r hide-m">' + (c.before ? (c.before.den != null ? c.before.den : '—') : '—') + ' · ' + (c.after ? (c.after.den != null ? c.after.den : '—') : '—') + '</td>'
               + '<td class="hide-m">' + (c.decide ? day12(c.decide) : '—') + '</td>'
