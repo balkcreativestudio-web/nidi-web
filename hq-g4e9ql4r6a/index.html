@@ -267,6 +267,23 @@
       .tt-note { font-size:12px; color:var(--ink2); margin-top:10px; } .tt-note summary { cursor:pointer; }
       .tt-legend { font-size:11px; color:var(--ink3); padding:10px 16px; }
       @media (max-width:760px) { .tt-table .hide-m { display:none; } .tt-detail { grid-template-columns:1fr; } .tt-detail > div { border-right:0; border-bottom:1px solid var(--line); } }
+      /* resumen (2026-11-13): the Tests look for the first room */
+      .rs-kpis { grid-template-columns:repeat(6,1fr); }
+      @media (max-width:1000px) { .rs-kpis { grid-template-columns:repeat(3,1fr); } }
+      @media (max-width:640px) { .rs-kpis { grid-template-columns:repeat(2,1fr); } }
+      .rs-grid { display:grid; grid-template-columns:2fr 1fr; gap:10px; margin-top:10px; }
+      .rs-grid > .card { margin:0; min-width:0; }
+      @media (max-width:900px) { .rs-grid { grid-template-columns:1fr; } }
+      .rs-fun { display:grid; grid-template-columns:minmax(0,1fr) 40% 32px; gap:9px 10px; align-items:center; font-size:13px; }
+      .rs-fun .r { text-align:right; font-variant-numeric:tabular-nums; }
+      .rs-fun .tt-track { height:10px; }
+      .rs-drop { grid-column:1 / -1; font-size:11px; color:var(--rose); margin:-4px 0 0; }
+      .rs-split { display:flex; height:8px; width:90px; border-radius:4px; overflow:hidden; background:var(--line2); margin-bottom:3px; }
+      .rs-split i { display:block; height:100%; }
+      .rs-row td:first-child { box-shadow:inset 3px 0 0 var(--line); }
+      .rs-row.st-mid td:first-child { box-shadow:inset 3px 0 0 #e2b866; } .rs-row.st-win td:first-child { box-shadow:inset 3px 0 0 #a9bb83; } .rs-row.st-lose td:first-child { box-shadow:inset 3px 0 0 #d79aa9; }
+      .rs-read { margin:0; padding:0 0 0 18px; font-size:14px; } .rs-read li { margin:0 0 8px; } .rs-read b { font-weight:500; }
+      .tt-row > td:first-child { min-width:210px; } .tt-table td.tt-m { min-width:140px; } .tt-table .r .tt-n { white-space:normal; min-width:70px; }
       .ch-list { display:flex; flex-direction:column; gap:10px; }
       .ch-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
       .ch-top b { font-weight:500; font-size:16px; }
@@ -699,26 +716,115 @@
           drawMap();
         }
 
-        function tabResumen(d, st, s, gr, ser, prev) {
+        // Resumen (2026-11-13, Maru: "el mismo estilo" que Tests): six numbers,
+        // each this week against the week before; the daily chart; the funnel
+        // from install to paying; every family in one table, coloured by how
+        // recently someone shared; and only the readings that change a decision.
+        function wk(all, k) {
+          var post = all.filter(function (r) { return String(r.day) >= '2026-10-31'; });
+          return { now: sum(post.slice(-7), k), before: post.length >= 14 ? sum(post.slice(-14, -7), k) : null };
+        }
+        function wkNote(w, nowWord) {
+          if (w.before == null) return (nowWord || '') + 'en los últimos 7 días';
+          var dlt = w.now - w.before, cls = dlt > 0 ? 'up' : dlt < 0 ? 'down' : 'flat';
+          return '<span class="delta ' + cls + '">' + (dlt > 0 ? '▲ ' + dlt : dlt < 0 ? '▼ ' + (-dlt) : '=') + (nowWord ? ' ' + nowWord : '') + '</span> · ' + w.before + ' la semana anterior';
+        }
+        function planOf(n, m) {
+          var f = function (x) { return String(x || '').trim().split(/\s+/)[0].toLowerCase(); };
+          var names = [f(n.a), f(n.b)].filter(Boolean);
+          var paid = (m.paid_list || []).some(function (p) { return p.status === 'active' && names.indexOf(f(p.who)) >= 0; });
+          if (paid) return 'Paga';
+          var g = (m.gifts_list || []).filter(function (p) { return names.indexOf(f(p.who)) >= 0; })[0];
+          if (g) { var days = (new Date(g.ends) - new Date(g.since)) / 864e5; return days > 300 ? '1 año gratis' : Math.round(days / 30) + ' meses gratis'; }
+          if (n.grp === 'family') return '<span class="quiet">Familia</span>';
+          if (n.activated_at) return 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + 14 * 864e5).toISOString()) + '</span>';
+          return '<span class="quiet">Prueba, sin empezar</span>';
+        }
+        // who sends the moments: one bar per home, and what it says
+        function whoShares(n) {
+          if (n.status !== 'active') return '<span class="tt-n">la otra casa no entró</span>';
+          var a = n.moments_a || 0, b = n.moments_b || 0, t = a + b;
+          if (!t) return '<span class="tt-n">nadie compartió todavía</span>';
+          var hi = Math.max(a, b), lo = Math.min(a, b), quiet = a >= b ? n.b : n.a, quietNotes = a >= b ? n.notes_b : n.notes_a, word = '';
+          if (hi >= 3 && lo / hi <= .2) word = quietNotes >= 3 ? esc(quiet || 'la otra casa') + ' responde con notas (' + quietNotes + ')' : 'una sola casa manda';
+          else if (t >= 4 && lo / hi >= .6) word = 'parejo';
+          return '<div class="rs-split"><i style="width:' + pct(a, t) + '%;background:var(--olive)"></i><i style="width:' + pct(b, t) + '%;background:#a9bb83"></i></div><div class="tt-n">' + a + ' · ' + b + (word ? ' ' + word : '') + '</div>';
+        }
+        function famState(n) {
+          if (n.status !== 'active') {
+            var dd = Math.floor((Date.now() - new Date(n.pending_invite_at || n.created_at).getTime()) / 864e5);
+            return ['none', 'Esperando · ' + dd + ' ' + plural(dd, 'día', 'días')];
+          }
+          var h = health(sinceWord(n.last_moment));
+          if (!n.last_moment) return ['lose', 'Sin compartir'];
+          return h === 'ok' ? ['win', 'Al día'] : h === 'meh' ? ['mid', 'Tranquilo'] : ['lose', 'Quieto'];
+        }
+        function famTable(nidis, m) {
+          var rows = nidis.slice().sort(function (x, y) {
+            if ((x.status === 'active') !== (y.status === 'active')) return x.status === 'active' ? -1 : 1;
+            return String(y.last_moment || y.created_at).localeCompare(String(x.last_moment || x.created_at));
+          });
+          var html = '<div class="card tt"><div class="tt-h"><span>Familias</span><span>Ordenadas por último momento</span></div><div class="tablewrap"><table class="tt-table rs-t"><thead><tr>'
+            + '<th>Nidi</th><th class="hide-m">Desde</th><th class="r">Último momento</th><th class="r hide-m">Momentos</th><th class="r hide-m">Notas</th><th class="hide-m">Quién comparte</th><th class="hide-m">Plan</th><th>Estado</th></tr></thead><tbody>';
+          if (!rows.length) html += '<tr><td colspan="8" class="quiet">Todavía ninguna.</td></tr>';
+          rows.forEach(function (n) {
+            var stt = famState(n), hrs = sinceWord(n.last_moment);
+            var sub = n.status !== 'active' ? (n.pending_invite_opened === false ? 'invitación sin abrir' : 'armó el nidi el ' + dmy(n.created_at))
+              : (n.invitee && n.b && String(n.invitee).split(/\s+/)[0].toLowerCase() !== String(n.b).split(/\s+/)[0].toLowerCase() ? 'invitó a "' + esc(n.invitee) + '"' : '');
+            html += '<tr class="rs-row st-' + stt[0] + '"><td><div class="tt-t">' + nidiName(n) + '</div>' + (sub ? '<div class="tt-s">' + sub + '</div>' : '') + '</td>'
+              + '<td class="hide-m">' + dmy(n.activated_at || n.created_at) + '</td>'
+              + '<td class="r">' + (hrs == null ? '—' : 'hace ' + hoursWord(hrs)) + '</td>'
+              + '<td class="r hide-m">' + (n.moments || 0) + '</td><td class="r hide-m">' + (n.notes || 0) + '</td>'
+              + '<td class="hide-m">' + whoShares(n) + '</td><td class="hide-m">' + planOf(n, m) + '</td>'
+              + '<td><span class="pill tt-' + stt[0] + '">' + stt[1] + '</span></td></tr>';
+          });
+          return html + '</tbody></table></div><div class="tt-legend">Estado: verde, alguien compartió en las últimas 24 h · amarillo, entre 1 y 3 días · rojo, más de 3 días · crema, falta que entre la otra casa. Quién comparte: momentos de cada casa, en el orden del nombre.</div></div>';
+        }
+        function funnelCard(f, paying) {
+          var steps = [['Instalaron', f.installs], ['Entraron con su email', f.signed_in], ['Hicieron su perfil', f.profile], ['Armaron un nidi', f.nidi], ['Entró la otra casa', f.activated], ['Comparten las dos', f.both_shared], ['Pagan', paying]];
+          var top = steps[0][1] || 1, worst = -1, wd = 0;
+          for (var i = 1; i < steps.length; i++) { var dr = (steps[i - 1][1] || 0) - (steps[i][1] || 0); if (dr > wd) { wd = dr; worst = i; } }
+          var body = '<div class="rs-fun">' + steps.map(function (st2, i) {
+            return '<span>' + st2[0] + '</span><div class="tt-track"><i style="width:' + Math.max(2, pct(st2[1] || 0, top)) + '%;background:var(--olive)"></i></div><span class="r">' + (st2[1] == null ? '—' : st2[1]) + '</span>'
+              + (i === worst && i > 1 ? '<span class="rs-drop">▼ ' + wd + ' de ' + steps[i - 1][1] + ' frenan en este paso</span>' : '');
+          }).join('') + '</div>';
+          return card('Embudo desde el lanzamiento', 'Desde que alguien instala hasta que paga. Instalaron cuenta teléfonos; el resto, personas de esta vista.', body);
+        }
+        function readings(s, f, wm, wn) {
+          var out = [], act = s.nidis.filter(function (n) { return n.status === 'active'; });
+          var oneWay = act.filter(function (n) { var a = n.moments_a || 0, b = n.moments_b || 0, hi = Math.max(a, b); return hi >= 3 && Math.min(a, b) / hi <= .2; });
+          if (oneWay.length) out.push('<b>Una casa manda y la otra responde.</b> En ' + oneWay.length + ' de ' + act.length + ' ' + plural(act.length, 'familia', 'familias') + ' los momentos salen casi todos de una casa (' + oneWay.map(function (n) { var a = n.moments_a >= n.moments_b; return esc(a ? n.a : n.b) + ' ' + Math.max(n.moments_a, n.moments_b) + ', ' + esc((a ? n.b : n.a) || '?') + ' ' + (a ? n.notes_b : n.notes_a) + ' notas'; }).join(' · ') + ').'
+            + (wn.before != null && wm.before != null && wn.now > wn.before && wm.now < wm.before ? ' Las notas suben (' + wn.now + ' contra ' + wn.before + ') aunque los momentos bajan.' : ''));
+          var steps = [['entrar con su email', f.installs, f.signed_in], ['hacer el perfil', f.signed_in, f.profile], ['armar un nidi', f.profile, f.nidi], ['que entre la otra casa', f.nidi, f.activated]];
+          var w = steps.slice().sort(function (x, y) { return (y[1] - y[2]) - (x[1] - x[2]); })[0];
+          if (w && w[1] - w[2] > 0) out.push('<b>El freno grande está antes de ' + w[0] + '.</b> De ' + w[1] + ', ' + (w[1] - w[2]) + ' no ' + plural(w[1] - w[2], 'llegó', 'llegaron') + '.');
+          var waiting = s.nidis.filter(function (n) { return n.status === 'pending'; }).map(function (n) { return { n: n, d: Math.floor((Date.now() - new Date(n.pending_invite_at || n.created_at).getTime()) / 864e5) }; }).filter(function (x) { return x.d >= 3; }).sort(function (x, y) { return y.d - x.d; });
+          waiting.slice(0, 2).forEach(function (x) { out.push('<b>' + esc(x.n.a) + ' espera a ' + esc(x.n.invitee || 'la otra casa') + ' hace ' + x.d + ' días</b>' + (x.n.pending_invite_opened === false ? ' con la invitación sin abrir.' : '.')); });
+          return card('Para mirar', 'Solo lo que puede cambiar una decisión. Sale de los datos de esta vista.', out.length ? '<ul class="rs-read">' + out.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul>' : '<p class="quiet">Nada que cambie una decisión hoy.</p>');
+        }
+        function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
           var pending = s.nidis.filter(function (n) { return n.status === 'pending'; });
-          var m = s.money, en = s.engagement || {};
+          var m = s.money || {}, all = s.series || [], f = s.funnel || {};
+          var wa = wk(all, 'activated'), wm = wk(all, 'moments'), wn = wk(all, 'notes'), wi = wk(all, 'installs');
+          var paying = m.view_paid_active != null ? m.view_paid_active : m.paid_active;
+          var gifts = (m.gifts_years || 0) + (m.gifts_months || 0);
           var html = newsHtml(d.news || []);
-          // an invitation waiting more than two days now comes as news, closed like the rest (2026-11-10)
-          html += '<div class="kpis">'
-            + tile('Familias', 'Nidis con las dos casas adentro.', active.length, '', pending.length ? '+' + pending.length + ' esperando a la otra casa' : '', spark(ser, 'activated', C1))
-            + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), 'esta semana')
-            + tile('Momentos', 'Fotos, audios y textos enviados desde el lanzamiento.', s.moments.total, '', s.moments.notes + ' ' + plural(s.moments.notes, 'nota', 'notas'), spark(ser, 'moments', C1))
-            + tile('Tiempo por día', 'Estimado: del primer al último evento de cada visita, por persona en un día que abrió Nidi. Nidi no mide la pantalla.', minsWord(en.minutes_per_active_day), '', String(en.sessions_per_user_day || 0).replace('.', ',') + ' visitas por día', spark(ser, 'minutes', C1))
-            + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez desde el lanzamiento (31/10). No cuenta los que entraron con una cuenta de prueba, pero sí un teléfono de prueba que nunca entró a ninguna cuenta.', s.funnel.installs, '', installsWeek(s.series || []), spark(ser, 'installs', C1))
-            + tile('Suscripciones', 'Personas de esta vista que pagan, y las que tienen tiempo gratis activo: un año (códigos) o meses (founding families y creadoras). Ingresos muestra todos los pagos, también los de la familia.', m.view_paid_active != null ? m.view_paid_active : m.paid_active, plural(m.view_paid_active != null ? m.view_paid_active : m.paid_active, 'paga', 'pagas'), m.gifts_years != null ? m.gifts_years + ' con un año gratis · ' + m.gifts_months + ' con meses gratis' : m.gifts_redeemed + ' con tiempo gratis')
+          html += '<div class="kpis rs-kpis">'
+            + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron estos 7 días contra los 7 anteriores.', active.length, '', '<span class="delta ' + (wa.before == null || wa.now === wa.before ? 'flat' : wa.now > wa.before ? 'up' : 'down') + '">' + wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + '</span> en 7 días' + (wa.before != null ? ' · ' + wa.before + ' la semana anterior' : '') + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
+            + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), (gr.families ? '<span class="delta ' + ((gr.both_ways_7d || 0) === gr.families ? 'up' : 'flat') + '">' + pct(gr.both_ways_7d || 0, gr.families) + '%</span> · ' : '') + 'las dos casas esta semana')
+            + tile('Momentos', 'Fotos, audios y textos enviados estos 7 días, contra los 7 anteriores. Hoy cuenta aunque no terminó.', wm.now, '', wkNote(wm) + '<br>' + s.moments.total + ' desde el lanzamiento')
+            + tile('Notas', 'Respuestas escritas sobre un momento, estos 7 días contra los 7 anteriores.', wn.now, '', wkNote(wn) + '<br>' + s.moments.notes + ' desde el lanzamiento')
+            + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez, estos 7 días contra los 7 anteriores. No cuenta los que entraron con una cuenta de prueba.', wi.now, '', wkNote(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
+            + tile('Pagan', 'Personas de esta vista que pagan. Tiempo gratis: un año (códigos) o meses (founding families y creadoras). Ingresos muestra todos los pagos.', paying, '', gifts + ' con tiempo gratis')
             + '</div>';
           var KM = [{ k: 'moments', color: C1, label: 'Momentos' }, { k: 'notes', color: C2, label: 'Notas' }];
-          html += '<div class="two" style="margin-top:10px">'
-            + card('Momentos y notas', 'Lo que se comparte cada día. La nota es una respuesta escrita sobre un momento.', legend(KM) + chart(ser, KM, { label: 'Momentos y notas por día' }))
-            + card('Cómo van las familias', 'Cuánto pasó desde la última vez que alguien compartió o respondió.', famNow(active))
+          html += '<div class="rs-grid">'
+            + card('Momentos y notas por día', 'Lo que se comparte cada día. La nota es una respuesta escrita sobre un momento.', legend(KM) + chart(ser, KM, { label: 'Momentos y notas por día' }))
+            + funnelCard(f, paying)
             + '</div>';
-          html += '<div style="margin-top:10px">' + leftCard(s.left, s.store_deletions) + '</div>';
+          html += famTable(s.nidis, m);
+          html += '<div class="rs-grid">' + readings(s, f, wm, wn) + leftCard(s.left, s.store_deletions) + '</div>';
           return html;
         }
         // Installs this week against the week before, both after launch
