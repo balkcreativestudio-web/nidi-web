@@ -957,7 +957,8 @@
           added_to_house: { label: 'De quienes abren Hoy, cuántos suman a alguien a su casa: un niño o alguien que vive con ellos.', unit: 'share' },
           // 2026-11-13: the meetup gets days and a place. Only events, so
           // "before" is 0 by construction (the card's note says so).
-          meetup_set: { label: 'De quienes abren Hoy, cuántos arman un encuentro con la pantalla nueva: el día, cuántos días y dónde.', unit: 'share' }
+          meetup_set: { label: 'De quienes abren Hoy, cuántos arman un encuentro con la pantalla nueva: el día, cuántos días y dónde.', unit: 'share' },
+          dropout_came_back: { label: 'De quienes se registran y a las 24 h siguen sin nidi andando, cuántos avanzan después: confirman el código, crean el nidi o entra la otra casa.', unit: 'share' }
         };
         var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
         function todayAms() { try { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
@@ -1026,6 +1027,7 @@
           }
           if (c.metric === 'paywall_purchase') return 'Compras después: ' + a.annual + ' ' + plural(Number(a.annual), 'anual', 'anuales') + ' y ' + a.monthly + ' ' + plural(Number(a.monthly), 'mensual', 'mensuales') + (c.before ? ' (antes: ' + c.before.annual + ' y ' + c.before.monthly + ')' : '') + '.';
           if (c.metric === 'added_to_house') return 'Después: ' + a.children + ' ' + plural(Number(a.children), 'niño sumado', 'niños sumados') + ' y ' + a.housemates + ' ' + plural(Number(a.housemates), 'invitación', 'invitaciones') + ' a alguien de la casa' + (c.before ? ' (antes: ' + c.before.children + ' y ' + c.before.housemates + ')' : '') + '.';
+          if (c.metric === 'dropout_came_back') return 'Mensajes enviados: ' + a.messages + (Number(a.failed) ? ' (' + a.failed + ' ' + plural(Number(a.failed), 'falló', 'fallaron') + ')' : '') + (Number(a.skipped) ? '. Salteados por Maru: ' + a.skipped : '') + '.';
           if (c.metric === 'meetup_set') return 'Después: ' + a.with_place + ' con lugar, ' + a.long_stay + ' de más de un día, y la foto del encuentro se abrió ' + a.photo_opens + ' ' + plural(Number(a.photo_opens), 'vez', 'veces') + '.';
           if (c.metric === 'activity_share') return Number(a.new_den) ? 'Los nidis que empezaron después, aparte: ' + pct(a.new_num, a.new_den) + '% (' + a.new_num + ' de ' + a.new_den + ').' : '';
           return '';
