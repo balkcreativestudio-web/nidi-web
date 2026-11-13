@@ -849,8 +849,12 @@
           var pending = s.nidis.filter(function (n) { return n.status === 'pending'; });
           var m = s.money || {}, all = s.series || [], f = s.funnel || {};
           var wa = wk(all, 'activated'), wm = wk(all, 'moments'), wn = wk(all, 'notes'), wi = wk(all, 'installs');
-          var paying = m.view_paid_active != null ? m.view_paid_active : m.paid_active;
-          var gifts = (m.gifts_years || 0) + (m.gifts_months || 0);
+          // Counted by nidi, not by person (Maru 13/11): Fer and Andrea are
+          // one family, and a code with no nidi behind it is not a family.
+          var plans = active.map(function (n) { return planOf(n, m); });
+          var paying = plans.filter(function (p) { return p === 'Paga'; }).length;
+          var giftNidis = plans.filter(function (p) { return /gratis$/.test(p); }).length;
+          var trialNidis = plans.filter(function (p) { return /^Prueba/.test(p); }).length;
           var html = newsHtml(d.news || []);
           html += '<div class="kpis rs-kpis">'
             + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron en el período elegido arriba (7, 14 o 28 días) contra el mismo período anterior.', active.length, '', wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + ' en ' + range + ' días<br>' + wkDelta(wa) + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
@@ -858,7 +862,7 @@
             + tile('Momentos', 'Fotos, audios y textos enviados en el período elegido arriba (7, 14 o 28 días), contra el mismo período anterior. Hoy cuenta aunque no terminó.', wm.now, 'en ' + range + ' días', wkDelta(wm) + '<br>' + s.moments.total + ' desde el lanzamiento')
             + tile('Notas', 'Respuestas escritas sobre un momento, en el período elegido arriba, contra el mismo período anterior.', wn.now, 'en ' + range + ' días', wkDelta(wn) + '<br>' + s.moments.notes + ' desde el lanzamiento')
             + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez en el período elegido arriba, contra el mismo período anterior. No cuenta los que entraron con una cuenta de prueba.', wi.now, 'en ' + range + ' días', wkDelta(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
-            + tile('Pagan', 'Personas de esta vista que pagan. Tiempo gratis: un año (códigos) o meses (founding families y creadoras). Ingresos muestra todos los pagos.', paying, '', gifts + ' con tiempo gratis')
+            + tile('Pagan', 'Familias (nidis con las dos casas adentro) donde alguien paga. Tiempo gratis: un año (códigos) o meses (founding families y creadoras). Si alguien paga, el nidi cuenta como que paga aunque la otra casa tenga tiempo gratis. Ingresos muestra todos los pagos.', paying, 'de ' + active.length, giftNidis + ' con tiempo gratis' + (trialNidis ? '<br>' + trialNidis + ' en prueba' : ''))
             + '</div>';
           var KM = [{ k: 'moments', color: C1, label: 'Momentos' }, { k: 'notes', color: C2, label: 'Notas' }];
           html += '<div class="rs-grid">'
