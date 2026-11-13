@@ -720,14 +720,18 @@
         // each this week against the week before; the daily chart; the funnel
         // from install to paying; every family in one table, coloured by how
         // recently someone shared; and only the readings that change a decision.
+        // The last N days against the N before, N from the 7d/14d/28d buttons
+        // (Maru 13/11). Only days since launch count: until there are two full
+        // periods after 31/10 there is nothing to compare with, and it says so.
         function wk(all, k) {
-          var post = all.filter(function (r) { return String(r.day) >= '2026-10-31'; });
-          return { now: sum(post.slice(-7), k), before: post.length >= 14 ? sum(post.slice(-14, -7), k) : null };
+          var n = range, post = all.filter(function (r) { return String(r.day) >= '2026-10-31'; });
+          return { n: n, now: sum(post.slice(-n), k), before: post.length >= 2 * n ? sum(post.slice(-2 * n, -n), k) : null, from: post.length ? post[Math.max(0, post.length - 2 * n)].day : null };
         }
-        function wkNote(w, nowWord) {
-          if (w.before == null) return (nowWord || '') + 'en los últimos 7 días';
-          var dlt = w.now - w.before, cls = dlt > 0 ? 'up' : dlt < 0 ? 'down' : 'flat';
-          return '<span class="delta ' + cls + '">' + (dlt > 0 ? '▲ ' + dlt : dlt < 0 ? '▼ ' + (-dlt) : '=') + (nowWord ? ' ' + nowWord : '') + '</span> · ' + w.before + ' la semana anterior';
+        function wkDelta(w) {
+          if (w.before == null) return '<span class="quiet">Sin período anterior (salió el 31/10)</span>';
+          if (!w.before) return w.now ? '<span class="delta up">▲ nuevo</span> · 0 en los ' + w.n + ' días anteriores' : '<span class="delta flat">=</span> · 0 en los ' + w.n + ' días anteriores';
+          var p = Math.round((w.now - w.before) / w.before * 100), cls = p > 0 ? 'up' : p < 0 ? 'down' : 'flat';
+          return '<span class="delta ' + cls + '">' + (p > 0 ? '▲ ' + p : p < 0 ? '▼ ' + (-p) : '= 0') + '%</span> · ' + w.before + ' en los ' + w.n + ' días anteriores';
         }
         function planOf(n, m) {
           var f = function (x) { return String(x || '').trim().split(/\s+/)[0].toLowerCase(); };
@@ -781,7 +785,7 @@
           return html + '</tbody></table></div><div class="tt-legend">Estado: verde, alguien compartió en las últimas 24 h · amarillo, entre 1 y 3 días · rojo, más de 3 días · crema, falta que entre la otra casa. Quién comparte: momentos de cada casa, en el orden del nombre.</div></div>';
         }
         function funnelCard(f, paying) {
-          var steps = [['Instalaron', f.installs], ['Entraron con su email', f.signed_in], ['Hicieron su perfil', f.profile], ['Armaron un nidi', f.nidi], ['Entró la otra casa', f.activated], ['Comparten las dos', f.both_shared], ['Pagan', paying]];
+          var steps = [['Instalaron', f.installs], ['Pidieron el código', f.signed_in], ['Hicieron su perfil', f.profile], ['Armaron un nidi', f.nidi], ['Entró la otra casa', f.activated], ['Comparten las dos', f.both_shared], ['Pagan', paying]];
           var top = steps[0][1] || 1, worst = -1, wd = 0;
           for (var i = 1; i < steps.length; i++) { var dr = (steps[i - 1][1] || 0) - (steps[i][1] || 0); if (dr > wd) { wd = dr; worst = i; } }
           var body = '<div class="rs-fun">' + steps.map(function (st2, i) {
@@ -794,8 +798,8 @@
           var out = [], act = s.nidis.filter(function (n) { return n.status === 'active'; });
           var oneWay = act.filter(function (n) { var a = n.moments_a || 0, b = n.moments_b || 0, hi = Math.max(a, b); return hi >= 3 && Math.min(a, b) / hi <= .2; });
           if (oneWay.length) out.push('<b>Una casa manda y la otra responde.</b> En ' + oneWay.length + ' de ' + act.length + ' ' + plural(act.length, 'familia', 'familias') + ' los momentos salen casi todos de una casa (' + oneWay.map(function (n) { var a = n.moments_a >= n.moments_b; return esc(a ? n.a : n.b) + ' ' + Math.max(n.moments_a, n.moments_b) + ', ' + esc((a ? n.b : n.a) || '?') + ' ' + (a ? n.notes_b : n.notes_a) + ' notas'; }).join(' · ') + ').'
-            + (wn.before != null && wm.before != null && wn.now > wn.before && wm.now < wm.before ? ' Las notas suben (' + wn.now + ' contra ' + wn.before + ') aunque los momentos bajan.' : ''));
-          var steps = [['entrar con su email', f.installs, f.signed_in], ['hacer el perfil', f.signed_in, f.profile], ['armar un nidi', f.profile, f.nidi], ['que entre la otra casa', f.nidi, f.activated]];
+            + (wn.before != null && wm.before != null && wn.now > wn.before && wm.now < wm.before ? ' En ' + range + ' días las notas suben (' + wn.now + ' contra ' + wn.before + ') aunque los momentos bajan.' : ''));
+          var steps = [['pedir el código', f.installs, f.signed_in], ['hacer el perfil', f.signed_in, f.profile], ['armar un nidi', f.profile, f.nidi], ['que entre la otra casa', f.nidi, f.activated]];
           var w = steps.slice().sort(function (x, y) { return (y[1] - y[2]) - (x[1] - x[2]); })[0];
           if (w && w[1] - w[2] > 0) out.push('<b>El freno grande está antes de ' + w[0] + '.</b> De ' + w[1] + ', ' + (w[1] - w[2]) + ' no ' + plural(w[1] - w[2], 'llegó', 'llegaron') + '.');
           var waiting = s.nidis.filter(function (n) { return n.status === 'pending'; }).map(function (n) { return { n: n, d: Math.floor((Date.now() - new Date(n.pending_invite_at || n.created_at).getTime()) / 864e5) }; }).filter(function (x) { return x.d >= 3; }).sort(function (x, y) { return y.d - x.d; });
@@ -811,11 +815,11 @@
           var gifts = (m.gifts_years || 0) + (m.gifts_months || 0);
           var html = newsHtml(d.news || []);
           html += '<div class="kpis rs-kpis">'
-            + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron estos 7 días contra los 7 anteriores.', active.length, '', '<span class="delta ' + (wa.before == null || wa.now === wa.before ? 'flat' : wa.now > wa.before ? 'up' : 'down') + '">' + wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + '</span> en 7 días' + (wa.before != null ? ' · ' + wa.before + ' la semana anterior' : '') + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
+            + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron en el período elegido arriba (7, 14 o 28 días) contra el mismo período anterior.', active.length, '', wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + ' en ' + range + ' días<br>' + wkDelta(wa) + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
             + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), (gr.families ? '<span class="delta ' + ((gr.both_ways_7d || 0) === gr.families ? 'up' : 'flat') + '">' + pct(gr.both_ways_7d || 0, gr.families) + '%</span> · ' : '') + 'las dos casas esta semana')
-            + tile('Momentos', 'Fotos, audios y textos enviados estos 7 días, contra los 7 anteriores. Hoy cuenta aunque no terminó.', wm.now, '', wkNote(wm) + '<br>' + s.moments.total + ' desde el lanzamiento')
-            + tile('Notas', 'Respuestas escritas sobre un momento, estos 7 días contra los 7 anteriores.', wn.now, '', wkNote(wn) + '<br>' + s.moments.notes + ' desde el lanzamiento')
-            + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez, estos 7 días contra los 7 anteriores. No cuenta los que entraron con una cuenta de prueba.', wi.now, '', wkNote(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
+            + tile('Momentos', 'Fotos, audios y textos enviados en el período elegido arriba (7, 14 o 28 días), contra el mismo período anterior. Hoy cuenta aunque no terminó.', wm.now, 'en ' + range + ' días', wkDelta(wm) + '<br>' + s.moments.total + ' desde el lanzamiento')
+            + tile('Notas', 'Respuestas escritas sobre un momento, en el período elegido arriba, contra el mismo período anterior.', wn.now, 'en ' + range + ' días', wkDelta(wn) + '<br>' + s.moments.notes + ' desde el lanzamiento')
+            + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez en el período elegido arriba, contra el mismo período anterior. No cuenta los que entraron con una cuenta de prueba.', wi.now, 'en ' + range + ' días', wkDelta(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
             + tile('Pagan', 'Personas de esta vista que pagan. Tiempo gratis: un año (códigos) o meses (founding families y creadoras). Ingresos muestra todos los pagos.', paying, '', gifts + ' con tiempo gratis')
             + '</div>';
           var KM = [{ k: 'moments', color: C1, label: 'Momentos' }, { k: 'notes', color: C2, label: 'Notas' }];
