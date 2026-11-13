@@ -243,6 +243,30 @@
       }
 
       /* changes: each one, the same measure before and after */
+      .tt { padding:0; margin-top:12px; }
+      .tt-h { display:flex; justify-content:space-between; gap:10px; padding:14px 16px 10px; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); }
+      .tt-h span:last-child { text-transform:none; letter-spacing:0; }
+      .tt-table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+      .tt-table th { font-size:11px; font-weight:500; color:var(--ink2); text-align:left; padding:8px 12px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:#fbf8f1; white-space:nowrap; }
+      .tt-table td { padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:middle; font-size:14px; }
+      .tt-table .r { text-align:right; white-space:nowrap; }
+      .tt-row { cursor:pointer; } .tt-row:hover td, .tt-row.sel td { background:#fbf8f1; }
+      .tt-row td:first-child { box-shadow:inset 3px 0 0 var(--line); }
+      .tt-row.st-mid td:first-child { box-shadow:inset 3px 0 0 #e2b866; } .tt-row.st-win td:first-child { box-shadow:inset 3px 0 0 #a9bb83; } .tt-row.st-lose td:first-child { box-shadow:inset 3px 0 0 #d79aa9; }
+      .tt-t { font-weight:500; } .tt-caret { color:var(--ink3); font-size:11px; } .tt-s { font-size:12px; color:var(--ink2); margin-top:1px; } .tt-m { color:var(--ink); }
+      .tt-n { font-size:11px; color:var(--ink3); }
+      .pill.tt-none { background:var(--line2); color:var(--ink2); } .pill.tt-mid { background:var(--honey-soft); color:#7a5a16; } .pill.tt-win { background:var(--olive-soft); color:#4d5c2a; } .pill.tt-lose { background:var(--rose-soft); color:var(--rose); }
+      .tt-open > td { padding:0 !important; background:var(--paper); }
+      .tt-detail { display:grid; grid-template-columns:1.1fr 1fr 1fr; }
+      .tt-detail > div { padding:16px; border-right:1px solid var(--line); min-width:0; } .tt-detail > div:last-child { border-right:0; }
+      .tt-detail .dl { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); margin-bottom:10px; }
+      .tt-cmp { display:grid; grid-template-columns:72px 1fr 44px; gap:8px; align-items:center; margin:8px 0; font-size:13px; }
+      .tt-track { height:12px; background:var(--line2); border-radius:6px; position:relative; overflow:hidden; } .tt-track i { position:absolute; left:0; top:0; bottom:0; border-radius:6px; }
+      .tt-sec { display:grid; grid-template-columns:1fr auto auto; gap:4px 14px; font-size:13px; } .tt-sec .k { color:var(--ink2); }
+      .tt-read { font-size:13px; margin:0; } .tt-foot { font-size:11px; margin-top:8px; }
+      .tt-note { font-size:12px; color:var(--ink2); margin-top:10px; } .tt-note summary { cursor:pointer; }
+      .tt-legend { font-size:11px; color:var(--ink3); padding:10px 16px; }
+      @media (max-width:760px) { .tt-table .hide-m { display:none; } .tt-detail { grid-template-columns:1fr; } .tt-detail > div { border-right:0; border-bottom:1px solid var(--line); } }
       .ch-list { display:flex; flex-direction:column; gap:10px; }
       .ch-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
       .ch-top b { font-weight:500; font-size:16px; }
@@ -635,7 +659,7 @@
         // ── render ──────────────────────────────────────────────────────
         // Seven rooms, and Externos / Con familia applies to all of them. Test
         // accounts are gone before the numbers get here (hq_group).
-        var TABS = [['resumen', 'Resumen'], ['cambios', 'Cambios'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos'], ['mkt', 'Marketing']];
+        var TABS = [['resumen', 'Resumen'], ['cambios', 'Tests'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos'], ['mkt', 'Marketing']];
         var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
         var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando', invited_check: 'La pregunta' };
         var PLAN_L = { paid: 'Paga', gift: 'Año gratis', trial: 'Prueba', invited: 'Invitación' };
@@ -958,6 +982,7 @@
           // 2026-11-13: the meetup gets days and a place. Only events, so
           // "before" is 0 by construction (the card's note says so).
           meetup_set: { label: 'De quienes abren Hoy, cuántos arman un encuentro con la pantalla nueva: el día, cuántos días y dónde.', unit: 'share' },
+          trial_conversion: { label: 'De las familias cuya prueba de 14 días terminó sin un regalo y sin haber pagado antes, cuántas pagan.', unit: 'share' },
           dropout_came_back: { label: 'De quienes se registran y a las 24 h siguen sin nidi andando, cuántos avanzan después: confirman el código, crean el nidi o entra la otra casa.', unit: 'share' }
         };
         var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
@@ -1032,29 +1057,119 @@
           if (c.metric === 'activity_share') return Number(a.new_den) ? 'Los nidis que empezaron después, aparte: ' + pct(a.new_num, a.new_den) + '% (' + a.new_num + ' de ' + a.new_den + ').' : '';
           return '';
         }
+        // ── Tests (2026-11-13; "Cambios" until then) ────────────────────
+        // Maru: a dashboard a senior data analyst would sign. One table, one
+        // row per test, ordered by the day it is decided; the colour is the
+        // result (crema: no data yet, verde: for, amarillo: mixed or small,
+        // rojo: against). Each row opens to before/after, the support
+        // numbers and a reading of one or two sentences. Names, lines, status
+        // and reading live in hq_changes (migration 20261113170000); without a
+        // status the page works one out.
+        var TT_OPEN = {};
+        var TT_LABEL = { none: 'Sin datos aún', mid: 'Midiendo', win: 'A favor', lose: 'En contra' };
+        function ttSide(m, unit) {
+          if (!m) return { v: '—', n: '' };
+          if (m.ended != null && Number(m.ended) === 0) return { v: '—', n: 'ninguna prueba terminó' };
+          var v = chValue(m, unit);
+          if (v == null) return { v: '—', n: m.messages != null ? m.messages + ' ' + plural(Number(m.messages), 'enviado', 'enviados') : 'sin casos' };
+          return { v: unit === 'share' ? Math.round(v) + '%' : chWord(v, unit).replace(/<[^>]+>/g, ' '), n: unit === 'share' ? m.num + ' de ' + m.den : m.num + ' en total' };
+        }
+        function ttStatus(c, unit) {
+          var b = chValue(c.before, unit), a = chValue(c.after, unit);
+          var small = (c.before && Number(c.before.den) < 10) || (c.after && Number(c.after.den) < 10);
+          var st = c.status, label = c.status_label;
+          if (!st) {
+            if (c.verdict === 'works') st = 'win'; else if (c.verdict === 'no') st = 'lose'; else if (c.verdict === 'unclear') st = 'mid';
+            else if (a == null) st = 'none';
+            else if (b != null && a > b && (c.goal == null || a >= Number(c.goal))) st = 'win';
+            else if (b != null && a < b) st = 'lose';
+            else st = 'mid';
+          }
+          if (!label) label = c.verdict ? CH_ST[c.verdict] : TT_LABEL[st];
+          if (st !== 'none' && small && !/muestra/.test(label)) label += ' · muestra chica';
+          return { st: st, label: label, small: small };
+        }
+        function ttDelta(c, unit, st) {
+          var b = chValue(c.before, unit), a = chValue(c.after, unit);
+          if (a == null || b == null) return '<span class="flat">—</span>';
+          var d = a - b, cls = st === 'mid' ? 'meh' : d > 0 ? 'ok' : d < 0 ? 'warn' : 'flat';
+          if (unit === 'share') return '<span class="' + cls + '">' + (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(Math.round(d)) + ' pp</span>';
+          return '<span class="' + cls + '">' + (b ? (d > 0 ? '+' : '−') + Math.abs(Math.round(d / b * 100)) + '%' : '—') + '</span>';
+        }
+        function ttBar(label, v, color) {
+          return '<div class="tt-cmp"><span>' + esc(label) + '</span><div class="tt-track"><i style="width:' + Math.max(0, Math.min(100, Math.round(v || 0))) + '%;background:' + color + '"></i></div><span class="r">' + (v == null ? '—' : Math.round(v) + '%') + '</span></div>';
+        }
+        function ttSec(rows, head) {
+          return '<div class="tt-sec' + (head ? ' three' : '') + '">' + (head ? '<span></span><span class="quiet">' + head[0] + '</span><span class="quiet">' + head[1] + '</span>' : '')
+            + rows.map(function (r) { return '<span class="k">' + r[0] + '</span><span>' + r[1] + '</span><span class="quiet">' + (r[2] == null ? '' : r[2]) + '</span>'; }).join('') + '</div>';
+        }
+        function ttDetail(c, m, s) {
+          var a = c.after || {}, b = c.before || {}, unit = m.unit, col1 = '', col2 = '';
+          var color = s.st === 'win' ? 'var(--olive)' : s.st === 'lose' ? 'var(--rose)' : s.st === 'mid' ? 'var(--honey)' : 'var(--ink3)';
+          if (c.metric === 'trial_conversion') {
+            var up = a.upcoming || [], paidSoon = up.filter(function (u) { return u.label === 'ya pagó'; }), giftSoon = up.filter(function (u) { return u.label !== 'ya pagó' && u.label !== 'sin regalo'; });
+            col1 = '<div class="dl">Después de la prueba de 14 días</div>' + ttSec([
+              ['Pruebas terminadas', a.ended || 0],
+              ['Pagaron después de la prueba', Number(a.den) ? a.num + ' de ' + a.den : '—'],
+              ['Pagaron antes de que termine', Number(a.paid_early || 0) + paidSoon.length, paidSoon.map(function (u) { return esc(u.names.split(' + ')[0]); }).join(', ')],
+              ['Con tiempo gratis (no pasan por el pago)', Number(a.gifted || 0) + giftSoon.length, '']
+            ]);
+            col2 = '<div class="dl">Próximos fines de prueba</div>' + (up.length ? ttSec(up.map(function (u) { return [esc(u.names), day12(u.ends), esc(u.label)]; })) : '<p class="quiet">Ninguno.</p>');
+          } else {
+            var bl = m.ba ? m.ba[0] : 'Antes', al = m.ba ? m.ba[1] : 'Después';
+            col1 = '<div class="dl">Antes y después</div>' + (unit === 'share'
+              ? ttBar(bl, chValue(c.before, unit), 'var(--ink3)') + ttBar(al, chValue(c.after, unit), color)
+              : '<p class="quiet">' + bl + ': ' + ttSide(c.before, unit).v + ' · ' + al + ': ' + ttSide(c.after, unit).v + '</p>')
+              + (c.metric === 'own_nidi_by_flow' ? '<p class="quiet tt-foot">Por el camino que vio cada persona, no por fecha. Cuenta familia.</p>' : c.metric === 'activity_share' ? '<p class="quiet tt-foot">Solo las familias que ya estaban antes.</p>' : '');
+            var sup = null, head = null;
+            if (c.metric === 'own_nidi_by_flow') { head = ['Email', 'Link']; sup = [['Guardaron el nidi', b.saved + ' de ' + b.den, a.saved + ' de ' + a.den], ['Tiempo hasta guardar (mediana)', b.median_minutes != null ? b.median_minutes + ' min' : '—', a.median_minutes != null ? '<span class="ok">' + a.median_minutes + ' min</span>' : '—'], ['Se fueron en "la otra casa"', b.left_other_house || 0, '<span class="ok">' + (a.left_other_house || 0) + '</span>']]; }
+            else if (c.metric === 'activity_share') sup = [['Nidis que empezaron después', Number(a.new_den) ? pct(a.new_num, a.new_den) + '%' : '—', Number(a.new_den) ? a.new_num + ' de ' + a.new_den : ''], ['Meta', c.goal != null ? c.goal + '%' : '—', '']];
+            else if (c.metric === 'dropout_came_back') sup = [['Mensajes enviados', a.messages || 0, ''], ['Salteados por Maru', a.skipped || 0, ''], ['Fallaron', a.failed || 0, '']];
+            else if (c.metric === 'meetup_set') sup = [['Con lugar', a.with_place || 0, ''], ['De más de un día', a.long_stay || 0, ''], ['Foto del encuentro abierta', a.photo_opens || 0, plural(Number(a.photo_opens || 0), 'vez', 'veces')]];
+            else if (c.metric === 'added_to_house') sup = [['Niños sumados', a.children || 0, 'antes ' + (b.children || 0)], ['Invitaciones a alguien de la casa', a.housemates || 0, 'antes ' + (b.housemates || 0)]];
+            else if (c.metric === 'play_search_visitors') sup = (a.terms || []).map(function (t) { return [esc(t.term), t.visitors, 'visitas']; });
+            col2 = '<div class="dl">Métricas de apoyo</div>' + (sup && sup.length ? ttSec(sup, head) : '<p class="quiet">Todavía nada para mostrar.</p>');
+          }
+          var col3 = '<div class="dl">Lectura</div>' + (c.reading ? '<p class="tt-read">' + esc(c.reading) + '</p>' : '<p class="quiet">' + chSay(c, unit, chState(c, todayAms()), todayAms()).replace(/<[^>]+>/g, '') + '</p>')
+            + (c.note ? '<details class="tt-note"><summary>Notas</summary><p>' + esc(c.note) + '</p></details>' : '')
+            + '<div class="actions"><button class="link" data-ch=\'' + esc(JSON.stringify({ id: c.id, title: c.title, shipped_on: c.shipped_on, decide_on: c.decide_on, decide_days: c.decide_days, verdict: c.verdict, note: c.note })) + '\'>editar</button></div>';
+          return '<tr class="tt-open"><td colspan="8"><div class="tt-detail"><div>' + col1 + '</div><div>' + col2 + '</div><div>' + col3 + '</div></div></td></tr>';
+        }
         function tabCambios(d) {
           var all = d.changes;
-          if (!all) return card('Cambios', '', '<p class="quiet">Todavía no está activo: falta aplicar la migración y publicar la función.</p>');
-          var rows = (VIEW === 'with_family' && all.with_family) ? all.with_family : (all.outside || []);
-          var today = todayAms(), counts = {};
-          rows.forEach(function (c) { var st = chState(c, today); counts[st] = (counts[st] || 0) + 1; });
-          var parts = [['decide', 'para decidir'], ['measuring', 'midiendo'], ['waiting_data', 'esperando datos'], ['waiting_ship', 'esperando que salga'], ['works', 'funcionan'], ['no', 'no funcionan'], ['unclear', 'sin veredicto claro']].filter(function (p) { return counts[p[0]]; }).map(function (p) { return '<b>' + counts[p[0]] + '</b> ' + (counts[p[0]] === 1 ? p[1].replace(/n$/, '') : p[1]); });
-          var html = '<p class="rm-head">' + rows.length + ' ' + plural(rows.length, 'cambio', 'cambios') + (parts.length ? ': ' + parts.join(', ') + '.' : '.') + '</p><div class="ch-list">';
-          if (!rows.length) html += card('Cambios', '', '<p class="quiet">Ninguno todavía.</p>');
-          rows.forEach(function (c) {
-            var m = CH_METRIC[c.metric] || { label: c.metric, unit: 'share' }, st = chState(c, today);
-            var when = [c.platforms ? esc(c.platforms) : '', c.shipped_on ? 'salió el ' + day12(c.shipped_on) : 'no salió todavía', c.decide ? 'se decide el ' + day12(c.decide) : ''].filter(Boolean).join(' · ');
-            html += '<div class="card ch"><div class="ch-top"><div><b>' + esc(c.title) + '</b><div class="meta">' + when + '</div></div><span class="pill ' + esc(st) + '">' + esc(CH_ST[st] || st) + '</span></div>'
-              + '<div class="ch-metric">' + esc(m.label) + '</div>'
-              + '<div class="ch-ba"><div><span class="k">' + (m.ba ? m.ba[0] : 'Antes') + '</span><span class="v">' + chWord(chValue(c.before, m.unit), m.unit) + '</span><span class="quiet">' + (c.before ? chDetail(c.before, m.unit) : c.shipped_on ? '' : 'desde el ' + (c.baseline_from ? day12(c.baseline_from) : '—')) + '</span></div>'
-              + '<div><span class="k">' + (m.ba ? m.ba[1] : 'Después') + '</span><span class="v">' + chWord(chValue(c.after, m.unit), m.unit) + '</span><span class="quiet">' + (c.after ? chCompare(c, m.unit) + (chCompare(c, m.unit) ? '<br>' : '') + chDetail(c.after, m.unit) : '') + '</span></div>'
-              + '<div><span class="k">Meta</span><span class="v">' + (c.goal != null ? chWord(Number(c.goal), m.unit) : '<small style="margin:0">mejor que ' + (m.than || 'antes') + '</small>') + '</span><span class="quiet">' + (c.min_sample ? 'con ' + c.min_sample + ' casos o más' : '') + '</span></div></div>'
-              + '<p class="ch-say">' + chSay(c, m.unit, st, today) + '</p>'
-              + (chExtra(c) ? '<div class="nt">' + chExtra(c) + '</div>' : '')
-              + (c.note ? '<div class="nt">' + esc(c.note) + '</div>' : '')
-              + '<div class="actions"><button class="link" data-ch=\'' + esc(JSON.stringify({ id: c.id, title: c.title, shipped_on: c.shipped_on, decide_on: c.decide_on, decide_days: c.decide_days, verdict: c.verdict, note: c.note })) + '\'>editar</button></div></div>';
+          if (!all) return card('Tests', '', '<p class="quiet">Todavía no está activo.</p>');
+          var rows = ((VIEW === 'with_family' && all.with_family) ? all.with_family : (all.outside || [])).slice();
+          var today = todayAms();
+          rows.sort(function (x, y) { return (x.decide || '9999') < (y.decide || '9999') ? -1 : (x.decide || '9999') > (y.decide || '9999') ? 1 : 0; });
+          var info = rows.map(function (c) { var m = CH_METRIC[c.metric] || { label: c.metric, unit: 'share' }; return { c: c, m: m, s: ttStatus(c, m.unit) }; });
+          var withSignal = info.filter(function (x) { return x.s.st !== 'none'; }).length;
+          var enough = info.filter(function (x) { return x.c.before && x.c.after && Number(x.c.before.den) >= 10 && Number(x.c.after.den) >= 10; }).length;
+          var next = info.filter(function (x) { return x.c.decide && x.c.decide >= today && !x.c.verdict; });
+          var nextDay = next.length ? next[0].c.decide : null, nextNames = next.filter(function (x) { return x.c.decide === nextDay; }).map(function (x) { return esc(x.c.title); });
+          var flow = info.filter(function (x) { return x.c.metric === 'own_nidi_by_flow' && x.c.after && x.c.after.median_minutes != null; })[0];
+          var best = flow ? { v: flow.c.after.median_minutes + ' min', d: 'Armar el nidi con link (antes ' + flow.c.before.median_minutes + ')' } : { v: withSignal, d: 'tests con señal' };
+          var html = '<div class="kpis four">'
+            + '<div class="kpi"><span class="k">Tests activos</span><span class="v">' + rows.length + '</span><span class="spacer"></span><span class="d">' + withSignal + ' con señal · ' + (rows.length - withSignal) + ' sin datos aún</span></div>'
+            + '<div class="kpi"><span class="k">Con muestra suficiente</span><span class="v">' + enough + '<small>de ' + rows.length + '</small></span><span class="spacer"></span><span class="d">Mínimo: 10 por lado</span></div>'
+            + '<div class="kpi"><span class="k">Próximo veredicto</span><span class="v">' + (nextDay ? day12(nextDay) : '—') + '</span><span class="spacer"></span><span class="d">' + nextNames.join(' · ') + '</span></div>'
+            + '<div class="kpi"><span class="k">Mejor señal hasta hoy</span><span class="v">' + best.v + '</span><span class="spacer"></span><span class="d">' + best.d + '</span></div></div>';
+          html += '<div class="card tt"><div class="tt-h"><span>Tests</span><span>Ordenados por fecha de decisión · tocá una fila para abrirla</span></div><table class="tt-table"><thead><tr>'
+            + '<th>Test</th><th class="hide-m">Mide</th><th class="r">Antes</th><th class="r">Después</th><th class="r">Cambio</th><th class="r hide-m">Muestra</th><th class="hide-m">Decide</th><th>Estado</th></tr></thead><tbody>';
+          info.forEach(function (x) {
+            var c = x.c, m = x.m, s = x.s, bs = ttSide(c.before, m.unit), as = ttSide(c.after, m.unit), open = TT_OPEN[c.id] != null ? TT_OPEN[c.id] : !!c.reading;
+            var measure = c.measure || m.label;
+            html += '<tr class="tt-row st-' + s.st + (open ? ' sel' : '') + '" data-tt="' + esc(c.id) + '">'
+              + '<td><div class="tt-t">' + esc(c.title) + ' <span class="tt-caret">' + (open ? '▾' : '▸') + '</span></div><div class="tt-s">' + esc(c.summary || '') + '</div></td>'
+              + '<td class="hide-m tt-m">' + esc(measure) + '</td>'
+              + '<td class="r">' + bs.v + '<div class="tt-n">' + bs.n + '</div></td>'
+              + '<td class="r">' + as.v + '<div class="tt-n">' + as.n + '</div></td>'
+              + '<td class="r">' + ttDelta(c, m.unit, s.st) + '</td>'
+              + '<td class="r hide-m">' + (c.before ? (c.before.den != null ? c.before.den : '—') : '—') + ' · ' + (c.after ? (c.after.den != null ? c.after.den : '—') : '—') + '</td>'
+              + '<td class="hide-m">' + (c.decide ? day12(c.decide) : '—') + '</td>'
+              + '<td><span class="pill tt-' + s.st + '">' + esc(s.label) + '</span></td></tr>';
+            if (open) html += ttDetail(c, m, s);
           });
-          html += '</div>';
+          html += '</tbody></table><div class="tt-legend">Cambio en puntos porcentuales (pp). Antes y después: la misma cantidad de días a cada lado de la salida, salvo donde se indica. Color del estado: crema, sin datos aún · verde, a favor · amarillo, mixto o poco · rojo, en contra. Con menos de 10 casos por lado se aclara “muestra chica”.</div></div>';
           html += '<details class="add" id="chdetails" style="margin-top:12px" hidden><summary>Editar</summary><form class="row mkf" id="chform"><input type="hidden" name="id" />'
             + '<label class="f"><span>Salió el</span><input name="shipped_on" type="date" /></label>'
             + '<label class="f"><span>Se decide el</span><input name="decide_on" type="date" /></label>'
@@ -1062,11 +1177,13 @@
             + '<label class="f full"><span>Nota</span><textarea name="note" maxlength="500" placeholder="sin emails"></textarea></label>'
             + '<p class="quiet full" id="chhint" style="margin:0"></p>'
             + '<div class="full"><button class="primary" type="submit" id="chsave">Guardar</button> <button type="button" class="ghost" id="chcancel">Cancelar</button></div></form></details>';
-          html += '<p class="quiet" style="margin-top:14px">Antes y después usan la misma medida, en días de Ámsterdam; el día que sale cuenta como después. "Después" termina el día de decidir, así que un cambio decidido guarda sus números. La historia de cada cambio está en docs/registro-de-cambios.md.</p>';
           return html;
         }
         function wireCh() {
           var cf = document.getElementById('chform'), det = document.getElementById('chdetails');
+          Array.prototype.forEach.call(document.querySelectorAll('[data-tt]'), function (r) {
+            r.onclick = function () { var id = r.getAttribute('data-tt'); var open = r.classList.contains('sel'); TT_OPEN[id] = !open; render(); };
+          });
           if (!cf) return;
           var close = function () { cf.reset(); det.hidden = true; det.open = false; EDITING = false; };
           cf.onsubmit = function (e) {
