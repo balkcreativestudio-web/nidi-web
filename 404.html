@@ -454,6 +454,61 @@
         color: var(--ink2);
         text-underline-offset: 3px;
       }
+      /* The invitation's code (2026-11-14): the store does not carry the
+         link through an install, so the code is on the page to copy or
+         type into Nidi's "Tengo un código". Paper on cream like the card,
+         but flat: a thing to read off, letter by letter. */
+      .codeBox {
+        margin: 32px 0 0;
+        padding: 0 4px;
+      }
+      .codeBox .how { margin-bottom: 10px; padding: 0; }
+      .codeRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: var(--paper);
+        border: 1px solid var(--field-line);
+        border-radius: 12px;
+        padding: 12px 12px 12px 18px;
+      }
+      .code {
+        font-family: var(--sans);
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 30px;
+        letter-spacing: 0.14em;
+        color: var(--ink);
+        user-select: all;
+        -webkit-user-select: all;
+        white-space: nowrap;
+      }
+      .copy {
+        flex: none;
+        font-family: var(--sans);
+        font-weight: 500;
+        font-size: 15px;
+        line-height: 20px;
+        color: var(--ink);
+        background: transparent;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        padding: 9px 16px;
+        min-height: 40px;
+        cursor: pointer;
+      }
+      .copy.done {
+        color: var(--paper);
+        background: var(--ink);
+      }
+      .codeNote {
+        font-size: 15px;
+        line-height: 22px;
+        color: var(--ink2);
+        margin: 10px 0 0;
+        text-wrap: pretty;
+      }
       @media (max-width: 600px) {
         main { padding: 24px 20px 32px; }
         .card { padding: 28px 22px 22px; margin-bottom: 34px; }
@@ -463,6 +518,7 @@
       @media (max-width: 360px) {
         .invite h1 { font-size: 30px; line-height: 36px; }
         .steps li { font-size: 16px; }
+        .code { font-size: 21px; letter-spacing: 0.1em; }
       }
       .home {
         color: var(--ink);
@@ -499,9 +555,10 @@
 
         <!-- The steps, in the invitation email's words (flow v4,
              2026-10-06), so the page and the mail say the same thing.
-             No code here, and nothing to copy: since v4 the only key is
-             the email the invitation was sent to, and the code she signs
-             in with comes by email once she asks for it in the app. The
+             For an email invitation, no code here and nothing to copy: its
+             key is the email it was sent to, and the code she signs in
+             with comes by email once she asks for it in the app. A link
+             invitation shows its own code under the steps (2026-11-14). The
              mail writes her address out; this page does not know it,
              and must not. Step 1 is drawn by the script: the App Store
              button once Nidi is live, "coming soon" before. -->
@@ -511,6 +568,17 @@
           <li id="step2Row"><span><span data-i18n="step2">Open it and tap</span> <i data-i18n="invitedButton">“Let's begin”</i></span></li>
           <li id="step3Row"><span><span data-i18n="step3">Enter the email this invitation came to</span><small data-i18n="step3Note">We'll send you a code to come in.</small></span></li>
         </ol>
+
+        <!-- A link invitation's code, under the steps (2026-11-14). The
+             script fills it and shows it only for a link invitation. -->
+        <div class="codeBox" id="codeBox" hidden>
+          <p class="how" data-i18n="codeTitle">Your code</p>
+          <div class="codeRow">
+            <span class="code" id="codeText" translate="no"></span>
+            <button type="button" class="copy" id="copyCode" data-i18n="copy">Copy</button>
+          </div>
+          <p class="codeNote" data-i18n="codeNote">If Nidi can't find your invitation, enter this code.</p>
+        </div>
 
         <!-- Kept, demoted. It cannot work for somebody without the app,
              which is who this page is for — but somebody who already
@@ -582,6 +650,10 @@
           step3Link: "Sign in with your email",
           step3LinkNote: "We'll send you a code to come in.",
           storeLink: "Get Nidi",
+          codeTitle: "Your code",
+          copy: "Copy",
+          copied: "Copied",
+          codeNote: "If Nidi can't find your invitation, enter this code.",
           appStoreBadge: "Download on the App Store",
           playBadge: "Get it on Google Play",
           storeSoon: "Coming to the App Store very soon.",
@@ -612,6 +684,10 @@
           step3Link: "Entra con tu email",
           step3LinkNote: "Te enviamos un código para entrar.",
           storeLink: "Descarga Nidi",
+          codeTitle: "Tu código",
+          copy: "Copiar",
+          copied: "Copiado",
+          codeNote: "Si Nidi no encuentra tu invitación, escribe este código.",
           appStoreBadge: "Consíguelo en el App Store",
           playBadge: "Descargar en Google Play",
           storeSoon: "Llega al App Store muy pronto.",
@@ -637,12 +713,54 @@
       var isInvite = /^\/join(\/[a-z0-9-]{3,64})?\/?$/i.test(location.pathname);
 
       // Since nidi-app v5 (2026-11-10) a link invitation's code is the way
-      // in, once: /join/<code> opens Nidi holding it. The page never shows,
-      // stores or sends it; it only puts it back in the one link that opens
-      // the app ("¿Ya tienes Nidi? Ábrela") and swaps steps 2 and 3.
-      // "invitation" is the email's button, not a code.
+      // in, once: /join/<code> opens Nidi holding it. The page never stores
+      // or sends it; it puts it back in the one link that opens the app
+      // ("¿Ya tienes Nidi? Ábrela") and swaps steps 2 and 3. Since
+      // 2026-11-14 it also shows it, to the person who already holds it in
+      // the address bar, with "Copiar": the store loses the link on the
+      // way, and Nidi's "No encontramos tu invitación" takes the code
+      // ("Tengo un código"). Only a link invitation's shape is shown (ten
+      // characters, gen_link_slug); an old /join/<slug> from before v4
+      // opens nothing and shows nothing. "invitation" is the email's
+      // button, not a code.
       var linkMatch = location.pathname.match(/^\/join\/([a-z0-9-]{3,64})\/?$/i);
       var linkCode = linkMatch && linkMatch[1].toLowerCase() !== "invitation" ? linkMatch[1].toLowerCase() : null;
+      var showCode = !!linkCode && /^[23456789abcdefghjkmnpqrstuvwxyz]{10}$/.test(linkCode);
+
+      // "Copiar": the code alone, as it is typed into Nidi. A copy that
+      // the browser refuses falls back to selecting the code, so a long
+      // press copies it by hand.
+      var copiedTimer = null;
+      function copyCode() {
+        if (!showCode) return;
+        var button = document.getElementById("copyCode");
+        var done = function () {
+          button.textContent = COPY[lang].copied;
+          button.className = "copy done";
+          clearTimeout(copiedTimer);
+          copiedTimer = setTimeout(function () {
+            button.textContent = COPY[lang].copy;
+            button.className = "copy";
+          }, 2200);
+        };
+        var selectIt = function () {
+          try {
+            var range = document.createRange();
+            range.selectNodeContents(document.getElementById("codeText"));
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            if (document.execCommand && document.execCommand("copy")) done();
+          } catch (e) {}
+        };
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(linkCode).then(done, selectIt);
+            return;
+          }
+        } catch (e) {}
+        selectIt();
+      }
 
       // The store does not carry the link through the install, so a tap on
       // a store badge copies it (2026-11-10). When she opens Nidi from the
@@ -698,6 +816,12 @@
           s3b.appendChild(s3n);
           s3.appendChild(s3b);
           document.getElementById("open").href = "nidi://join/" + encodeURIComponent(linkCode);
+        }
+        if (showCode) {
+          // Two groups of five, read more easily off the screen; what is
+          // copied has no space.
+          document.getElementById("codeText").textContent = linkCode.slice(0, 5) + " " + linkCode.slice(5);
+          document.getElementById("codeBox").hidden = false;
         }
         document.getElementById("privacy").href = c.privacyUrl;
         document.getElementById("terms").href = c.termsUrl;
@@ -785,6 +909,7 @@
         } catch (e) {}
         var browser = (navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en";
         setLang(fromUrl || stored || browser);
+        document.getElementById("copyCode").addEventListener("click", copyCode);
         var buttons = document.querySelectorAll(".lang button");
         for (var k = 0; k < buttons.length; k++) {
           buttons[k].addEventListener("click", function (e) {
@@ -861,11 +986,14 @@
           // A tap on a store button or on "Already have Nidi? Open it"
           // counts as a click: which one, on this page, nothing else
           // (2026-11-09). Same rules as the visit above.
+          // "Copiar" counts too (copy_code, 2026-11-14): the code is never sent.
           document.addEventListener("click", function (e) {
+            var copyTap = e.target && e.target.closest ? e.target.closest("#copyCode") : null;
             var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
-            if (!a) return;
-            var h = a.getAttribute("href") || "";
-            var t = /^https:\/\/apps\.apple\.com\//.test(h) ? "app_store"
+            if (!a && !copyTap) return;
+            var h = a ? a.getAttribute("href") || "" : "";
+            var t = copyTap ? "copy_code"
+              : /^https:\/\/apps\.apple\.com\//.test(h) ? "app_store"
               : /^https:\/\/play\.google\.com\/store\//.test(h) ? "google_play"
               : /^nidi:/.test(h) ? "open_app" : null;
             if (!t) return;
