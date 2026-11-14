@@ -473,6 +473,12 @@
         .light { display: none; }
         .p-ring { display: none; }
       }
+    
+      /* Hero phone (2026-11-14): the real Today screen next to phrase A. */
+      .hero-phone { justify-self: center; width: min(320px, 72vw); border-radius: 48px; background: #141414; padding: 10px;
+        box-shadow: 0 40px 80px rgba(42,36,29,.22), 0 10px 24px rgba(42,36,29,.14); }
+      .hero-phone img { display: block; width: 100%; height: auto; border-radius: 38px; }
+      @media (max-width: 939px) { .hero-phone { width: min(300px, 78vw); } }
     </style>
   </head>
   <body>
@@ -504,9 +510,9 @@
         <div class="light" aria-hidden="true"></div>
         <div class="wrap hero-grid">
           <div>
-            <p class="eyebrow">Un espacio compartido entre dos hogares</p>
-            <h1>Crece cerca. Desde&nbsp;<em>donde&nbsp;estés.</em></h1>
-            <p class="lead">Nidi une dos hogares: el de un niño que crece y otro que está lejos. Comparte una voz, una foto o unas palabras, y hagan cosas simples juntos. Pensada para niños de 0 a 6 años.</p>
+            
+            <h1>Nidi: la app para familias que viven&nbsp;<em>lejos.</em></h1>
+            <p class="lead">Voces, fotos y cosas para hacer juntos, todos los días.</p>
             <div class="cta">
               <div class="wl-wrap">
               <form class="wl soon-only" id="form-hero" novalidate>
@@ -524,16 +530,7 @@
             </div>
             </div>
           </div>
-          <div class="homes" aria-label="Dos hogares, dos cielos">
-            <div class="home home-a drifts-a">
-              <div class="orb on-cream breathes"></div>
-              <p>Media mañana para Bea en Buenos&nbsp;Aires.</p>
-            </div>
-            <div class="home home-b drifts-b">
-              <p>Es media tarde para Teo en Madrid.</p>
-              <div class="orb on-cream lav breathes" style="animation-delay: -1.1s"></div>
-            </div>
-          </div>
+          <div class="hero-phone"><img src="/assets/screens/es-rosa-today.jpg" width="720" height="1600" fetchpriority="high" alt="La pantalla Hoy de Nidi: una línea sobre el otro hogar, una burbuja verde y la actividad del día." /></div>
         </div>
       </section>
 
