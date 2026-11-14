@@ -473,6 +473,12 @@
         .light { display: none; }
         .p-ring { display: none; }
       }
+    
+      /* Hero phone (2026-11-14): the real Today screen next to phrase A. */
+      .hero-phone { justify-self: center; width: min(320px, 72vw); border-radius: 48px; background: #141414; padding: 10px;
+        box-shadow: 0 40px 80px rgba(42,36,29,.22), 0 10px 24px rgba(42,36,29,.14); }
+      .hero-phone img { display: block; width: 100%; height: auto; border-radius: 38px; }
+      @media (max-width: 939px) { .hero-phone { width: min(300px, 78vw); } }
     </style>
   </head>
   <body>
@@ -504,9 +510,9 @@
         <div class="light" aria-hidden="true"></div>
         <div class="wrap hero-grid">
           <div>
-            <p class="eyebrow">A shared space for two homes</p>
-            <h1>Grow close. From&nbsp;<em>anywhere.</em></h1>
-            <p class="lead">Nidi connects two homes: the one where a child is growing up, and one far away. Share a voice, a photo or a few words, and do small things together. Made for children from 0 to 6.</p>
+            
+            <h1>Nidi: the app for families who live far&nbsp;<em>apart.</em></h1>
+            <p class="lead">Voices, photos and small things to do together, every day.</p>
             <div class="cta">
               <div class="wl-wrap">
               <form class="wl soon-only" id="form-hero" novalidate>
@@ -524,16 +530,7 @@
             </div>
             </div>
           </div>
-          <div class="homes" aria-label="Two homes, two skies">
-            <div class="home home-a drifts-a">
-              <div class="orb on-cream breathes"></div>
-              <p>Mid morning for Bea in Buenos&nbsp;Aires.</p>
-            </div>
-            <div class="home home-b drifts-b">
-              <p>Mid afternoon for Teo in Madrid.</p>
-              <div class="orb on-cream lav breathes" style="animation-delay: -1.1s"></div>
-            </div>
-          </div>
+          <div class="hero-phone"><img src="/assets/screens/en-rosa-today.jpg" width="720" height="1600" fetchpriority="high" alt="Nidi's Today screen: a line about the other home, a soft green orb and today's activity." /></div>
         </div>
       </section>
 
