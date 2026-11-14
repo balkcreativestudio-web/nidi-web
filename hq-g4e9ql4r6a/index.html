@@ -1135,7 +1135,12 @@
           // "before" is 0 by construction (the card's note says so).
           meetup_set: { label: 'De quienes abren Hoy, cuántos arman un encuentro con la pantalla nueva: el día, cuántos días y dónde.', unit: 'share' },
           trial_conversion: { label: 'De las familias cuya prueba de 14 días terminó sin un regalo y sin haber pagado antes, cuántas pagan.', unit: 'share' },
-          dropout_came_back: { label: 'De quienes se registran y a las 24 h siguen sin nidi andando, cuántos avanzan después: confirman el código, crean el nidi o entra la otra casa.', unit: 'share' }
+          dropout_came_back: { label: 'De quienes se registran y a las 24 h siguen sin nidi andando, cuántos avanzan después: confirman el código, crean el nidi o entra la otra casa.', unit: 'share' },
+          // 2026-11-14 (Diseño, invite-code and roles-question). The last two
+          // are better when they go down: lower flips the colour and verdict.
+          invite_recovered: { label: 'De quienes llegan a "No encontramos tu invitación", cuántos entran al nidi que los espera, con el código o el link, sin armar uno propio antes.', unit: 'share' },
+          invited_no_link: { label: 'De quienes eligen "Me mandaron un link", cuántos llegan a "No encontramos tu invitación". Menos es mejor.', unit: 'share', lower: true },
+          duplicate_nidi: { label: 'De quienes dicen que los invitaron o no encuentran su invitación, cuántos arman su propio nidi. Menos es mejor.', unit: 'share', lower: true }
         };
         var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
         function todayAms() { try { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
@@ -1229,11 +1234,12 @@
         function ttStatus(c, unit) {
           var b = chValue(c.before, unit), a = chValue(c.after, unit);
           var small = (c.before && Number(c.before.den) < 10) || (c.after && Number(c.after.den) < 10);
-          var st = c.status, label = c.status_label;
+          var st = c.status, label = c.status_label, lower = (CH_METRIC[c.metric] || {}).lower;
+          if (lower && a != null && b != null) { a = -a; b = -b; }
           if (!st) {
             if (c.verdict === 'works') st = 'win'; else if (c.verdict === 'no') st = 'lose'; else if (c.verdict === 'unclear') st = 'mid';
             else if (a == null) st = 'none';
-            else if (b != null && a > b && (c.goal == null || a >= Number(c.goal))) st = 'win';
+            else if (b != null && a > b && (lower || c.goal == null || a >= Number(c.goal))) st = 'win';
             else if (b != null && a < b) st = 'lose';
             else st = 'mid';
           }
@@ -1244,7 +1250,7 @@
         function ttDelta(c, unit, st) {
           var b = chValue(c.before, unit), a = chValue(c.after, unit);
           if (a == null || b == null) return '<span class="flat">—</span>';
-          var d = a - b, cls = st === 'mid' ? 'meh' : d > 0 ? 'ok' : d < 0 ? 'warn' : 'flat';
+          var d = a - b, up = (CH_METRIC[c.metric] || {}).lower ? d < 0 : d > 0, cls = st === 'mid' ? 'meh' : d === 0 ? 'flat' : up ? 'ok' : 'warn';
           if (unit === 'share') return '<span class="' + cls + '">' + (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(Math.round(d)) + ' pp</span>';
           return '<span class="' + cls + '">' + (b ? (d > 0 ? '+' : '−') + Math.abs(Math.round(d / b * 100)) + '%' : '—') + '</span>';
         }
@@ -1279,6 +1285,14 @@
             else if (c.metric === 'dropout_came_back') sup = [['Mensajes enviados', a.messages || 0, ''], ['Salteados por Maru', a.skipped || 0, ''], ['Fallaron', a.failed || 0, '']];
             else if (c.metric === 'meetup_set') sup = [['Con lugar', a.with_place || 0, ''], ['De más de un día', a.long_stay || 0, ''], ['Foto del encuentro abierta', a.photo_opens || 0, plural(Number(a.photo_opens || 0), 'vez', 'veces')]];
             else if (c.metric === 'added_to_house') sup = [['Niños sumados', a.children || 0, 'antes ' + (b.children || 0)], ['Invitaciones a alguien de la casa', a.housemates || 0, 'antes ' + (b.housemates || 0)]];
+            else if (c.metric === 'invite_recovered') {
+              var kv = function (o) { o = o || {}; var k = Object.keys(o); return k.length ? k.map(function (x) { return esc(x) + ' ' + o[x]; }).join(' · ') : '—'; };
+              sup = [['Entraron con el código', a.by_code || 0, ''], ['Entraron con el link', a.by_link || 0, ''],
+                ['El código falló', kv(a.code_failed), ''], ['Copiaron el código en la web', a.copy_code || 0, 'de ' + (a.join_views || 0) + ' visitas a la invitación'],
+                ['Abrieron compartir', kv(a.share_opened), ''], ['Compartieron', kv(a.shared), ''],
+                ['"Otro nidi" con uno esperando', kv(a.waiting_choice), '']];
+            }
+            else if (c.metric === 'duplicate_nidi') sup = [['Que igual entraron después al que las esperaba', a.num ? (a.joined_too || 0) + ' de ' + a.num : '—', 'antes ' + (b.joined_too || 0) + ' de ' + (b.num || 0)]];
             else if (c.metric === 'play_search_visitors') sup = (a.terms || []).map(function (t) { return [esc(t.term), t.visitors, 'visitas']; });
             col2 = '<div class="dl">Métricas de apoyo</div>' + (sup && sup.length ? ttSec(sup, head) : '<p class="quiet">Todavía nada para mostrar.</p>');
           }
