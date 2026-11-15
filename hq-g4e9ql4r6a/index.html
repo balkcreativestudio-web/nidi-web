@@ -45,6 +45,19 @@
       .fm-filter button[aria-pressed="true"] { background:var(--ink); color:#fff; border-color:var(--ink); }
       .fm-form { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; } .fm-form[hidden] { display:none; } .fm-form select, .fm-form input { font:inherit; font-size:12px; padding:3px 6px; }
       @media (max-width:640px) { .fm-pair { grid-template-columns:100px 1fr 54px; } .fm-cols { grid-template-columns:1fr; } }
+
+      /* Resumen: one daily chart, each line on or off (Maru 15/11, like Looker) */
+      .dy-chips { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 6px; }
+      .dy-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--paper); border-radius:999px; padding:5px 11px 5px 8px; font:inherit; font-size:13px; cursor:pointer; color:var(--ink2); }
+      .dy-chip i { width:10px; height:10px; border-radius:50%; border:2px solid var(--ink3); display:inline-block; }
+      .dy-chip[aria-pressed="true"] { color:var(--ink); border-color:var(--ink3); background:#fff; }
+      .dy-chip[aria-pressed="true"] i { background:var(--c); border-color:var(--c); }
+      .dy-quick { display:flex; gap:12px; font-size:12px; margin-bottom:6px; }
+      .dy-quick button { background:none; border:0; padding:0; color:var(--ink2); text-decoration:underline; cursor:pointer; font:inherit; }
+      .dy svg { width:100%; height:auto; display:block; }
+      .dy text { font-family:var(--sans); font-size:11px; fill:var(--ink3); }
+      .dy .axis { stroke:var(--line); } .dy .hit { fill:transparent; } .dy .hit:hover { fill:rgba(42,36,29,.05); }
+      @media (max-width:640px) { .dy text { font-size:22px; } }
       :root {
         --cream:#f4efe7; --paper:#fffdf9; --ink:#2a241d; --ink2:#7a6f62; --ink3:#b0a596; --line:#e7dfd2; --line2:#efe8dc;
         --olive:#87995b; --olive-soft:#e4e8d5; --rose:#b5677d; --rose-soft:#f1dfe4; --honey:#c9962e; --honey-soft:#f3e7cc; --lagoon:#5f8f9a; --lagoon-soft:#dbe8ea; --sienna:#b0714f;
@@ -220,7 +233,7 @@
       .title em { font-style:normal; text-transform:none; letter-spacing:0; margin-left:4px; }
       .chart .hit, .hb .hit { fill:transparent; }
       .chart .hit:hover, .hb .hit:hover { fill:rgba(42,36,29,.05); }
-      .tip { position:fixed; z-index:20; max-width:280px; background:var(--ink); color:var(--paper); font-size:12px; padding:6px 9px; border-radius:8px; pointer-events:none; }
+      .tip { white-space:pre-line; position:fixed; z-index:20; max-width:280px; background:var(--ink); color:var(--paper); font-size:12px; padding:6px 9px; border-radius:8px; pointer-events:none; }
       details.data { margin-top:8px; }
       details.data summary { cursor:pointer; color:var(--ink2); font-size:12px; }
       .rev { padding:8px 0; border-top:1px solid var(--line2); font-size:13px; }
@@ -368,7 +381,8 @@
         var FN = 'https://orqdnuikcdskmvorchly.supabase.co/functions/v1/hq-g4e9ql4r6a';
         var KEY = 'nidi-hq-token', RANGE_KEY = 'nidi-hq-range';
         var app = document.getElementById('app');
-        var token = null, range = 14, DATA = null, TAB = 'resumen', VIEW = 'outside', FAM_ALL = false, FAM_ORIGIN = 'all';
+        var token = null, range = 14, DATA = null, TAB = 'resumen', VIEW = 'outside', FAM_ALL = false, FAM_ORIGIN = 'all', DY_ON = { nidis: 1, activated: 1, paid: 1, moments: 1 };
+        try { var dy0 = JSON.parse(localStorage.getItem('nidi-hq-daily') || 'null'); if (dy0 && typeof dy0 === 'object') DY_ON = dy0; } catch (e) {}
         // EDITING: a form holds something not saved yet (typed, or a row opened to
         // edit). Coming back to the tab then skips the reload, which would wipe it.
         var EDITING = false;
@@ -947,6 +961,40 @@
             period);
           return html;
         }
+
+        // ── Resumen: one daily chart (2026-11-15) ───────────────────────
+        // Maru: like her Looker charts, one chart with every daily number and
+        // each one on or off. Web traffic has its own scale on the right
+        // (bars), because it is many times the rest. Payments come from the
+        // same list as Ingresos (any real payment, by its start day).
+        var DY = [['web', 'Tráfico web', '#B0A596', 1], ['installs', 'Instalaciones', '#507291', 0], ['accounts', 'Registros', '#9890B0', 0], ['nidis', 'Nidis creados', '#E2A75A', 0], ['activated', 'Activaciones', '#87995B', 0], ['moments', 'Envíos', '#86B3B3', 0], ['notes', 'Respuestas', '#C77E87', 0], ['paid', 'Conversiones', '#CC644C', 0]];
+        function dailyCard(ser, m) {
+          var paidBy = {}; (m.paid_list || []).forEach(function (p) { if (p.since) { var d = new Date(new Date(p.since).getTime() + 3600e3).toISOString().slice(0, 10); paidBy[d] = (paidBy[d] || 0) + 1; } });
+          var rows = ser.map(function (r) { var o = {}; DY.forEach(function (k) { o[k[0]] = k[0] === 'paid' ? (paidBy[String(r.day).slice(0, 10)] || 0) : Number(r[k[0]]) || 0; }); o.day = r.day; return o; });
+          var narrow = window.innerWidth < 640, W = 1000, H = narrow ? 620 : 300, L = 34, R = 44, T = 12, B = narrow ? 40 : 26, iw = W - L - R, ih = H - T - B;
+          var left = DY.filter(function (k) { return DY_ON[k[0]] && !k[3]; }), right = DY.filter(function (k) { return DY_ON[k[0]] && k[3]; });
+          var top = function (ks) { var mx = 1; ks.forEach(function (k) { rows.forEach(function (r) { mx = Math.max(mx, r[k[0]]); }); }); return mx; };
+          var mx = top(left), mr = top(right), n = rows.length, step = iw / Math.max(1, n - 1);
+          var x = function (i) { return L + i * step; }, y = function (v, m2) { return T + ih - v / m2 * ih; };
+          var out = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Por día">';
+          [0, Math.ceil(mx / 2), mx].forEach(function (v, i, a) { if (i && v === a[i - 1]) return; out += '<line class="axis" stroke-dasharray="2 4" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v, mx) + '" y2="' + y(v, mx) + '"/>' + (left.length ? '<text x="' + (L - 8) + '" y="' + (y(v, mx) + 4) + '" text-anchor="end">' + v + '</text>' : ''); });
+          if (right.length) [0, mr].forEach(function (v) { out += '<text x="' + (W - R + 8) + '" y="' + (y(v, mr) + 4) + '">' + v + '</text>'; });
+          right.forEach(function (k) { var bw = Math.max(3, step * 0.6); rows.forEach(function (r, i) { var h = r[k[0]] / mr * ih; if (h) out += '<rect x="' + (x(i) - bw / 2).toFixed(1) + '" y="' + (T + ih - h).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2" fill="' + k[2] + '" opacity=".35"/>'; }); });
+          left.forEach(function (k) {
+            out += '<polyline points="' + rows.map(function (r, i) { return x(i).toFixed(1) + ',' + y(r[k[0]], mx).toFixed(1); }).join(' ') + '" fill="none" stroke="' + k[2] + '" stroke-width="' + (narrow ? 4 : 2.5) + '" stroke-linejoin="round" stroke-linecap="round"/>';
+            rows.forEach(function (r, i) { if (r[k[0]]) out += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(r[k[0]], mx).toFixed(1) + '" r="' + (narrow ? 6 : 3.5) + '" fill="' + k[2] + '"/>'; });
+          });
+          var every = n > 16 ? 7 : n > 8 ? 2 : 1;
+          rows.forEach(function (r, i) { if ((n - 1 - i) % every === 0) out += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + dmy(r.day) + '</text>'; });
+          out += '<line class="axis" x1="' + L + '" x2="' + (W - R) + '" y1="' + (T + ih) + '" y2="' + (T + ih) + '"/>';
+          var act = DY.filter(function (k) { return DY_ON[k[0]]; });
+          rows.forEach(function (r, i) { out += '<rect class="hit" x="' + (x(i) - step / 2).toFixed(1) + '" y="' + T + '" width="' + step.toFixed(1) + '" height="' + ih + '" data-tip="' + esc(dmy(r.day) + (act.length ? act.map(function (k) { return '\n' + k[1] + ': ' + r[k[0]]; }).join('') : '\nNada prendido')) + '"/>'; });
+          out += '</svg>';
+          var chips = '<div class="dy-chips">' + DY.map(function (k) { return '<button type="button" class="dy-chip" style="--c:' + k[2] + '" data-dy="' + k[0] + '" aria-pressed="' + !!DY_ON[k[0]] + '"><i></i>' + k[1] + '</button>'; }).join('') + '</div>'
+            + '<div class="dy-quick"><button type="button" data-dyall="1">Ver todo</button><button type="button" data-dyall="0">Ninguno</button></div>';
+          return card('Por día', 'Tocá cada nombre para prenderlo o apagarlo; la elección queda guardada en este dispositivo. Tráfico web: visitas reales a nidi.life (barras, escala a la derecha). Instalaciones: teléfonos que abren Nidi por primera vez. Registros: personas que pidieron el código. Nidis creados: alguien armó su nidi. Activaciones: entró la otra casa. Envíos: fotos, audios y textos. Respuestas: notas sobre un momento. Conversiones: suscripciones pagas que empezaron ese día, de cualquiera (como Ingresos).',
+            chips + '<div class="dy">' + out + '</div>', 'últimos ' + range + ' días');
+        }
         function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
           var pending = s.nidis.filter(function (n) { return n.status === 'pending'; });
@@ -967,9 +1015,8 @@
             + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez en el período elegido arriba, contra el mismo período anterior. No cuenta los que entraron con una cuenta de prueba.', wi.now, 'en ' + range + ' días', wkDelta(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
             + tile('Pagan', 'Familias (nidis con las dos casas adentro) donde alguien paga. Tiempo gratis: un año (códigos) o meses (founding families y creadoras). Si alguien paga, el nidi cuenta como que paga aunque la otra casa tenga tiempo gratis. Ingresos muestra todos los pagos.', paying, 'de ' + active.length, giftNidis + ' con tiempo gratis' + (trialNidis ? '<br>' + trialNidis + ' en prueba' : ''))
             + '</div>';
-          var KM = [{ k: 'moments', color: C1, label: 'Momentos' }, { k: 'notes', color: C2, label: 'Notas' }];
           html += '<div class="rs-grid">'
-            + card('Momentos y notas por día', 'Lo que se comparte cada día. La nota es una respuesta escrita sobre un momento.', legend(KM) + chart(ser, KM, { label: 'Momentos y notas por día' }))
+            + dailyCard(ser, m)
             + funnelCard(f, paying)
             + '</div>';
           html += famTable(s.nidis, m);
@@ -1641,6 +1688,9 @@
           Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (b) { b.onclick = function () { TAB = b.getAttribute('data-tab'); try { localStorage.setItem('nidi-hq-tab', TAB); } catch (e) {} render(); window.scrollTo(0, 0); }; });
           Array.prototype.forEach.call(document.querySelectorAll('.q'), function (b) { b.onclick = function (e) { e.stopPropagation(); var box = b.closest('.card,.kpi'), def = box && box.querySelector('.def'); if (!def) return; def.hidden = !def.hidden; b.setAttribute('aria-expanded', String(!def.hidden)); }; });
 
+          // Resumen: daily chart lines on and off
+          Array.prototype.forEach.call(document.querySelectorAll('[data-dy]'), function (b) { b.onclick = function () { var k = b.getAttribute('data-dy'); if (DY_ON[k]) delete DY_ON[k]; else DY_ON[k] = 1; try { localStorage.setItem('nidi-hq-daily', JSON.stringify(DY_ON)); } catch (e) {} render(); }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-dyall]'), function (b) { b.onclick = function () { DY_ON = {}; if (b.getAttribute('data-dyall') === '1') DY.forEach(function (k) { DY_ON[k[0]] = 1; }); try { localStorage.setItem('nidi-hq-daily', JSON.stringify(DY_ON)); } catch (e) {} render(); }; });
           // Familias: origin filter, since launch, and the pencil
           Array.prototype.forEach.call(document.querySelectorAll('[data-fmorigin]'), function (b) { b.onclick = function () { FAM_ORIGIN = b.getAttribute('data-fmorigin'); render(); }; });
           Array.prototype.forEach.call(document.querySelectorAll('[data-fmall]'), function (b) { b.onclick = function () { FAM_ALL = !FAM_ALL; render(); }; });
