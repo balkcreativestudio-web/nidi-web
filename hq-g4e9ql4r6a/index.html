@@ -21,6 +21,30 @@
       @font-face { font-family: "Lora"; src: url(/assets/fonts/Lora-Italic.ttf) format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
       @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Light.ttf) format("truetype"); font-weight: 300; font-display: swap; }
       @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Medium.ttf) format("truetype"); font-weight: 500; font-display: swap; }
+
+      /* Familias (2026-11-15): A = the home that makes the nidi, B = the invited home */
+      .fm-a { color:#6f8247; } .fm-b { color:#c0862f; }
+      .fm-chip { display:inline-block; border-radius:999px; padding:2px 9px; font-size:12px; font-weight:500; white-space:nowrap; }
+      .fm-chip.k-group { background:#e9f0df; color:#4f6a2e; } .fm-chip.k-instagram, .fm-chip.k-creator { background:#f6e6d0; color:#8a5a1c; }
+      .fm-chip.k-friend { background:#e3eeee; color:#3e6b6b; } .fm-chip.k-press, .fm-chip.k-search { background:#ece9f3; color:#5f587a; }
+      .fm-chip.k-family { background:#f3e1e4; color:#8a4a55; } .fm-chip.k-none, .fm-chip.k-other { background:var(--line2); color:var(--ink2); }
+      .fm-how { display:block; color:var(--ink3); font-size:11px; margin-top:3px; }
+      .fm-pen { border:1px dashed var(--ink3); border-radius:8px; padding:1px 7px; margin-left:4px; font-size:12px; color:var(--ink2); background:none; cursor:pointer; }
+      .fm-split { display:flex; height:8px; border-radius:4px; overflow:hidden; width:90px; margin:4px 0 0 auto; background:var(--line2); }
+      .fm-split i, .fm-track i, .fm-stack i { display:block; height:100%; }
+      .fm-pair { display:grid; grid-template-columns:150px 1fr 64px; gap:6px 10px; align-items:center; margin:10px 0; }
+      .fm-pair small { display:block; color:var(--ink3); font-size:11px; }
+      .fm-track { height:12px; border-radius:6px; background:var(--line2); overflow:hidden; display:flex; }
+      .fm-pair .n { text-align:right; font-variant-numeric:tabular-nums; font-size:13px; }
+      .fm-stack { display:flex; gap:2px; height:22px; border-radius:7px; overflow:hidden; }
+      .fm-cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+      .fm-legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--ink2); margin:6px 0; }
+      .fm-legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+      .fm-filter { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 12px; }
+      .fm-filter button { border:1px solid var(--line); background:var(--paper); border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; }
+      .fm-filter button[aria-pressed="true"] { background:var(--ink); color:#fff; border-color:var(--ink); }
+      .fm-form { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; } .fm-form[hidden] { display:none; } .fm-form select, .fm-form input { font:inherit; font-size:12px; padding:3px 6px; }
+      @media (max-width:640px) { .fm-pair { grid-template-columns:100px 1fr 54px; } .fm-cols { grid-template-columns:1fr; } }
       :root {
         --cream:#f4efe7; --paper:#fffdf9; --ink:#2a241d; --ink2:#7a6f62; --ink3:#b0a596; --line:#e7dfd2; --line2:#efe8dc;
         --olive:#87995b; --olive-soft:#e4e8d5; --rose:#b5677d; --rose-soft:#f1dfe4; --honey:#c9962e; --honey-soft:#f3e7cc; --lagoon:#5f8f9a; --lagoon-soft:#dbe8ea; --sienna:#b0714f;
@@ -344,7 +368,7 @@
         var FN = 'https://orqdnuikcdskmvorchly.supabase.co/functions/v1/hq-g4e9ql4r6a';
         var KEY = 'nidi-hq-token', RANGE_KEY = 'nidi-hq-range';
         var app = document.getElementById('app');
-        var token = null, range = 14, DATA = null, TAB = 'resumen', VIEW = 'outside';
+        var token = null, range = 14, DATA = null, TAB = 'resumen', VIEW = 'outside', FAM_ALL = false, FAM_ORIGIN = 'all';
         // EDITING: a form holds something not saved yet (typed, or a row opened to
         // edit). Coming back to the tab then skips the reload, which would wipe it.
         var EDITING = false;
@@ -695,7 +719,7 @@
         // ── render ──────────────────────────────────────────────────────
         // Seven rooms, and Externos / Con familia applies to all of them. Test
         // accounts are gone before the numbers get here (hq_group).
-        var TABS = [['resumen', 'Resumen'], ['cambios', 'Tests'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos'], ['mkt', 'Marketing']];
+        var TABS = [['resumen', 'Resumen'], ['fam', 'Familias'], ['cambios', 'Tests'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos'], ['mkt', 'Marketing']];
         var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
         var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando', invited_check: 'La pregunta' };
         var PLAN_L = { paid: 'Paga', gift: 'Año gratis', trial: 'Prueba', invited: 'Invitación' };
@@ -732,7 +756,7 @@
             + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
             + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</nav>';
-          html += (({ resumen: tabResumen, cambios: tabCambios, adq: tabAdq, uso: tabUso, ret: tabRet, ing: tabIng, mkt: tabMkt })[TAB] || tabResumen)(d, st, s, gr, ser, prev);
+          html += (({ resumen: tabResumen, fam: tabFam, cambios: tabCambios, adq: tabAdq, uso: tabUso, ret: tabRet, ing: tabIng, mkt: tabMkt })[TAB] || tabResumen)(d, st, s, gr, ser, prev);
           html += '<h2>Accesos</h2><div class="links">'
             + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect</a>'
             + '<a href="https://play.google.com/console/u/1/developers/6039865059263874705/app/4974103052168493706/app-dashboard" target="_blank" rel="noopener">Google Play</a>'
@@ -843,6 +867,85 @@
           var waiting = s.nidis.filter(function (n) { return n.status === 'pending'; }).map(function (n) { return { n: n, d: Math.floor((Date.now() - new Date(n.pending_invite_at || n.created_at).getTime()) / 864e5) }; }).filter(function (x) { return x.d >= 3; }).sort(function (x, y) { return y.d - x.d; });
           waiting.slice(0, 2).forEach(function (x) { out.push('<b>' + esc(x.n.a) + ' espera a ' + esc(x.n.invitee || 'la otra casa') + ' hace ' + x.d + ' días</b>' + (x.n.pending_invite_opened === false ? ' con la invitación sin abrir.' : '.')); });
           return card('Para mirar', 'Solo lo que puede cambiar una decisión. Sale de los datos de esta vista.', out.length ? '<ul class="rs-read">' + out.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul>' : '<p class="quiet">Nada que cambie una decisión hoy.</p>');
+        }
+
+        // ── Familias (2026-11-15) ───────────────────────────────────────
+        // Where each family came from, and A (the home that makes the nidi)
+        // against B (the invited home). hq_roles gives one row per moment,
+        // note and day; this counts them for the period at the top, or since
+        // launch, and for the origin chosen.
+        var FM_KINDS = [['friend', 'Amigos'], ['group', 'Grupo o link'], ['instagram', 'Instagram'], ['creator', 'Creadora o founding'], ['press', 'Prensa'], ['search', 'Búsqueda en la tienda'], ['family', 'Familia'], ['other', 'Otro']];
+        var FM_TYPES = [['photo', 'Foto libre', '#86B3B3'], ['photo_act', 'Foto de actividad', '#507291'], ['voice', 'Audio', '#C77E87'], ['text', 'Texto', '#9890B0']];
+        function tabFam(d) {
+          var R = d.roles && d.roles[VIEW];
+          if (!R) return card('Familias', '', '<p class="quiet">Todavía no está activo.</p>');
+          var m = (((d.stats || {}).views || {})[VIEW] || d.stats || {}).money || {};
+          var since = FAM_ALL ? '0000' : (function () { var t = new Date(Date.now() + 3600e3); t.setUTCDate(t.getUTCDate() - range + 1); return t.toISOString().slice(0, 10); })();
+          var kindOf = {}; R.families.forEach(function (f) { kindOf[f.id] = (f.origin || {}).kind || 'none'; });
+          var inScope = function (id) { return FM_ORIGIN_OK(kindOf[id]); };
+          function FM_ORIGIN_OK(k) { return FAM_ORIGIN === 'all' || k === FAM_ORIGIN; }
+          var fams = R.families.filter(function (f) { return inScope(f.id); });
+          var mo = R.moments.filter(function (x) { return x.d >= since && inScope(x.n); });
+          var no = R.notes.filter(function (x) { return x.d >= since && inScope(x.n); });
+          var dy = R.days.filter(function (x) { return x.d >= since && inScope(x.n); });
+          var cnt = function (arr, r, f) { return arr.filter(function (x) { return x.r === r && (!f || f(x)); }).length; };
+          var two = function (a, b) { var t = a + b; return '<span class="fm-a">' + pct(a, t) + '%</span> · <span class="fm-b">' + pct(b, t) + '%</span>'; };
+          var tkey = function (x) { return x.t === 'photo' ? (x.act ? 'photo_act' : 'photo') : x.t === 'voice_note' ? 'voice' : x.t === 'text' ? 'text' : 'photo'; };
+          var med = function (xs) { xs = xs.filter(function (v) { return v != null; }).sort(function (a, b) { return a - b; }); return xs.length ? xs[Math.floor((xs.length - 1) / 2)] : null; };
+          var aFirst = med(fams.map(function (f) { return f.a_first_moment ? (new Date(f.a_first_moment) - new Date(f.created)) / 60000 : null; }));
+          var bFirst = med(fams.map(function (f) { return f.b_first_moment ? (new Date(f.b_first_moment) - new Date(f.activated)) / 60000 : null; }));
+          var am = cnt(mo, 'a'), bm = cnt(mo, 'b'), an = cnt(no, 'a'), bn = cnt(no, 'b'), ad = cnt(dy, 'a'), bd = cnt(dy, 'b');
+          var aAct = cnt(mo, 'a', function (x) { return x.act; }), bAct = cnt(mo, 'b', function (x) { return x.act; });
+          var period = FAM_ALL ? 'desde el lanzamiento' : 'en ' + range + ' días';
+
+          // origin filter, only the origins that exist
+          var present = {}; R.families.forEach(function (f) { var o = f.origin || {}; present[o.kind || 'none'] = o.kind === 'none' || !o.kind ? 'Sin dato' : (FM_KINDS.filter(function (k) { return k[0] === o.kind; })[0] || [0, o.label])[1]; });
+          var filt = '<div class="fm-filter">' + [['all', 'Todos los orígenes']].concat(Object.keys(present).map(function (k) { return [k, present[k]]; })).map(function (o) { return '<button data-fmorigin="' + o[0] + '" aria-pressed="' + (FAM_ORIGIN === o[0]) + '">' + esc(o[1]) + '</button>'; }).join('')
+            + '<button data-fmall="1" aria-pressed="' + FAM_ALL + '">Desde el lanzamiento</button></div>';
+
+          // 1. where they came from
+          var rows = fams.map(function (f) {
+            var o = f.origin || {}, fa = cnt(mo, 'a', function (x) { return x.n === f.id; }), fb = cnt(mo, 'b', function (x) { return x.n === f.id; }), t = fa + fb;
+            return '<tr><td><b>' + esc(f.a || '?') + '</b> + ' + esc(f.b || '—') + '<span class="fm-how">desde ' + dmy(f.activated) + '</span></td>'
+              + '<td><span class="fm-chip k-' + esc(o.kind || 'none') + '">' + esc(o.label || 'Sin dato') + '</span><button class="fm-pen" type="button" data-origin="' + esc(f.id) + '" aria-label="Marcar origen">✎ ' + (o.marked ? 'cambiar' : 'marcar') + '</button><span class="fm-how">' + esc(o.how || '') + '</span>'
+              + '<form class="fm-form" data-originform="' + esc(f.id) + '" hidden><select name="kind">' + FM_KINDS.map(function (k) { return '<option value="' + k[0] + '"' + (o.marked && o.kind === k[0] ? ' selected' : '') + '>' + k[1] + '</option>'; }).join('') + '</select>'
+              + '<input name="label" maxlength="40" placeholder="Ej.: amiga de Lu, grupo X" value="' + esc(o.marked ? o.label : '') + '" required><button class="primary" type="submit">Guardar</button>' + (o.marked ? '<button type="button" data-originclear="' + esc(f.id) + '">Volver al automático</button>' : '') + '<button type="button" data-origincancel="1">Cancelar</button></form></td>'
+              + '<td class="hide-s">Con la invitación de ' + esc(f.a || '?') + '</td>'
+              + '<td class="hide-s">' + planOf({ a: f.a, b: f.b, activated_at: f.activated }, m) + '</td>'
+              + '<td class="num">' + (t ? two(fa, fb) : '<span class="quiet">—</span>') + '<span class="fm-how">' + fa + ' · ' + fb + '</span>' + (t ? '<div class="fm-split"><i style="width:' + pct(fa, t) + '%;background:#87995B"></i><i style="width:' + pct(fb, t) + '%;background:#E2A75A"></i></div>' : '') + '</td></tr>';
+          }).join('');
+          var html = card('De dónde vienen', 'Una fila por familia con las dos casas adentro. El origen sale solo, en este orden: lo que marcaste vos, familia o prueba, un regalo de quien arma (un año = código F&F; unos 6 meses = founding), una visita a la web con un link nuestro hasta 15 minutos antes de instalar. Si no, Sin dato: marcalo con el lápiz. Quien entra invitado hereda el origen de quien lo invitó.',
+            filt + (fams.length ? '<div class="tablewrap"><table class="fm-t"><thead><tr><th>Familia</th><th>Origen de quien arma</th><th class="hide-s">Quien entra</th><th class="hide-s">Plan</th><th class="num">Momentos A · B</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="quiet">Ninguna familia con ese origen.</p>'),
+            fams.length + ' ' + plural(fams.length, 'familia', 'familias'));
+
+          // 2. A against B
+          var stackOf = function (r) {
+            var tot = cnt(mo, r), parts = FM_TYPES.map(function (t) { return [t, cnt(mo, r, function (x) { return tkey(x) === t[0]; })]; });
+            return '<div style="font-size:13px;margin-bottom:8px"><b class="fm-' + r + '">● Qué manda ' + (r === 'a' ? 'quien arma' : 'quien entra') + '</b> · ' + tot + '</div>'
+              + (tot ? '<div class="fm-stack">' + parts.filter(function (p) { return p[1]; }).map(function (p) { return '<i style="flex:' + p[1] + ';background:' + p[0][2] + '" data-tip="' + esc(p[0][1] + ': ' + p[1]) + '"></i>'; }).join('') + '</div>'
+                + '<p class="quiet" style="font-size:12px;margin:6px 0 0">' + parts.filter(function (p) { return p[1]; }).map(function (p) { return esc(p[0][1]) + ' ' + pct(p[1], tot) + '% (' + p[1] + ')'; }).join(' · ') + '</p>' : '<p class="quiet">Nada en este período.</p>');
+          };
+          var bar = function (label, sub, a, b) { var t = a + b; return '<div class="fm-pair"><div>' + label + '<small>' + sub + '</small></div><div class="fm-track">' + (t ? '<i style="width:' + pct(a, t) + '%;background:#87995B"></i><i style="width:' + pct(b, t) + '%;background:#E2A75A"></i>' : '') + '</div><div class="n">' + (t ? two(a, b) : '—') + '</div></div>'; };
+          var one = function (label, sub, v, tot, color) { return '<div class="fm-pair"><div>' + label + '<small>' + sub + '</small></div><div class="fm-track"><i style="width:' + pct(v, tot) + '%;background:' + color + '"></i></div><div class="n">' + (tot ? pct(v, tot) + '%' : '—') + '</div></div>'; };
+          var reads = [];
+          if (am + bm >= 4) reads.push('<b>' + (am >= bm ? 'Quien arma manda más.' : 'Quien entra manda más.') + '</b> De cada 100 momentos, ' + pct(am, am + bm) + ' son de quien arma' + (an + bn ? '; de cada 100 notas, ' + pct(bn, an + bn) + ' son de quien entra.' : '.'));
+          if (am && bm) reads.push('<b>Actividades:</b> el ' + pct(aAct, am) + '% de lo que manda quien arma sale de una actividad, contra el ' + pct(bAct, bm) + '% de quien entra.');
+          if (aFirst != null || bFirst != null) reads.push('<b>Primer momento (mediana):</b> quien arma, ' + minsWord(aFirst) + ' después de armar el nidi; quien entra, ' + minsWord(bFirst) + ' después de entrar.');
+          html += card('Quien arma vs. quien entra invitado', 'A es la casa que armó el nidi; B, la que entró con la invitación. Cuenta momentos (fotos, audios, textos), notas y los días que cada casa abrió Nidi, ' + 'en el período elegido arriba o desde el lanzamiento. El primer momento es de siempre.',
+            '<div class="kpis">'
+            + tile('Momentos', '', two(am, bm), '', am + ' de A · ' + bm + ' de B')
+            + tile('Notas', '', two(an, bn), '', an + ' de A · ' + bn + ' de B')
+            + tile('Primer momento', '', '<span class="fm-a">' + minsWord(aFirst) + '</span> · <span class="fm-b">' + minsWord(bFirst) + '</span>', '', 'mediana, de siempre')
+            + tile('Días con Nidi', '', two(ad, bd), '', ad + ' días de A · ' + bd + ' de B')
+            + '</div>'
+            + '<div class="fm-legend"><span><i style="background:#87995B"></i>Quien arma (A)</span><span><i style="background:#E2A75A"></i>Quien entra invitado (B)</span></div>'
+            + bar('Momentos', 'fotos, audios, textos', am, bm) + bar('Notas', 'respuestas a un momento', an, bn)
+            + one('De una actividad', 'A: parte de sus momentos', aAct, am, '#87995B') + one('', 'B: parte de sus momentos', bAct, bm, '#E2A75A')
+            + '<div class="fm-cols"><div>' + stackOf('a') + '</div><div>' + stackOf('b') + '</div></div>'
+            + '<div class="fm-legend">' + FM_TYPES.map(function (t) { return '<span><i style="background:' + t[2] + '"></i>' + t[1] + '</span>'; }).join('') + '</div>'
+            + (reads.length ? '<div class="alert none" style="margin-top:12px;display:block"><ul class="rs-read">' + reads.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul>' + (fams.length < 10 ? '<p class="quiet" style="font-size:12px;margin:6px 0 0">' + fams.length + ' ' + plural(fams.length, 'familia', 'familias') + ': señal, no prueba.</p>' : '') + '</div>' : ''),
+            period);
+          return html;
         }
         function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
@@ -1537,6 +1640,19 @@
           Array.prototype.forEach.call(document.querySelectorAll('[data-view]'), function (b) { b.onclick = function () { VIEW = b.getAttribute('data-view'); try { localStorage.setItem('nidi-hq-view', VIEW); } catch (e) {} render(); }; });
           Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (b) { b.onclick = function () { TAB = b.getAttribute('data-tab'); try { localStorage.setItem('nidi-hq-tab', TAB); } catch (e) {} render(); window.scrollTo(0, 0); }; });
           Array.prototype.forEach.call(document.querySelectorAll('.q'), function (b) { b.onclick = function (e) { e.stopPropagation(); var box = b.closest('.card,.kpi'), def = box && box.querySelector('.def'); if (!def) return; def.hidden = !def.hidden; b.setAttribute('aria-expanded', String(!def.hidden)); }; });
+
+          // Familias: origin filter, since launch, and the pencil
+          Array.prototype.forEach.call(document.querySelectorAll('[data-fmorigin]'), function (b) { b.onclick = function () { FAM_ORIGIN = b.getAttribute('data-fmorigin'); render(); }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-fmall]'), function (b) { b.onclick = function () { FAM_ALL = !FAM_ALL; render(); }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-origin]'), function (b) { b.onclick = function () { var f = document.querySelector('[data-originform="' + b.getAttribute('data-origin') + '"]'); if (f) { f.hidden = !f.hidden; EDITING = !f.hidden; if (!f.hidden) f.label.focus(); } }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-origincancel]'), function (b) { b.onclick = function () { var f = b.closest('form'); f.hidden = true; EDITING = false; }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-originform]'), function (f) { f.onsubmit = function (e) {
+            e.preventDefault();
+            api('POST', { action: 'origin_mark', relationship_id: f.getAttribute('data-originform'), kind: f.kind.value, label: f.label.value }).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(function (err) { alert('No se guardó: ' + err.message); });
+          }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-originclear]'), function (b) { b.onclick = function () {
+            api('POST', { action: 'origin_clear', relationship_id: b.getAttribute('data-originclear') }).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(function (err) { alert('No se guardó: ' + err.message); });
+          }; });
 
           if (!document.getElementById('campform')) return; // the forms live in Adquisición
           var pf = document.getElementById('campform'), pdet = document.getElementById('campdetails');
