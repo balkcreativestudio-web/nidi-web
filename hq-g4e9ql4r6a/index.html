@@ -956,23 +956,23 @@
           var t = socialTotals(d);
           var net = function (k, name, color) {
             var x = t[k], f = socialNow(d, k), l = f && f.last;
-            var plat = l ? [['vistas', l.views_7d], ['alcance', l.reach_7d], ['visitas al perfil', l.profile_visits_7d], ['toques al link', l.link_taps_7d]].filter(function (p) { return p[1] != null; }) : [];
+            var plat = l ? [['vistas', l.views_7d], ['alcance', l.reach_7d], ['visitas al perfil', l.profile_visits_7d], ['clics en el link de la bio', l.link_taps_7d]].filter(function (p) { return p[1] != null; }) : [];
             return '<div class="ar so" style="--c:' + color + '"><span class="ar-top"><span class="ar-name">' + name + '</span>' + (f && f.base ? '<span class="ar-pill ' + (l.followers > f.base.followers ? 'good' : l.followers < f.base.followers ? 'bad' : 'flat') + '">' + followWord(f) + '</span>' : '') + '</span>'
               + '<span class="so-top"><span class="ar-num">' + (l ? l.followers : '—') + '</span>' + spark(f && f.rows, color) + '</span>'
               + '<span class="ar-what">seguidores · ' + (f && f.base ? 'al ' + dmy(l.day + 'T12:00:00') : followWord(f)) + '</span>'
               + (plat.length ? '<span class="so-f">' + plat.map(function (p) { return '<span><b>' + Number(p[1]).toLocaleString('es-AR') + '</b> ' + p[0] + '</span>'; }).join('') + ' <span class="quiet">en 7 días</span></span>' : '')
-              + '<span class="so-f so-web"><span><b>' + x.visits + '</b> ' + plural(x.visits, 'visita', 'visitas') + ' a la web</span><span><b>' + x.clicks + '</b> ' + plural(x.clicks, 'toque', 'toques') + '</span><span><b>' + x.downloads + '</b> ' + plural(x.downloads, 'descarga', 'descargas') + '</span><span><b>' + x.accounts + '</b> ' + plural(x.accounts, 'cuenta', 'cuentas') + '</span><span><b>' + x.families + '</b> ' + plural(x.families, 'nidi', 'nidis') + '</span></span></div>';
+              + '<span class="so-f so-web"><span><b>' + x.visits + '</b> ' + plural(x.visits, 'visita', 'visitas') + ' a la web</span><span><b>' + x.clicks + '</b> ' + plural(x.clicks, 'toque', 'toques') + ' a las tiendas</span><span><b>' + x.downloads + '</b> ' + plural(x.downloads, 'descarga', 'descargas') + '</span><span><b>' + x.accounts + '</b> ' + plural(x.accounts, 'cuenta', 'cuentas') + '</span><span><b>' + x.families + '</b> ' + plural(x.families, 'nidi', 'nidis') + '</span></span></div>';
           };
           var html = '<div class="areas two-up">' + net('ig', 'Instagram', 'var(--rose)') + net('tiktok', 'TikTok', 'var(--ink)') + '</div>';
           var refs = Object.keys(d.web_refs || {}).filter(socialRef).sort(function (a, b) { return d.web_refs[b].visits - d.web_refs[a].visits; });
           var rowOf = function (ref) { return (d.marketing || []).filter(function (r) { return r.ct && String(r.ct).toLowerCase() === ref; })[0] || {}; };
-          html += '<h2>Por link</h2><div class="card"><div class="tablewrap"><table><tr><th>Link</th><th class="num">Visitas</th><th class="num">Toques</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th></tr>'
+          html += '<h2>Por link</h2><div class="card"><div class="tablewrap"><table><tr><th>Link</th><th class="num">Visitas a la web</th><th class="num">Toques a las tiendas</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th></tr>'
             + (refs.length ? refs.map(function (r) { var w = d.web_refs[r], m = rowOf(r); return '<tr><td>' + esc(refLabel(r, d.marketing)) + ' <span class="quiet">' + esc(r) + '</span></td><td class="num">' + w.visits + '</td><td class="num">' + w.clicks + '</td><td class="num">' + (known(m.downloads) ? m.downloads : '—') + '</td><td class="num">' + (known(m.accounts) ? m.accounts : '—') + '</td><td class="num">' + (known(m.families) ? m.families : '—') + '</td></tr>'; }).join('')
               : '<tr><td colspan="6" class="quiet">Todavía nadie llegó desde las redes.</td></tr>')
             + '</table></div><p class="quiet" style="margin-top:8px">Visitas y toques desde el 11/11; descargas, cuentas y nidis con la regla de Marketing (la app abre por primera vez hasta 15 min después de la visita). Nidis = las dos casas adentro.</p></div>';
           // every day typed, newest first
           var rows = Array.isArray(d.social) ? d.social.slice().reverse() : null;
-          html += '<h2>Día por día</h2><div class="card"><div class="tablewrap"><table><tr><th>Día</th><th>Red</th><th class="num">Seguidores</th><th class="num">Vistas 7 d</th><th class="num">Alcance 7 d</th><th class="num">Perfil 7 d</th><th class="num">Link 7 d</th><th>Nota</th></tr>'
+          html += '<h2>Día por día</h2><div class="card"><div class="tablewrap"><table><tr><th>Día</th><th>Red</th><th class="num">Seguidores</th><th class="num">Vistas 7 d</th><th class="num">Alcance 7 d</th><th class="num">Perfil 7 d</th><th class="num">Clics en la bio 7 d</th><th>Nota</th></tr>'
             + (rows === null ? '<tr><td colspan="8" class="quiet">Todavía no está activo: falta aplicar la migración hq_social_daily y publicar la función.</td></tr>'
               : rows.length ? rows.map(function (r) { var c = function (v) { return v == null ? '—' : Number(v).toLocaleString('es-AR'); }; return '<tr><td>' + dmy(r.day + 'T12:00:00') + '</td><td>' + (r.network === 'instagram' ? 'Instagram' : 'TikTok') + '</td><td class="num">' + c(r.followers) + '</td><td class="num">' + c(r.views_7d) + '</td><td class="num">' + c(r.reach_7d) + '</td><td class="num">' + c(r.profile_visits_7d) + '</td><td class="num">' + c(r.link_taps_7d) + '</td><td class="quiet">' + esc(r.note || '') + '</td></tr>'; }).join('')
               : '<tr><td colspan="8" class="quiet">Todavía ningún día cargado.</td></tr>')
@@ -987,7 +987,7 @@
               + fl('Vistas, 7 días', num('views_7d'))
               + fl('Alcance, 7 días (IG)', num('reach_7d'))
               + fl('Visitas al perfil, 7 días', num('profile_visits_7d'))
-              + fl('Toques al link, 7 días', num('link_taps_7d'))
+              + fl('Clics en el link de la bio, 7 días', num('link_taps_7d'))
               + fl('Nota', '<textarea name="note" maxlength="500" placeholder="qué posteo movió los números"></textarea>', 'full')
               + '<p class="quiet full" style="margin:0">De Instagram (Insights) y TikTok Studio. Vacío es "no lo miré"; 0 es cero. Si cargás un día que ya está, lo reemplaza.</p>'
               + '<div class="full"><button class="primary" type="submit" id="sosave">Guardar</button></div></form></details>';
