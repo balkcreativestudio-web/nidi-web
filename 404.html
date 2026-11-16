@@ -710,7 +710,15 @@
       // shown, put in a link or sent anywhere: since v4 a code opens
       // nothing, so the page has no use for one. Anything else shows the
       // not-found page.
-      var isInvite = /^\/join(\/[a-z0-9-]{3,64})?\/?$/i.test(location.pathname);
+      // Since 2026-11-16 the app's link is nidi.life/join/?c=<code>, or
+      // nidi.life/join/es/?c=<code> for a Spanish invitation: GitHub Pages
+      // answers /join/<code> with this page but with a 404 status, and
+      // WhatsApp draws no preview for a 404. /join/ and /join/es/ are real
+      // pages (join/index.html and join/es/index.html, built from this one
+      // by scripts/build-join.py) that answer 200 with Nidi's image. Both
+      // are under /join/* in the AASA file and under the Android app's
+      // /join prefix, so a phone with Nidi still opens the app.
+      var isInvite = /^\/join(\/es)?(\/[a-z0-9-]{3,64})?\/?$/i.test(location.pathname);
 
       // Since nidi-app v5 (2026-11-10) a link invitation's code is the way
       // in, once: /join/<code> opens Nidi holding it. The page never stores
@@ -724,6 +732,8 @@
       // opens nothing and shows nothing. "invitation" is the email's
       // button, not a code.
       var linkMatch = location.pathname.match(/^\/join\/([a-z0-9-]{3,64})\/?$/i);
+      var queryCode = new URLSearchParams(location.search).get("c");
+      if (!linkMatch && queryCode && /^[a-z0-9-]{3,64}$/i.test(queryCode)) linkMatch = [null, queryCode];
       var linkCode = linkMatch && linkMatch[1].toLowerCase() !== "invitation" ? linkMatch[1].toLowerCase() : null;
       var showCode = !!linkCode && /^[23456789abcdefghjkmnpqrstuvwxyz]{10}$/.test(linkCode);
 
@@ -903,6 +913,8 @@
 
       (function initLang() {
         var fromUrl = new URLSearchParams(location.search).get("lang");
+        // /join/es/ is the Spanish invitation (2026-11-16).
+        if (!fromUrl && /^\/join\/es(\/|$)/i.test(location.pathname)) fromUrl = "es";
         var stored = null;
         try {
           stored = localStorage.getItem("nidi-lang");

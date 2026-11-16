@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- GitHub Pages serves this file for every path that does not exist,
+         which is how /join gets a page without a server. The script shows
+         the invitation for /join (the share message's link since flow v4,
+         2026-10-06), /join/invitation (the invitation email's button) and
+         an old /join/<code>, and a plain not-found for anything else.
+         /join/* is in /.well-known/apple-app-site-association, so on an
+         iPhone with Nidi those two open the app; bare /join is not, and
+         always lands here. This page is for when the app does not open
+         (no app yet, or a link opened inside another app's browser). -->
+    <title>Nidi: la app para familias que viven lejos</title>
+    <!-- Built from 404.html by scripts/build-join.py. Do not edit here. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Nidi" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:title" content="Nidi: la app para familias que viven lejos" />
+    <meta property="og:description" content="Cosas para hacer juntos, todos los días, desde las dos casas." />
+    <meta property="og:url" content="https://nidi.life/join/es/" />
+    <meta property="og:image" content="https://nidi.life/assets/og-es.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Nidi: la app para familias que viven lejos." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Nidi: la app para familias que viven lejos" />
+    <meta name="twitter:description" content="Cosas para hacer juntos, todos los días, desde las dos casas." />
+    <meta name="twitter:image" content="https://nidi.life/assets/og-es.png" />
+    <meta name="robots" content="noindex" />
+    <!-- Links out of an invitation page carry at most https://nidi.life/,
+         never the /join/<slug> path an old invitation link may hold. -->
+    <meta name="referrer" content="origin" />
+    <meta name="theme-color" content="#F4EFE7" />
+    <style>
+      /* One screen, nothing below the fold. The page is a grid of three
+         rows — header, hero, footer — pinned to the viewport, so the
+         footer sits at the bottom without absolute positioning and
+         without overlapping the hero on a short screen. */
+      /* Nidi's own type, as on the home page (2026-10-23): the
+         invitation is the first thing of Nidi somebody sees. */
+      @font-face { font-family: "Lora"; src: url(/assets/fonts/Lora-Regular.ttf) format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+      @font-face { font-family: "Lora"; src: url(/assets/fonts/Lora-Italic.ttf) format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Light.ttf) format("truetype"); font-weight: 300; font-style: normal; font-display: swap; }
+      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Medium.ttf) format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+      :root {
+        --cream: #f4efe7;
+        --olive: #87995b;
+        --lavender: #9890b0;
+        --paper: #fffdf9;
+        --ink: #2a241d;
+        --ink2: #7a6f62;
+        --muted: #b0a596;
+        /* The input's hairline. Warmer and far lighter than ink, which
+           is what stops the form reading as a boxed control. */
+        --field-line: #e7dfd2;
+        --serif: "Lora", Georgia, "Times New Roman", serif;
+        --sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        /* Cream, as in the app, so the invitation card reads as paper
+           laid on it. */
+        background: var(--cream);
+        color: var(--ink);
+      }
+
+      body {
+        /* dvh so mobile browser chrome cannot push the footer out of
+           view; vh is the fallback for anything that lacks it. */
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      header {
+        padding: 24px 28px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 68px;
+      }
+
+      /* EN | ES at the foot, right, like every other page on the site
+         (Maru, 2026-09-26: "bajalo en todo el sitio"). This page was
+         the one left with it up top. */
+      /* eyebrow. */
+      .lang {
+        display: flex;
+        align-items: center;
+        font-family: var(--sans);
+        font-size: 12px;
+        line-height: 14px;
+        letter-spacing: 0.06em;
+      }
+      .lang button {
+        background: none;
+        border: 0;
+        color: var(--ink2);
+        font-size: 12px;
+        line-height: 14px;
+        font-weight: 500;
+        min-height: 44px;
+        padding: 0 12px;
+      }
+      .lang button[aria-pressed="true"] {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .lang .bar {
+        width: 1px;
+        height: 14px;
+        background: var(--field-line);
+      }
+
+      /* The logotype, sized to the wordmark it replaces. It was Georgia
+         20px; the logotype's x-height is two thirds of its cropped
+         height, so 15px tall reproduces Georgia 20px's 9.6px x-height —
+         the header keeps the same weight on the page, and only the
+         letterforms change. Width follows from the 2.29:1 ink box. */
+      .wordmark {
+        display: block;
+        height: 15px;
+        width: auto;
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 32px 28px;
+      }
+
+      /* Two fixed sizes rather than a clamp: the brief names 52 and 36,
+         and a fluid scale would only hit those two numbers at two exact
+         viewport widths. The breakpoint is the switch. */
+      h1 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: 44px;
+        line-height: 48px;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        margin: 0 0 40px;
+        /* Each sentence on its own line; the second is bound with
+           no-break spaces so no word is left alone (the widow rule). */
+        max-width: 16ch;
+        text-wrap: balance;
+      }
+
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        width: 100%;
+        max-width: 460px;
+      }
+
+      input[type="email"] {
+        flex: 1 1 220px;
+        min-width: 0;
+        font-family: var(--sans);
+        /* 14px on desktop; the breakpoint below takes it back to 16px
+           on phones. See that block for why. */
+        font-size: 14px;
+        color: var(--ink);
+        background: var(--paper);
+        border: 1px solid var(--field-line);
+        border-radius: 4px;
+        padding: 14px 16px;
+      }
+
+      /* An address that cannot be sent: the field alone says so. */
+      input[type="email"][aria-invalid="true"] {
+        border-color: #cc644c;
+        box-shadow: 0 0 0 1px #cc644c;
+      }
+
+      input[type="email"]::placeholder {
+        color: var(--muted);
+      }
+
+      button {
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--paper);
+        background: var(--ink);
+        border: 1px solid var(--ink);
+        border-radius: 4px;
+        padding: 14px 22px;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      /* ink2, not muted: #b0a596 measured 2.2:1 on the paper, under the
+         4.5:1 body text needs. muted stays for the placeholder only. */
+      .note {
+        font-size: 14px;
+        color: var(--ink2);
+        margin: 20px 0 0;
+      }
+
+      .done {
+        font-family: var(--serif);
+        font-size: 18px;
+        color: var(--ink);
+        margin: 0;
+        /* Holds the form's height so the page does not jump when the
+           form is replaced. */
+        min-height: 52px;
+        display: flex;
+        align-items: center;
+      }
+
+      .error {
+        font-size: 14px;
+        color: var(--ink2);
+        margin: 12px 0 0;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      /* eyebrow. */
+      footer {
+        padding: 24px 28px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        text-align: left;
+        font-size: 12px;
+        line-height: 14px;
+        color: var(--ink2);
+      }
+
+      footer a {
+        color: var(--ink);
+        text-decoration: none;
+        /* No rule under them (Maru, 2026-09-26). This page still had
+           one. */
+      }
+
+      footer .lang button { color: var(--ink2); }
+      footer .lang { margin: -15px -12px -15px 0; }
+
+      @media (max-width: 520px) {
+        footer { align-items: flex-start; }
+        .foot-links .sep-studio { display: none; }
+        .foot-links .studio { display: block; margin-top: 6px; }
+      }
+
+      .sep {
+        padding: 0 8px;
+      }
+
+      /* The one breakpoint. It sits here, below every base rule it
+         overrides: a media query carries no extra specificity, so
+         placed above them it would lose the tie and silently do
+         nothing.
+
+         The input goes back up to 16px because iOS Safari zooms the
+         page in when a text field smaller than that takes focus, and
+         never zooms back out — which would put a jump on the one
+         control this page exists for. 14px is the brand size and holds
+         everywhere it can be held; the phone is where it cannot. */
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 36px;
+          line-height: 40px;
+        }
+
+        input[type="email"] {
+          font-size: 16px;
+        }
+      }
+
+      /* Visible focus for keyboard users. The default ring is removed
+         by the border styling above on some browsers. */
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 2px;
+      }
+
+      /* Focus goes back to a field that cannot be sent; its ring takes
+         the error colour too, or the ink ring hides the state. */
+      input[aria-invalid="true"]:focus-visible,
+      input[aria-invalid="true"]:focus {
+        outline: 2px solid #cc644c;
+        outline-offset: 2px;
+      }
+
+      /* ── The invitation page (/join, /join/…) ───────────────────── */
+      /* Option B, chosen by Maru on 2026-10-23: the invitation is a
+         card, paper on cream, taped and slightly turned like the prints
+         in Memory, and under it the three steps, numbered. Half the
+         words it had, and the steps one per line instead of a
+         paragraph. Left-aligned inside one centred column, at every
+         width: the column is what centres, never the text. */
+      main {
+        /* The card is turned, so its corners reach a little past the
+           column; clip keeps that from ever scrolling the page sideways. */
+        overflow-x: clip;
+      }
+      .invite {
+        width: 100%;
+        max-width: 420px;
+        text-align: left;
+        font-family: var(--sans);
+        font-weight: 300;
+      }
+      .card {
+        position: relative;
+        background: var(--paper);
+        padding: 32px 28px 26px;
+        margin: 6px 4px 40px;
+        transform: rotate(-1.5deg);
+        box-shadow: 0 10px 28px rgba(42, 36, 29, 0.1), 0 1px 0 rgba(42, 36, 29, 0.08);
+      }
+      .tape {
+        position: absolute;
+        top: -11px;
+        right: 30px;
+        width: 88px;
+        height: 24px;
+        background: color-mix(in srgb, var(--olive) 78%, transparent);
+        transform: rotate(7deg);
+      }
+      .eyebrow,
+      .how {
+        font-family: var(--sans);
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 16px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink2);
+        margin: 0;
+      }
+      .invite h1 {
+        font-size: 40px;
+        line-height: 46px;
+        max-width: 11ch;
+        margin: 12px 0 14px;
+      }
+      .lede {
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 19px;
+        line-height: 28px;
+        color: var(--ink2);
+        margin: 0;
+        text-wrap: pretty;
+      }
+      .homes {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 22px 0 0;
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--ink2);
+      }
+      .homes .dots {
+        display: flex;
+      }
+      .homes .dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1px solid color-mix(in srgb, var(--c) 68%, var(--paper));
+        background: radial-gradient(circle closest-side, var(--c) 0%, color-mix(in srgb, var(--paper) 13%, var(--c)) 60%, color-mix(in srgb, var(--paper) 60%, var(--c)) 90%, var(--paper) 100%);
+      }
+      .homes .dot.olive { --c: var(--olive); }
+      .homes .dot.lav { --c: var(--lavender); margin-left: -8px; }
+      .how {
+        padding: 0 4px;
+        margin-bottom: 16px;
+      }
+      .steps {
+        list-style: none;
+        margin: 0;
+        padding: 0 4px;
+        display: grid;
+        gap: 18px;
+        counter-reset: step;
+      }
+      .steps li {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        column-gap: 14px;
+        align-items: start;
+        font-size: 17px;
+        line-height: 25px;
+        color: var(--ink);
+      }
+      .steps li::before {
+        counter-increment: step;
+        content: counter(step);
+        font-family: var(--serif);
+        font-size: 22px;
+        line-height: 25px;
+        color: var(--ink2);
+      }
+      .steps li > * {
+        grid-column: 2;
+        min-width: 0;
+      }
+      .steps i {
+        font-family: var(--serif);
+        white-space: nowrap;
+      }
+      .steps small {
+        display: block;
+        font-size: 15px;
+        line-height: 22px;
+        color: var(--ink2);
+        margin-top: 2px;
+      }
+      /* Live: the first step is the button, the one thing she has to do,
+         with its number centred on it. */
+      .steps li.has-action {
+        align-items: center;
+      }
+      .storeAction {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        font-family: var(--sans);
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--paper);
+        background: var(--ink);
+        border-radius: 999px;
+        padding: 15px 22px;
+      }
+      /* The old primary, kept for the one person it can still serve. */
+      .already {
+        font-size: 15px;
+        line-height: 22px;
+        margin: 28px 0 0;
+        padding: 0 4px;
+      }
+      .already a {
+        color: var(--ink2);
+        text-underline-offset: 3px;
+      }
+      /* The invitation's code (2026-11-14): the store does not carry the
+         link through an install, so the code is on the page to copy or
+         type into Nidi's "Tengo un código". Paper on cream like the card,
+         but flat: a thing to read off, letter by letter. */
+      .codeBox {
+        margin: 32px 0 0;
+        padding: 0 4px;
+      }
+      .codeBox .how { margin-bottom: 10px; padding: 0; }
+      .codeRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: var(--paper);
+        border: 1px solid var(--field-line);
+        border-radius: 12px;
+        padding: 12px 12px 12px 18px;
+      }
+      .code {
+        font-family: var(--sans);
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 30px;
+        letter-spacing: 0.14em;
+        color: var(--ink);
+        user-select: all;
+        -webkit-user-select: all;
+        white-space: nowrap;
+      }
+      .copy {
+        flex: none;
+        font-family: var(--sans);
+        font-weight: 500;
+        font-size: 15px;
+        line-height: 20px;
+        color: var(--ink);
+        background: transparent;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        padding: 9px 16px;
+        min-height: 40px;
+        cursor: pointer;
+      }
+      .copy.done {
+        color: var(--paper);
+        background: var(--ink);
+      }
+      .codeNote {
+        font-size: 15px;
+        line-height: 22px;
+        color: var(--ink2);
+        margin: 10px 0 0;
+        text-wrap: pretty;
+      }
+      @media (max-width: 600px) {
+        main { padding: 24px 20px 32px; }
+        .card { padding: 28px 22px 22px; margin-bottom: 34px; }
+        .invite h1 { font-size: 34px; line-height: 40px; }
+        .lede { font-size: 18px; line-height: 27px; }
+      }
+      @media (max-width: 360px) {
+        .invite h1 { font-size: 30px; line-height: 36px; }
+        .steps li { font-size: 16px; }
+        .code { font-size: 21px; letter-spacing: 0.1em; }
+      }
+      .home {
+        color: var(--ink);
+      }
+      /* Step 1: the official App Store and Google Play badges, 48px tall
+         (Google's PNG carries transparent padding, cropped by its box). */
+      .stores { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      .store { display: block; line-height: 0; border-radius: 9px; }
+      .store img { display: block; height: 48px; width: auto; }
+      .store.gp { width: 161px; height: 48px; overflow: hidden; }
+      .store.gp img.en { height: 71.4px; margin: -11.7px 0 0 -11.7px; }
+      .store.gp img.es { height: 62.5px; margin: -7.3px 0 0 0; }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <!-- The brand logotype, not typed text: the same six paths as
+           nidi-app/assets/brand/logo/nidi-wordmark-ink.svg, so the site and
+           the app say nidi identically. viewBox is cropped to the ink —
+           the source file carries a padded 937x652 canvas. -->
+      <svg class="wordmark" role="img" aria-label="nidi" xmlns="http://www.w3.org/2000/svg" viewBox="218.588 216.642 500.002 218.598"><path d="M384.857,425.076c-.856-.691-2.135-1.25-3.841-1.678l-7.842-1.6c-2.453-.534-4.376-1.572-5.76-3.122-1.388-1.544-2.082-3.651-2.082-6.32v-80.332c0-14.296-4.054-25.551-12.161-33.768-8.107-8.214-18.831-12.321-32.165-12.321-8.642,0-17.522,2.16-26.645,6.482-8.673,4.108-18.677,11.045-30.005,20.798v-19.119c0-2.132-.506-3.732-1.519-4.801-1.016-1.066-2.588-1.6-4.723-1.6-1.175,0-2.638.188-4.401.559-1.76.375-3.976,1.041-6.639,2l-23.204,7.842c-2.028.641-3.416,1.334-4.163,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.747.587,1.975.938,3.682,1.041l13.283.322c1.813.106,3.119.638,3.919,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.616,4.482-1.841,5.76-1.228,1.282-3.016,2.188-5.36,2.722l-8.801,1.76c-1.707.428-2.988.988-3.841,1.678-.853.697-1.278,1.575-1.278,2.641,0,1.175.478,2.135,1.438,2.882.963.747,2.347,1.119,4.163,1.119h52.646c3.948,0,5.923-1.385,5.923-4.16,0-2.025-1.71-3.466-5.123-4.32l-8.32-1.6c-2.241-.534-3.976-1.466-5.201-2.8-1.228-1.335-1.841-3.226-1.841-5.682v-90.318l3.201-2.656c8.323-7.042,16.003-12.161,23.044-15.362,7.042-3.201,13.546-4.801,19.522-4.801,9.814,0,17.709,2.96,23.685,8.879,5.973,5.923,8.961,14.859,8.961,26.805v76.653c0,2.669-.588,4.748-1.76,6.242-1.175,1.494-3.041,2.507-5.601,3.041l-8.801,1.6c-3.307.853-4.96,2.294-4.96,4.32,0,2.775,1.972,4.16,5.92,4.16h52.809c2.025,0,3.494-.372,4.401-1.119.906-.747,1.36-1.707,1.36-2.882,0-1.066-.425-1.944-1.278-2.641Z" fill="#2a241e"/><path d="M463.411,424.916c-.91-.691-2.216-1.253-3.923-1.678l-8.48-1.6c-2.241-.425-3.976-1.334-5.201-2.722-1.228-1.385-1.841-3.304-1.841-5.76v-119.06c0-2.132-.51-3.732-1.522-4.801-1.013-1.066-2.588-1.6-4.72-1.6-1.175,0-2.616.188-4.32.559-1.71.375-3.95,1.041-6.723,2l-23.204,7.842c-2.028.641-3.416,1.334-4.16,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.744.587,1.972.938,3.682,1.041l13.28.322c1.813.106,3.122.638,3.923,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.616,4.482-1.841,5.76-1.228,1.282-3.016,2.188-5.36,2.722l-8.801,1.76c-1.71.428-2.988.988-3.841,1.678-.856.697-1.282,1.575-1.282,2.641,0,1.175.481,2.135,1.441,2.882.959.747,2.344,1.119,4.16,1.119h52.968c2.025,0,3.522-.372,4.482-1.119.959-.747,1.441-1.707,1.441-2.882s-.456-2.103-1.36-2.8Z" fill="#2a241e"/><path d="M429.094,264.41c4.66,0,8.503-1.517,11.53-4.551,3.027-3.034,4.542-6.876,4.542-11.528,0-4.551-1.515-8.343-4.542-11.377-3.027-3.034-6.871-4.551-11.53-4.551s-8.478,1.517-11.459,4.551c-2.983,3.034-4.474,6.826-4.474,11.377,0,4.651,1.491,8.494,4.474,11.528,2.981,3.034,6.8,4.551,11.459,4.551Z" fill="#2a241e"/><path d="M685.235,264.41c4.659,0,8.503-1.517,11.53-4.551,3.027-3.034,4.542-6.876,4.542-11.528,0-4.551-1.515-8.343-4.542-11.377-3.027-3.034-6.871-4.551-11.53-4.551s-8.478,1.517-11.459,4.551c-2.983,3.034-4.474,6.826-4.474,11.377,0,4.651,1.49,8.494,4.474,11.528,2.981,3.034,6.8,4.551,11.459,4.551Z" fill="#2a241e"/><path d="M638.122,424.916c-.909-.691-2.269-1.253-4.082-1.678l-8.32-1.6c-2.35-.425-4.138-1.334-5.363-2.722-1.225-1.385-1.838-3.304-1.838-5.76v-189.95c0-2.135-.51-3.763-1.522-4.882-1.016-1.119-2.535-1.682-4.56-1.682-1.282,0-2.775.216-4.482.641-1.707.428-3.947,1.122-6.72,2.082l-23.204,7.842c-1.919.638-3.257,1.335-4,2.078-.747.747-1.119,1.6-1.119,2.56s.344,1.738,1.038,2.322c.694.588,1.894.935,3.601,1.041l13.283.319c1.919.106,3.254.641,4.001,1.6.744.96,1.119,2.507,1.119,4.641v63.537c-3.496-3.663-7.36-6.871-11.602-9.61-10.08-6.504-21.469-9.761-34.165-9.761-13.23,0-25.31,3.257-36.247,9.761-10.936,6.511-19.656,15.79-26.164,27.845-6.507,12.058-9.761,20.003-9.761,36.647,0,14.509,2.825,27.42,8.483,38.725,5.651,11.311,13.387,20.191,23.204,26.645,9.814,6.454,21.066,9.683,33.765,9.683,12.161,0,23.657-3.229,34.484-9.683,6.752-4.025,12.913-9.057,18.484-15.093v8.292c0,4.588,1.041,7.895,3.119,9.92,2.082,2.028,5.201,3.041,9.364,3.041h24.642c1.922,0,3.388-.372,4.401-1.119s1.522-1.707,1.522-2.882-.457-2.103-1.36-2.8ZM595.953,399.582c-5.231,6.115-10.858,11.042-16.881,14.773-8.698,5.388-17.843,8.083-27.445,8.083-9.495,0-17.978-2.507-25.445-7.523-7.467-5.013-13.337-12.374-17.603-22.082-4.266-9.708-6.401-21.55-6.401-35.528,0-19.883,7.755-41.464,25.126-52.65,7.786-5.013,16.428-7.52,25.923-7.52,10.026,0,19.469,2.857,28.323,8.561,5.371,3.463,10.169,7.824,14.402,13.071v80.815Z" fill="#2a241e"/><path d="M717.23,424.916c-.909-.691-2.216-1.253-3.922-1.678l-8.48-1.6c-2.241-.425-3.976-1.334-5.201-2.722-1.228-1.385-1.841-3.304-1.841-5.76v-119.06c0-2.132-.509-3.732-1.522-4.801-1.013-1.066-2.588-1.6-4.719-1.6-1.175,0-2.616.188-4.319.559-1.71.375-3.951,1.041-6.723,2l-23.204,7.842c-2.028.641-3.416,1.334-4.16,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.744.587,1.972.938,3.682,1.041l13.28.322c1.813.106,3.122.638,3.923,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.615,4.482-1.841,5.76-1.229,1.282-3.016,2.188-5.36,2.722l-8.802,1.76c-1.71.428-2.988.988-3.841,1.678-.857.697-1.282,1.575-1.282,2.641,0,1.175.482,2.135,1.441,2.882.96.747,2.344,1.119,4.16,1.119h52.968c2.025,0,3.523-.372,4.482-1.119.96-.747,1.441-1.707,1.441-2.882s-.456-2.103-1.36-2.8Z" fill="#2a241e"/></svg>
+    </header>
+
+    <main>
+      <section class="invite" id="invite" hidden>
+        <article class="card">
+          <span class="tape" aria-hidden="true"></span>
+          <p class="eyebrow" data-i18n="inviteEyebrow">An invitation</p>
+          <h1 data-i18n="inviteTitle">You're invited to Nidi.</h1>
+          <p class="lede" data-i18n="inviteLede">To stay close to a child who lives far away, a little every day.</p>
+          <p class="homes"><span class="dots" aria-hidden="true"><span class="dot olive"></span><span class="dot lav"></span></span><span data-i18n="homes">Two homes, one nidi</span></p>
+        </article>
+
+        <!-- The steps, in the invitation email's words (flow v4,
+             2026-10-06), so the page and the mail say the same thing.
+             For an email invitation, no code here and nothing to copy: its
+             key is the email it was sent to, and the code she signs in
+             with comes by email once she asks for it in the app. A link
+             invitation shows its own code under the steps (2026-11-14). The
+             mail writes her address out; this page does not know it,
+             and must not. Step 1 is drawn by the script: the App Store
+             button once Nidi is live, "coming soon" before. -->
+        <h2 class="how" data-i18n="howTitle">How to come in</h2>
+        <ol class="steps">
+          <li id="step1"></li>
+          <li id="step2Row"><span><span data-i18n="step2">Open it and tap</span> <i data-i18n="invitedButton">“Let's begin”</i></span></li>
+          <li id="step3Row"><span><span data-i18n="step3">Enter the email this invitation came to</span><small data-i18n="step3Note">We'll send you a code to come in.</small></span></li>
+        </ol>
+
+        <!-- A link invitation's code, under the steps (2026-11-14). The
+             script fills it and shows it only for a link invitation. -->
+        <div class="codeBox" id="codeBox" hidden>
+          <p class="how" data-i18n="codeTitle">Your code</p>
+          <div class="codeRow">
+            <span class="code" id="codeText" translate="no"></span>
+            <button type="button" class="copy" id="copyCode" data-i18n="copy">Copy</button>
+          </div>
+          <p class="codeNote" data-i18n="codeNote">If Nidi can't find your invitation, enter this code.</p>
+        </div>
+
+        <!-- Kept, demoted. It cannot work for somebody without the app,
+             which is who this page is for — but somebody who already
+             installed and came back to the message lands here too, and
+             since bare /join is not in the AASA file, so does everybody
+             with Nidi who taps the share message's link. This is the
+             only thing that takes her to the app: nidi://join/invitation
+             is the app's join route, which opens Nidi at the email screen. -->
+        <p class="already"><a id="open" href="nidi://join/invitation" data-i18n="open">Already have Nidi? Open it</a></p>
+      </section>
+
+      <section id="missing" hidden>
+        <h1 data-i18n="missingTitle">This page doesn't exist.</h1>
+        <p class="lede"><a class="home" href="/" data-i18n="home">Go to nidi.life</a></p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="foot-links">
+        <a id="privacy" href="/privacy/" data-i18n="privacy">Privacy</a>
+        <span class="sep">·</span>
+        <a id="terms" href="/terms/" data-i18n="terms">Terms</a>
+        <span class="sep sep-studio">·</span>
+        <span class="studio">BALK Creative Studio</span>
+      </div>
+      <nav class="lang" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+        <span class="bar" aria-hidden="true"></span>
+        <button type="button" data-lang="es" aria-pressed="false" lang="es">ES</button>
+      </nav>
+    </footer>
+
+    <script>
+      // Flip to true on launch day, when nidi is on the App Store. Until
+      // then the page does not send anyone to a store page that does not
+      // exist yet.
+      var APP_LIVE = true;
+      var APP_STORE_URL = "https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=nidi_web&mt=8";
+      // Flip to true when Google publishes Nidi (the store page answers
+      // 404 until then): a Google Play line appears under step 1. The
+      // home page has its own PLAY_LIVE in scripts/build-home.py.
+      var PLAY_LIVE = true;
+      var PLAY_URL = "https://play.google.com/store/apps/details?id=life.nidi.app&referrer=utm_source%3Dnidi_web%26utm_medium%3Dweb%26utm_campaign%3Dnidi_web";
+
+      // "Nidi" with a capital wherever the words mean the app
+      // (docs/voice.md in nidi-app), as in the share message and the
+      // invitation email that send people here (2026-10-06). The
+      // wordmark and the not-found title stay as they were.
+      //
+      // step1 to step3 are the email's steps, one per line (2026-10-23).
+      // The page cannot write her address out, so it names it the way
+      // the support page does ("el email al que te llegó esta
+      // invitación"), and says the code comes by email, which the mail
+      // could leave unsaid because she was reading one.
+      var COPY = {
+        en: {
+          inviteEyebrow: "An invitation",
+          inviteTitle: "You're invited to Nidi.",
+          inviteLede: "To stay close to a child who lives far away, a little every day.",
+          homes: "Two homes, one nidi",
+          howTitle: "How to come in",
+          step1: "Get Nidi",
+          step2: "Open it and tap",
+          invitedButton: "“Let's begin”",
+          step3: "Enter the email this invitation came to",
+          step3Note: "We'll send you a code to come in.",
+          open: "Already have Nidi? Open it",
+          step2Link: "Come back to this message and tap the link again",
+          step3Link: "Sign in with your email",
+          step3LinkNote: "We'll send you a code to come in.",
+          storeLink: "Get Nidi",
+          codeTitle: "Your code",
+          copy: "Copy",
+          copied: "Copied",
+          codeNote: "If Nidi can't find your invitation, enter this code.",
+          appStoreBadge: "Download on the App Store",
+          playBadge: "Get it on Google Play",
+          storeSoon: "Coming to the App Store very soon.",
+          missingTitle: "This page doesn't exist.",
+          home: "Go to nidi.life",
+          privacy: "Privacy",
+          terms: "Terms",
+          privacyUrl: "/privacy/",
+          termsUrl: "/terms/",
+          nav: "Language",
+          titleInvite: "You're invited to Nidi",
+          titleMissing: "nidi",
+        },
+        es: {
+          inviteEyebrow: "Una invitación",
+          inviteTitle: "Te invitaron a Nidi.",
+          inviteLede: "Para estar cerca de un niño que vive lejos, un poco cada día.",
+          homes: "Dos hogares, un nidi",
+          howTitle: "Cómo entrar",
+          step1: "Descarga Nidi",
+          step2: "Ábrela y toca",
+          invitedButton: "“Empecemos”",
+          step3: "Escribe el email al que te llegó esta invitación",
+          step3Note: "Te enviamos un código para entrar.",
+          // Neutral Spanish (tú) since 2026-10-20.
+          open: "¿Ya tienes Nidi? Ábrela",
+          step2Link: "Vuelve a este mensaje y toca el link otra vez",
+          step3Link: "Entra con tu email",
+          step3LinkNote: "Te enviamos un código para entrar.",
+          storeLink: "Descarga Nidi",
+          codeTitle: "Tu código",
+          copy: "Copiar",
+          copied: "Copiado",
+          codeNote: "Si Nidi no encuentra tu invitación, escribe este código.",
+          appStoreBadge: "Consíguelo en el App Store",
+          playBadge: "Descargar en Google Play",
+          storeSoon: "Llega al App Store muy pronto.",
+          missingTitle: "Esta página no existe.",
+          home: "Ir a nidi.life",
+          privacy: "Privacidad",
+          terms: "Términos",
+          privacyUrl: "/privacidad/",
+          termsUrl: "/terminos/",
+          nav: "Idioma",
+          titleInvite: "Te invitaron a Nidi",
+          titleMissing: "nidi",
+        },
+      };
+
+      // The invitation page: /join, /join/invitation, and an old
+      // /join/<code> from before v4, codes being words, digits and
+      // hyphens (calm-meadow-5637); "invitation" passes the same rule.
+      // What follows /join/ is tested and nothing more. It is not kept,
+      // shown, put in a link or sent anywhere: since v4 a code opens
+      // nothing, so the page has no use for one. Anything else shows the
+      // not-found page.
+      // Since 2026-11-16 the app's link is nidi.life/join/?c=<code>, or
+      // nidi.life/join/es/?c=<code> for a Spanish invitation: GitHub Pages
+      // answers /join/<code> with this page but with a 404 status, and
+      // WhatsApp draws no preview for a 404. /join/ and /join/es/ are real
+      // pages (join/index.html and join/es/index.html, built from this one
+      // by scripts/build-join.py) that answer 200 with Nidi's image. Both
+      // are under /join/* in the AASA file and under the Android app's
+      // /join prefix, so a phone with Nidi still opens the app.
+      var isInvite = /^\/join(\/es)?(\/[a-z0-9-]{3,64})?\/?$/i.test(location.pathname);
+
+      // Since nidi-app v5 (2026-11-10) a link invitation's code is the way
+      // in, once: /join/<code> opens Nidi holding it. The page never stores
+      // or sends it; it puts it back in the one link that opens the app
+      // ("¿Ya tienes Nidi? Ábrela") and swaps steps 2 and 3. Since
+      // 2026-11-14 it also shows it, to the person who already holds it in
+      // the address bar, with "Copiar": the store loses the link on the
+      // way, and Nidi's "No encontramos tu invitación" takes the code
+      // ("Tengo un código"). Only a link invitation's shape is shown (ten
+      // characters, gen_link_slug); an old /join/<slug> from before v4
+      // opens nothing and shows nothing. "invitation" is the email's
+      // button, not a code.
+      var linkMatch = location.pathname.match(/^\/join\/([a-z0-9-]{3,64})\/?$/i);
+      var queryCode = new URLSearchParams(location.search).get("c");
+      if (!linkMatch && queryCode && /^[a-z0-9-]{3,64}$/i.test(queryCode)) linkMatch = [null, queryCode];
+      var linkCode = linkMatch && linkMatch[1].toLowerCase() !== "invitation" ? linkMatch[1].toLowerCase() : null;
+      var showCode = !!linkCode && /^[23456789abcdefghjkmnpqrstuvwxyz]{10}$/.test(linkCode);
+
+      // "Copiar": the code alone, as it is typed into Nidi. A copy that
+      // the browser refuses falls back to selecting the code, so a long
+      // press copies it by hand.
+      var copiedTimer = null;
+      function copyCode() {
+        if (!showCode) return;
+        var button = document.getElementById("copyCode");
+        var done = function () {
+          button.textContent = COPY[lang].copied;
+          button.className = "copy done";
+          clearTimeout(copiedTimer);
+          copiedTimer = setTimeout(function () {
+            button.textContent = COPY[lang].copy;
+            button.className = "copy";
+          }, 2200);
+        };
+        var selectIt = function () {
+          try {
+            var range = document.createRange();
+            range.selectNodeContents(document.getElementById("codeText"));
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            if (document.execCommand && document.execCommand("copy")) done();
+          } catch (e) {}
+        };
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(linkCode).then(done, selectIt);
+            return;
+          }
+        } catch (e) {}
+        selectIt();
+      }
+
+      // The store does not carry the link through the install, so a tap on
+      // a store badge copies it (2026-11-10). When she opens Nidi from the
+      // store and answers "Sí, me invitaron", the app finds it there.
+      // Copied only on that tap, and only this link.
+      function copyInvite() {
+        if (!linkCode) return;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText("https://nidi.life/join/" + linkCode).catch(function () {});
+          }
+        } catch (e) {}
+      }
+
+      document.getElementById(isInvite ? "invite" : "missing").hidden = false;
+
+      var lang = "en";
+
+      // The widow rule: the last two words travel together, so no line
+      // ends on one word alone.
+      function noWidow(text) {
+        var i = text.trim().lastIndexOf(" ");
+        return i < 0 ? text : text.slice(0, i) + "\u00a0" + text.slice(i + 1);
+      }
+
+      function setLang(next) {
+        lang = next === "es" ? "es" : "en";
+        var c = COPY[lang];
+        document.documentElement.lang = lang;
+        document.title = isInvite ? c.titleInvite : c.titleMissing;
+        var nodes = document.querySelectorAll("[data-i18n]");
+        for (var i = 0; i < nodes.length; i++) {
+          var key = nodes[i].getAttribute("data-i18n");
+          if (c[key]) nodes[i].textContent = noWidow(c[key]);
+        }
+        // Both documents live on nidi.life, one page per language
+        // (2026-09-16). This page had been left behind pointing at
+        // iubenda's own pages, which look like someone else's product.
+        if (linkCode) {
+          var s2 = document.getElementById("step2Row");
+          s2.textContent = "";
+          var s2b = document.createElement("span");
+          s2b.textContent = noWidow(c.step2Link);
+          s2.appendChild(s2b);
+          var s3 = document.getElementById("step3Row");
+          s3.textContent = "";
+          var s3b = document.createElement("span");
+          var s3t = document.createElement("span");
+          s3t.textContent = noWidow(c.step3Link);
+          var s3n = document.createElement("small");
+          s3n.textContent = noWidow(c.step3LinkNote);
+          s3b.appendChild(s3t);
+          s3b.appendChild(s3n);
+          s3.appendChild(s3b);
+          document.getElementById("open").href = "nidi://join/" + encodeURIComponent(linkCode);
+        }
+        if (showCode) {
+          // Two groups of five, read more easily off the screen; what is
+          // copied has no space.
+          document.getElementById("codeText").textContent = linkCode.slice(0, 5) + " " + linkCode.slice(5);
+          document.getElementById("codeBox").hidden = false;
+        }
+        document.getElementById("privacy").href = c.privacyUrl;
+        document.getElementById("terms").href = c.termsUrl;
+        document.querySelector(".lang").setAttribute("aria-label", c.nav);
+        // The one thing she has to do next, drawn as the one thing
+        // she has to do next (2026-10-02). It used to be 12px grey
+        // under a black button that cannot work for her.
+        //
+        // The label says what the button does and nothing else
+        // (2026-10-03). It read "Bajá nidi. Es gratis." / "Get nidi.
+        // It's free." Maru: "¿no es raro decir esto? es engañoso."
+        //
+        // It is not untrue — an invitee never sees a price, never meets
+        // the paywall and is never asked for a card (lib/trial.ts: "only
+        // the person who started the nidi ever sees prices", "invitees
+        // get full free access"). It was wrong for three other reasons.
+        // It answers a question she is not asking: she is not weighing a
+        // purchase, her daughter sent her a message. It is the one line
+        // on the page that changes register from an invitation to an
+        // advert. And nothing is free, so to somebody of seventy the
+        // word is the thing that starts the suspicion rather than
+        // settling it — especially since nidi does pause after three
+        // exchanges once the trial limit drops to 3, and she will meet
+        // "nidi está en pausa por ahora" with that word behind her.
+        //
+        // Nothing replaces it. Options that said the true thing about
+        // her ("no te va a pedir ninguna tarjeta") were offered and
+        // Maru chose none of them: a reassurance nobody asked for is
+        // still a sentence about money on a page about a grandchild.
+        // Step 1 (2026-10-23): once Nidi is live, the App Store button
+        // itself; before, "Get Nidi" with "coming very soon" under it.
+        var step1 = document.getElementById("step1");
+        step1.textContent = "";
+        step1.className = APP_LIVE ? "has-action" : "";
+        var body = document.createElement("span");
+        if (APP_LIVE) {
+          // The two official store badges side by side (2026-11-10, Maru:
+          // each person downloads what they need; no line about Android).
+          var stores = document.createElement("span");
+          stores.className = "stores";
+          var badge = function (href, src, alt, cls) {
+            var link = document.createElement("a");
+            link.className = "store" + (cls ? " " + cls : "");
+            link.href = href;
+            var img = document.createElement("img");
+            img.src = src;
+            img.alt = alt;
+            if (cls) img.className = lang;
+            link.appendChild(img);
+            link.addEventListener("click", copyInvite);
+            return link;
+          };
+          // The phone decides (2026-11-10): an iPhone sees only the App
+          // Store, an Android phone only Google Play, a computer both.
+          var ua = navigator.userAgent || "";
+          var onAndroid = /android/i.test(ua);
+          var onIPhone = !onAndroid && (/iphone|ipad|ipod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+          if (!(onAndroid && PLAY_LIVE)) stores.appendChild(badge(APP_STORE_URL, "/assets/badges/app-store-" + lang + ".svg", c.appStoreBadge, ""));
+          if (PLAY_LIVE && !onIPhone) stores.appendChild(badge(PLAY_URL, "/assets/badges/google-play-" + lang + ".png", c.playBadge, "gp"));
+          body.appendChild(stores);
+        } else {
+          body.textContent = c.step1;
+          var soon = document.createElement("small");
+          soon.textContent = noWidow(c.storeSoon);
+          body.appendChild(soon);
+        }
+        step1.appendChild(body);
+        var buttons = document.querySelectorAll(".lang button");
+        for (var j = 0; j < buttons.length; j++) {
+          buttons[j].setAttribute(
+            "aria-pressed",
+            buttons[j].getAttribute("data-lang") === lang ? "true" : "false"
+          );
+        }
+        try {
+          localStorage.setItem("nidi-lang", lang);
+        } catch (e) {}
+      }
+
+      (function initLang() {
+        var fromUrl = new URLSearchParams(location.search).get("lang");
+        // /join/es/ is the Spanish invitation (2026-11-16).
+        if (!fromUrl && /^\/join\/es(\/|$)/i.test(location.pathname)) fromUrl = "es";
+        var stored = null;
+        try {
+          stored = localStorage.getItem("nidi-lang");
+        } catch (e) {}
+        var browser = (navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+        setLang(fromUrl || stored || browser);
+        document.getElementById("copyCode").addEventListener("click", copyCode);
+        var buttons = document.querySelectorAll(".lang button");
+        for (var k = 0; k < buttons.length; k++) {
+          buttons[k].addEventListener("click", function (e) {
+            setLang(e.currentTarget.getAttribute("data-lang"));
+          });
+        }
+      })();
+    </script>
+      <!-- ── Arrivals ────────────────────────────────────────────────
+         One count, no cookie, no identifier (2026-10-04).
+
+         Maru wanted to know whether anybody reaches nidi.life and was
+         handed Google Tag Manager to paste. Every analytics product
+         records the URL, and nidi.life/join/<code> is a URL: an invite
+         code is a bearer secret that joins a family's nidi for ninety
+         days, so shipping them to a vendor as page paths was the one
+         thing not to do.
+
+         This sends the route and nothing else, and it does not get to
+         decide what is stored: supabase/functions/site-view matches
+         whatever arrives against a fixed list and writes '/join/:code'
+         for anything under /join/, and public.site_views carries the
+         same list as a CHECK constraint. The code never leaves the
+         browser. Since flow v4 (2026-10-06) a code opens nothing, but
+         old links still carry them, and the rule stays.
+
+         No cookie and no localStorage, which is why the site still
+         needs no consent banner, and why this counts visits and can
+         never count people. Fired once on load, keepalive so it
+         survives the reader leaving immediately, and failures are
+         swallowed: nothing here is worth showing anybody. -->
+    <script>
+      (function () {
+        try {
+          if (location.hostname.replace(/^www\./, "") !== "nidi.life") return;
+          // Maru and Claude are not visitors: open nidi.life/?notrack once on a device and it never counts again there.
+          if (location.search.indexOf("notrack") > -1) localStorage.setItem("nidi-notrack", "1");
+          if (localStorage.getItem("nidi-notrack")) return;
+          var p = location.pathname;
+          var body = JSON.stringify({
+            // Trimmed here as well as on the server, so a code is not
+            // in flight even though the server would drop it. The
+            // server's own rule, case and all: /join, /join/ and
+            // anything under it (2026-10-06, when bare /join became the
+            // share message's link). The old indexOf("/join/") missed
+            // /join, and let a /JOIN/<code> go out as typed.
+            path: /^\/join(\/|$)/i.test(p) ? "/join/:code" : p,
+            referrer: document.referrer || null,
+            lang: document.documentElement.lang === "es" ? "es" : "en",
+            // The browser's time zone; the function keeps only the country it means (2026-11-09).
+            tz: (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) { return null; } })(),
+          });
+          var url =
+            "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view";
+          // credentials: "omit" is the whole reason this is fetch and
+          // not sendBeacon (2026-10-04). Supabase sits behind
+          // Cloudflare, which answers with
+          // "set-cookie: __cf_bm=...; Domain=supabase.co" — a bot
+          // management cookie. sendBeacon sends with credentials
+          // included, so every visitor would have picked it up on
+          // every page. With credentials omitted the browser ignores
+          // Set-Cookie entirely, so "this site stores nothing on your
+          // device" stays literally true and the no-banner position
+          // holds. keepalive covers the reader who leaves at once,
+          // which is the only thing sendBeacon was buying us.
+          fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: body,
+            credentials: "omit",
+            keepalive: true,
+            mode: "cors",
+          }).catch(function () {});
+          // A tap on a store button or on "Already have Nidi? Open it"
+          // counts as a click: which one, on this page, nothing else
+          // (2026-11-09). Same rules as the visit above.
+          // "Copiar" counts too (copy_code, 2026-11-14): the code is never sent.
+          document.addEventListener("click", function (e) {
+            var copyTap = e.target && e.target.closest ? e.target.closest("#copyCode") : null;
+            var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+            if (!a && !copyTap) return;
+            var h = a ? a.getAttribute("href") || "" : "";
+            var t = copyTap ? "copy_code"
+              : /^https:\/\/apps\.apple\.com\//.test(h) ? "app_store"
+              : /^https:\/\/play\.google\.com\/store\//.test(h) ? "google_play"
+              : /^nidi:/.test(h) ? "open_app" : null;
+            if (!t) return;
+            var tz = null;
+            try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e2) {}
+            fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ click: t, path: /^\/join(\/|$)/i.test(p) ? "/join/:code" : p, lang: document.documentElement.lang === "es" ? "es" : "en", tz: tz }),
+              credentials: "omit",
+              keepalive: true,
+              mode: "cors",
+            }).catch(function () {});
+          }, true);
+        } catch (e) {}
+      })();
+    </script>
+  </body>
+</html>
