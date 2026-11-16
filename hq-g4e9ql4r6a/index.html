@@ -773,7 +773,7 @@
         var TABS = [['resumen', 'Resumen'], ['board', 'Board'], ['mkt', 'Marketing'], ['social', 'Social Media'], ['design', 'Design'], ['prod', 'Producto'], ['fin', 'Finance']];
         var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
         var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando', invited_check: 'La pregunta' };
-        var PLAN_L = { paid: 'Paga', gift: 'Tiempo gratis', trial: 'Prueba', invited: 'Invitación' };
+        var PLAN_L = { paid: 'Paga', gift: 'Gift', trial: 'Prueba', invited: 'Invitación' };
         function nidiName(n) { return esc(n.a) + (n.b ? ' + ' + esc(n.b) : ' → ' + esc(n.invitee || 'la otra casa')); }
         function sinceWord(iso) { if (!iso) return null; return (Date.now() - new Date(iso).getTime()) / 36e5; }
         function health(hrs) { return hrs == null ? 'warn' : hrs < 24 ? 'ok' : hrs < 72 ? 'meh' : 'warn'; }
@@ -832,7 +832,7 @@
         // other home came in. Always outside people, whatever the view says.
         function officialWeeks(st, n) {
           var o = (st.views && st.views.outside) || st, m = o.money || {};
-          var fams = (o.nidis || []).filter(function (x) { return x.status === 'active' && x.activated_at && !/gratis$/.test(planOf(x, m)); });
+          var fams = (o.nidis || []).filter(function (x) { return x.status === 'active' && x.activated_at && !/^Gift/.test(planOf(x, m)); });
           var now = weekStart(todayAms()), out = [];
           for (var i = n - 1; i >= 0; i--) {
             var w = addDays(now, -7 * i), e = addDays(w, 7);
@@ -876,7 +876,7 @@
             + cardA('social', 'Social Media', pill('flat', 'seguidores: falta cargarlos'), so.ig.visits + so.tiktok.visits, 'visitas a la web desde las redes · Instagram ' + so.ig.visits + ' · TikTok ' + so.tiktok.visits)
             + cardA('design', 'Design', soon.length ? pill('wait', 'próxima: ' + dmy(soon[0].decide_on + 'T12:00:00')) : pill('flat', 'nada por decidir'), open.length, plural(open.length, 'test midiendo', 'tests midiendo') + (soon.length ? ' · ' + esc(soon[0].title) : ''))
             + cardA('prod', 'Producto', pill((gr.both_ways_7d || 0) ? 'good' : 'bad', (gr.both_ways_7d || 0) + ' de ' + (gr.families || 0) + ' comparten'), active, plural(active, 'familia', 'familias') + ' con las dos casas · ' + (s.moments ? s.moments.total : 0) + ' momentos desde el lanzamiento')
-            + cardA('fin', 'Finance', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con tiempo gratis')
+            + cardA('fin', 'Finance', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con gift')
             + '</div>';
         }
 
@@ -1005,7 +1005,7 @@
           var paid = (m.paid_list || []).some(function (p) { return p.status === 'active' && names.indexOf(f(p.who)) >= 0; });
           if (paid) return 'Paga';
           var g = (m.gifts_list || []).filter(function (p) { return names.indexOf(f(p.who)) >= 0; })[0];
-          if (g) { var days = (new Date(g.ends) - new Date(g.since)) / 864e5; return days > 300 ? '1 año gratis' : Math.round(days / 30) + ' meses gratis'; }
+          if (g) { var days = (new Date(g.ends) - new Date(g.since)) / 864e5; return days > 300 ? 'Gift · 1 año' : 'Gift · ' + Math.round(days / 30) + ' meses'; }
           if (n.grp === 'family') return '<span class="quiet">Familia</span>';
           if (n.activated_at) return 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + (n.trial_days || 14) * 864e5).toISOString()) + '</span>';
           return '<span class="quiet">Prueba, sin empezar</span>';
@@ -1194,7 +1194,7 @@
           // one family, and a code with no nidi behind it is not a family.
           var plans = active.map(function (n) { return planOf(n, m); });
           var paying = plans.filter(function (p) { return p === 'Paga'; }).length;
-          var giftNidis = plans.filter(function (p) { return /gratis$/.test(p); }).length;
+          var giftNidis = plans.filter(function (p) { return /^Gift/.test(p); }).length;
           var trialNidis = plans.filter(function (p) { return /^Prueba/.test(p); }).length;
           var html = newsHtml(d.news || []) + areasHtml(d, st, s, gr);
           html += '<h2>Familias y uso</h2><div class="kpis rs-kpis">'
@@ -1203,7 +1203,7 @@
             + tile('Momentos', 'Fotos, audios y textos enviados en el período elegido arriba (7, 14 o 28 días), contra el mismo período anterior. Hoy cuenta aunque no terminó.', wm.now, 'en ' + range + ' días', wkDelta(wm) + '<br>' + s.moments.total + ' desde el lanzamiento')
             + tile('Notas', 'Respuestas escritas sobre un momento, en el período elegido arriba, contra el mismo período anterior.', wn.now, 'en ' + range + ' días', wkDelta(wn) + '<br>' + s.moments.notes + ' desde el lanzamiento')
             + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez en el período elegido arriba, contra el mismo período anterior. No cuenta los que entraron con una cuenta de prueba.', wi.now, 'en ' + range + ' días', wkDelta(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
-            + tile('Pagan', 'Familias (nidis con las dos casas adentro) donde alguien paga. Tiempo gratis: un año (códigos) o meses (founding families y creadoras). Si alguien paga, el nidi cuenta como que paga aunque la otra casa tenga tiempo gratis. Ingresos muestra todos los pagos.', paying, 'de ' + active.length, giftNidis + ' con tiempo gratis' + (trialNidis ? '<br>' + trialNidis + ' en prueba' : ''))
+            + tile('Pagan', 'Familias (nidis con las dos casas adentro) donde alguien paga. Gifts: un año (códigos) o meses (founding families y creadoras). Si alguien paga, el nidi cuenta como que paga aunque la otra casa tenga tiempo gratis. Ingresos muestra todos los pagos.', paying, 'de ' + active.length, giftNidis + ' con gift' + (trialNidis ? '<br>' + trialNidis + ' en prueba' : ''))
             + '</div>';
           html += '<div class="rs-grid">'
             + dailyCard(ser, m)
@@ -1372,7 +1372,7 @@
             var hrs = sinceWord(n.last_moment);
             var ta = n.moments_a + n.notes_a, tb = n.moments_b + n.notes_b, t = (ta + tb) || 1;
             var pa = personOf(n.a), pb = personOf(n.b);
-            var plan = (pa && pa.paid) || (pb && pb.paid) ? 'Paga' : (pa && pa.gift) || (pb && pb.gift) ? 'Tiempo gratis' : n.grp === 'family' ? '<span class="quiet">Familia</span>' : n.activated_at ? 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + (n.trial_days || 14) * 864e5).toISOString()) + '</span>' : '<span class="quiet">Prueba, sin empezar</span>';
+            var plan = (pa && pa.paid) || (pb && pb.paid) ? 'Paga' : (pa && pa.gift) || (pb && pb.gift) ? 'Gift' : n.grp === 'family' ? '<span class="quiet">Familia</span>' : n.activated_at ? 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + (n.trial_days || 14) * 864e5).toISOString()) + '</span>' : '<span class="quiet">Prueba, sin empezar</span>';
             html += '<tr><td><span class="health ' + (n.status !== 'active' ? 'n' : ({ ok: 'g', meh: 'y', warn: 'r' })[health(hrs)]) + '"></span>' + nidiName(n) + (n.status === 'pending' ? ' <span class="quiet">esperando</span>' : '') + '</td><td class="num">' + n.moments + '</td><td class="num">' + n.notes + '</td>'
               + '<td><span class="quiet">' + esc(n.a) + ' ' + ta + (n.b ? ' · ' + esc(n.b) + ' ' + tb : '') + '</span><span class="bars2"><i style="width:' + pct(ta, t) + '%;background:' + C1 + '"></i><i style="width:' + pct(tb, t) + '%;background:' + C2 + '"></i></span></td>'
               + '<td>' + (hrs == null ? '<span class="quiet">nunca</span>' : '<span class="' + health(hrs) + '">hace ' + hoursWord(hrs) + '</span>') + '</td>'
@@ -1414,13 +1414,13 @@
           var html = '<div class="kpis">'
             + tile('Pagas', 'Suscripciones reales activas. Las de prueba no cuentan.', m.paid_active, '', '')
             + tile('Neto estimado', 'Después del 15% de la tienda e impuestos. Apple paga unos 33 días después de cerrar el mes.', 'USD ' + m.proceeds_usd_estimate, '', '')
-            + tile('Tiempo gratis', 'Personas con tiempo gratis activo, según la tienda: un año (códigos) o meses (founding families y creadoras). Los códigos entregados y los que quedan están en el sheet de códigos.', m.gifts_redeemed, plural(m.gifts_redeemed, 'persona', 'personas'), (m.gifts_years || 0) + ' de un año · ' + (m.gifts_months || 0) + ' de meses')
+            + tile('Gifts', 'Personas con un gift activo (tiempo gratis), según la tienda: un año (códigos) o meses (founding families y creadoras). Los códigos entregados y los que quedan están en el sheet de códigos.', m.gifts_redeemed, plural(m.gifts_redeemed, 'persona', 'personas'), (m.gifts_years || 0) + ' de un año · ' + (m.gifts_months || 0) + ' de meses')
             + '</div><div style="margin-top:10px">'
             + card('Paywall', 'Personas que lo vieron, tocaron pagar y pagaron.', '<div class="funnel">' + stepRow('Lo ven', en.paywall_viewed, en.paywall_viewed) + stepRow('Tocan pagar', en.purchase_started, en.paywall_viewed) + stepRow('Pagan', en.purchase_confirmed, en.paywall_viewed) + '</div>')
             + '</div><h2>Pagas</h2><div class="card"><div class="tablewrap"><table><tr><th>Quién</th><th>Plan</th><th>País</th><th class="num">Pagó</th><th>Renueva</th></tr>';
           if (!m.paid_list.length) html += '<tr><td colspan="5" class="quiet">Todavía nadie.</td></tr>';
           m.paid_list.forEach(function (p) { html += '<tr><td>' + esc(p.who) + '</td><td>' + (String(p.product).indexOf('month') >= 0 ? 'Mensual' : 'Anual') + '</td><td>' + esc(p.country || '—') + '</td><td class="num">' + (p.price != null ? Math.round(p.price) + ' ' + esc(p.currency || '') : '—') + '</td><td>' + dmyLong(p.ends) + '</td></tr>'; });
-          html += '</table></div></div><h2>Tiempo gratis</h2><div class="card"><div class="tablewrap"><table><tr><th>Quién</th><th>Cuánto</th><th>Desde</th><th>Termina</th><th>Cómo llegó</th></tr>';
+          html += '</table></div></div><h2>Gifts</h2><div class="card"><div class="tablewrap"><table><tr><th>Quién</th><th>Cuánto</th><th>Desde</th><th>Termina</th><th>Cómo llegó</th></tr>';
           if (!m.gifts_list.length) html += '<tr><td colspan="5" class="quiet">Todavía nadie.</td></tr>';
           m.gifts_list.forEach(function (g) { var gd = (new Date(g.ends) - new Date(g.since)) / 864e5; html += '<tr><td>' + esc(g.who) + '</td><td>' + (gd > 300 ? '1 año' : Math.round(gd / 30) + ' meses') + '</td><td>' + dmy(g.since) + '</td><td>' + dmyLong(g.ends) + '</td><td class="quiet">' + esc(g.via) + '</td></tr>'; });
           html += '</table></div></div>';
@@ -1614,7 +1614,7 @@
               ['Pruebas terminadas', a.ended || 0],
               ['Pagaron después de la prueba', Number(a.den) ? a.num + ' de ' + a.den : '—'],
               ['Pagaron antes de que termine', Number(a.paid_early || 0) + paidSoon.length, paidSoon.map(function (u) { return esc(u.names.split(' + ')[0]); }).join(', ')],
-              ['Con tiempo gratis (no pasan por el pago)', Number(a.gifted || 0) + giftSoon.length, '']
+              ['Con gift (no pasan por el pago)', Number(a.gifted || 0) + giftSoon.length, '']
             ]);
             col2 = '<div class="dl">Próximos fines de prueba</div>' + (up.length ? ttSec(up.map(function (u) { return [esc(u.names), day12(u.ends), esc(u.label)]; })) : '<p class="quiet">Ninguno.</p>');
           } else {
