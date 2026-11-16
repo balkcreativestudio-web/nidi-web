@@ -3,55 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- The direct link for campaigns, nidi.life/go/<ref> (2026-11-16):
-         creators, ads, stories and DMs. It goes straight to the store for
-         the phone it is opened on: iPhone -> App Store with ct=<ref>,
-         Android -> Google Play with utm_source=<ref>, a computer -> the
-         home page with ?ref=<ref> (which counts its own visit). On a
-         phone it first records one visit and one store tap with the ref,
-         like the home page, so HQ keeps counting by ref (the function
-         stores the path as /go/:ref). It waits at most 400 ms for those
-         two, on the cream background with the wordmark, never a white
-         page. Runs here, before anything is drawn. -->
-    <script>
-      (function () {
-        var m = location.pathname.match(/^\/go\/([a-z0-9_-]{1,40})\/?$/i);
-        if (!/^\/go(\/|$)/i.test(location.pathname)) return;
-        document.documentElement.className += " go";
-        var ref = m ? m[1].toLowerCase() : null;
-        var ua = navigator.userAgent || "";
-        var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-        var android = /Android/.test(ua);
-        var es = /^es/i.test(navigator.language || "");
-        var web = (es ? "/es/" : "/") + (ref ? "?ref=" + ref : "");
-        if (!ref || (!ios && !android)) { location.replace(web); return; }
-        var dest = ios
-          ? "https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=" + ref + "&mt=8"
-          : "https://play.google.com/store/apps/details?id=life.nidi.app&referrer=" + encodeURIComponent("utm_source=" + ref + "&utm_medium=go&utm_campaign=" + ref);
-        var gone = false, go = function () { if (!gone) { gone = true; location.replace(dest); } };
-        // If the store does not open (a browser that blocks it), a plain link after a moment.
-        setTimeout(function () { var a = document.getElementById("go-fallback"); if (a) { a.href = dest; a.hidden = false; } }, 2500);
-        try {
-          if (location.hostname.replace(/^www\./, "") !== "nidi.life") throw 0;
-          if (localStorage.getItem("nidi-notrack")) throw 0;
-          var tz = null;
-          try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) {}
-          var send = function (extra) {
-            var o = { path: "/go/:ref", lang: es ? "es" : "en", ref: ref, tz: tz };
-            for (var k in extra) o[k] = extra[k];
-            return fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(o), credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});
-          };
-          Promise.all([send({ referrer: document.referrer || null }), send({ click: ios ? "app_store" : "google_play" })]).then(go, go);
-          setTimeout(go, 400);
-        } catch (e) { go(); }
-      })();
-    </script>
-    <style>
-      html.go, html.go body { background: #f4efe7; }
-      html.go body { visibility: hidden; }
-      html.go .wordmark, html.go #go-fallback { visibility: visible; }
-      #go-fallback { position: fixed; left: 0; right: 0; bottom: 18vh; text-align: center; font: 500 16px/1.4 "Hanken Grotesk", system-ui, sans-serif; color: #2a241d; }
-    </style>
     <!-- GitHub Pages serves this file for every path that does not exist,
          which is how /join gets a page without a server. The script shows
          the invitation for /join (the share message's link since flow v4,
@@ -584,7 +535,6 @@
   </head>
 
   <body>
-    <a id="go-fallback" hidden>Open the store · Abrir la tienda</a>
     <header>
       <!-- The brand logotype, not typed text: the same six paths as
            nidi-app/assets/brand/logo/nidi-wordmark-ink.svg, so the site and
@@ -999,8 +949,6 @@
           if (location.search.indexOf("notrack") > -1) localStorage.setItem("nidi-notrack", "1");
           if (localStorage.getItem("nidi-notrack")) return;
           var p = location.pathname;
-          // /go/<ref> counts itself in the head, with its ref (2026-11-16).
-          if (/^\/go(\/|$)/i.test(p)) return;
           var body = JSON.stringify({
             // Trimmed here as well as on the server, so a code is not
             // in flight even though the server would drop it. The
