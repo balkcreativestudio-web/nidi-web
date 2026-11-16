@@ -19,21 +19,21 @@
          counting by ref (site-view stores the path as /go/:ref). It waits
          at most 400 ms for those two, on the cream background with the
          wordmark, never a white page. No cookie, no identifier. -->
-    <title>Nidi. Grow close. From anywhere.</title>
-    <meta name="description" content="Nidi connects two homes: the one where a child is growing up, and one far away. Voice, photo and text, and small things to do together, kept in Memory." />
+    <title>Nidi: the app for families who live far apart</title>
+    <meta name="description" content="Small things to do together, every day, from both homes." />
     <meta name="robots" content="noindex" />
     <meta name="referrer" content="origin" />
     <meta name="theme-color" content="#F4EFE7" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Nidi" />
     <meta property="og:locale" content="en_GB" />
-    <meta property="og:title" content="Nidi. Grow close. From anywhere." />
-    <meta property="og:description" content="Nidi connects two homes: the one where a child is growing up, and one far away. Voice, photo and text, and small things to do together, kept in Memory." />
-    <meta property="og:url" content="https://nidi.life/" />
+    <meta property="og:title" content="Nidi: the app for families who live far apart" />
+    <meta property="og:description" content="Small things to do together, every day, from both homes." />
+    <meta property="og:url" content="https://nidi.life/go/" />
     <meta property="og:image" content="https://nidi.life/assets/og-en.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Nidi: Grow close. From anywhere." />
+    <meta property="og:image:alt" content="Nidi: the app for families who live far apart." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://nidi.life/assets/og-en.png" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
@@ -42,8 +42,9 @@
         var m = location.search.match(/[?&]r=([a-z0-9_-]{1,40})(?:&|$)/i);
         var ref = m ? m[1].toLowerCase() : null;
         var ua = navigator.userAgent || "";
-        var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        // Android first: an Android browser on a touch Mac reports MacIntel too.
         var android = /Android/.test(ua);
+        var ios = !android && (/iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
         var es = /^es/i.test(navigator.language || "");
         var web = (es ? "/es/" : "/") + (ref ? "?ref=" + ref : "");
         if (!ref || (!ios && !android)) { location.replace(web); return; }
