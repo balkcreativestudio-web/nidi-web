@@ -1600,21 +1600,22 @@
 
           // the actions
           var num = function (v) { return known(v) ? Number(v).toLocaleString('es-AR') : '<span class="quiet">—</span>'; };
-          html += '<h2>Acciones <small>' + rows.length + '</small></h2><div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th>Estado</th><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th><th class="num">Familias</th><th class="num">Pagan</th><th class="num">Neto</th><th class="num">€/descarga</th></tr></thead><tbody>';
+          html += '<h2>Acciones <small>' + rows.length + '</small></h2><div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th>Estado</th><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Invite</th><th class="num">Nidis</th><th class="num">Pagan</th><th class="num">Neto</th><th class="num">€/descarga</th></tr></thead><tbody>';
           if (!rows.length) html += '<tr><td colspan="11" class="quiet">Todavía ninguna.</td></tr>';
           rows.forEach(function (r) {
             var when = r.starts_on ? day12(r.starts_on) + ' → ' + (r.ends_on ? day12(r.ends_on) : '') : r.ends_on ? 'hasta ' + day12(r.ends_on) : '<span class="quiet">sin fecha</span>';
             var cpd = Number(r.spent_eur) > 0 && known(r.downloads) ? (Number(r.downloads) ? costWord(r.spent_eur / r.downloads, r.kind === 'paid') : '<span class="warn">sin descargas</span>') : '<span class="quiet">—</span>';
             html += '<tr><td class="nm"><div class="mk-top"><b>' + esc(r.name) + '</b><button class="link" data-mk=\'' + esc(JSON.stringify(r)) + '\'>editar</button></div>'
-              + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + (r.ct && d.web_refs ? (function (t) { return ' · ' + t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'); })(refsFor(r.ct, d.web_refs)) : '') + (r.results_auto_at ? ' · <span class="auto" data-tip="' + esc('Descargas, cuentas, nidis, familias y pagan se cargan solos cada hora: la app se abrió por primera vez hasta 15 min después de una visita con este link. Solo gente de afuera. Última carga: ' + dmy(r.results_auto_at) + ' ' + String(new Date(r.results_auto_at).toTimeString()).slice(0, 5)) + '">resultados automáticos</span>' : '') + '</div>'
+              + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + (r.ct && d.web_refs ? (function (t) { return ' · ' + t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'); })(refsFor(r.ct, d.web_refs)) : '') + (r.results_auto_at ? ' · <span class="auto" data-tip="' + esc('Descargas, cuentas, invite, nidis y pagan se cargan solos cada hora: la app se abrió por primera vez hasta 15 min después de una visita con este link. Invite: armó el nidi y la otra casa todavía no entró. Nidis: las dos casas adentro. Solo gente de afuera. Última carga: ' + dmy(r.results_auto_at) + ' ' + String(new Date(r.results_auto_at).toTimeString()).slice(0, 5)) + '">resultados automáticos</span>' : '') + '</div>'
               + (r.note ? '<details class="nt"><summary>ver detalle</summary><div>' + esc(r.note) + '</div></details>' : '') + '</td>'
               + '<td class="when" data-l="Cuándo">' + when + '</td>'
               + '<td data-l="Estado"><span class="pill ' + esc(r.status) + '">' + esc(MK_ST[r.status] || r.status) + '</span></td>'
               + '<td class="num" data-l="Gastado">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '</td>'
               + '<td class="num" data-l="Descargas">' + num(r.downloads) + '</td>'
               + '<td class="num" data-l="Cuentas">' + num(r.accounts) + '</td>'
-              + '<td class="num" data-l="Nidis">' + num(r.nidis) + '</td>'
-              + '<td class="num" data-l="Familias">' + num(r.families) + '</td>'
+              // Invite: a nidi made, the other home not in yet. Nidis: both homes in (Maru, 16/11). Typed rows keep their own nidis.
+              + '<td class="num" data-l="Invite">' + (r.results_auto_at && known(r.nidis) && known(r.families) ? num(r.nidis - r.families) : num(null)) + '</td>'
+              + '<td class="num" data-l="Nidis">' + num(r.results_auto_at ? r.families : r.nidis) + '</td>'
               + '<td class="num" data-l="Pagan">' + num(r.paying) + '</td>'
               + '<td class="num" data-l="Neto">' + (known(r.net_eur) ? eur(r.net_eur) : '<span class="quiet">—</span>') + '</td>'
               + '<td class="num" data-l="€/descarga">' + cpd + '</td></tr>';
@@ -1636,12 +1637,12 @@
             + f('Gastado €', money('spent_eur'))
             + f('Descargas', count('downloads'))
             + f('Cuentas nuevas', count('accounts'))
-            + f('Nidis creados', count('nidis'))
+            + f('Nidis (las dos casas)', count('nidis'))
             + f('Familias que pagan', count('paying'))
             + f('Neto ganado €', money('net_eur'))
             + f('Link ct', '<input name="ct" placeholder="ej. ig-boost" pattern="[a-z0-9_\\-]{1,40}\\*?" maxlength="41" autocomplete="off" />')
             + f('Notas', '<textarea name="note" maxlength="500" placeholder="sin emails"></textarea>', 'full')
-            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero. Las acciones con link (ct) cargan solas descargas, cuentas, nidis, familias y pagan cada hora; lo gastado y el neto siguen siendo a mano.</p>'
+            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero. Las acciones con link (ct) cargan solas descargas, cuentas, invite, nidis y pagan cada hora; lo gastado y el neto siguen siendo a mano.</p>'
             + '<div class="full"><button class="primary" type="submit" id="mksave">Guardar</button> <button type="button" class="ghost" id="mkclear">Limpiar</button> <button type="button" class="link" id="mkdelete" hidden>Borrar esta acción</button></div></form></details></div>';
           return html;
         }
