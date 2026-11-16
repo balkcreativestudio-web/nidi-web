@@ -885,7 +885,7 @@
           var html = '<div class="card"><div class="title"><span>Familias oficiales por semana</span></div><p class="def" style="display:block">Nuevas, de afuera, sin regalo, con las dos casas adentro, por la semana en que entró la otra casa (en miel, esta semana). Es el número de todos.</p><div class="bd-bars">'
             + weeks.map(function (w, i) {
               var cur = i === weeks.length - 1;
-              return '<div' + (w.names.length ? ' data-tip="' + esc(w.names.join(' · ')) + '"' : '') + '><em>' + w.n + '</em><span class="b" style="height:' + (w.n ? Math.max(8, w.n / top * 100) : 3) + '%;background:' + (w.n ? (cur ? 'var(--honey)' : 'var(--olive)') : 'var(--line)') + '"></span><small>' + dmy(w.from + 'T12:00:00') + (cur ? ' · esta' : '') + '</small></div>';
+              return '<div' + (w.names.length ? ' data-tip="' + esc(w.names.join(' · ')) + '"' : '') + '><em>' + w.n + '</em><span class="b" style="height:' + (w.n ? Math.max(8, w.n / top * 100) : 3) + '%;background:' + (w.n ? (cur ? 'var(--honey)' : 'var(--olive)') : 'var(--line)') + '"></span><small>' + dmy(w.from + 'T12:00:00') + '</small></div>';
             }).join('') + '</div></div>';
 
           var ch = changesOut(d);
