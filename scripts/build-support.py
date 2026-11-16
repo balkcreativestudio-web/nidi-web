@@ -181,7 +181,7 @@ EN = dict(
          'your nidi and choose Add someone who lives here. They come in '
          'with the email you enter.'),
         ('What does Nidi cost?',
-         'Each nidi starts with two free weeks, counted from the day the '
+         'Each nidi starts with 7 free days, counted from the day the '
          'other home comes in. After that it continues with a '
          'subscription: one home subscribing is enough for both, and one '
          'subscription covers up to three nidis.'),
@@ -246,7 +246,7 @@ ES = dict(
          'entra a tu nidi y elige Sumar a alguien que vive aquí. Entra con '
          'el email que escribas.'),
         ('¿Cuánto cuesta Nidi?',
-         'Cada nidi empieza con dos semanas gratis, desde el día en que '
+         'Cada nidi empieza con 7 días gratis, desde el día en que '
          'entra el otro hogar. Después sigue con una suscripción: con que '
          'uno de los dos hogares se suscriba alcanza para los dos, y una '
          'suscripción cubre hasta tres nidis.'),
