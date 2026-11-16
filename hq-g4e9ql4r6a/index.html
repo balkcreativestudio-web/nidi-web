@@ -1647,7 +1647,9 @@
           // 2026-11-14 (Diseño): nidi.life's first screen says what Nidi is.
           web_store_tap: { label: 'De las visitas a la portada de nidi.life (/ y /es/), cuántas tocan App Store o Google Play.', unit: 'share' },
           // 2026-11-16 (Dirección): the invitation link is a real page with a preview.
-          invite_accepted_48h: { label: 'De las invitaciones por link a la otra casa, cuántas se aceptan dentro de las 48 h. Solo cuentan las que ya tienen 48 h.', unit: 'share' }
+          invite_accepted_48h: { label: 'De las invitaciones por link a la otra casa, cuántas se aceptan dentro de las 48 h. Solo cuentan las que ya tienen 48 h.', unit: 'share' },
+          // 2026-11-16 (Dirección): weekly push "la casa de lejos empieza".
+          far_home_starts: { label: 'En los nidis que reciben el push, de los momentos que se comparten, cuántos los manda la casa de lejos. Las notas no cuentan.', unit: 'share' }
         };
         var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
         function todayAms() { try { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
@@ -1800,6 +1802,7 @@
                 ['"Otro nidi" con uno esperando', kv(a.waiting_choice), '']];
             }
             else if (c.metric === 'invite_accepted_48h') sup = [['Esperando (menos de 48 h)', a.waiting || 0, ''], ['Aceptadas después de 48 h', a.accepted_later || 0, 'antes ' + (b.accepted_later || 0)], ['Horas hasta aceptar (mediana)', a.median_hours != null ? a.median_hours + ' h' : '—', b.median_hours != null ? 'antes ' + b.median_hours + ' h' : ''], ['Visitas a la invitación en la web', a.join_views || 0, 'antes ' + (b.join_views || 0)]];
+            else if (c.metric === 'far_home_starts') sup = [['Pushes enviados', a.pushes || 0, ''], ['Con un momento de ella en 7 días', a.answered || 0, a.pushes ? 'de ' + a.pushes : ''], ['Momentos de la casa de lejos que son actividades', a.far_activity || 0, 'antes ' + (b.far_activity || 0)], ['Nidis', a.nidis || 0, ''], ['Meta', c.goal != null ? c.goal + '%' : '—', '']];
             else if (c.metric === 'web_store_tap') sup = [['Toques a App Store', a.app_store || 0, 'antes ' + (b.app_store || 0)], ['Toques a Google Play', a.google_play || 0, 'antes ' + (b.google_play || 0)], ['Visitas en español (/es/)', a.es || 0, 'antes ' + (b.es || 0)]];
             else if (c.metric === 'duplicate_nidi') sup = [['Que igual entraron después al que las esperaba', a.num ? (a.joined_too || 0) + ' de ' + a.num : '—', 'antes ' + (b.joined_too || 0) + ' de ' + (b.num || 0)]];
             else if (c.metric === 'play_search_visitors') sup = (a.terms || []).map(function (t) { return [esc(t.term), t.visitors, 'visitas']; });
