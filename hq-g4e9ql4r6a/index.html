@@ -1157,7 +1157,7 @@
         // each one on or off. Web traffic has its own scale on the right
         // (bars), because it is many times the rest. Payments come from the
         // same list as Ingresos (any real payment, by its start day).
-        var DY = [['web', 'Tráfico web', '#B0A596', 1], ['installs', 'Instalaciones', '#507291', 0], ['accounts', 'Registros', '#9890B0', 0], ['nidis', 'Nidis creados', '#E2A75A', 0], ['activated', 'Activaciones', '#87995B', 0], ['moments', 'Envíos', '#86B3B3', 0], ['notes', 'Respuestas', '#C77E87', 0], ['paid', 'Conversiones', '#CC644C', 0]];
+        var DY = [['web', 'Visitas a la web', '#B0A596', 1], ['installs', 'Descargas', '#507291', 0], ['accounts', 'Cuentas', '#9890B0', 0], ['nidis', 'Invites', '#E2A75A', 0], ['activated', 'Nidis', '#87995B', 0], ['moments', 'Momentos', '#86B3B3', 0], ['notes', 'Notas', '#C77E87', 0], ['paid', 'Pagos', '#CC644C', 0]];
         function dailyCard(ser, m) {
           var paidBy = {}; (m.paid_list || []).forEach(function (p) { if (p.since) { var d = new Date(new Date(p.since).getTime() + 3600e3).toISOString().slice(0, 10); paidBy[d] = (paidBy[d] || 0) + 1; } });
           var rows = ser.map(function (r) { var o = {}; DY.forEach(function (k) { o[k[0]] = k[0] === 'paid' ? (paidBy[String(r.day).slice(0, 10)] || 0) : Number(r[k[0]]) || 0; }); o.day = r.day; return o; });
@@ -1182,7 +1182,7 @@
           out += '</svg>';
           var chips = '<div class="dy-chips">' + DY.map(function (k) { return '<button type="button" class="dy-chip" style="--c:' + k[2] + '" data-dy="' + k[0] + '" aria-pressed="' + !!DY_ON[k[0]] + '"><i></i>' + k[1] + '</button>'; }).join('') + '</div>'
             + '<div class="dy-quick"><button type="button" data-dyall="1">Ver todo</button><button type="button" data-dyall="0">Ninguno</button></div>';
-          return card('Por día', 'Tocá cada nombre para prenderlo o apagarlo; la elección queda guardada en este dispositivo. Tráfico web: visitas reales a nidi.life (barras, escala a la derecha). Instalaciones: teléfonos que abren Nidi por primera vez. Registros: personas que pidieron el código. Nidis creados: alguien armó su nidi. Activaciones: entró la otra casa. Envíos: fotos, audios y textos. Respuestas: notas sobre un momento. Conversiones: suscripciones pagas que empezaron ese día, de cualquiera (como Ingresos).',
+          return card('Por día', 'Tocá cada nombre para prenderlo o apagarlo; la elección queda guardada en este dispositivo. Visitas a la web: visitas reales a nidi.life (barras, escala a la derecha). Descargas: teléfonos que abren Nidi por primera vez. Cuentas: personas que pidieron el código. Invites: alguien armó su nidi e invitó a la otra casa. Nidis: entró la otra casa, las dos casas adentro. Momentos: fotos, audios y textos. Notas: respuestas sobre un momento. Pagos: suscripciones pagas que empezaron ese día, de cualquiera (como Ingresos). Los mismos nombres que en Marketing.',
             chips + '<div class="dy">' + out + '</div>', 'últimos ' + range + ' días');
         }
         function tabResumen(d, st, s, gr, ser) {
