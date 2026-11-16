@@ -89,6 +89,9 @@
       .news-item:last-child { border-bottom:0; }
       .news-item > i { width:8px; height:8px; border-radius:50%; margin-top:7px; background:var(--ink3); }
       .news-item.person > i { background:var(--olive); } .news-item.family > i { background:var(--rose); } .news-item.money > i { background:var(--honey); } .news-item.warn > i { background:var(--sienna); } .news-item.push > i { background:var(--lagoon); } .news-item.store > i { background:var(--lagoon); }
+      /* ups and downs (2026-11-16): a number went up, or something got worse */
+      .news-item.up > i { background:var(--olive); width:0; height:0; border-radius:0; background:transparent; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:8px solid var(--olive); margin-top:6px; }
+      .news-item.down > i { background:var(--sienna); width:0; height:0; border-radius:0; background:transparent; border-left:5px solid transparent; border-right:5px solid transparent; border-top:8px solid var(--sienna); margin-top:7px; }
       .news-item b { font-weight:500; font-size:15px; display:block; }
       .news-item span { font-size:13px; color:var(--ink2); display:block; margin-top:1px; }
       .news-item button { border:0; background:transparent; color:var(--ink2); width:32px; height:32px; margin:-6px -8px 0 0; border-radius:50%; font-size:16px; line-height:1; cursor:pointer; }
