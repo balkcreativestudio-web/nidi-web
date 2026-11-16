@@ -391,6 +391,45 @@
       .ar-pill { font-size:11px; font-weight:500; border-radius:999px; padding:3px 9px; text-align:right; }
       .ar-pill.good { background:var(--olive-soft); color:#5c6b37; } .ar-pill.bad { background:#f5ddd6; color:#a2452f; } .ar-pill.wait { background:var(--honey-soft); color:#8a6417; } .ar-pill.flat { background:var(--line2); color:var(--ink2); }
       .so-f { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--ink2); margin-top:4px; } .so-f b { color:var(--ink); font-weight:500; }
+      /* the card for each network (2026-11-16, Redes' spec) */
+      .sc-list { display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+      .sc { border-left:6px solid var(--c); border-radius:18px; padding:18px 22px 20px; }
+      .sc-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+      .sc-name { font-weight:500; font-size:17px; }
+      .sc-big { display:flex; align-items:baseline; gap:10px; margin-top:4px; }
+      .sc-big b { font-family:var(--serif); font-weight:400; font-size:46px; line-height:1; }
+      .sc-big span { color:var(--ink2); font-size:15px; }
+      .sc-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+      .sc-right .ar-pill { font-size:13px; padding:5px 12px; }
+      .sc-goal { font-size:13px; color:var(--ink2); text-align:right; } .sc-goal b { color:var(--ink); font-weight:500; }
+      .sc-ch { display:block; width:100%; height:auto; margin-top:10px; }
+      .sc-ch text { font-family:var(--sans); font-size:inherit; fill:var(--ink3); }
+      .sc-narrow { display:none; }
+      .sc-ch text.sc-gl { fill:var(--ink2); } .sc-ch text.sc-now { fill:var(--ink); font-weight:500; }
+      .sc-sec { margin-top:14px; padding-top:12px; border-top:1px solid var(--line2); }
+      .sc-sec h4 { margin:0 0 10px; font-size:11px; font-weight:500; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+      .sc-sec h4 span { font-weight:400; letter-spacing:.04em; text-transform:none; }
+      .sc-tiles { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+      .sc-tile { background:#faf6ef; border:1px solid transparent; border-radius:10px; padding:7px 12px; display:flex; align-items:baseline; gap:7px; min-width:0; }
+      .sc-tile.zero { background:transparent; border:1px dashed var(--line); }
+      .sc-tile b { font-family:var(--serif); font-weight:400; font-size:19px; line-height:1.2; }
+      .sc-tile span { font-size:14px; color:var(--ink2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .sc-fun { display:grid; grid-template-columns:1fr 38px 1fr 38px 1fr 38px 1fr 38px 1fr; align-items:center; }
+      .sc-ar { text-align:center; color:var(--ink3); font-size:14px; line-height:1; }
+      .sc-ar i { font-style:normal; }
+      .sc-ar small { display:block; font-size:11px; color:var(--ink2); margin-top:1px; }
+      .sc-key { margin-top:8px; font-size:13px; color:var(--ink2); }
+      @media (max-width:760px) {
+        .sc { padding:16px 16px 18px; }
+        .sc-big b { font-size:40px; }
+        .sc-right { align-items:flex-start; } .sc-goal { text-align:left; }
+        .sc-wide { display:none; } .sc-narrow { display:block; }
+        .sc-tiles { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+        .sc-fun { grid-template-columns:1fr; gap:0; }
+        .sc-ar { display:flex; align-items:center; gap:6px; padding:3px 12px; text-align:left; }
+        .sc-ar small { margin:0; }
+        .sc-ar i { display:inline-block; transform:rotate(90deg); font-style:normal; }
+      }
       .so-top { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
       .so-spark { width:120px; height:30px; flex:none; }
       .so-web { border-top:1px solid var(--line2); padding-top:8px; margin-top:4px; }
@@ -952,18 +991,73 @@
           var pts = v.map(function (y, i) { return (i / (v.length - 1) * w).toFixed(1) + ',' + (hi === lo ? h / 2 : h - 3 - (y - lo) / (hi - lo) * (h - 6)).toFixed(1); }).join(' ');
           return '<svg class="so-spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>';
         }
+        // Instagram's goal, set by Maru on 13/11: from 43 to 300 by 9/12.
+        var SO_GOAL = { ig: { from: '2026-11-13', v0: 43, to: '2026-12-09', v1: 300 } };
+        function dayDiff(a, b) { return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5); }
+        function followEn(x) {
+          var dd = x.last.followers - x.base.followers;
+          return (dd > 0 ? '+' + dd : dd === 0 ? '=' : dd) + ' since ' + dmy(x.base.day + 'T12:00:00');
+        }
+        // One dot per day loaded; a missing day gets no dot and the line runs
+        // across it. From the first day loaded to 9/12, with the goal dashed.
+        function socialChart(f, goal, color, today) {
+          if (!f) return '';
+          // a wide one for a computer and a tall one for a phone, so the text stays readable
+          return socialSvg(f, goal, color, today, 1100, 170, 'sc-wide') + socialSvg(f, goal, color, today, 560, 300, 'sc-narrow');
+        }
+        function socialSvg(f, goal, color, today, W, H, cls) {
+          var rows = f.rows, from = rows[0].day, to = '2026-12-09';
+          if (today > to) to = today;
+          var big = cls === 'sc-narrow', fs = big ? 20 : 11;
+          var span = Math.max(1, dayDiff(from, to)), Lp = big ? 56 : 34, Rp = big ? 64 : 40, T = 14, B = big ? 40 : 24;
+          var top = goal ? goal.v1 : Math.max(10, Math.ceil(Math.max.apply(null, rows.map(function (r) { return r.followers; })) * 1.2 / 10) * 10);
+          var r0 = big ? 6 : 3.5, r1 = big ? 8 : 5, sw = big ? 4 : 2.5;
+          var yMax = top * 1.07, X = function (day) { return Lp + (W - Lp - Rp) * dayDiff(from, day) / span; }, Y = function (v) { return T + (H - T - B) * (1 - v / yMax); };
+          var g = '';
+          var stepY = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000].filter(function (c) { return c >= top / 4; })[0] || top, levels = [];
+          for (var lv = 0; lv <= top + 1e-9; lv += stepY) levels.push(lv);
+          levels.forEach(function (v) {
+            g += '<line x1="' + Lp + '" x2="' + (W - Rp) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="var(--line2)"/><text x="' + (Lp - 6) + '" y="' + (Y(v) + fs * .35).toFixed(1) + '" text-anchor="end">' + v + '</text>';
+          });
+          var ticks = [from], step = Math.max(7, Math.round(span / 4));
+          for (var dd = step; dd < span - 3; dd += step) ticks.push(addDays(from, dd));
+          ticks.push(to);
+          ticks.forEach(function (day, i) { g += '<text x="' + X(day).toFixed(1) + '" y="' + (H - fs * .4).toFixed(1) + '" text-anchor="' + (i === 0 ? 'start' : i === ticks.length - 1 ? 'end' : 'middle') + '">' + dmy(day + 'T12:00:00') + '</text>'; });
+          if (goal) {
+            var gx0 = X(goal.from < from ? from : goal.from), gy0 = Y(goal.from < from ? goal.v0 + (goal.v1 - goal.v0) * dayDiff(goal.from, from) / dayDiff(goal.from, goal.to) : goal.v0);
+            g += '<line x1="' + gx0.toFixed(1) + '" y1="' + gy0.toFixed(1) + '" x2="' + X(goal.to).toFixed(1) + '" y2="' + Y(goal.v1).toFixed(1) + '" stroke="var(--ink3)" stroke-dasharray="4 5" stroke-width="1.5"/>'
+              + '<text x="' + (X(goal.to) + fs * .5).toFixed(1) + '" y="' + (Y(goal.v1) + fs * .35).toFixed(1) + '" class="sc-gl">' + goal.v1 + '</text>';
+          }
+          if (today >= from && today <= to) g += '<line x1="' + X(today).toFixed(1) + '" x2="' + X(today).toFixed(1) + '" y1="' + T + '" y2="' + (H - B) + '" stroke="var(--line)"/>';
+          g += '<polyline points="' + rows.map(function (r) { return X(r.day).toFixed(1) + ',' + Y(r.followers).toFixed(1); }).join(' ') + '" fill="none" stroke="' + color + '" stroke-width="' + sw + '" stroke-linejoin="round"/>';
+          rows.forEach(function (r, i) { var last = i === rows.length - 1; g += '<circle cx="' + X(r.day).toFixed(1) + '" cy="' + Y(r.followers).toFixed(1) + '" r="' + (last ? r1 : r0) + '" fill="' + (last ? color : 'var(--paper)') + '" stroke="' + color + '" stroke-width="2"><title>' + r.followers + ' · ' + dmy(r.day + 'T12:00:00') + '</title></circle>'; });
+          var lr = rows[rows.length - 1], lx = X(lr.day), right = lx > W * .7;
+          g += '<text x="' + (lx + (right ? -fs : fs)).toFixed(1) + '" y="' + (Y(lr.followers) + (Y(lr.followers) > H - B - 2 * fs ? -fs : 2 * fs)).toFixed(1) + '" text-anchor="' + (right ? 'end' : 'start') + '" class="sc-now">' + lr.followers + (lr.day === today ? ' today' : ' · ' + dmy(lr.day + 'T12:00:00')) + '</text>';
+          return '<svg class="sc-ch ' + cls + '" viewBox="0 0 ' + W + ' ' + H + '" style="font-size:' + fs + 'px" role="img" aria-label="Followers per day">' + g + '</svg>';
+        }
         function tabSocial(d) {
           var t = socialTotals(d);
+          // The card for each network (Redes' spec, approved by Maru 16/11 ~17:50,
+          // hq-social-card/spec.md): followers with a daily line and the goal,
+          // the account's last 7 days, and the way from the network into Nidi.
           var net = function (k, name, color) {
-            var x = t[k], f = socialNow(d, k), l = f && f.last;
-            var plat = l ? [['vistas', l.views_7d], ['alcance', l.reach_7d], ['visitas al perfil', l.profile_visits_7d], ['clics en el link de la bio', l.link_taps_7d]].filter(function (p) { return p[1] != null; }) : [];
-            return '<div class="ar so" style="--c:' + color + '"><span class="ar-top"><span class="ar-name">' + name + '</span>' + (f && f.base ? '<span class="ar-pill ' + (l.followers > f.base.followers ? 'good' : l.followers < f.base.followers ? 'bad' : 'flat') + '">' + followWord(f) + '</span>' : '') + '</span>'
-              + '<span class="so-top"><span class="ar-num">' + (l ? l.followers : '—') + '</span>' + spark(f && f.rows, color) + '</span>'
-              + '<span class="ar-what">seguidores · ' + (f && f.base ? 'al ' + dmy(l.day + 'T12:00:00') : followWord(f)) + '</span>'
-              + (plat.length ? '<span class="so-f">' + plat.map(function (p) { return '<span><b>' + Number(p[1]).toLocaleString('es-AR') + '</b> ' + p[0] + '</span>'; }).join('') + ' <span class="quiet">en 7 días</span></span>' : '')
-              + '<span class="so-f so-web"><span><b>' + x.visits + '</b> ' + plural(x.visits, 'visita', 'visitas') + ' a la web</span><span><b>' + x.clicks + '</b> ' + plural(x.clicks, 'toque', 'toques') + ' a las tiendas</span><span><b>' + x.downloads + '</b> ' + plural(x.downloads, 'descarga', 'descargas') + '</span><span><b>' + x.accounts + '</b> ' + plural(x.accounts, 'cuenta', 'cuentas') + '</span><span><b>' + x.families + '</b> ' + plural(x.families, 'nidi', 'nidis') + '</span></span></div>';
+            var x = t[k], f = socialNow(d, k), l = f && f.last, today = todayAms(), goal = SO_GOAL[k];
+            var pillCls = f && f.base ? (l.followers > f.base.followers ? 'good' : l.followers < f.base.followers ? 'bad' : 'flat') : 'flat';
+            var mark = goal ? Math.round(goal.v0 + (goal.v1 - goal.v0) * Math.max(0, Math.min(1, dayDiff(goal.from, today) / dayDiff(goal.from, goal.to)))) : null;
+            var head = '<div class="sc-top"><div><div class="sc-name">' + name + '</div><div class="sc-big"><b>' + (l ? l.followers : '—') + '</b><span>followers' + (l ? ' · ' + dmy(l.day + 'T12:00:00') : ' · not loaded yet') + '</span></div></div>'
+              + '<div class="sc-right">' + (f && f.base ? '<span class="ar-pill ' + pillCls + '">' + followEn(f) + '</span>' : '') + (goal ? '<div class="sc-goal">Goal <b>' + goal.v1 + '</b> by ' + dmy(goal.to + 'T12:00:00') + ' · today\'s mark <b>' + mark + '</b></div>' : '') + '</div></div>';
+            var tiles = l ? [['Views', l.views_7d], ['Reach', l.reach_7d], ['Profile visits', l.profile_visits_7d], ['Link clicks', l.link_taps_7d]].filter(function (p) { return p[1] != null; }) : [];
+            var acct = '<div class="sc-sec"><h4>Account <span>last 7 days · ' + (k === 'ig' ? 'Instagram Insights' : 'TikTok Studio') + '</span></h4>'
+              + (tiles.length ? '<div class="sc-tiles">' + tiles.map(function (p) { return '<div class="sc-tile"><b>' + Number(p[1]).toLocaleString('es-AR') + '</b><span>' + p[0] + '</span></div>'; }).join('') + '</div>' : '<p class="quiet" style="margin:0">Not loaded yet.</p>') + '</div>';
+            var steps = [['Visits', x.visits], ['Store clicks', x.clicks], ['Installs', x.downloads], ['Sign-ups', x.accounts], ['Nidis', x.families]];
+            var fun = '<div class="sc-sec"><h4>' + name + ' → Nidi <span>since 11/11 · every ' + (k === 'ig' ? 'ig' : 'tiktok') + ' link</span></h4><div class="sc-fun">'
+              + steps.map(function (s2, i) {
+                var arrow = i ? '<div class="sc-ar"><i>→</i>' + (steps[i - 1][1] > 0 ? '<small>' + pct(s2[1], steps[i - 1][1]) + '%</small>' : '') + '</div>' : '';
+                return arrow + '<div class="sc-tile' + (s2[1] ? '' : ' zero') + '"><b>' + s2[1] + '</b><span>' + s2[0] + '</span></div>';
+              }).join('') + '</div><div class="sc-key">Sign-ups: created an account, with or without a nidi. Nidis: both homes in.</div></div>';
+            return '<div class="card sc" style="--c:' + color + '">' + head + socialChart(f, goal, color, today) + acct + fun + '</div>';
           };
-          var html = '<div class="areas two-up">' + net('ig', 'Instagram', 'var(--rose)') + net('tiktok', 'TikTok', 'var(--ink)') + '</div>';
+          var html = '<div class="sc-list">' + net('ig', 'Instagram', 'var(--rose)') + net('tiktok', 'TikTok', 'var(--ink)') + '</div>';
           var refs = Object.keys(d.web_refs || {}).filter(socialRef).sort(function (a, b) { return d.web_refs[b].visits - d.web_refs[a].visits; });
           var rowOf = function (ref) { return (d.marketing || []).filter(function (r) { return r.ct && String(r.ct).toLowerCase() === ref; })[0] || {}; };
           html += '<h2>Por link</h2><div class="card"><div class="tablewrap"><table><tr><th>Link</th><th class="num">Visitas a la web</th><th class="num">Toques a las tiendas</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th></tr>'
