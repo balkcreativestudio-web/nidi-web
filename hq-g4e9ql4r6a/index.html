@@ -1007,7 +1007,7 @@
           var g = (m.gifts_list || []).filter(function (p) { return names.indexOf(f(p.who)) >= 0; })[0];
           if (g) { var days = (new Date(g.ends) - new Date(g.since)) / 864e5; return days > 300 ? '1 año gratis' : Math.round(days / 30) + ' meses gratis'; }
           if (n.grp === 'family') return '<span class="quiet">Familia</span>';
-          if (n.activated_at) return 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + 14 * 864e5).toISOString()) + '</span>';
+          if (n.activated_at) return 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + (n.trial_days || 14) * 864e5).toISOString()) + '</span>';
           return '<span class="quiet">Prueba, sin empezar</span>';
         }
         // who sends the moments: one bar per home, and what it says
@@ -1372,7 +1372,7 @@
             var hrs = sinceWord(n.last_moment);
             var ta = n.moments_a + n.notes_a, tb = n.moments_b + n.notes_b, t = (ta + tb) || 1;
             var pa = personOf(n.a), pb = personOf(n.b);
-            var plan = (pa && pa.paid) || (pb && pb.paid) ? 'Paga' : (pa && pa.gift) || (pb && pb.gift) ? 'Año gratis' : n.grp === 'family' ? '<span class="quiet">Familia</span>' : n.activated_at ? 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + 14 * 864e5).toISOString()) + '</span>' : '<span class="quiet">Prueba, sin empezar</span>';
+            var plan = (pa && pa.paid) || (pb && pb.paid) ? 'Paga' : (pa && pa.gift) || (pb && pb.gift) ? 'Año gratis' : n.grp === 'family' ? '<span class="quiet">Familia</span>' : n.activated_at ? 'Prueba <span class="quiet">hasta ' + dmy(new Date(new Date(n.activated_at).getTime() + (n.trial_days || 14) * 864e5).toISOString()) + '</span>' : '<span class="quiet">Prueba, sin empezar</span>';
             html += '<tr><td><span class="health ' + (n.status !== 'active' ? 'n' : ({ ok: 'g', meh: 'y', warn: 'r' })[health(hrs)]) + '"></span>' + nidiName(n) + (n.status === 'pending' ? ' <span class="quiet">esperando</span>' : '') + '</td><td class="num">' + n.moments + '</td><td class="num">' + n.notes + '</td>'
               + '<td><span class="quiet">' + esc(n.a) + ' ' + ta + (n.b ? ' · ' + esc(n.b) + ' ' + tb : '') + '</span><span class="bars2"><i style="width:' + pct(ta, t) + '%;background:' + C1 + '"></i><i style="width:' + pct(tb, t) + '%;background:' + C2 + '"></i></span></td>'
               + '<td>' + (hrs == null ? '<span class="quiet">nunca</span>' : '<span class="' + health(hrs) + '">hace ' + hoursWord(hrs) + '</span>') + '</td>'
