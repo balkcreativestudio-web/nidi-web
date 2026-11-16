@@ -260,6 +260,8 @@
       .mk-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
       .mk-top b { font-weight:500; }
       .mk .meta { font-size:12px; color:var(--ink2); margin-top:2px; }
+      .mk .meta .auto { color:#6E7D49; border-bottom:1px dotted currentColor; cursor:help; }
+      .mkf input[readonly] { background:transparent; color:var(--ink2); }
       .mk .nt { font-size:13px; color:var(--ink2); margin-top:2px; max-width:34em; }
       .mk .nt summary { cursor:pointer; color:var(--ink3); font-size:12px; list-style:none; text-decoration:underline; text-underline-offset:2px; }
       .mk .nt summary::-webkit-details-marker { display:none; }
@@ -1598,20 +1600,22 @@
 
           // the actions
           var num = function (v) { return known(v) ? Number(v).toLocaleString('es-AR') : '<span class="quiet">—</span>'; };
-          html += '<h2>Acciones <small>' + rows.length + '</small></h2><div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th>Estado</th><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th><th class="num">Pagan</th><th class="num">Neto</th><th class="num">€/descarga</th></tr></thead><tbody>';
-          if (!rows.length) html += '<tr><td colspan="10" class="quiet">Todavía ninguna.</td></tr>';
+          html += '<h2>Acciones <small>' + rows.length + '</small></h2><div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th>Estado</th><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Invite</th><th class="num">Nidis</th><th class="num">Pagan</th><th class="num">Neto</th><th class="num">€/descarga</th></tr></thead><tbody>';
+          if (!rows.length) html += '<tr><td colspan="11" class="quiet">Todavía ninguna.</td></tr>';
           rows.forEach(function (r) {
             var when = r.starts_on ? day12(r.starts_on) + ' → ' + (r.ends_on ? day12(r.ends_on) : '') : r.ends_on ? 'hasta ' + day12(r.ends_on) : '<span class="quiet">sin fecha</span>';
             var cpd = Number(r.spent_eur) > 0 && known(r.downloads) ? (Number(r.downloads) ? costWord(r.spent_eur / r.downloads, r.kind === 'paid') : '<span class="warn">sin descargas</span>') : '<span class="quiet">—</span>';
             html += '<tr><td class="nm"><div class="mk-top"><b>' + esc(r.name) + '</b><button class="link" data-mk=\'' + esc(JSON.stringify(r)) + '\'>editar</button></div>'
-              + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + (r.ct && d.web_refs ? (function (t) { return ' · ' + t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'); })(refsFor(r.ct, d.web_refs)) : '') + '</div>'
+              + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + (r.ct && d.web_refs ? (function (t) { return ' · ' + t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'); })(refsFor(r.ct, d.web_refs)) : '') + (r.results_auto_at ? ' · <span class="auto" data-tip="' + esc('Descargas, cuentas, invite, nidis y pagan se cargan solos cada hora: la app se abrió por primera vez hasta 15 min después de una visita con este link. Invite: armó el nidi y la otra casa todavía no entró. Nidis: las dos casas adentro. Solo gente de afuera. Última carga: ' + dmy(r.results_auto_at) + ' ' + String(new Date(r.results_auto_at).toTimeString()).slice(0, 5)) + '">resultados automáticos</span>' : '') + '</div>'
               + (r.note ? '<details class="nt"><summary>ver detalle</summary><div>' + esc(r.note) + '</div></details>' : '') + '</td>'
               + '<td class="when" data-l="Cuándo">' + when + '</td>'
               + '<td data-l="Estado"><span class="pill ' + esc(r.status) + '">' + esc(MK_ST[r.status] || r.status) + '</span></td>'
               + '<td class="num" data-l="Gastado">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '</td>'
               + '<td class="num" data-l="Descargas">' + num(r.downloads) + '</td>'
               + '<td class="num" data-l="Cuentas">' + num(r.accounts) + '</td>'
-              + '<td class="num" data-l="Nidis">' + num(r.nidis) + '</td>'
+              // Invite: a nidi made, the other home not in yet. Nidis: both homes in (Maru, 16/11). Typed rows keep their own nidis.
+              + '<td class="num" data-l="Invite">' + (r.results_auto_at && known(r.nidis) && known(r.families) ? num(r.nidis - r.families) : num(null)) + '</td>'
+              + '<td class="num" data-l="Nidis">' + num(r.results_auto_at ? r.families : r.nidis) + '</td>'
               + '<td class="num" data-l="Pagan">' + num(r.paying) + '</td>'
               + '<td class="num" data-l="Neto">' + (known(r.net_eur) ? eur(r.net_eur) : '<span class="quiet">—</span>') + '</td>'
               + '<td class="num" data-l="€/descarga">' + cpd + '</td></tr>';
@@ -1633,12 +1637,12 @@
             + f('Gastado €', money('spent_eur'))
             + f('Descargas', count('downloads'))
             + f('Cuentas nuevas', count('accounts'))
-            + f('Nidis creados', count('nidis'))
+            + f('Nidis (las dos casas)', count('nidis'))
             + f('Familias que pagan', count('paying'))
             + f('Neto ganado €', money('net_eur'))
             + f('Link ct', '<input name="ct" placeholder="ej. ig-boost" pattern="[a-z0-9_\\-]{1,40}\\*?" maxlength="41" autocomplete="off" />')
             + f('Notas', '<textarea name="note" maxlength="500" placeholder="sin emails"></textarea>', 'full')
-            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero.</p>'
+            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero. Las acciones con link (ct) cargan solas descargas, cuentas, invite, nidis y pagan cada hora; lo gastado y el neto siguen siendo a mano.</p>'
             + '<div class="full"><button class="primary" type="submit" id="mksave">Guardar</button> <button type="button" class="ghost" id="mkclear">Limpiar</button> <button type="button" class="link" id="mkdelete" hidden>Borrar esta acción</button></div></form></details></div>';
           return html;
         }
@@ -1647,7 +1651,7 @@
           var mf = document.getElementById('mkform'), det = document.getElementById('mkdetails'), del = document.getElementById('mkdelete');
           if (!mf) return;
           var MONEY = ['budget_eur', 'spent_eur', 'net_eur'], COUNTS = ['downloads', 'accounts', 'nidis', 'paying'];
-          var reset = function () { mf.reset(); mf.id.value = ''; del.hidden = true; det.querySelector('summary').textContent = 'Agregar acción'; EDITING = false; };
+          var reset = function () { mf.reset(); COUNTS.forEach(function (k) { mf[k].readOnly = false; }); mf.id.value = ''; del.hidden = true; det.querySelector('summary').textContent = 'Agregar acción'; EDITING = false; };
           mf.onsubmit = function (e) {
             e.preventDefault();
             var fd = new FormData(mf), body = { action: 'marketing_upsert' }, bad = false;
@@ -1672,7 +1676,7 @@
               mf.id.value = r.id; mf.name.value = r.name; mf.channel.value = r.channel; mf.kind.value = r.kind; mf.status.value = r.status;
               mf.starts_on.value = r.starts_on || ''; mf.ends_on.value = r.ends_on || ''; mf.ct.value = r.ct || ''; mf.note.value = r.note || '';
               MONEY.forEach(function (k) { mf[k].value = known(r[k]) ? String(Number(r[k])).replace('.', ',') : ''; });
-              COUNTS.forEach(function (k) { mf[k].value = known(r[k]) ? r[k] : ''; });
+              COUNTS.forEach(function (k) { mf[k].value = known(r[k]) ? r[k] : ''; mf[k].readOnly = !!r.results_auto_at; });
               del.hidden = false; det.open = true; det.querySelector('summary').textContent = 'Editando: ' + r.name; EDITING = true;
               det.scrollIntoView({ behavior: 'smooth', block: 'start' });
             };
