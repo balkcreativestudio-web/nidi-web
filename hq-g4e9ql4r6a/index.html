@@ -373,6 +373,38 @@
       .links a { text-decoration:none; border:1px solid var(--line); background:var(--paper); border-radius:999px; padding:8px 14px; font-size:13px; }
       footer { margin-top:44px; font-size:12px; color:var(--ink3); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
       .skeleton { color:var(--ink2); padding:40px 0; text-align:center; }
+      /* rooms by team (2026-11-16) */
+      .tdot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px; }
+      .team-sub { display:inline-flex; margin:0 0 14px; }
+      .areas { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:0 0 18px; }
+      .areas.two-up { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      @media (max-width:760px) { .areas, .areas.two-up { grid-template-columns:1fr; } }
+      .ar { display:flex; flex-direction:column; gap:6px; text-align:left; font:inherit; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-left:6px solid var(--c); border-radius:14px; padding:14px 16px; min-width:0; }
+      button.ar { cursor:pointer; } button.ar:hover { border-color:var(--ink3); border-left-color:var(--c); }
+      .ar-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+      .ar-name { font-weight:500; font-size:15px; }
+      .ar-num { font-family:var(--serif); font-size:34px; line-height:1; }
+      .ar-what { font-size:13px; color:var(--ink2); }
+      .ar-pill { font-size:11px; font-weight:500; border-radius:999px; padding:3px 9px; text-align:right; }
+      .ar-pill.good { background:var(--olive-soft); color:#5c6b37; } .ar-pill.bad { background:#f5ddd6; color:#a2452f; } .ar-pill.wait { background:var(--honey-soft); color:#8a6417; } .ar-pill.flat { background:var(--line2); color:var(--ink2); }
+      .so-f { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--ink2); margin-top:4px; } .so-f b { color:var(--ink); font-weight:500; }
+      .so-empty p { margin:0 0 6px; }
+      .bd-bars { display:flex; align-items:flex-end; gap:8px; height:150px; padding-top:6px; }
+      .bd-bars > div { flex:1; min-width:0; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:5px; }
+      .bd-bars em { font-family:var(--serif); font-style:normal; font-size:17px; }
+      .bd-bars .b { width:100%; max-width:52px; border-radius:8px 8px 3px 3px; }
+      .bd-bars small { font-size:11px; color:var(--ink2); white-space:nowrap; }
+      @media (max-width:560px) { .bd-bars small { font-size:10px; } .bd-bars { gap:4px; } }
+      .bd-list { display:flex; flex-direction:column; gap:8px; }
+      .bd-item { display:flex; gap:12px; align-items:flex-start; background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+      .bd-item b { font-weight:500; display:block; } .bd-item span { font-size:13px; color:var(--ink2); display:block; }
+      .bd-date { flex:none; width:46px; text-align:center; border-radius:10px; background:var(--c); color:#fff; padding:5px 0; font-size:11px; font-weight:500; line-height:1.1; text-transform:lowercase; }
+      .bd-date b { display:block; font-family:var(--serif); font-size:19px; font-weight:400; }
+      .mn-g { margin-bottom:12px; } .mn-g h4 { margin:0 0 6px; font-size:13px; font-weight:500; display:flex; align-items:center; gap:8px; }
+      .mn-g h4 i { width:10px; height:10px; border-radius:3px; background:var(--c); }
+      .mn ul { margin:0; padding-left:20px; } .mn li { margin:4px 0; font-size:14px; }
+      .mn li.more { display:none; } .mn.open li.more { display:list-item; }
+      .mn-old { margin-top:10px; } .mn-old summary { cursor:pointer; color:var(--ink2); font-size:14px; margin-bottom:8px; } .mn-old .card { margin-bottom:8px; }
     </style>
   </head>
   <body>
@@ -733,9 +765,9 @@
         window.addEventListener('resize', function () { clearTimeout(mapResizeT); mapResizeT = setTimeout(drawMap, 200); });
 
         // ── render ──────────────────────────────────────────────────────
-        // Seven rooms, and Externos / Con familia applies to all of them. Test
+        // Seven rooms, one per team (2026-11-16), and Externos / Con familia applies to all of them. Test
         // accounts are gone before the numbers get here (hq_group).
-        var TABS = [['resumen', 'Resumen'], ['fam', 'Familias'], ['cambios', 'Tests'], ['adq', 'Adquisición'], ['uso', 'Uso'], ['ret', 'Retención'], ['ing', 'Ingresos'], ['mkt', 'Marketing']];
+        var TABS = [['resumen', 'Resumen'], ['board', 'Board'], ['mkt', 'Marketing'], ['social', 'Social Media'], ['design', 'Design'], ['prod', 'Producto'], ['fin', 'Finance']];
         var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
         var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando', invited_check: 'La pregunta' };
         var PLAN_L = { paid: 'Paga', gift: 'Año gratis', trial: 'Prueba', invited: 'Invitación' };
@@ -761,6 +793,153 @@
             });
           });
         }
+        // ── Rooms by team (Maru, 2026-11-16) ────────────────────────────
+        // One room per team, each with the results of what that team does,
+        // and Resumen first with one line per team. The rooms that were
+        // there before live inside their team: Familias, Uso and Retención
+        // in Producto; Adquisición in Marketing; Tests in Design; Ingresos
+        // in Finance. A room saved on this device from before opens in its team.
+        var TEAM_C = { resumen: 'var(--honey)', board: 'var(--ink)', mkt: 'var(--c2)', social: 'var(--rose)', design: '#9890b0', prod: 'var(--olive)', fin: 'var(--sienna, #b4553a)' };
+        var OLD_TAB = { fam: ['prod', 'fam'], uso: ['prod', 'uso'], ret: ['prod', 'ret'], adq: ['mkt', 'adq'], cambios: ['design'], ing: ['fin'] };
+        var SUBS = { mkt: [['acc', 'Acciones'], ['adq', 'Adquisición']], prod: [['fam', 'Familias'], ['uso', 'Uso'], ['ret', 'Retención']] };
+        var SUB = {};
+        try { SUB = JSON.parse(localStorage.getItem('nidi-hq-sub') || '{}') || {}; } catch (e) {}
+        if (OLD_TAB[TAB]) { if (OLD_TAB[TAB][1]) SUB[OLD_TAB[TAB][0]] = OLD_TAB[TAB][1]; TAB = OLD_TAB[TAB][0]; }
+        if (!TABS.some(function (t) { return t[0] === TAB; })) TAB = 'resumen';
+        function subOf(tab) { var l = SUBS[tab]; return l.some(function (x) { return x[0] === SUB[tab]; }) ? SUB[tab] : l[0][0]; }
+        function subNav(tab) {
+          return '<div class="range team-sub" role="group" aria-label="Sección">' + SUBS[tab].map(function (x) { return '<button data-sub="' + x[0] + '" aria-pressed="' + (subOf(tab) === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>';
+        }
+        function wireTeams() {
+          Array.prototype.forEach.call(document.querySelectorAll('[data-sub]'), function (b) { b.onclick = function () { SUB[TAB] = b.getAttribute('data-sub'); try { localStorage.setItem('nidi-hq-sub', JSON.stringify(SUB)); } catch (e) {} render(); }; });
+          var more = document.getElementById('mn-more');
+          if (more) more.onclick = function () { var box = document.getElementById('mn'); var open = box.classList.toggle('open'); more.textContent = open ? 'Ver menos' : more.getAttribute('data-label'); };
+        }
+
+        // Weeks start on Monday, in Amsterdam.
+        function weekStart(iso) {
+          var d = new Date(String(iso).slice(0, 10) + 'T12:00:00'), wd = (d.getDay() + 6) % 7;
+          d.setDate(d.getDate() - wd);
+          return d.toISOString().slice(0, 10);
+        }
+        function addDays(iso, n) { var d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
+        function ams(iso) { try { return new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); } catch (e) { return String(iso).slice(0, 10); } }
+        // The official number (town meeting 13/11): new families from outside
+        // Maru's circle, without a gift, with both homes in, by the week the
+        // other home came in. Always outside people, whatever the view says.
+        function officialWeeks(st, n) {
+          var o = (st.views && st.views.outside) || st, m = o.money || {};
+          var fams = (o.nidis || []).filter(function (x) { return x.status === 'active' && x.activated_at && !/gratis$/.test(planOf(x, m)); });
+          var now = weekStart(todayAms()), out = [];
+          for (var i = n - 1; i >= 0; i--) {
+            var w = addDays(now, -7 * i), e = addDays(w, 7);
+            var list = fams.filter(function (x) { var dd = ams(x.activated_at); return dd >= w && dd < e; });
+            out.push({ from: w, n: list.length, names: list.map(function (x) { return x.a + (x.b ? ' + ' + x.b : ''); }) });
+          }
+          return out;
+        }
+        function changesOut(d) { var c = d.changes; return c ? (c.outside || []) : []; }
+        function dateChip(iso, color) {
+          var dt = new Date(iso + 'T12:00:00');
+          return '<div class="bd-date" style="--c:' + color + '">' + dt.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '') + '<b>' + dt.getDate() + '</b></div>';
+        }
+        function socialRef(ref) { return ref === 'ig' || ref.indexOf('ig-') === 0 ? 'ig' : ref === 'tiktok' || ref.indexOf('tiktok-') === 0 ? 'tiktok' : null; }
+        function socialTotals(d) {
+          var t = { ig: { visits: 0, clicks: 0, downloads: 0, accounts: 0, families: 0 }, tiktok: { visits: 0, clicks: 0, downloads: 0, accounts: 0, families: 0 } };
+          Object.keys(d.web_refs || {}).forEach(function (r) { var k = socialRef(r); if (k) { t[k].visits += d.web_refs[r].visits; t[k].clicks += d.web_refs[r].clicks; } });
+          (d.marketing || []).forEach(function (r) { var k = r.ct && socialRef(String(r.ct).toLowerCase().replace(/\*$/, '')); if (k) { t[k].downloads += Number(r.downloads) || 0; t[k].accounts += Number(r.accounts) || 0; t[k].families += Number(r.families) || 0; } });
+          return t;
+        }
+
+        // Resumen: one card per team, under the news. A card opens its room.
+        function areasHtml(d, st, s, gr) {
+          var o = (st.views && st.views.outside) || st, weeks = officialWeeks(st, 2), today = todayAms();
+          var ser = (s.series || []).slice(-7), prevSer = (s.series || []).slice(-14, -7);
+          var inst = sum(ser, 'installs'), inst0 = sum(prevSer, 'installs'), web = sum(ser, 'web');
+          var ch = changesOut(d), open = ch.filter(function (c) { return !c.verdict; });
+          var soon = open.filter(function (c) { return c.decide_on && c.decide_on >= today; }).sort(function (a, b) { return a.decide_on < b.decide_on ? -1 : 1; });
+          var week7 = soon.filter(function (c) { return c.decide_on < addDays(today, 7); }).length;
+          var mk = (d.marketing || []).filter(function (r) { return Number(r.families) > 0; }).sort(function (a, b) { return b.families - a.families; })[0];
+          var so = socialTotals(d), active = (s.nidis || []).filter(function (n) { return n.status === 'active'; }).length;
+          var m = s.money || {};
+          var pill = function (cls, t) { return '<span class="ar-pill ' + cls + '">' + t + '</span>'; };
+          var cardA = function (tab, name, p, num, what) {
+            return '<button class="ar" data-tab="' + tab + '" style="--c:' + TEAM_C[tab] + '"><span class="ar-top"><span class="ar-name">' + name + '</span>' + p + '</span><span class="ar-num">' + num + '</span><span class="ar-what">' + what + '</span></button>';
+          };
+          var w = weeks[1], w0 = weeks[0];
+          return '<div class="areas">'
+            + cardA('board', 'Board', week7 ? pill('wait', week7 + ' ' + plural(week7, 'decisión', 'decisiones') + ' en 7 días') : pill('flat', 'sin decisiones esta semana'), w.n, plural(w.n, 'familia oficial', 'familias oficiales') + ' esta semana · ' + w0.n + ' la anterior')
+            + cardA('mkt', 'Marketing', mk ? pill('good', esc(mk.name) + ': ' + mk.families) : pill('flat', 'ninguna acción trajo familias'), inst, 'instalaciones en 7 días · ' + inst0 + ' los 7 anteriores · ' + web + ' visitas a la web')
+            + cardA('social', 'Social Media', pill('flat', 'seguidores: falta cargarlos'), so.ig.visits + so.tiktok.visits, 'visitas a la web desde las redes · Instagram ' + so.ig.visits + ' · TikTok ' + so.tiktok.visits)
+            + cardA('design', 'Design', soon.length ? pill('wait', 'próxima: ' + dmy(soon[0].decide_on + 'T12:00:00')) : pill('flat', 'nada por decidir'), open.length, plural(open.length, 'test midiendo', 'tests midiendo') + (soon.length ? ' · ' + esc(soon[0].title) : ''))
+            + cardA('prod', 'Producto', pill((gr.both_ways_7d || 0) ? 'good' : 'bad', (gr.both_ways_7d || 0) + ' de ' + (gr.families || 0) + ' comparten'), active, plural(active, 'familia', 'familias') + ' con las dos casas · ' + (s.moments ? s.moments.total : 0) + ' momentos desde el lanzamiento')
+            + cardA('fin', 'Finance', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con tiempo gratis')
+            + '</div>';
+        }
+
+        function tabBoard(d, st) {
+          var today = todayAms(), weeks = officialWeeks(st, 8), top = Math.max(1, Math.max.apply(null, weeks.map(function (w) { return w.n; })));
+          var html = '<div class="card"><div class="title"><span>Familias oficiales por semana</span></div><p class="def" style="display:block">Nuevas, de afuera, sin regalo, con las dos casas adentro, por la semana en que entró la otra casa (en miel, esta semana). Es el número de todos.</p><div class="bd-bars">'
+            + weeks.map(function (w, i) {
+              var cur = i === weeks.length - 1;
+              return '<div' + (w.names.length ? ' data-tip="' + esc(w.names.join(' · ')) + '"' : '') + '><em>' + w.n + '</em><span class="b" style="height:' + (w.n ? Math.max(8, w.n / top * 100) : 3) + '%;background:' + (w.n ? (cur ? 'var(--honey)' : 'var(--olive)') : 'var(--line)') + '"></span><small>' + dmy(w.from + 'T12:00:00') + (cur ? ' · esta' : '') + '</small></div>';
+            }).join('') + '</div></div>';
+
+          var ch = changesOut(d);
+          var dec = ch.filter(function (c) { return c.decide_on && c.decide_on >= today && !c.verdict; }).sort(function (a, b) { return a.decide_on < b.decide_on ? -1 : 1; });
+          html += '<h2>Decisiones con fecha</h2><div class="bd-list">' + (dec.length ? dec.map(function (c) {
+            return '<div class="bd-item">' + dateChip(c.decide_on, 'var(--honey)') + '<div><b>' + esc(c.title) + '</b><span>' + esc(c.measure || '') + (c.platforms ? ' · ' + esc(c.platforms) : '') + '</span></div></div>';
+          }).join('') : '<p class="quiet">Nada por decidir.</p>') + '</div>';
+
+          var from = addDays(today, -14);
+          var shipped = ch.filter(function (c) { return c.shipped_on && c.shipped_on >= from; }).sort(function (a, b) { return a.shipped_on < b.shipped_on ? 1 : -1; });
+          html += '<h2>Lo que salió</h2><p class="quiet" style="margin:-4px 0 10px">Últimos 14 días.</p><div class="bd-list">' + (shipped.length ? shipped.map(function (c) {
+            return '<div class="bd-item">' + dateChip(c.shipped_on, 'var(--olive)') + '<div><b>' + esc(c.title) + '</b><span>' + esc(c.platforms || '') + (c.decide_on ? ' · se decide el ' + dmy(c.decide_on + 'T12:00:00') : '') + '</span></div></div>';
+          }).join('') : '<p class="quiet">Nada en estos días.</p>') + '</div>';
+
+          html += minutaHtml(d.board);
+          return html;
+        }
+        // The minutes: the last meeting, up to 10 lines, the rest behind "Ver todo".
+        function minutaHtml(notes) {
+          if (!Array.isArray(notes)) return '<h2>Minuta</h2><div class="card"><p class="quiet">Todavía no está activa: falta aplicar la migración hq_board_notes y publicar la función.</p></div>';
+          if (!notes.length) return '<h2>Minuta</h2><div class="card"><p class="quiet">Todavía ninguna reunión cargada.</p></div>';
+          var days = notes.map(function (n) { return n.meeting_on; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort().reverse();
+          var G = [['done', 'Se hizo', 'var(--olive)'], ['decided', 'Se definió', 'var(--c2)'], ['next', 'Para la semana que viene', 'var(--honey)']];
+          var block = function (day, withMore) {
+            var shown = 0, total = notes.filter(function (n) { return n.meeting_on === day; }).length;
+            var body = G.map(function (g) {
+              var items = notes.filter(function (n) { return n.meeting_on === day && n.kind === g[0]; });
+              if (!items.length) return '';
+              return '<div class="mn-g" style="--c:' + g[2] + '"><h4><i></i>' + g[1] + '</h4><ul>' + items.map(function (n) { shown++; return '<li' + (withMore && shown > 10 ? ' class="more"' : '') + '>' + esc(n.body) + '</li>'; }).join('') + '</ul></div>';
+            }).join('');
+            return { body: body, total: total };
+          };
+          var last = block(days[0], true);
+          var html = '<h2>Minuta · reunión del ' + dmy(days[0] + 'T12:00:00') + '</h2><div class="card mn" id="mn">' + last.body
+            + (last.total > 10 ? '<button class="link" id="mn-more" data-label="Ver todo (' + last.total + ')">Ver todo (' + last.total + ')</button>' : '') + '</div>';
+          if (days.length > 1) html += '<details class="mn-old"><summary>Reuniones anteriores (' + (days.length - 1) + ')</summary>' + days.slice(1).map(function (day) { return '<div class="card mn open"><div class="title"><span>' + dmy(day + 'T12:00:00') + '</span></div>' + block(day, false).body + '</div>'; }).join('') + '</details>';
+          return html;
+        }
+
+        function tabSocial(d) {
+          var t = socialTotals(d);
+          var net = function (k, name) {
+            var x = t[k];
+            return '<div class="ar so" style="--c:' + (k === 'ig' ? 'var(--rose)' : 'var(--ink)') + '"><span class="ar-top"><span class="ar-name">' + name + '</span></span><span class="ar-num">' + x.visits + '</span><span class="ar-what">visitas a la web · ' + x.clicks + ' ' + plural(x.clicks, 'toque', 'toques') + ' a las tiendas</span>'
+              + '<span class="so-f"><span><b>' + x.downloads + '</b> ' + plural(x.downloads, 'descarga', 'descargas') + '</span><span><b>' + x.accounts + '</b> ' + plural(x.accounts, 'cuenta', 'cuentas') + '</span><span><b>' + x.families + '</b> ' + plural(x.families, 'nidi', 'nidis') + '</span></span></div>';
+          };
+          var html = '<div class="areas two-up">' + net('ig', 'Instagram') + net('tiktok', 'TikTok') + '</div>';
+          var refs = Object.keys(d.web_refs || {}).filter(socialRef).sort(function (a, b) { return d.web_refs[b].visits - d.web_refs[a].visits; });
+          var rowOf = function (ref) { return (d.marketing || []).filter(function (r) { return r.ct && String(r.ct).toLowerCase() === ref; })[0] || {}; };
+          html += '<h2>Por link</h2><div class="card"><div class="tablewrap"><table><tr><th>Link</th><th class="num">Visitas</th><th class="num">Toques</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th></tr>'
+            + (refs.length ? refs.map(function (r) { var w = d.web_refs[r], m = rowOf(r); return '<tr><td>' + esc(refLabel(r, d.marketing)) + ' <span class="quiet">' + esc(r) + '</span></td><td class="num">' + w.visits + '</td><td class="num">' + w.clicks + '</td><td class="num">' + (known(m.downloads) ? m.downloads : '—') + '</td><td class="num">' + (known(m.accounts) ? m.accounts : '—') + '</td><td class="num">' + (known(m.families) ? m.families : '—') + '</td></tr>'; }).join('')
+              : '<tr><td colspan="6" class="quiet">Todavía nadie llegó desde las redes.</td></tr>')
+            + '</table></div><p class="quiet" style="margin-top:8px">Visitas y toques desde el 11/11; descargas, cuentas y nidis con la regla de Marketing (la app abre por primera vez hasta 15 min después de la visita). Nidis = las dos casas adentro.</p></div>';
+          html += '<h2>Seguidores y posteos</h2><div class="card so-empty"><p><b>Todavía no llegan al HQ.</b> Seguidores, alcance, shares y guardados por posteo de Instagram y TikTok los anota Redes a mano.</p><p class="quiet">Próximo paso: que se carguen acá todos los días, con el mejor posteo arriba.</p></div>';
+          return html;
+        }
+
         function render() {
           EDITING = false;
           var d = DATA, st = d.stats;
@@ -771,8 +950,13 @@
             + '<div class="controls"><div class="range" role="group" aria-label="A quién contar">'
             + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
-            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</nav>';
-          html += (({ resumen: tabResumen, fam: tabFam, cambios: tabCambios, adq: tabAdq, uso: tabUso, ret: tabRet, ing: tabIng, mkt: tabMkt })[TAB] || tabResumen)(d, st, s, gr, ser, prev);
+            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '</button>'; }).join('') + '</nav>';
+          var ROOMS = {
+            resumen: tabResumen, board: tabBoard, social: tabSocial, design: tabCambios, fin: tabIng,
+            mkt: function () { return subNav('mkt') + (subOf('mkt') === 'adq' ? tabAdq : tabMkt).apply(null, arguments); },
+            prod: function () { return subNav('prod') + ({ fam: tabFam, uso: tabUso, ret: tabRet })[subOf('prod')].apply(null, arguments); }
+          };
+          html += (ROOMS[TAB] || tabResumen)(d, st, s, gr, ser, prev);
           html += '<h2>Accesos</h2><div class="links">'
             + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect</a>'
             + '<a href="https://play.google.com/console/u/1/developers/6039865059263874705/app/4974103052168493706/app-dashboard" target="_blank" rel="noopener">Google Play</a>'
@@ -791,6 +975,7 @@
           wireMk();
           wireCh();
           wireNews();
+          wireTeams();
           drawMap();
         }
 
@@ -1008,8 +1193,8 @@
           var paying = plans.filter(function (p) { return p === 'Paga'; }).length;
           var giftNidis = plans.filter(function (p) { return /gratis$/.test(p); }).length;
           var trialNidis = plans.filter(function (p) { return /^Prueba/.test(p); }).length;
-          var html = newsHtml(d.news || []);
-          html += '<div class="kpis rs-kpis">'
+          var html = newsHtml(d.news || []) + areasHtml(d, st, s, gr);
+          html += '<h2>Familias y uso</h2><div class="kpis rs-kpis">'
             + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron en el período elegido arriba (7, 14 o 28 días) contra el mismo período anterior.', active.length, '', wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + ' en ' + range + ' días<br>' + wkDelta(wa) + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
             + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), (gr.families ? '<span class="delta ' + ((gr.both_ways_7d || 0) === gr.families ? 'up' : 'flat') + '">' + pct(gr.both_ways_7d || 0, gr.families) + '%</span> · ' : '') + 'las dos casas esta semana')
             + tile('Momentos', 'Fotos, audios y textos enviados en el período elegido arriba (7, 14 o 28 días), contra el mismo período anterior. Hoy cuenta aunque no terminó.', wm.now, 'en ' + range + ' días', wkDelta(wm) + '<br>' + s.moments.total + ' desde el lanzamiento')
