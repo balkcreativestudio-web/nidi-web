@@ -905,7 +905,15 @@
           var onAndroid = /android/i.test(ua);
           var onIPhone = !onAndroid && (/iphone|ipad|ipod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
           if (!(onAndroid && PLAY_LIVE)) stores.appendChild(badge(APP_STORE_URL, "/assets/badges/app-store-" + lang + ".svg", c.appStoreBadge, ""));
-          if (PLAY_LIVE && !onIPhone) stores.appendChild(badge(PLAY_URL, "/assets/badges/google-play-" + lang + ".png", c.playBadge, "gp"));
+          // A link invitation's code rides to the app through Google
+          // Play's install referrer (2026-11-16): the clipboard handoff
+          // lost it on Android (0 of 3, 10–14/11), and Play hands this
+          // string to the app on its first launch (nidi-app
+          // lib/install-referrer). Only the code's shape goes in.
+          var playUrl = linkCode && /^[a-z0-9-]{3,64}$/.test(linkCode)
+            ? "https://play.google.com/store/apps/details?id=life.nidi.app&referrer=" + encodeURIComponent("utm_source=invite&utm_medium=join&utm_campaign=invite&nidi_invite=" + linkCode)
+            : PLAY_URL;
+          if (PLAY_LIVE && !onIPhone) stores.appendChild(badge(playUrl, "/assets/badges/google-play-" + lang + ".png", c.playBadge, "gp"));
           body.appendChild(stores);
         } else {
           body.textContent = c.step1;
