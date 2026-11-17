@@ -16,7 +16,7 @@ trust, the app, questions, one last ask), in Nidi's own voice.
 APP_LIVE: False until Apple releases the app. While it is False, every
 call to action is the email form; flip it and run this again and they
 all become the store badges. Since 2026-11-10 (Maru: "debería tener los íconos de Apple y Google Play para que cada uno descargue lo que necesita"):
-the official App Store and Google Play badges side by side, no "Let's begin", no line about iPhone or Android, and the two free weeks
+the official App Store and Google Play badges side by side, no "Let's begin", no line about iPhone or Android, and the free days (7 since 2026-11-16, with the 1.0.3 store versions; nidis created before keep 14)
 said only in "Free to start". The header button "Download" goes to the right store on a phone and to the badges elsewhere.
 
 Run from the repo root:  python3 scripts/build-home.py
@@ -739,10 +739,10 @@ TEMPLATE = r'''<!doctype html>
         <div class="wrap free-grid">
           <div>
             <p class="eyebrow rv">[[Free to start ||| Gratis para empezar]]</p>
-            <h2 class="rv">[[Try it for two weeks, with nothing to&nbsp;*pay.* ||| Pruébala dos semanas, sin pagar&nbsp;*nada.*]]</h2>
+            <h2 class="rv">[[Try it for 7 days, with nothing to&nbsp;*pay.* ||| Pruébala 7 días, sin pagar&nbsp;*nada.*]]</h2>
           </div>
           <div class="free-list">
-            <div class="free-item rv"><h4>[[Two free weeks ||| Dos semanas gratis]]</h4><p>[[Counted from the day the other home joins. No payment details. ||| Desde el día en que se suma el otro hogar. Sin datos de pago.]]</p></div>
+            <div class="free-item rv"><h4>[[7 free days ||| 7 días gratis]]</h4><p>[[Counted from the day the other home joins. No payment details. ||| Desde el día en que se suma el otro hogar. Sin datos de pago.]]</p></div>
             <div class="free-item rv"><h4>[[To keep sharing… ||| Para seguir compartiendo…]]</h4><p>[[One subscription covers up to three nidis. ||| Una suscripción cubre hasta tres nidis.]]</p></div>
             <div class="free-item rv"><h4>[[Only one person pays ||| Paga una sola persona]]</h4><p>[[Only the person who starts a nidi pays. The people they invite never do. ||| Paga solo quien inicia el nidi. Las personas que invita nunca pagan.]]</p></div>
           </div>
@@ -775,7 +775,7 @@ TEMPLATE = r'''<!doctype html>
           <p class="eyebrow rv">[[Questions ||| Preguntas]]</p>
           <h2 class="rv">[[A few things you might be&nbsp;*wondering.* ||| Lo que quizás te estés&nbsp;*preguntando.*]]</h2>
           <div class="faq rv">
-            <details><summary>[[Is Nidi free? ||| ¿Nidi es gratis?]]</summary><div>[[Two free weeks, with no payment details. Then the person who started the nidi chooses a monthly or yearly subscription, and the people they invite never pay. ||| Dos semanas gratis, sin ingresar datos de pago. Después, quien inició el nidi elige una suscripción mensual o anual, y las personas que invita nunca pagan.]]</div></details>
+            <details><summary>[[Is Nidi free? ||| ¿Nidi es gratis?]]</summary><div>[[7 free days, with no payment details. Then the person who started the nidi chooses a monthly or yearly subscription, and the people they invite never pay. ||| 7 días gratis, sin ingresar datos de pago. Después, quien inició el nidi elige una suscripción mensual o anual, y las personas que invita nunca pagan.]]</div></details>
             <details><summary>[[Does the other home need the app? ||| ¿El otro hogar necesita la app?]]</summary><div>[[Yes. They install Nidi, sign in with a code sent to their email, and join with your invitation. It is free for them. ||| Sí. Instalan Nidi, entran con un código que les llega por email y se suman con tu invitación. Para ellos es gratis.]]</div></details>
             <details><summary>[[Who can see what we share? ||| ¿Quién ve lo que compartimos?]]</summary><div>[[Only the people in your nidi. Nothing is public or searchable. ||| Solo las personas de tu nidi. Nada es público ni aparece en búsquedas.]]</div></details>
             <details><summary>[[What languages does it speak? ||| ¿En qué idiomas está?]]</summary><div>[[English and Spanish, each person in their own language. ||| Español e inglés, cada persona en su idioma.]]</div></details>
@@ -1013,7 +1013,7 @@ FORM = '''<div class="wl-wrap">
               </form>
               <p class="wl-done" hidden role="status">[[You're in. We'll write when Nidi is ready. ||| Listo. Te escribimos cuando Nidi esté disponible.]]</p>
               <p class="wl-error" hidden role="alert"></p>
-              <p class="wl-note soon-only">[[Coming soon to the App Store, for iPhone. Android is on its way. Free for two weeks. ||| Muy pronto en el App Store, para iPhone. Android viene en camino. Dos semanas gratis.]]</p>
+              <p class="wl-note soon-only">[[Coming soon to the App Store, for iPhone. Android is on its way. Free for 7 days. ||| Muy pronto en el App Store, para iPhone. Android viene en camino. 7 días gratis.]]</p>
               <div class="stores live-only">
                 <a class="store" href="@@STORE@@"><img src="/assets/badges/app-store-@@LANG@@.svg" alt="[[Download on the App Store ||| Consíguelo en el App Store]]" width="144" height="48" /></a>
                 <a class="store gp play-only" href="@@PLAYURL@@"><img class="@@LANG@@" src="/assets/badges/google-play-@@LANG@@.png" alt="[[Get it on Google Play ||| Descargar en Google Play]]" /></a>
