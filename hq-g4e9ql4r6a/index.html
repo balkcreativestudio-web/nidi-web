@@ -1638,7 +1638,7 @@
           // "before" is 0 by construction (the card's note says so).
           meetup_set: { label: 'De quienes abren Hoy, cuántos arman un encuentro con la pantalla nueva: el día, cuántos días y dónde.', unit: 'share' },
           trial_conversion: { label: 'De las familias cuya prueba terminó (de 7 o de 14 días, según cuándo empezó su nidi) sin un regalo y sin haber pagado antes, cuántas pagan.', unit: 'share' },
-          dropout_came_back: { label: 'De quienes se registran y a las 24 h siguen sin nidi andando, cuántos avanzan después: confirman el código, crean el nidi o entra la otra casa.', unit: 'share' },
+          dropout_came_back: { label: 'De quienes recibieron el mensaje para retomar (mail o push), cuántos avanzan después: confirman el código, crean el nidi o entra la otra casa.', unit: 'share' },
           // 2026-11-14 (Diseño, invite-code and roles-question). The last two
           // are better when they go down: lower flips the colour and verdict.
           invite_recovered: { label: 'De quienes llegan a "No encontramos tu invitación", cuántos entran al nidi que los espera, con el código o el link, sin armar uno propio antes.', unit: 'share' },
@@ -1791,7 +1791,7 @@
             var sup = null, head = null;
             if (c.metric === 'own_nidi_by_flow') { head = ['Email', 'Link']; sup = [['Guardaron el nidi', b.saved + ' de ' + b.den, a.saved + ' de ' + a.den], ['Tiempo hasta guardar (mediana)', b.median_minutes != null ? b.median_minutes + ' min' : '—', a.median_minutes != null ? '<span class="ok">' + a.median_minutes + ' min</span>' : '—'], ['Se fueron en "la otra casa"', b.left_other_house || 0, '<span class="ok">' + (a.left_other_house || 0) + '</span>']]; }
             else if (c.metric === 'activity_share') sup = [['Nidis que empezaron después', Number(a.new_den) ? pct(a.new_num, a.new_den) + '%' : '—', Number(a.new_den) ? a.new_num + ' de ' + a.new_den : ''], ['Meta', c.goal != null ? c.goal + '%' : '—', '']];
-            else if (c.metric === 'dropout_came_back') sup = [['Mensajes enviados', a.messages || 0, ''], ['Salteados por Maru', a.skipped || 0, ''], ['Fallaron', a.failed || 0, '']];
+            else if (c.metric === 'dropout_came_back') sup = [['Por push', (a.moved_push || 0) + ' de ' + (a.by_push || 0), 'avanzaron'], ['Por mail', (a.moved_email || 0) + ' de ' + (a.by_email || 0), 'avanzaron'], ['Volvieron a abrir la app', a.opened || 0, a.den ? 'de ' + a.den : ''], ['Salteados por Maru', a.skipped || 0, ''], ['Fallaron', a.failed || 0, '']];
             else if (c.metric === 'meetup_set') sup = [['Con lugar', a.with_place || 0, ''], ['De más de un día', a.long_stay || 0, ''], ['Foto del encuentro abierta', a.photo_opens || 0, plural(Number(a.photo_opens || 0), 'vez', 'veces')]];
             else if (c.metric === 'added_to_house') sup = [['Niños sumados', a.children || 0, 'antes ' + (b.children || 0)], ['Invitaciones a alguien de la casa', a.housemates || 0, 'antes ' + (b.housemates || 0)]];
             else if (c.metric === 'invite_recovered') {
