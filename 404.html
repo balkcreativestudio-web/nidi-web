@@ -621,6 +621,26 @@
       .qr { width: 168px; height: 168px; background: #fff; padding: 10px; margin: 0 0 16px; border: 1px solid var(--field-line); border-radius: 8px; }
       .qr svg { display: block; width: 100%; height: 100%; }
       .nocode .stores { margin: 0 0 12px; }
+      /* On a computer (Maru, 17/11: "se ve rara"). The 420px column turned
+         the card into a thin strip with the title on one line, and the
+         black store badges sat right under the black button. Now it is
+         the phone's composition, a little larger: a 360px column so the
+         card is a note of two lines, one spacing scale (8 · 16 · 24 · 32),
+         and what to do on the phone set apart, quieter, under a hairline. */
+      @media (min-width: 601px) {
+        .invite { max-width: 360px; }
+        .card { padding: 34px 30px 30px; margin: 6px 4px 32px; }
+        .invite h1 { font-size: 36px; line-height: 42px; }
+        .entryForm label { margin-bottom: 8px; }
+        .primary { margin-top: 24px; }
+        .desk { margin: 32px 4px 0; padding-top: 24px; border-top: 1px solid var(--field-line); }
+        .deskLead { font-size: 15px; line-height: 22px; color: var(--ink2); margin: 0 0 16px; text-wrap: balance; }
+        .desk .stores { gap: 8px; }
+        .desk .store img { height: 40px; }
+        .desk .store.gp { width: 134px; height: 40px; }
+        .desk .store.gp img.en { height: 59.5px; margin: -9.75px 0 0 -9.75px; }
+        .desk .store.gp img.es { height: 52.1px; margin: -6.1px 0 0 0; }
+      }
     </style>
   </head>
 
