@@ -7,8 +7,9 @@
          Once Upon (photo books). It reads as a plain greeting, so the page
          they land on does not name them. It goes to the home page with
          ?ref=hello, and HQ counts the visit and what follows under the
-         "hello" row in Marketing (Once Upon). The home page moves a Spanish
-         browser to /es/ with the ref, as for any other link. Use it only for
+         "hello" row in Marketing (Once Upon). It always opens in English
+         (?lang=en, which the home page drops from the address), even on a
+         Spanish browser; the EN / ES switch still works (Maru, 17/11). Use it only for
          this message, so its numbers stay clean.
 
          A real page, so it answers 200. No tracking here: the home page
@@ -29,11 +30,11 @@
     <meta name="twitter:image" content="https://nidi.life/assets/og-en.png" />
     <link rel="canonical" href="https://nidi.life/" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
-    <script>location.replace("/?ref=hello" + location.hash);</script>
-    <noscript><meta http-equiv="refresh" content="0; url=/?ref=hello" /></noscript>
+    <script>location.replace("/?ref=hello&lang=en" + location.hash);</script>
+    <noscript><meta http-equiv="refresh" content="0; url=/?ref=hello&amp;lang=en" /></noscript>
     <style>html,body{margin:0;height:100%;background:#F4EFE7}a{color:#2a241e;font:16px/1.4 system-ui,sans-serif}body{display:flex;align-items:center;justify-content:center}</style>
   </head>
   <body>
-    <a href="/?ref=hello">nidi.life</a>
+    <a href="/?ref=hello&amp;lang=en">nidi.life</a>
   </body>
 </html>
