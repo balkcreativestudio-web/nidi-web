@@ -1679,7 +1679,12 @@
           // 2026-11-16 (Dirección): the invitation link is a real page with a preview.
           invite_accepted_48h: { label: 'De las invitaciones por link a la otra casa, cuántas se aceptan dentro de las 48 h. Solo cuentan las que ya tienen 48 h.', unit: 'share' },
           // 2026-11-16 (Dirección): weekly push "la casa de lejos empieza".
-          far_home_starts: { label: 'En los nidis que reciben el push, de los momentos que se comparten, cuántos los manda la casa de lejos. Las notas no cuentan.', unit: 'share' }
+          far_home_starts: { label: 'En los nidis que reciben el push, de los momentos que se comparten, cuántos los manda la casa de lejos. Las notas no cuentan.', unit: 'share' },
+          // 2026-11-17 (Maru, avisos por día): four changes to what pushes say and when.
+          push_morning_open: { label: 'De los avisos con lo que llegó fuera de horario, cuántos se abren en 24 h. Antes: uno por cosa a las 8:00. Ahora: uno por nidi desde las 8:30.', unit: 'share' },
+          night_note_answered: { label: 'De las notas dejadas fuera del horario de la otra casa, cuántas tienen respuesta de esa casa (momento o nota) en 24 h.', unit: 'share' },
+          pushes_per_share: { label: 'Avisos de "llegó algo" por cada momento o nota compartidos. Menos es mejor: las tandas y la noche van en un aviso.', unit: 'share', lower: true },
+          unseen_push_open: { label: 'De los avisos "te dejó algo" (ahora solo el finde, diciendo qué), cuántos se abren en 24 h.', unit: 'share' }
         };
         var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
         function todayAms() { try { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
