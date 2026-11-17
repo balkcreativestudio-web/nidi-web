@@ -583,13 +583,42 @@
           inp.onkeydown = function (e) { if (e.key === 'Enter') go(); };
           inp.focus();
         }
-        function api(method, body) {
-          return fetch(FN, { method: method, headers: { 'x-hq-token': token || '', 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, credentials: 'omit', cache: 'no-store' })
-            .then(function (r) { if (r.status === 401) throw new Error('unauthorized'); if (r.status === 503) throw new Error('no_token'); return r.json(); });
+        // 2026-11-17: no request waits for ever (Maru saw "Cargando…" for good).
+        function api(method, body, part) {
+          var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          var timer = ctl ? setTimeout(function () { ctl.abort(); }, 30000) : null;
+          return fetch(FN + (part ? '?part=' + part : ''), { method: method, headers: { 'x-hq-token': token || '', 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, credentials: 'omit', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+            .then(function (r) { if (timer) clearTimeout(timer); if (r.status === 401) throw new Error('unauthorized'); if (r.status === 503) throw new Error('no_token'); if (!r.ok) throw new Error('http_' + r.status); return r.json(); },
+                  function (e) { if (timer) clearTimeout(timer); throw e; });
+        }
+        // In two parts (2026-11-17): first everything but the heaviest reads,
+        // then Familias, visits per link and Google Play, merged in when they
+        // arrive. One load at a time; a second tap waits for the first.
+        var LOADING = false, MORE = false;
+        function typing() { var a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.id !== 'tok'; }
+        function loadMore() {
+          api('GET', null, 'more').then(function (m) {
+            if (!DATA || !m || !m.ok) return;
+            DATA.play = m.play; DATA.roles = m.roles; DATA.web_refs = m.web_refs; MORE = true;
+            if (!typing() && !EDITING) render();
+          }).catch(function () {
+            MORE = 'failed';
+            if (DATA && !typing() && !EDITING) render();
+          });
         }
         function load() {
+          if (LOADING) return;
+          LOADING = true;
           if (!DATA) app.innerHTML = '<p class="skeleton">Cargando…</p>';
-          api('GET').then(function (d) { DATA = d; render(); }).catch(function (e) {
+          api('GET', null, 'core').then(function (d) {
+            LOADING = false;
+            var keep = DATA && MORE === true ? { play: DATA.play, roles: DATA.roles, web_refs: DATA.web_refs } : null;
+            DATA = d;
+            if (keep) { DATA.play = keep.play; DATA.roles = keep.roles; DATA.web_refs = keep.web_refs; }
+            render();
+            loadMore();
+          }).catch(function (e) {
+            LOADING = false;
             if (e.message === 'unauthorized') { try { localStorage.removeItem(KEY); } catch (x) {} token = null; gate('Clave incorrecta.'); }
             else if (e.message === 'no_token') { try { localStorage.removeItem(KEY); } catch (x) {} token = null; gate('Todavía no hay clave en el servidor: creá HQ_TOKEN en Supabase → Edge Functions → Secrets.'); }
             else app.innerHTML = '<p class="skeleton warn">No se pudo cargar. <button class="link" onclick="location.reload()">Reintentar</button></p>';
@@ -1244,6 +1273,7 @@
         var FM_KINDS = [['friend', 'Amigos'], ['group', 'Grupo o link'], ['instagram', 'Instagram'], ['creator', 'Creadora o founding'], ['press', 'Prensa'], ['search', 'Búsqueda en la tienda'], ['family', 'Familia'], ['other', 'Otro']];
         var FM_TYPES = [['photo', 'Foto libre', '#86B3B3'], ['photo_act', 'Foto de actividad', '#507291'], ['voice', 'Audio', '#C77E87'], ['text', 'Texto', '#9890B0']];
         function tabFam(d) {
+          if (MORE !== true) return card('Familias', '', '<p class="quiet">' + (MORE === 'failed' ? 'No se pudo cargar esta parte. <button class="link" onclick="location.reload()">Reintentar</button>' : 'Cargando…') + '</p>');
           var R = d.roles && d.roles[VIEW];
           if (!R) return card('Familias', '', '<p class="quiet">Todavía no está activo.</p>');
           var m = (((d.stats || {}).views || {})[VIEW] || d.stats || {}).money || {};
