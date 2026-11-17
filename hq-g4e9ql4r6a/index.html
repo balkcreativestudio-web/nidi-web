@@ -1637,7 +1637,7 @@
           // 2026-11-13: the meetup gets days and a place. Only events, so
           // "before" is 0 by construction (the card's note says so).
           meetup_set: { label: 'De quienes abren Hoy, cuántos arman un encuentro con la pantalla nueva: el día, cuántos días y dónde.', unit: 'share' },
-          trial_conversion: { label: 'De las familias cuya prueba de 14 días terminó sin un regalo y sin haber pagado antes, cuántas pagan.', unit: 'share' },
+          trial_conversion: { label: 'De las familias cuya prueba terminó (de 7 o de 14 días, según cuándo empezó su nidi) sin un regalo y sin haber pagado antes, cuántas pagan.', unit: 'share' },
           dropout_came_back: { label: 'De quienes se registran y a las 24 h siguen sin nidi andando, cuántos avanzan después: confirman el código, crean el nidi o entra la otra casa.', unit: 'share' },
           // 2026-11-14 (Diseño, invite-code and roles-question). The last two
           // are better when they go down: lower flips the colour and verdict.
@@ -1775,7 +1775,7 @@
           var color = s.st === 'win' ? 'var(--olive)' : s.st === 'lose' ? 'var(--rose)' : s.st === 'mid' ? 'var(--honey)' : 'var(--ink3)';
           if (c.metric === 'trial_conversion') {
             var up = a.upcoming || [], paidSoon = up.filter(function (u) { return u.label === 'ya pagó'; }), giftSoon = up.filter(function (u) { return u.label !== 'ya pagó' && u.label !== 'sin regalo'; });
-            col1 = '<div class="dl">Después de la prueba de 14 días</div>' + ttSec([
+            col1 = '<div class="dl">Después de la prueba</div>' + ttSec([
               ['Pruebas terminadas', a.ended || 0],
               ['Pagaron después de la prueba', Number(a.den) ? a.num + ' de ' + a.den : '—'],
               ['Pagaron antes de que termine', Number(a.paid_early || 0) + paidSoon.length, paidSoon.map(function (u) { return esc(u.names.split(' + ')[0]); }).join(', ')],
