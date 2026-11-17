@@ -1569,7 +1569,7 @@
             html += '<tr><td><span class="health ' + (n.status !== 'active' ? 'n' : ({ ok: 'g', meh: 'y', warn: 'r' })[health(hrs)]) + '"></span>' + nidiName(n) + (n.status === 'pending' ? ' <span class="quiet">esperando</span>' : '') + '</td><td class="num">' + n.moments + '</td><td class="num">' + n.notes + '</td>'
               + '<td><span class="quiet">' + esc(n.a) + ' ' + ta + (n.b ? ' · ' + esc(n.b) + ' ' + tb : '') + '</span><span class="bars2"><i style="width:' + pct(ta, t) + '%;background:' + C1 + '"></i><i style="width:' + pct(tb, t) + '%;background:' + C2 + '"></i></span></td>'
               + '<td>' + (hrs == null ? '<span class="quiet">nunca</span>' : '<span class="' + health(hrs) + '">hace ' + hoursWord(hrs) + '</span>') + '</td>'
-              + '<td>' + (n.median_gap_hours == null ? '<span class="quiet">—</span>' : 'cada ~' + hoursWord(n.median_gap_hours)) + '</td><td>' + (n.days_7d == null ? '<span class="quiet">—</span>' : n.days_7d + ' de 7 días') + '</td><td>' + plan + '</td></tr>';
+              + '<td>' + (n.median_gap_hours == null ? '<span class="quiet">—</span>' : 'cada ~' + hoursWord(n.median_gap_hours)) + '</td><td>' + (n.days_7d == null ? '<span class="quiet">—</span>' : Math.round(n.days_7d / 7 * 100) + '%') + '</td><td>' + plan + '</td></tr>';
           });
           html += '</table></div></div>';
           // person by person
