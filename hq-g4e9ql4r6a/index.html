@@ -1557,8 +1557,8 @@
             + card('Cuándo comparten', 'Momentos por hora y día, hora de Ámsterdam.', hbars(en.by_hour, Array.from({ length: 24 }, function (_, i) { return i + ' h'; }), C1, 6) + '<div style="height:10px"></div>' + hbars(en.by_weekday, ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], C1, 1))
             + '</div>';
           // family by family
-          html += '<h2>Por familia</h2><div class="card"><div class="tablewrap"><table class="sticky"><tr><th>Familia</th><th class="num">Momentos</th><th class="num">Notas</th><th>Quién participa</th><th>Última vez</th><th>Ritmo</th><th>Plan</th></tr>';
-          if (!s.nidis.length) html += '<tr><td colspan="7" class="quiet">Todavía ninguna.</td></tr>';
+          html += '<h2>Por familia</h2><div class="card"><div class="tablewrap"><table class="sticky"><tr><th>Familia</th><th class="num">Momentos</th><th class="num">Notas</th><th>Quién participa</th><th>Última vez</th><th>Ritmo</th><th>Últimos 7 días</th><th>Plan</th></tr>';
+          if (!s.nidis.length) html += '<tr><td colspan="8" class="quiet">Todavía ninguna.</td></tr>';
           var people = d.people || {};
           var personOf = function (name) { return people[String(name || '').trim().split(/\s+/)[0].toLowerCase()] || null; };
           s.nidis.slice().sort(function (a, b) { return (b.moments + b.notes) - (a.moments + a.notes); }).forEach(function (n) {
@@ -1569,7 +1569,7 @@
             html += '<tr><td><span class="health ' + (n.status !== 'active' ? 'n' : ({ ok: 'g', meh: 'y', warn: 'r' })[health(hrs)]) + '"></span>' + nidiName(n) + (n.status === 'pending' ? ' <span class="quiet">esperando</span>' : '') + '</td><td class="num">' + n.moments + '</td><td class="num">' + n.notes + '</td>'
               + '<td><span class="quiet">' + esc(n.a) + ' ' + ta + (n.b ? ' · ' + esc(n.b) + ' ' + tb : '') + '</span><span class="bars2"><i style="width:' + pct(ta, t) + '%;background:' + C1 + '"></i><i style="width:' + pct(tb, t) + '%;background:' + C2 + '"></i></span></td>'
               + '<td>' + (hrs == null ? '<span class="quiet">nunca</span>' : '<span class="' + health(hrs) + '">hace ' + hoursWord(hrs) + '</span>') + '</td>'
-              + '<td>' + (n.median_gap_hours == null ? '<span class="quiet">—</span>' : 'cada ~' + hoursWord(n.median_gap_hours)) + '</td><td>' + plan + '</td></tr>';
+              + '<td>' + (n.median_gap_hours == null ? '<span class="quiet">—</span>' : 'cada ~' + hoursWord(n.median_gap_hours)) + '</td><td>' + (n.days_7d == null ? '<span class="quiet">—</span>' : Math.round(n.days_7d / 7 * 100) + '%') + '</td><td>' + plan + '</td></tr>';
           });
           html += '</table></div></div>';
           // person by person
@@ -1592,12 +1592,12 @@
           var html = '<div class="kpis">'
             + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), 'esta semana')
             + tile('Vuelven al otro día', 'De las cuentas con más de 48 h, cuántas abrieron Nidi al día siguiente.', ret.eligible_d1 ? pct(ret.d1, ret.eligible_d1) + '%' : '—', '', ret.d1 + ' de ' + ret.eligible_d1)
-            + tile('Ritmo', 'Tiempo típico entre un momento y el siguiente de una familia.', hoursWord(cad.median_gap_hours), '', 'mediana')
+            + tile('Ritmo', 'Tiempo típico entre una visita y la siguiente de una familia. Lo que se sube con menos de 2 h de diferencia cuenta como una visita.', hoursWord(cad.median_gap_hours), '', 'mediana')
             + '</div><div class="two" style="margin-top:10px">'
             + card('Familias por semana', 'Familias donde las dos casas participaron cada semana. Lo que hay que mirar es si siguen en la semana 2 y la 4.', weeks.length ? '<div class="funnel">' + weeks.map(function (w) { return stepRow('Semana del ' + dmy(w.start + 'T12:00:00'), w.both_ways, gr.families, C1, 'de ' + (gr.families || 0)); }).join('') + '</div>' : '<p class="quiet">Todavía sin semanas.</p>')
             + card('Quiénes vuelven', 'Cuentas nuevas desde el lanzamiento. La semana 1 se completa a los 8 días.', '<div class="funnel">' + stepRow('Al día siguiente', ret.d1, ret.eligible_d1) + stepRow('En la semana 1', ret.eligible_w1 ? ret.w1 : null, ret.eligible_w1, C1, ret.eligible_w1 ? null : 'pronto') + stepRow('En los últimos 7 días', ret.last7, ret.cohort) + stepRow('Participaron', ret.shared, ret.cohort) + '</div>', ret.cohort + ' ' + plural(ret.cohort, 'cuenta', 'cuentas'))
             + card('Ahora mismo', 'Cuánto pasó desde la última participación de cada familia. Verde hasta 24 h, ámbar hasta 3 días, rojo después.', famNow(active))
-            + card('Cuánto tardan en volver', 'Tiempo entre dos momentos seguidos de una familia.', '<div class="funnel">' + stepRow('El mismo día', gb.same_day || 0, gbTot) + stepRow('1 a 3 días', gb.one_to_three_days || 0, gbTot) + stepRow('Más de 3 días', gb.three_plus_days || 0, gbTot) + '</div>')
+            + card('Cuánto tardan en volver', 'Tiempo entre dos visitas seguidas de una familia. Lo que se sube con menos de 2 h de diferencia cuenta como una visita.', '<div class="funnel">' + stepRow('El mismo día', gb.same_day || 0, gbTot) + stepRow('1 a 3 días', gb.one_to_three_days || 0, gbTot) + stepRow('Más de 3 días', gb.three_plus_days || 0, gbTot) + '</div>')
             + '</div>';
           return html;
         }
