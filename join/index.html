@@ -525,7 +525,9 @@
         text-wrap: pretty;
       }
       @media (max-width: 600px) {
-        main { padding: 24px 20px 32px; }
+        /* 24 + the 4px inset puts the card and the form on the 28px line
+           of the logo and the footer (17/11). */
+        main { padding: 24px 24px 32px; }
         .card { padding: 28px 22px 22px; margin-bottom: 34px; }
         .invite h1 { font-size: 34px; line-height: 40px; }
         .lede { font-size: 18px; line-height: 27px; }
@@ -547,13 +549,19 @@
       .store.gp img.en { height: 71.4px; margin: -11.7px 0 0 -11.7px; }
       .store.gp img.es { height: 62.5px; margin: -7.3px 0 0 0; }
       /* Entry v6 (17/11): one screen, her email and one button. */
+      /* No max-width: a long name ("Alejandrina te invitó a estar cerca
+         de Mila y Tomi.") uses the card's width. The site's h1 rule
+         balances the lines, as on every page (17/11). */
       .invite h1 {
         font-size: 32px;
         line-height: 38px;
-        max-width: 15ch;
+        max-width: none;
         margin: 4px 0 0;
       }
-      .entryForm { display: block; margin: 0 4px; }
+      /* width auto, not 100%: with the 4px inset a full width ran 8px past
+         the column on the right (17/11). The inset lines the form up with
+         the card's edge. */
+      .entryForm { display: block; width: auto; margin: 0 4px; }
       .entryForm label {
         display: block;
         font-family: var(--sans);
@@ -587,8 +595,10 @@
         margin: 10px 0 0;
       }
       .hint { color: var(--ink2); font-weight: 400; }
+      /* Saved on a computer: said in ink, so it reads as done (17/11). */
+      .hint.ok { color: var(--ink); font-weight: 500; }
       .error { color: #a33a2c; font-weight: 500; }
-      .suggest { color: var(--ink2); }
+      .suggest { color: var(--ink2); font-weight: 400; }
       .suggest button {
         font: inherit;
         color: var(--ink);
@@ -736,6 +746,7 @@
           save: "Save my email",
           saving: "One moment…",
           saved: "Saved. Use this same email in the app.",
+          savedButton: "Saved",
           badEmail: "Check your email: something's missing.",
           ownEmail: "That's the email of the person who invited you. Type yours.",
           didYouMean: "Did you mean ",
@@ -770,11 +781,12 @@
           save: "Guardar mi email",
           saving: "Un momento…",
           saved: "Listo. Usa este mismo email en la app.",
+          savedButton: "Guardado",
           badEmail: "Revisa tu email: falta algo.",
           ownEmail: "Ese es el email de quien te invitó. Escribe el tuyo.",
           didYouMean: "¿Quisiste decir ",
           deskLead: "Nidi se usa en el teléfono. Escanea con la cámara:",
-          deskLeadNoQr: "Nidi se usa en el teléfono. Abre este link ahí, o bájala de la tienda:",
+          deskLeadNoQr: "Nidi se usa en el teléfono. Abre este link ahí, o descárgala de la tienda:",
           noCodeHint: "Entra con el email al que te llegó esta invitación.",
           appStoreBadge: "Consíguelo en el App Store",
           playBadge: "Descargar en Google Play",
@@ -948,7 +960,7 @@
         var closed = preview && preview.status === "closed";
         var form = document.getElementById("joinForm");
         form.hidden = !linkCode || closed;
-        document.getElementById("submit").textContent = onDesktop ? c.save : c.get;
+        document.getElementById("submit").textContent = savedOnDesk ? c.savedButton : onDesktop ? c.save : c.get;
         if (savedOnDesk) document.getElementById("hint").textContent = noWidow(c.saved);
         document.getElementById("noCode").hidden = !!linkCode;
         if (!linkCode) fillStores(document.getElementById("noCodeStores"), true);
@@ -997,7 +1009,10 @@
           button.textContent = onDesktop ? c.save : c.get;
           if (onDesktop) {
             savedOnDesk = true;
-            document.getElementById("hint").textContent = noWidow(c.saved);
+            button.textContent = c.savedButton;
+            var hintEl = document.getElementById("hint");
+            hintEl.textContent = noWidow(c.saved);
+            hintEl.classList.add("ok");
             showDesk();
             return;
           }
@@ -1029,6 +1044,14 @@
         document.getElementById("email").addEventListener("input", function () {
           showError(null);
           document.getElementById("suggest").hidden = true;
+          // A changed email is not the saved one: back to "Guardar mi email".
+          if (savedOnDesk) {
+            savedOnDesk = false;
+            var hintEl = document.getElementById("hint");
+            hintEl.classList.remove("ok");
+            hintEl.textContent = noWidow(COPY[lang].emailHint);
+            document.getElementById("submit").textContent = COPY[lang].save;
+          }
         });
         var buttons = document.querySelectorAll(".lang button");
         for (var k = 0; k < buttons.length; k++) {
