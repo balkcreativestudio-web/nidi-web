@@ -1447,6 +1447,56 @@
           }).join('') + '</div>';
         }
 
+        // Entry v6 (2026-11-18): link invitations live and the funnel by screen, since 17/11 22:55.
+        var SCREEN_L = { email: 'Email', code: 'Código', creator_about_you: 'Sobre vos (arma)', about_child: 'El niño', about_them: 'La otra casa', invitee_about_you: 'Sobre vos (invitada)', join_about_child: 'El niño (al entrar)' };
+        var FIELD_L = { email: 'email', code: 'código', name: 'nombre', first_name: 'nombre', child_name: 'nombre del niño', birthday: 'cumpleaños', date_of_birth: 'cumpleaños', country: 'país', city: 'ciudad' };
+        function entrySection(st) {
+          var all = st.entry || {}, e = (VIEW === 'with_family' && all.with_family ? all.with_family : all.outside) || null;
+          if (!e) return '';
+          var inv = e.invites || {}, f = inv.funnel || {}, list = inv.list || [], o = e.other || {}, scr = e.screens || [];
+          var gap = function (from, to) { return from && to ? minsWord((new Date(to) - new Date(from)) / 6e4) : ''; };
+          var cell = function (from, to, extra) { return to ? '<td class="num">' + esc(gap(from, to)) + (extra ? ' <span class="quiet">' + esc(extra) + '</span>' : '') + '</td>' : '<td class="num quiet">—</td>'; };
+          var PL = { ios: 'iPhone', android: 'Android', desktop: 'compu' }, HL = { caregiver: 'casa del niño', far: 'casa lejos' };
+          var ST = { accepted: 'entró', pending: 'esperando', opened: 'esperando', expired: 'venció', revoked: 'anulada', cancelled: 'anulada' };
+          var steps = [['Links creados', f.created], ['Abrieron la página', f.page_opened], ['Guardaron su email', f.email_saved], ['Fueron a la tienda', f.store_clicked], ['Entraron', f.accepted]];
+          var funnel = '<div class="funnel">' + steps.map(function (x, i) { return stepRow(x[0], x[1], f.created, C1, i ? pct(x[1] || 0, steps[i - 1][1] || 0) + '%' : ''); }).join('')
+            + stepRow('Entraron en 48 h', f.accepted_48h, f.created, C2, f.older_than_48h ? 'de ' + f.older_than_48h : 'esperan') + '</div>';
+          var plat = f.by_platform || {}, platK = Object.keys(plat);
+          var table = list.length ? '<div class="tablewrap" style="margin-top:12px"><table class="sticky"><tr><th>Quién invita</th><th>A qué casa</th><th>Creado</th><th class="num">Abrió la página</th><th class="num">Guardó su email</th><th class="num">Tienda</th><th class="num">Entró</th><th>Estado</th></tr>'
+            + list.map(function (r) {
+              return '<tr><td>' + esc(r.inviter || '?') + (r.invitee ? ' <span class="quiet">→ ' + esc(r.invitee) + '</span>' : '') + '</td><td class="quiet">' + esc(HL[r.house] || r.house || '—') + '</td><td class="quiet">' + esc(agoWord(r.created_at)) + '</td>'
+                + cell(r.created_at, r.page_opened_at) + cell(r.page_opened_at || r.created_at, r.email_saved_at)
+                + (r.store_clicked_at ? cell(r.email_saved_at || r.page_opened_at || r.created_at, r.store_clicked_at, PL[r.store_platform] || r.store_platform) : r.store_platform === 'desktop' ? '<td class="num quiet">desde la compu</td>' : '<td class="num quiet">—</td>')
+                + cell(r.store_clicked_at || r.email_saved_at || r.page_opened_at || r.created_at, r.accepted_at)
+                + '<td>' + esc(ST[r.status] || r.status) + '</td></tr>';
+            }).join('') + '</table></div><p class="quiet" style="margin-top:6px">Cada tiempo es desde el paso anterior.</p>' : '<p class="quiet" style="margin-top:12px">Todavía ningún link desde que salió.</p>';
+          var maxV = Math.max.apply(null, scr.map(function (x) { return x.viewed || 0; }).concat([1]));
+          var rows = scr.filter(function (x) { return x.viewed; });
+          var screens = rows.length ? '<div class="tablewrap"><table><tr><th>Pantalla</th><th class="num">La vieron</th><th class="num">Siguieron</th><th class="num">Se fueron</th><th class="num">Tardan</th><th>Errores</th></tr>'
+            + rows.map(function (x) {
+              var errs = Object.keys(x.errors || {}).map(function (k) { return (FIELD_L[k] || k) + ' ' + x.errors[k]; }).join(', ');
+              return '<tr><td>' + esc(SCREEN_L[x.screen] || x.screen) + '</td><td class="num">' + x.viewed + '</td><td class="num">' + x.went_on + ' <span class="quiet">' + pct(x.went_on, x.viewed) + '%</span></td><td class="num' + (x.gone ? ' warn' : '') + '">' + x.gone + (x.went_back ? ' <span class="quiet">(' + x.went_back + ' volvió atrás)</span>' : '') + '</td><td class="num">' + (x.median_sec != null ? esc(minsWord(x.median_sec / 60)) : '—') + '</td><td class="quiet">' + esc(errs || '—') + '</td></tr>';
+            }).join('') + '</table></div>' : '<p class="quiet">Todavía nadie pasó por la entrada nueva. Los datos llegan desde la actualización del 18/11, en iPhone y Android.</p>';
+          var lk = o.lookup || {}, lkTxt = Object.keys(lk).map(function (k) { var p = k.split(':'); return ({ link: 'por link', email: 'por email' })[p[0]] + ' ' + ({ found: 'la encontró', empty: 'no encontró nada', error: 'falló' })[p[1]] + ' ' + lk[k]; }).join(' · ');
+          var extra = '<div class="funnel">'
+            + stepRow('Pidieron el código', o.code_requested, o.code_requested, C1)
+            + stepRow('Lo pusieron bien', o.code_verified, o.code_requested, C1)
+            + stepRow('Código mal escrito', o.code_failed, null, C3, 'veces')
+            + stepRow('El código no salió', o.code_send_failed, null, o.code_send_failed ? C4 : C3, 'veces')
+            + stepRow('Armadoras que terminan', o.creator_completed, o.onboarding_started, C2)
+            + stepRow('Invitadas que entran', o.invite_accepted, null, C2, '')
+            + stepRow('Aceptaron avisos', o.notif_granted, o.notif_asked, C1)
+            + stepRow('Sumaron niños al entrar', o.children_added_at_join, null, C3, '')
+            + stepRow('Se le preguntó por el niño', o.missing_child_asked, null, C3, '')
+            + '</div>' + (lkTxt ? '<p class="quiet" style="margin-top:8px">Buscar su invitación: ' + esc(lkTxt) + '</p>' : '');
+          return '<h2>Entrada nueva <small>desde 17/11 22:55</small></h2>'
+            + card('Invitaciones en vivo', 'Cada invitación por link desde que salió la página nueva (nidi.life/join: su email y un botón). Una fila por link, sin los nidis de prueba. Abrió la página, guardó su email, tocó la tienda (o la abrió desde la compu) y entró a su nidi.', funnel + (platK.length ? '<p class="quiet" style="margin-top:6px">Abrieron la página desde: ' + platK.map(function (k) { return esc(PL[k] || (k === '?' ? 'sin dato' : k)) + ' ' + plat[k]; }).join(' · ') + '</p>' : '') + table, (f.created || 0) + ' ' + plural(f.created || 0, 'link', 'links'))
+            + '<div class="two" style="margin-top:10px">'
+            + card('Dónde se caen', 'Cada pantalla de la entrada nueva, en orden. La vieron: personas. Siguieron: tocaron seguir o terminar. Se fueron: la vieron y no siguieron (cerraron la app o siguen ahí). Tardan: la mitad tarda menos que esto. Errores: el campo que más marca error.', screens)
+            + card('Lo demás de la entrada', 'Código por email, la invitada que termina (entra a su nidi), el permiso de avisos (ahora se pide después de mandar el link o al cerrar el recorrido, nunca al entrar) y los niños que suma la casa del niño al entrar.', extra)
+            + '</div>';
+        }
+
         function tabAdq(d, st, s, gr, ser) {
           var f = s.funnel, w = st.web, en = s.engagement || {}, inv = gr.invitations || {};
           var KA = [{ k: 'installs', color: C1, label: 'Instalaciones' }, { k: 'accounts', color: C2, label: 'Cuentas' }, { k: 'activated', color: C3, label: 'Nidis con las dos casas' }];
@@ -1472,8 +1522,9 @@
             + card('Países de las visitas', 'De dónde es cada visita a nidi.life, por la zona horaria del navegador. Solo se guarda el país. Se sabe desde el 9/11.', webCoK.length ? '<div class="funnel">' + webCoK.map(function (k) { return stepRow(regionName(k), webCo[k], webCoT, C1, (w.clicks_by_country || {})[k] ? w.clicks_by_country[k] + ' ' + plural(w.clicks_by_country[k], 'click', 'clicks') : ''); }).join('') + (w.no_country_since ? stepRow('Sin dato', w.no_country_since, webCoT + w.no_country_since, C3) : '') + '</div>' : '<p class="quiet">Sin datos todavía.</p>')
             + card('Descargas por canal', 'Las que Apple atribuye a cada link. Se cargan a mano en "Lugares y links".', chanKeys.length ? '<div class="funnel">' + chanKeys.map(function (k) { return stepRow(k, chan[k].dl, chanMax, C1, chan[k].n + ' ' + plural(chan[k].n, 'link', 'links')); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>', chanKeys.some(function (k) { return chan[k].dl; }) ? '' : 'ninguna cargada todavía')
             + card('Invitaciones', 'Cuántas llegan a destino.' + (inv.median_hours != null ? ' Tardan ' + minsWord(Number(inv.median_hours) * 60) + ' en aceptarla.' : ''), '<div class="funnel">' + stepRow('Enviadas', inv.sent, inv.sent) + stepRow('Aceptadas', inv.accepted, inv.sent) + stepRow('Esperando', inv.waiting, inv.sent, C3) + '</div>')
-            + card('Dónde se quedan', 'El último paso del armado de quienes no lo terminaron.', dropTot ? '<div class="funnel">' + Object.keys(dropped).sort(function (a, b) { return dropped[b] - dropped[a]; }).map(function (k) { return stepRow(k, dropped[k], dropTot); }).join('') + '</div>' : '<p class="quiet">Nadie se quedó a mitad de camino.</p>', en.onboarding_completed + ' de ' + en.onboarding_started + ' lo terminan')
+            + card('Dónde se quedaban', 'Entrada vieja, hasta el 17/11: el último paso del armado de quienes no lo terminaron. La entrada nueva está abajo, en Dónde se caen.', dropTot ? '<div class="funnel">' + Object.keys(dropped).sort(function (a, b) { return dropped[b] - dropped[a]; }).map(function (k) { return stepRow(k, dropped[k], dropTot); }).join('') + '</div>' : '<p class="quiet">Nadie se quedó a mitad de camino.</p>', en.onboarding_completed + ' de ' + en.onboarding_started + ' lo terminan')
             + '</div>';
+          html += entrySection(st);
           html += playSection(d.play, range);
           var co = s.countries || {}, acc = co.accounts || {}, accK = Object.keys(acc), accT = accK.reduce(function (a, k) { return a + acc[k]; }, 0);
           var ast = d.appstore || [], votes = ast.reduce(function (a, r) { return a + r.count; }, 0);
