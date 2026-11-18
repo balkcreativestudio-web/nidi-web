@@ -173,9 +173,9 @@ EN = dict(
          'and an invitation also reaches their inbox. They get Nidi, tap '
          'Let\'s begin, and come in with that email. Nobody else can.'),
         ('I was invited. What do I do?',
-         'Get Nidi, tap Let\'s begin and enter the email your invitation '
-         'came to. We send you a code to come in. There is no invitation '
-         'code to type.'),
+         'Open the link you were sent, enter your email and get Nidi. In the '
+         'app, sign in with that same email: we send you a 6-digit code and '
+         'you\'re in. There is no invitation code to type.'),
         ('Can someone else from my home join?',
          'Yes, up to two adults per home. Tap your picture on Today, open '
          'your nidi and choose Add someone who lives here. They come in '
@@ -238,9 +238,10 @@ ES = dict(
          'además le llega una invitación por email. Baja Nidi, toca Empecemos '
          'y entra con ese email. Nadie más puede.'),
         ('Me invitaron. ¿Qué hago?',
-         'Baja Nidi, toca Empecemos y escribe el email al que te llegó '
-         'la invitación. Te mandamos un código para entrar. No hay ningún '
-         'código de invitación para escribir.'),
+         'Abre el link que te mandaron, escribe tu email y baja Nidi. En la '
+         'app, entra con ese mismo email: te mandamos un código de 6 dígitos '
+         'y ya estás en el nidi. No hay ningún código de invitación para '
+         'escribir.'),
         ('¿Puede sumarse alguien más de mi hogar?',
          'Sí, hasta dos personas adultas por hogar. Toca tu foto en Hoy, '
          'entra a tu nidi y elige Sumar a alguien que vive aquí. Entra con '
