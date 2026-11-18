@@ -1914,6 +1914,14 @@
           return '<div class="tt-sec' + (head ? ' three' : '') + '">' + (head ? '<span></span><span class="quiet">' + head[0] + '</span><span class="quiet">' + head[1] + '</span>' : '')
             + rows.map(function (r) { return '<span class="k">' + r[0] + '</span><span>' + r[1] + '</span><span class="quiet">' + (r[2] == null ? '' : r[2]) + '</span>'; }).join('') + '</div>';
         }
+        // The goal in the measure's own unit; "menos es mejor" goals are a ceiling.
+        function goalWord(c, m) {
+          if (c.goal == null) return '';
+          var g = String(Number(c.goal)).replace('.', ',');
+          if (m.unit === 'day') return g + ' por día';
+          if (m.lower && Number(c.goal) === 0) return 'ninguno';
+          return (m.lower ? 'hasta ' : '') + g + ' %';
+        }
         function ttDetail(c, m, s) {
           var a = c.after || {}, b = c.before || {}, unit = m.unit, col1 = '', col2 = '';
           var color = s.st === 'win' ? 'var(--olive)' : s.st === 'lose' ? 'var(--rose)' : s.st === 'mid' ? 'var(--honey)' : 'var(--ink3)';
@@ -1925,6 +1933,7 @@
               ['Pagaron antes de que termine', Number(a.paid_early || 0) + paidSoon.length, paidSoon.map(function (u) { return esc(u.names.split(' + ')[0]); }).join(', ')],
               ['Con gift (no pasan por el pago)', Number(a.gifted || 0) + giftSoon.length, '']
             ]);
+            if (c.goal != null) col1 += '<p class="quiet tt-foot">Meta: ' + esc(goalWord(c, m)) + ' de las familias cuya prueba termina pagan.</p>';
             col2 = '<div class="dl">Próximos fines de prueba</div>' + (up.length ? ttSec(up.map(function (u) { return [esc(u.names), day12(u.ends), esc(u.label)]; })) : '<p class="quiet">Ninguno.</p>');
           } else {
             var bl = m.ba ? m.ba[0] : 'Antes', al = m.ba ? m.ba[1] : 'Después';
@@ -1932,6 +1941,7 @@
               ? ttBar(bl, chValue(c.before, unit), 'var(--ink3)') + ttBar(al, chValue(c.after, unit), color)
               : '<p class="quiet">' + bl + ': ' + ttSide(c.before, unit).v + ' · ' + al + ': ' + ttSide(c.after, unit).v + '</p>')
               + (c.metric === 'own_nidi_by_flow' ? '<p class="quiet tt-foot">Por el camino que vio cada persona, no por fecha. Cuenta familia.</p>' : c.metric === 'activity_share' ? '<p class="quiet tt-foot">Solo las familias que ya estaban antes.</p>' : '');
+            if (c.goal != null) col1 += '<p class="quiet tt-foot">Meta: ' + esc(goalWord(c, m)) + (c.decide ? ', se decide el ' + day12(c.decide) : '') + '.</p>';
             var sup = null, head = null;
             if (c.metric === 'own_nidi_by_flow') { head = ['Email', 'Link']; sup = [['Guardaron el nidi', b.saved + ' de ' + b.den, a.saved + ' de ' + a.den], ['Tiempo hasta guardar (mediana)', b.median_minutes != null ? b.median_minutes + ' min' : '—', a.median_minutes != null ? '<span class="ok">' + a.median_minutes + ' min</span>' : '—'], ['Se fueron en "la otra casa"', b.left_other_house || 0, '<span class="ok">' + (a.left_other_house || 0) + '</span>']]; }
             else if (c.metric === 'activity_share') sup = [['Nidis que empezaron después', Number(a.new_den) ? pct(a.new_num, a.new_den) + '%' : '—', Number(a.new_den) ? a.new_num + ' de ' + a.new_den : ''], ['Meta', c.goal != null ? c.goal + '%' : '—', '']];
@@ -2003,7 +2013,7 @@
             var c = x.c, m = x.m, s = x.s, bs = ttSide(c.before, m.unit), as = ttSide(c.after, m.unit), open = TT_OPEN[c.id] != null ? TT_OPEN[c.id] : !!c.reading;
             var measure = c.measure || m.label;
             html += '<tr class="tt-row st-' + s.st + (open ? ' sel' : '') + '" data-tt="' + esc(c.id) + '">'
-              + '<td><div class="tt-t">' + esc(c.title) + ' <span class="tt-caret">' + (open ? '▾' : '▸') + '</span></div><div class="tt-s">' + esc(c.summary || '') + '</div><div class="tt-tags">' + (c.team ? '<span class="tt-tag">' + esc(CH_TEAM[c.team] || c.team) + '</span>' : '') + (c.topic ? '<span class="tt-tag">' + esc(CH_TOPIC[c.topic] || c.topic) + '</span>' : '') + (c.goal == null && !c.verdict ? '<span class="tt-tag nogoal">sin meta</span>' : '') + '</div></td>'
+              + '<td><div class="tt-t">' + esc(c.title) + ' <span class="tt-caret">' + (open ? '▾' : '▸') + '</span></div><div class="tt-s">' + esc(c.summary || '') + '</div><div class="tt-tags">' + (c.team ? '<span class="tt-tag">' + esc(CH_TEAM[c.team] || c.team) + '</span>' : '') + (c.topic ? '<span class="tt-tag">' + esc(CH_TOPIC[c.topic] || c.topic) + '</span>' : '') + (c.goal == null ? (!c.verdict ? '<span class="tt-tag nogoal">sin meta</span>' : '') : '<span class="tt-tag">meta ' + esc(goalWord(c, m)) + '</span>') + '</div></td>'
               + '<td class="hide-m tt-m">' + esc(measure) + '</td>'
               + '<td class="r hide-s">' + bs.v + '<div class="tt-n">' + bs.n + '</div></td>'
               + '<td class="r hide-s">' + as.v + '<div class="tt-n">' + as.n + '</div></td>'
