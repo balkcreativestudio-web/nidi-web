@@ -168,10 +168,10 @@ EN = dict(
     homelabel='nidi.life', navlabel='Language',
     faq=[
         ('How do I invite the other person?',
-         'When you set up your nidi, you enter their name and email. Then '
-         'send them the link from Today, by WhatsApp or whatever you use, '
-         'and an invitation also reaches their inbox. They get Nidi, tap '
-         'Let\'s begin, and come in with that email. Nobody else can.'),
+         'When you set up your nidi, you enter their name. Then send them '
+         'the link from Today, by WhatsApp or whatever you use. They open '
+         'it, enter their email, get Nidi and come in with that same email. '
+         'The link works once.'),
         ('I was invited. What do I do?',
          'Open the link you were sent, enter your email and get Nidi. In the '
          'app, sign in with that same email: we send you a 6-digit code and '
@@ -233,10 +233,10 @@ ES = dict(
     homelabel='nidi.life', navlabel='Idioma',
     faq=[
         ('¿Cómo invito a la otra persona?',
-         'Cuando armas tu nidi, escribes su nombre y su email. Después le '
-         'mandas el link desde Hoy, por WhatsApp o por donde quieras, y '
-         'además le llega una invitación por email. Baja Nidi, toca Empecemos '
-         'y entra con ese email. Nadie más puede.'),
+         'Cuando armas tu nidi, escribes su nombre. Después le mandas el '
+         'link desde Hoy, por WhatsApp o por donde quieras. Abre el link, '
+         'escribe su email, baja Nidi y entra con ese mismo email. El link '
+         'sirve una sola vez.'),
         ('Me invitaron. ¿Qué hago?',
          'Abre el link que te mandaron, escribe tu email y baja Nidi. En la '
          'app, entra con ese mismo email: te mandamos un código de 6 dígitos '
