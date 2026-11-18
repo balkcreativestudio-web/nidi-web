@@ -379,6 +379,21 @@
       /* rooms by team (2026-11-16) */
       .tdot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px; }
       .team-sub { display:inline-flex; margin:0 0 14px; }
+      .pa-h { display:grid; grid-template-columns:repeat(24,1fr); gap:2px; align-items:end; height:90px; }
+      .pa-h i { background:var(--olive); border-radius:2px 2px 0 0; }
+      .pa-hl { display:flex; justify-content:space-between; font-size:11px; color:var(--ink3); margin-top:4px; }
+      .room-q { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; margin:4px 0 12px; }
+      .room-q h2 { margin:0; font-family:var(--serif); font-weight:400; font-size:22px; text-wrap:balance; }
+      .room-q span { font-size:13px; color:var(--ink2); }
+      .chf { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 8px; }
+      .chf button { font:inherit; font-size:13px; padding:4px 11px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--ink2); cursor:pointer; }
+      .chf button[aria-pressed="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+      .tt-tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:3px; }
+      .tt-tag { font-size:11px; color:var(--ink2); border:1px solid var(--line); border-radius:6px; padding:0 6px; }
+      .tt-tag.nogoal { color:#8a6417; border-color:#e8d5a6; background:var(--honey-soft, #f5e9cc); }
+      .ds { display:grid; gap:8px; }
+      .ds button { font:inherit; text-align:left; display:grid; grid-template-columns:52px 1fr auto; gap:10px; align-items:center; background:var(--line2); border:0; border-radius:10px; padding:9px 12px; color:var(--ink); cursor:pointer; }
+      .ds b { font-family:var(--serif); font-weight:400; font-size:17px; }
       .areas { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:0 0 18px; }
       .areas.two-up { grid-template-columns:repeat(2,minmax(0,1fr)); }
       @media (max-width:760px) { .areas, .areas.two-up { grid-template-columns:1fr; } }
@@ -841,7 +856,18 @@
         // ── render ──────────────────────────────────────────────────────
         // Seven rooms, one per team (2026-11-16), and Externos / Con familia applies to all of them. Test
         // accounts are gone before the numbers get here (hq_group).
-        var TABS = [['resumen', 'Resumen'], ['board', 'Board'], ['mkt', 'Marketing'], ['social', 'Social Media'], ['design', 'Design'], ['prod', 'Producto'], ['fin', 'Finance']];
+        // 2026-11-18 (Maru: "los tests no deberían estar en Design"): the tabs follow a family's way, one
+        // question each, with the team that owns it: Resumen, Tests, Llegar, Entrar, Usar, Plata, Board.
+        var TABS = [['resumen', 'Resumen'], ['tests', 'Tests'], ['llegar', 'Llegar'], ['entrar', 'Entrar'], ['usar', 'Usar'], ['plata', 'Plata'], ['board', 'Board']];
+        var ROOM_Q = {
+          tests: ['¿Qué estamos probando y qué decidimos?', 'Todos los equipos'],
+          llegar: ['¿De dónde viene la gente?', 'Marketing y Redes'],
+          entrar: ['¿Llegan a tener las dos casas adentro?', 'Producto y Diseño'],
+          usar: ['¿Lo usan y vuelven?', 'Producto'],
+          plata: ['¿Pagan?', 'Finance'],
+          board: ['¿Qué acordamos?', 'Dirección']
+        };
+        function roomHead(tab) { var q = ROOM_Q[tab]; return q ? '<div class="room-q"><h2>' + q[0] + '</h2><span>' + q[1] + '</span></div>' : ''; }
         var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
         var STEP_L = { about_you: 'Sobre vos', about_you_b: 'Sobre vos', color: 'Color', little_one: 'El niño', about_them: 'La otra casa', no_invitation: 'Sin invitación', plant: 'Primer momento', inviting: 'Invitando', invited_check: 'La pregunta' };
         var PLAN_L = { paid: 'Paga', gift: 'Gift', trial: 'Prueba', invited: 'Invitación' };
@@ -873,9 +899,11 @@
         // there before live inside their team: Familias, Uso and Retención
         // in Producto; Adquisición in Marketing; Tests in Design; Ingresos
         // in Finance. A room saved on this device from before opens in its team.
-        var TEAM_C = { resumen: 'var(--honey)', board: 'var(--ink)', mkt: 'var(--c2)', social: 'var(--rose)', design: '#9890b0', prod: 'var(--olive)', fin: 'var(--sienna, #b4553a)' };
-        var OLD_TAB = { fam: ['prod', 'fam'], uso: ['prod', 'uso'], ret: ['prod', 'ret'], adq: ['mkt', 'adq'], cambios: ['design'], ing: ['fin'] };
-        var SUBS = { mkt: [['acc', 'Acciones'], ['adq', 'Adquisición']], prod: [['fam', 'Familias'], ['uso', 'Uso'], ['ret', 'Retención']] };
+        var TEAM_C = { resumen: 'var(--honey)', tests: '#9890b0', llegar: 'var(--c2)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', board: 'var(--ink)' };
+        // A tab saved on this device from before opens where its content went.
+        var OLD_TAB = { fam: ['usar', 'fam'], uso: ['usar', 'uso'], ret: ['usar', 'ret'], prod: ['usar'], adq: ['llegar', 'web'], mkt: ['llegar'], social: ['llegar', 'redes'],
+                        cambios: ['tests'], design: ['tests'], ing: ['plata'], fin: ['plata'] };
+        var SUBS = { llegar: [['acc', 'Acciones'], ['web', 'Web y tiendas'], ['redes', 'Redes']], usar: [['fam', 'Familias'], ['uso', 'Uso'], ['ret', 'Vuelven'], ['avisos', 'Avisos']] };
         var SUB = {};
         try { SUB = JSON.parse(localStorage.getItem('nidi-hq-sub') || '{}') || {}; } catch (e) {}
         if (OLD_TAB[TAB]) { if (OLD_TAB[TAB][1]) SUB[OLD_TAB[TAB][0]] = OLD_TAB[TAB][1]; TAB = OLD_TAB[TAB][0]; }
@@ -943,11 +971,11 @@
           var w = weeks[1], w0 = weeks[0];
           return '<div class="areas">'
             + cardA('board', 'Board', week7 ? pill('wait', week7 + ' ' + plural(week7, 'decisión', 'decisiones') + ' en 7 días') : pill('flat', 'sin decisiones esta semana'), w.n, plural(w.n, 'familia oficial', 'familias oficiales') + ' esta semana · ' + w0.n + ' la anterior')
-            + cardA('mkt', 'Marketing', mk ? pill('good', esc(mk.name) + ': ' + mk.families) : pill('flat', 'ninguna acción trajo familias'), inst, 'instalaciones en 7 días · ' + inst0 + ' los 7 anteriores · ' + web + ' visitas a la web')
-            + cardA('social', 'Social Media', (function () { var fi = socialNow(d, 'ig'), ft = socialNow(d, 'tiktok'); return fi && fi.base ? pill(fi.last.followers >= fi.base.followers ? 'good' : 'bad', 'Instagram ' + followWord(fi)) : pill('flat', (so.ig.visits + so.tiktok.visits) + ' visitas desde las redes'); })(), (function () { var fi = socialNow(d, 'ig'), ft = socialNow(d, 'tiktok'); return fi || ft ? ((fi ? fi.last.followers : 0) + (ft ? ft.last.followers : 0)) : '—'; })(), (function () { var fi = socialNow(d, 'ig'), ft = socialNow(d, 'tiktok'); return (fi || ft ? 'seguidores · Instagram ' + (fi ? fi.last.followers : '—') + ' · TikTok ' + (ft ? ft.last.followers : '—') + ' · ' : 'seguidores sin cargar · ') + (so.ig.visits + so.tiktok.visits) + ' visitas a la web'; })())
-            + cardA('design', 'Design', soon.length ? pill('wait', 'próxima: ' + dmy(soon[0].decide_on + 'T12:00:00')) : pill('flat', 'nada por decidir'), open.length, plural(open.length, 'test midiendo', 'tests midiendo') + (soon.length ? ' · ' + esc(soon[0].title) : ''))
-            + cardA('prod', 'Producto', pill((gr.both_ways_7d || 0) ? 'good' : 'bad', (gr.both_ways_7d || 0) + ' de ' + (gr.families || 0) + ' comparten'), active, plural(active, 'familia', 'familias') + ' con las dos casas · ' + (s.moments ? s.moments.total : 0) + ' momentos desde el lanzamiento')
-            + cardA('fin', 'Finance', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con gift')
+            + cardA('llegar', 'Llegar', mk ? pill('good', esc(mk.name) + ': ' + mk.families) : pill('flat', 'ninguna acción trajo familias'), inst, 'instalaciones en 7 días · ' + inst0 + ' los 7 anteriores · ' + web + ' visitas a la web')
+            + cardA('tests', 'Tests', soon.length ? pill('wait', 'próxima: ' + dmy(soon[0].decide_on + 'T12:00:00')) : pill('flat', 'nada por decidir'), open.length, plural(open.length, 'test midiendo', 'tests midiendo') + (soon.length ? ' · ' + esc(soon[0].title) : ''))
+            + cardA('entrar', 'Entrar', pill((s.funnel || {}).activated ? 'good' : 'flat', ((s.funnel || {}).activated || 0) + ' de ' + ((s.funnel || {}).nidi || 0) + ' nidis completos'), active, plural(active, 'familia', 'familias') + ' con las dos casas adentro · ' + ((s.funnel || {}).installs || 0) + ' descargas desde el lanzamiento')
+            + cardA('usar', 'Usar', pill((gr.both_ways_7d || 0) ? 'good' : 'bad', (gr.both_ways_7d || 0) + ' de ' + (gr.families || 0) + ' comparten'), (s.moments ? s.moments.total : 0), 'momentos desde el lanzamiento · ' + (s.moments ? s.moments.notes : 0) + ' notas')
+            + cardA('plata', 'Plata', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con gift')
             + '</div>';
         }
 
@@ -1146,11 +1174,12 @@
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
             + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '</button>'; }).join('') + '</nav>';
           var ROOMS = {
-            resumen: tabResumen, board: tabBoard, social: tabSocial, design: tabCambios, fin: tabIng,
-            mkt: function () { return subNav('mkt') + (subOf('mkt') === 'adq' ? tabAdq : tabMkt).apply(null, arguments); },
-            prod: function () { return subNav('prod') + ({ fam: tabFam, uso: tabUso, ret: tabRet })[subOf('prod')].apply(null, arguments); }
+            resumen: tabResumen, board: tabBoard, tests: tabCambios, plata: tabIng,
+            llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : k === 'redes' ? tabSocial : tabMkt).apply(null, arguments); },
+            entrar: function (d, st, s, gr, ser) { return tabAdq(d, st, s, gr, ser, 'entrar'); },
+            usar: function () { return subNav('usar') + ({ fam: tabFamAll, uso: tabUso, ret: tabRet, avisos: tabAvisos })[subOf('usar')].apply(null, arguments); }
           };
-          html += (ROOMS[TAB] || tabResumen)(d, st, s, gr, ser, prev);
+          html += roomHead(TAB) + (ROOMS[TAB] || tabResumen)(d, st, s, gr, ser, prev);
           html += '<h2>Accesos</h2><div class="links">'
             + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect</a>'
             + '<a href="https://play.google.com/console/u/1/developers/6039865059263874705/app/4974103052168493706/app-dashboard" target="_blank" rel="noopener">Google Play</a>'
@@ -1168,6 +1197,7 @@
           wire();
           wireMk();
           wireCh();
+          wireChf();
           wireNews();
           wireTeams();
           wireSocial();
@@ -1398,12 +1428,9 @@
             + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez en el período elegido arriba, contra el mismo período anterior. No cuenta los que entraron con una cuenta de prueba.', wi.now, 'en ' + range + ' días', wkDelta(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
             + tile('Pagan', 'Familias (nidis con las dos casas adentro) donde alguien paga. Gifts: un año (códigos) o meses (founding families y creadoras). Si alguien paga, el nidi cuenta como que paga aunque la otra casa tenga tiempo gratis. Ingresos muestra todos los pagos.', paying, 'de ' + active.length, giftNidis + ' con gift' + (trialNidis ? '<br>' + trialNidis + ' en prueba' : ''))
             + '</div>';
-          html += '<div class="rs-grid">'
-            + dailyCard(ser, m)
-            + funnelCard(f, paying)
-            + '</div>';
-          html += famTable(s.nidis, m);
-          html += '<div class="rs-grid">' + readings(s, f, wm, wn) + leftCard(s.left, s.store_deletions) + '</div>';
+          // 2026-11-18: Resumen keeps the week and what to decide. Por día is in Usar → Uso, the
+          // families table in Usar → Familias, Se fueron in Usar → Vuelven, the funnel in Entrar.
+          html += '<div class="rs-grid">' + decideSoon(d) + readings(s, f, wm, wn) + '</div>';
           return html;
         }
         // Installs this week against the week before, both after launch
@@ -1497,7 +1524,7 @@
             + '</div>';
         }
 
-        function tabAdq(d, st, s, gr, ser) {
+        function tabAdq(d, st, s, gr, ser, part) {
           var f = s.funnel, w = st.web, en = s.engagement || {}, inv = gr.invitations || {};
           var KA = [{ k: 'installs', color: C1, label: 'Instalaciones' }, { k: 'accounts', color: C2, label: 'Cuentas' }, { k: 'activated', color: C3, label: 'Nidis con las dos casas' }];
           var webSer = ser.map(function (r) { return Object.assign({}, r, { web_other: Math.max(0, r.web - r.web_ig - r.web_direct) }); });
@@ -1513,18 +1540,21 @@
           var chan = {}; (d.campaigns || []).forEach(function (c) { var l = ({ facebook: 'Facebook', instagram: 'Instagram', whatsapp: 'WhatsApp', mail: 'Mail', slack: 'Slack', web: 'Web', press: 'Prensa', other: 'Otro' })[c.channel] || c.channel; chan[l] = chan[l] || { n: 0, dl: 0 }; chan[l].n++; chan[l].dl += Number(c.downloads) || 0; });
           var chanKeys = Object.keys(chan).sort(function (a, b) { return chan[b].dl - chan[a].dl || chan[b].n - chan[a].n; });
           var chanMax = Math.max.apply(null, chanKeys.map(function (k) { return chan[k].dl; }).concat([1]));
+          if (part === 'entrar') {
+            return '<div class="two">'
+              + card('Embudo', 'Un solo embudo, de la descarga a las dos casas compartiendo. Desde el lanzamiento. El porcentaje es sobre el paso anterior.', '<div class="funnel">' + steps.map(function (x, i) { return stepRow(x[0], x[1], f.installs, C1, i ? pct(x[1], steps[i - 1][1]) + '%' : ''); }).join('') + '</div>')
+                + card('Invitaciones', 'Cuántas llegan a destino.' + (inv.median_hours != null ? ' Tardan ' + minsWord(Number(inv.median_hours) * 60) + ' en aceptarla.' : ''), '<div class="funnel">' + stepRow('Enviadas', inv.sent, inv.sent) + stepRow('Aceptadas', inv.accepted, inv.sent) + stepRow('Esperando', inv.waiting, inv.sent, C3) + '</div>')
+              + '</div>' + entrySection(st)
+              + '<div class="two" style="margin-top:10px">' + card('Dónde se quedaban', 'Entrada vieja, hasta el 17/11: el último paso del armado de quienes no lo terminaron. La entrada nueva está arriba, en Dónde se caen.', dropTot ? '<div class="funnel">' + Object.keys(dropped).sort(function (a, b) { return dropped[b] - dropped[a]; }).map(function (k) { return stepRow(k, dropped[k], dropTot); }).join('') + '</div>' : '<p class="quiet">Nadie se quedó a mitad de camino.</p>', en.onboarding_completed + ' de ' + en.onboarding_started + ' lo terminan') + '</div>';
+          }
           var html = '<div class="two">'
             + card('Llegadas por día', 'Instalaciones, cuentas nuevas y nidis con las dos casas. Un dispositivo cuenta una vez.', legend(KA) + chart(ser, KA, { lines: true, label: 'Llegadas por día' }))
-            + card('Embudo', 'Desde el lanzamiento. El porcentaje es sobre el paso anterior.', '<div class="funnel">' + steps.map(function (x, i) { return stepRow(x[0], x[1], f.installs, C1, i ? pct(x[1], steps[i - 1][1]) + '%' : ''); }).join('') + '</div>')
             + card('Visitas a la web', 'Visitas a nidi.life. "Sin origen" es un link sin etiqueta abierto desde WhatsApp o mail, o escrito a mano. Los links con etiqueta (?ref=fam, ?ref=bb…) entran en "Otros" y se ven uno por uno en "Visitas por link". Instagram es solo quien tocó un link: Instagram no está conectado, así que no hay seguidores ni alcance.', legend(KW) + chart(webSer, KW, { label: 'Visitas por día' }), w.total + ' desde el lanzamiento')
             + card('Clicks en la web', 'Toques en los botones de nidi.life desde el 9/11: App Store, Google Play, y "¿Ya tienes Nidi? Ábrela" en la página de invitación. Cuenta toques, no personas.', legend(KC) + chart(w.clicks_daily || [], KC, { label: 'Clicks por día' }) + (clkPath.length ? '<div class="funnel" style="margin-top:10px">' + clkPath.map(function (k) { return stepRow(PATH_L[k] || k, w.clicks_by_path[k], w.clicks_total, C1); }).join('') + '</div>' : ''), (w.clicks_total || 0) + ' ' + plural(w.clicks_total || 0, 'click', 'clicks'))
             + card('Visitas por link', 'Cada link que publicamos con su etiqueta (nidi.life/?ref=fam): visitas a la web y toques en App Store o Google Play. Cuenta desde el 11/11; antes la web descartaba todas las etiquetas menos ig, ig-story, wa y li, y esas visitas quedaron en "Sin origen". Una etiqueta se cuenta cuando está en "Link ct" de Marketing.', webRefK.length ? '<div class="funnel">' + webRefK.map(function (k) { return stepRow(refLabel(k, d.marketing), wr[k].visits, webRefMax, C1, wr[k].clicks + ' ' + plural(wr[k].clicks, 'click', 'clicks')); }).join('') + '</div>' : '<p class="quiet">' + (d.web_refs ? 'Todavía ninguna visita con etiqueta.' : 'Sin datos: falta publicar la función del HQ.') + '</p>', webRefK.length ? webRefT + ' ' + plural(webRefT, 'visita', 'visitas') + ' con etiqueta' : '')
             + card('Países de las visitas', 'De dónde es cada visita a nidi.life, por la zona horaria del navegador. Solo se guarda el país. Se sabe desde el 9/11.', webCoK.length ? '<div class="funnel">' + webCoK.map(function (k) { return stepRow(regionName(k), webCo[k], webCoT, C1, (w.clicks_by_country || {})[k] ? w.clicks_by_country[k] + ' ' + plural(w.clicks_by_country[k], 'click', 'clicks') : ''); }).join('') + (w.no_country_since ? stepRow('Sin dato', w.no_country_since, webCoT + w.no_country_since, C3) : '') + '</div>' : '<p class="quiet">Sin datos todavía.</p>')
             + card('Descargas por canal', 'Las que Apple atribuye a cada link. Se cargan a mano en "Lugares y links".', chanKeys.length ? '<div class="funnel">' + chanKeys.map(function (k) { return stepRow(k, chan[k].dl, chanMax, C1, chan[k].n + ' ' + plural(chan[k].n, 'link', 'links')); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>', chanKeys.some(function (k) { return chan[k].dl; }) ? '' : 'ninguna cargada todavía')
-            + card('Invitaciones', 'Cuántas llegan a destino.' + (inv.median_hours != null ? ' Tardan ' + minsWord(Number(inv.median_hours) * 60) + ' en aceptarla.' : ''), '<div class="funnel">' + stepRow('Enviadas', inv.sent, inv.sent) + stepRow('Aceptadas', inv.accepted, inv.sent) + stepRow('Esperando', inv.waiting, inv.sent, C3) + '</div>')
-            + card('Dónde se quedaban', 'Entrada vieja, hasta el 17/11: el último paso del armado de quienes no lo terminaron. La entrada nueva está abajo, en Dónde se caen.', dropTot ? '<div class="funnel">' + Object.keys(dropped).sort(function (a, b) { return dropped[b] - dropped[a]; }).map(function (k) { return stepRow(k, dropped[k], dropTot); }).join('') + '</div>' : '<p class="quiet">Nadie se quedó a mitad de camino.</p>', en.onboarding_completed + ' de ' + en.onboarding_started + ' lo terminan')
             + '</div>';
-          html += entrySection(st);
           html += playSection(d.play, range);
           var co = s.countries || {}, acc = co.accounts || {}, accK = Object.keys(acc), accT = accK.reduce(function (a, k) { return a + acc[k]; }, 0);
           var ast = d.appstore || [], votes = ast.reduce(function (a, r) { return a + r.count; }, 0);
@@ -1634,9 +1664,34 @@
               + '<td class="num">' + p.days_active + '</td><td class="num">' + p.sessions + '</td><td class="num">' + (p.session_min == null ? '—' : String(p.session_min).replace('.', ',')) + '</td><td class="num">' + p.photos + '</td><td class="num">' + p.voices + '</td><td class="num">' + p.texts + '</td><td class="num">' + p.notes + '</td><td class="num">' + p.opened + '</td></tr>';
           });
           html += '</table></div></div>';
+          html += '<div class="rs-grid" style="margin-top:10px">' + dailyCard(ser, s.money || {}) + '</div>';
           return html;
         }
 
+        // Usar → Avisos (2026-11-18): what went out, what was opened, when it lands, who is at the cap.
+        var PUSH_L = { exchange: 'Llegó un momento', note: 'Llegó una nota', morning: 'Mientras dormías (8:30)', burst: 'Y 3 fotos más', your_turn: '"Te dejó algo" (finde)',
+          activity_waiting: 'Actividad esperando', reengage: 'Reactivación', go_first: 'La casa de lejos empieza', dropout_invite: 'Volver a empezar', relationship_joined: 'Entró la otra casa',
+          meet_today: 'Hoy se ven', meet_soon: 'Se ven pronto', other: 'Otros' };
+        function tabAvisos(d, st) {
+          var all = st.pushes || {}, p = (VIEW === 'with_family' && all.with_family ? all.with_family : all.outside) || null;
+          if (!p) return card('Avisos', '', '<p class="quiet">Todavía no está activo.</p>');
+          var hrs = p.by_hour || [], top = Math.max.apply(null, hrs.concat([1]));
+          var kinds = (p.by_kind || []).filter(function (k) { return k.sent || k.sent_prev; });
+          var html = '<div class="kpis">'
+            + tile('Avisos enviados', 'Todos los avisos que salieron en los últimos 7 días, contra los 7 anteriores.', p.sent, 'en 7 días', p.sent_prev + ' los 7 anteriores')
+            + tile('Se abren', 'De los avisos de los últimos 7 días, cuántos se tocaron dentro de las 24 h.', p.sent ? pct(p.opened, p.sent) + '%' : '—', '', p.opened + ' de ' + p.sent)
+            + tile('Fuera de horario', 'Avisos que llegaron fuera del horario de quien los recibe (8 a 21 h salvo que lo cambie). Debería ser cero: lo de la noche va en el aviso de las 8:30.', p.outside_hours, '', 'en 7 días')
+            + tile('Juntados', 'Avisos que juntan varias cosas: "Mientras dormías" a las 8:30 y "Y 3 fotos más" en las tandas. Salen desde el 17/11.', (p.mornings || 0) + (p.bursts || 0), '', (p.mornings || 0) + ' a la mañana · ' + (p.bursts || 0) + ' de tandas')
+            + '</div><div class="two" style="margin-top:10px">'
+            + card('Por tipo de aviso', 'Cuántos salieron en 7 días (entre paréntesis, los 7 anteriores) y qué parte se tocó en 24 h. Los tests de avisos están en Tests, tema Avisos.', kinds.length ? '<div class="tablewrap"><table><tr><th>Aviso</th><th class="num">Enviados</th><th class="num">Abiertos</th></tr>'
+                + kinds.map(function (k) { return '<tr><td>' + esc(PUSH_L[k.kind] || k.kind) + '</td><td class="num">' + k.sent + ' <span class="quiet">(' + k.sent_prev + ')</span></td><td class="num">' + (k.sent ? pct(k.opened, k.sent) + '%' : '—') + '</td></tr>'; }).join('') + '</table></div>' : '<p class="quiet">Ningún aviso en 14 días.</p>')
+            + card('A qué hora llegan', 'Avisos de los últimos 7 días por hora, en la hora de quien los recibe.', '<div class="pa-h">' + hrs.map(function (n, h) { return '<i data-tip="' + h + ' h: ' + n + '" style="height:' + (n ? Math.max(4, n / top * 100) : 2) + '%;' + (h < 8 || h >= 21 ? 'background:var(--line)' : '') + '"></i>'; }).join('') + '</div><div class="pa-hl"><span>0 h</span><span>6</span><span>12</span><span>18</span><span>23</span></div>')
+            + '</div>'
+            + card('Quién recibe cuántos', 'Avisos para volver (te dejó algo, reactivación, la casa de lejos empieza, volver a empezar) en 14 días. Sin respuesta: los que recibió desde la última vez que compartió. La regla es máximo 2, con 48 h entre uno y otro.', (p.nudged || []).length ? '<div class="tablewrap"><table><tr><th>Persona</th><th class="num">Recibió</th><th class="num">Abrió</th><th class="num">Sin respuesta</th><th>Último</th></tr>'
+                + p.nudged.map(function (r) { return '<tr><td>' + esc(r.name || '?') + '</td><td class="num">' + r.received + '</td><td class="num">' + r.opened + '</td><td class="num">' + r.unanswered + (r.unanswered >= 2 ? ' <span class="ar-pill wait">tope</span>' : '') + '</td><td class="quiet">' + esc(agoWord(r.last)) + '</td></tr>'; }).join('') + '</table></div>' : '<p class="quiet">Nadie recibió avisos para volver en 14 días.</p>');
+          return html;
+        }
+        function tabFamAll(d, st, s) { return famTable(s.nidis, s.money || {}) + tabFam(d, st, s); }
         function tabRet(d, st, s, gr) {
           var ret = s.retention, active = s.nidis.filter(function (n) { return n.status === 'active'; }), cad = s.cadence || {}, gb = cad.gap_buckets || {};
           var gbTot = (gb.same_day || 0) + (gb.one_to_three_days || 0) + (gb.three_plus_days || 0), weeks = gr.weeks || [];
@@ -1650,6 +1705,7 @@
             + card('Ahora mismo', 'Cuánto pasó desde la última participación de cada familia. Verde hasta 24 h, ámbar hasta 3 días, rojo después.', famNow(active))
             + card('Cuánto tardan en volver', 'Tiempo entre dos visitas seguidas de una familia. Lo que se sube con menos de 2 h de diferencia cuenta como una visita.', '<div class="funnel">' + stepRow('El mismo día', gb.same_day || 0, gbTot) + stepRow('1 a 3 días', gb.one_to_three_days || 0, gbTot) + stepRow('Más de 3 días', gb.three_plus_days || 0, gbTot) + '</div>')
             + '</div>';
+          html += '<div class="two" style="margin-top:10px">' + leftCard(s.left, s.store_deletions) + '</div>';
           return html;
         }
 
@@ -1901,10 +1957,31 @@
             + '<div class="actions"><button class="link" data-ch=\'' + esc(JSON.stringify({ id: c.id, title: c.title, shipped_on: c.shipped_on, decide_on: c.decide_on, decide_days: c.decide_days, verdict: c.verdict, note: c.note })) + '\'>editar</button></div>';
           return '<tr class="tt-open"><td colspan="8"><div class="tt-detail"><div>' + col1 + '</div><div>' + col2 + '</div><div>' + col3 + '</div></div></td></tr>';
         }
+        var CH_TEAM = { producto: 'Producto', diseno: 'Diseño', marketing: 'Marketing', finance: 'Finance', direccion: 'Dirección' };
+        var CH_TOPIC = { entrada: 'Entrada', avisos: 'Avisos', uso: 'Uso', precio: 'Precio', web: 'Web', tiendas: 'Tiendas' };
+        var CH_F = { topic: '', team: '' };
+        try { CH_F = JSON.parse(localStorage.getItem('nidi-hq-chf') || 'null') || CH_F; } catch (e) {}
+        function chChips(kind, labels, rows) {
+          var count = {}; rows.forEach(function (c) { var k = c[kind] || ''; count[k] = (count[k] || 0) + 1; });
+          var keys = Object.keys(labels).filter(function (k) { return count[k]; });
+          return '<div class="chf" role="group" aria-label="' + (kind === 'topic' ? 'Tema' : 'Equipo') + '"><button data-chf="' + kind + ':" aria-pressed="' + !CH_F[kind] + '">' + (kind === 'topic' ? 'Todos los temas ' : 'Todos los equipos ') + rows.length + '</button>'
+            + keys.map(function (k) { return '<button data-chf="' + kind + ':' + k + '" aria-pressed="' + (CH_F[kind] === k) + '">' + labels[k] + ' ' + count[k] + '</button>'; }).join('') + '</div>';
+        }
+        // Resumen: what has a decision day in the next 7 days. A row opens Tests.
+        function decideSoon(d) {
+          var today = todayAms(), end = addDays(today, 7);
+          var rows = changesOut(d).filter(function (c) { return !c.verdict && c.decide && c.decide >= today && c.decide < end; }).sort(function (a, b) { return a.decide < b.decide ? -1 : 1; });
+          return card('A decidir pronto', 'Tests con fecha de decisión en los próximos 7 días. Tocás uno y abre Tests.', rows.length ? '<div class="ds">' + rows.map(function (c) {
+            return '<button data-tab="tests"><b>' + day12(c.decide) + '</b><span>' + esc(c.title) + (c.team ? ' <span class="quiet">· ' + esc(CH_TEAM[c.team] || c.team) + '</span>' : '') + '</span>' + (c.goal == null ? '<span class="tt-tag nogoal">sin meta</span>' : '') + '</button>';
+          }).join('') + '</div>' : '<p class="quiet">Nada para decidir esta semana.</p>');
+        }
         function tabCambios(d) {
           var all = d.changes;
           if (!all) return card('Tests', '', '<p class="quiet">Todavía no está activo.</p>');
-          var rows = ((VIEW === 'with_family' && all.with_family) ? all.with_family : (all.outside || [])).slice();
+          var allRows = ((VIEW === 'with_family' && all.with_family) ? all.with_family : (all.outside || [])).slice();
+          var filters = chChips('topic', CH_TOPIC, allRows) + chChips('team', CH_TEAM, allRows);
+          var rows = allRows.filter(function (c) { return (!CH_F.topic || c.topic === CH_F.topic) && (!CH_F.team || c.team === CH_F.team); });
+          var noGoal = allRows.filter(function (c) { return c.goal == null && !c.verdict; }).length;
           var today = todayAms();
           rows.sort(function (x, y) { return (x.decide || '9999') < (y.decide || '9999') ? -1 : (x.decide || '9999') > (y.decide || '9999') ? 1 : 0; });
           var info = rows.map(function (c) { var m = CH_METRIC[c.metric] || { label: c.metric, unit: 'share' }; return { c: c, m: m, s: ttStatus(c, m.unit) }; });
@@ -1919,13 +1996,14 @@
             + '<div class="kpi"><span class="k">Con muestra suficiente</span><span class="v">' + enough + '<small>de ' + rows.length + '</small></span><span class="spacer"></span><span class="d">Mínimo: 10 por lado</span></div>'
             + '<div class="kpi"><span class="k">Próximo veredicto</span><span class="v">' + (nextDay ? day12(nextDay) : '—') + '</span><span class="spacer"></span><span class="d">' + nextNames.join(' · ') + '</span></div>'
             + '<div class="kpi"><span class="k">Mejor señal hasta hoy</span><span class="v">' + best.v + '</span><span class="spacer"></span><span class="d">' + best.d + '</span></div></div>';
+          html = filters + html + (noGoal ? '<p class="quiet" style="margin:4px 2px 10px">' + noGoal + ' de ' + allRows.length + ' tests no tienen meta: sin meta no hay veredicto.</p>' : '');
           html += '<div class="card tt"><div class="tt-h"><span>Tests</span><span>Ordenados por fecha de decisión · tocá una fila para abrirla</span></div><table class="tt-table"><thead><tr>'
             + '<th>Test</th><th class="hide-m">Mide</th><th class="r hide-s">Antes</th><th class="r hide-s">Después</th><th class="r">Cambio</th><th class="r hide-m">Muestra</th><th class="hide-m">Decide</th><th>Estado</th></tr></thead><tbody>';
           info.forEach(function (x) {
             var c = x.c, m = x.m, s = x.s, bs = ttSide(c.before, m.unit), as = ttSide(c.after, m.unit), open = TT_OPEN[c.id] != null ? TT_OPEN[c.id] : !!c.reading;
             var measure = c.measure || m.label;
             html += '<tr class="tt-row st-' + s.st + (open ? ' sel' : '') + '" data-tt="' + esc(c.id) + '">'
-              + '<td><div class="tt-t">' + esc(c.title) + ' <span class="tt-caret">' + (open ? '▾' : '▸') + '</span></div><div class="tt-s">' + esc(c.summary || '') + '</div></td>'
+              + '<td><div class="tt-t">' + esc(c.title) + ' <span class="tt-caret">' + (open ? '▾' : '▸') + '</span></div><div class="tt-s">' + esc(c.summary || '') + '</div><div class="tt-tags">' + (c.team ? '<span class="tt-tag">' + esc(CH_TEAM[c.team] || c.team) + '</span>' : '') + (c.topic ? '<span class="tt-tag">' + esc(CH_TOPIC[c.topic] || c.topic) + '</span>' : '') + (c.goal == null && !c.verdict ? '<span class="tt-tag nogoal">sin meta</span>' : '') + '</div></td>'
               + '<td class="hide-m tt-m">' + esc(measure) + '</td>'
               + '<td class="r hide-s">' + bs.v + '<div class="tt-n">' + bs.n + '</div></td>'
               + '<td class="r hide-s">' + as.v + '<div class="tt-n">' + as.n + '</div></td>'
@@ -1944,6 +2022,9 @@
             + '<p class="quiet full" id="chhint" style="margin:0"></p>'
             + '<div class="full"><button class="primary" type="submit" id="chsave">Guardar</button> <button type="button" class="ghost" id="chcancel">Cancelar</button></div></form></details>';
           return html;
+        }
+        function wireChf() {
+          Array.prototype.forEach.call(document.querySelectorAll('[data-chf]'), function (b) { b.onclick = function () { var kv = b.getAttribute('data-chf').split(':'); CH_F[kv[0]] = kv[1]; try { localStorage.setItem('nidi-hq-chf', JSON.stringify(CH_F)); } catch (e) {} render(); }; });
         }
         function wireCh() {
           var cf = document.getElementById('chform'), det = document.getElementById('chdetails');
