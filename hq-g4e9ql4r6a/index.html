@@ -465,44 +465,39 @@
       .mn ul { margin:0; padding-left:20px; } .mn li { margin:4px 0; font-size:14px; }
       .mn li.more { display:none; } .mn.open li.more { display:list-item; }
       .mn-old { margin-top:10px; } .mn-old summary { cursor:pointer; color:var(--ink2); font-size:14px; margin-bottom:8px; } .mn-old .card { margin-bottom:8px; }
-      /* Nuevos (2026-11-18): one tab from sign-up to a nidi working, per person. */
-      .nv-goal { border:1.5px solid var(--olive); }
+      /* Nuevos v2 (2026-11-18): today/week/14 days, money, users, one row per family. */
       .nv-big { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
       .nv-big b { font-family:var(--serif); font-weight:400; font-size:44px; line-height:1; font-variant-numeric:tabular-nums; }
       .nv-big span { color:var(--ink2); font-size:14px; }
-      .nv-meter { display:grid; grid-template-columns:repeat(8,1fr); gap:4px; margin-top:10px; }
-      .nv-meter i { height:12px; border-radius:4px; background:var(--line2); }
-      .nv-meter i.f { background:var(--olive); } .nv-meter i.t { box-shadow:inset 0 0 0 2px var(--olive); background:transparent; }
-      .nv-meter-l { display:flex; justify-content:space-between; font-size:12px; color:var(--ink3); margin-top:4px; }
-      .nv-q { font-size:14px; color:var(--ink2); margin:8px 0 0; }
-      .nv-q b { color:var(--ink); font-weight:600; }
-      .nv-days { display:grid; grid-template-columns:repeat(15,minmax(0,1fr)); gap:4px; align-items:end; height:130px; }
-      .nv-day { display:flex; flex-direction:column-reverse; gap:2px; height:100%; }
-      .nv-day i { display:block; border-radius:3px; height:20px; }
-      .nv-day.empty::after { content:""; display:block; height:2px; background:var(--line2); border-radius:1px; }
+      .nv2-split { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:12px; }
+      .nv2-split.nv2-3 { grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 0 10px; }
+      .nv2-box { background:var(--line2); border-radius:12px; padding:10px 12px; display:grid; gap:2px; align-content:start; min-width:0; }
+      .nv2-box b { font-family:var(--serif); font-weight:400; font-size:28px; line-height:1.1; font-variant-numeric:tabular-nums; }
+      .nv2-box span { font-size:13px; color:var(--ink2); } .nv2-box strong { color:var(--ink); }
+      .nv2-box em, .nv2-tag { font-style:normal; font-size:11.5px; background:var(--paper); border-radius:5px; padding:1px 6px; color:var(--ink2); white-space:nowrap; }
+      .nv2-box.left { background:var(--rose-soft); } .nv2-box.wait { background:var(--honey-soft); } .nv2-box.ok { background:var(--olive-soft); }
+      .nv2-split.nv2-3 .nv2-box { background:var(--paper); border:1px solid var(--line); }
+      .nv2-meter { display:grid; gap:3px; margin-top:10px; }
+      .nv2-meter i { height:12px; border-radius:3px; background:var(--line2); } .nv2-meter i.f { background:var(--olive); } .nv2-meter i.t { background:transparent; box-shadow:inset 0 0 0 1.5px var(--honey); }
+      .nv2-next { background:var(--olive-soft); border-radius:10px; padding:10px 12px; font-size:14px; margin:12px 0 0; }
+      .nv2-days { display:grid; grid-template-columns:repeat(15,minmax(0,1fr)); gap:4px; align-items:end; height:80px; margin-top:22px; }
+      .nv2-days div { background:var(--olive); border-radius:3px 3px 0 0; position:relative; } .nv2-days div.z { background:var(--line2); }
+      .nv2-days em { position:absolute; top:-17px; left:0; right:0; text-align:center; font-style:normal; font-size:11px; color:var(--ink2); }
       .nv-dl { display:grid; grid-template-columns:repeat(15,minmax(0,1fr)); gap:4px; font-size:10px; color:var(--ink3); text-align:center; font-variant-numeric:tabular-nums; margin-top:4px; }
-      .nv-c1 { background:var(--rose); } .nv-c2 { background:var(--honey); } .nv-c3 { background:var(--honey-soft); box-shadow:inset 0 0 0 1px var(--honey); } .nv-c4 { background:var(--olive-soft); box-shadow:inset 0 0 0 1px var(--olive); } .nv-c5 { background:var(--olive); }
-      .nv-key { display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--ink2); margin-top:8px; }
-      .nv-key span { display:flex; gap:5px; align-items:center; } .nv-key i { width:10px; height:10px; border-radius:3px; display:inline-block; }
-      .nv-fs { display:grid; grid-template-columns:minmax(0,140px) 1fr 30px 48px; gap:10px; align-items:center; font-size:14px; }
-      .nv-fs .bar { height:10px; background:var(--line2); border-radius:5px; overflow:hidden; } .nv-fs .bar i { display:block; height:100%; background:var(--olive); border-radius:5px; }
-      .nv-fs .n, .nv-fs .pc { text-align:right; font-variant-numeric:tabular-nums; } .nv-fs .pc { font-size:12px; color:var(--ink2); }
-      .nv-fs.leak .pc { color:var(--rose); font-weight:600; } .nv-fs.leak .bar i { background:var(--honey); }
-      .nv-fun { display:grid; gap:7px; }
-      .nv-todo { display:grid; gap:8px; }
-      .nv-todo div { background:var(--line2); border-radius:10px; padding:9px 12px; font-size:14px; display:grid; gap:2px; }
-      .nv-todo span { font-size:13px; color:var(--ink2); }
-      .nv-p { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 12px; padding:11px 0; border-top:1px solid var(--line2); }
-      .nv-p:first-child { border-top:0; }
-      .nv-who { display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; min-width:0; } .nv-who b { font-weight:600; } .nv-who .m { font-size:13px; color:var(--ink2); }
-      .nv-pct { font-family:var(--serif); font-size:20px; text-align:right; font-variant-numeric:tabular-nums; }
-      .nv-prog { grid-column:1/-1; display:grid; grid-template-columns:repeat(5,1fr); gap:3px; }
-      .nv-prog i { height:7px; border-radius:3px; background:var(--line2); } .nv-prog i.f { background:var(--olive); } .nv-prog i.stuck { background:var(--honey); } .nv-prog i.lost { background:var(--rose); }
-      .nv-facts { grid-column:1/-1; display:flex; gap:4px 14px; flex-wrap:wrap; font-size:13px; color:var(--ink2); } .nv-facts b { color:var(--ink); font-weight:500; }
       .nv-note { font-size:12px; color:var(--ink3); margin:6px 0 0; }
+      .nv2-fam { border:1px solid var(--line); border-radius:12px; padding:12px; display:grid; gap:8px; margin-top:8px; }
+      .nv2-fam:first-child { margin-top:0; }
+      .nv2-top { display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; } .nv2-top b { font-weight:600; font-size:15px; } .nv2-top .m { font-size:13px; color:var(--ink2); }
+      .nv2-pill { margin-left:auto; font-size:12px; font-weight:600; border-radius:999px; padding:2px 9px; }
+      .nv2-pill.wait { background:var(--honey-soft); color:var(--honey); } .nv2-pill.ok { background:var(--olive-soft); color:var(--olive); } .nv2-pill.dup { background:var(--rose-soft); color:var(--rose); }
+      .nv2-steps { display:flex; gap:6px; flex-wrap:wrap; font-size:12.5px; }
+      .nv2-steps span { padding:3px 8px; border-radius:6px; background:var(--line2); color:var(--ink3); }
+      .nv2-steps span.ok { background:var(--olive-soft); color:var(--ink); } .nv2-steps span.now { background:var(--honey-soft); color:var(--ink); font-weight:600; }
+      .nv-facts { display:flex; gap:4px 14px; flex-wrap:wrap; font-size:13px; color:var(--ink2); } .nv-facts b { color:var(--ink); font-weight:500; }
+      .nv2-todo { font-size:13.5px; }
       .nv-tbl td.n, .nv-tbl th.n { text-align:right; font-variant-numeric:tabular-nums; }
-      .nv-h { font-family:var(--serif); font-weight:400; font-size:19px; margin:18px 2px 0; }
-      @media (max-width:520px) { .nv-fs { grid-template-columns:minmax(0,104px) 1fr 26px 42px; } .nv-dl span:nth-child(even) { visibility:hidden; } }
+      .nv-more { margin-top:14px; } .nv-more > summary { cursor:pointer; color:var(--ink2); font-size:15px; margin:4px 2px 10px; }
+      @media (max-width:640px) { .nv2-split { grid-template-columns:repeat(2,minmax(0,1fr)); } .nv2-split.nv2-3 { grid-template-columns:repeat(3,minmax(0,1fr)); } .nv-dl span:nth-child(even) { visibility:hidden; } }
     </style>
   </head>
   <body>
@@ -1446,86 +1441,138 @@
           return card('Por día', 'Tocá cada nombre para prenderlo o apagarlo; la elección queda guardada en este dispositivo. Visitas a la web: visitas reales a nidi.life (barras, escala a la derecha). Descargas: teléfonos que abren Nidi por primera vez. Cuentas: personas que pidieron el código. Invites: alguien armó su nidi e invitó a la otra casa. Nidis: entró la otra casa, las dos casas adentro. Momentos: fotos, audios y textos. Notas: respuestas sobre un momento. Pagos: suscripciones pagas que empezaron ese día, de cualquiera (como Ingresos). Los mismos nombres que en Marketing.',
             chips + '<div class="dy">' + out + '</div>', 'últimos ' + range + ' días');
         }
-        // Nuevos (2026-11-18, Maru approved the screens, artifact WxcJBUVgWPqKEMCrh7FDFu):
-        // each new person from outside (hq_new_people, 14 days) from sign-up to
-        // both homes sending something. 20 % per step.
-        var NV_STEPS = ['Se registró', 'Ingresó el código', 'Armó su nidi', 'Entró la otra casa', 'Las dos casas mandan'];
-        function nvStage(p) { if (!p.code) return 1; if (!p.nidi) return 2; if (!p.other_home) return 3; if (!p.both_sent) return 4; return 5; }
-        function nvGift(p, m) {
-          var f = function (x) { return String(x || '').trim().split(/\s+/)[0].toLowerCase(); };
-          if (!p.name) return null;
-          return (m.gifts_list || []).filter(function (g) { return f(g.who) === f(p.name); })[0] || null;
+        // Nuevos v2 (2026-11-18, Maru approved the mock, artifact FiMCFKoVaz9jL8RXytnuZ3):
+        // today / week / 14 days, money (gifts don't count) and users (gifts count),
+        // one row per family with what's missing, who hasn't made a nidi yet
+        // (nobody is called lost), and sources. Data: hq_new_people, 14 days,
+        // with own_nidis per person.
+        var NV_GOAL_EUR = 1000, NV_PRICE = 69, NV_NET = 0.85, NV_GOAL_BY = '2026-12-09', NV_MONEY_FROM = '2026-11-09', NV_WEEK_GOAL = 4;
+        function nvFirst(x) { return String(x || '').trim().split(/\s+/)[0].toLowerCase(); }
+        function nvGift(names, m) { return (m.gifts_list || []).filter(function (g) { return names.some(function (n) { return n && nvFirst(g.who) === nvFirst(n); }); })[0] || null; }
+        function nvPaid(names, m) { return (m.paid_list || []).filter(function (p) { return names.some(function (n) { return n && nvFirst(p.who) === nvFirst(n); }); })[0] || null; }
+        function nvSince(iso) { return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 864e5)); }
+        function nvDayWord(n) { return n <= 0 ? 'hoy' : n === 1 ? '1 día' : n + ' días'; }
+        function nvWhen(iso) {
+          var dd = ams(iso), t = new Date(iso).toLocaleTimeString('es-AR', { timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', hour12: false });
+          return (dd === todayAms() ? 'hoy' : dd === addDays(todayAms(), -1) ? 'ayer' : dmy(iso)) + ' ' + t;
         }
-        function nvDays(ms) { var d = Math.floor(ms / 864e5); return d <= 0 ? 'hoy' : d === 1 ? '1 día' : d + ' días'; }
+        function nvCountry(c) { try { return new Intl.DisplayNames(['es'], { type: 'region' }).of(c); } catch (e) { return c; } }
+        function nvDev(p) { return [p.platform === 'ios' ? 'iPhone' : p.platform === 'android' ? 'Android' : null, p.country ? nvCountry(p.country) : null].filter(Boolean).join(' · '); }
+        function nvSrc(p, d) { return p.came_from ? refLabel(p.came_from.ref, d.marketing) : null; }
+        function nvFrom(p, d) {
+          var c = p.came_from; if (!c) return 'Vino de: <b>sin dato</b>';
+          var how = c.via === 'tienda' ? (c.store === 'google_play' ? 'tocó Google Play' : c.store === 'app_store' ? 'tocó App Store' : 'tocó la tienda') : 'abrió la web';
+          return 'Vino de: <b>' + esc(nvSrc(p, d)) + '</b>, ' + how + ' ' + esc(c.minutes) + ' min antes' + (c.sure === 'posible' ? ' (posible)' : '');
+        }
+        function nvRole(p) {
+          var own = p.own_nidis || [];
+          if (own.some(function (n) { return n.status === 'active'; }) || (own.length && !p.invited)) return 'maker';
+          return p.invited ? 'invitee' : 'none';
+        }
         function nuevosSection(d, st) {
           var list = st.new_people || [], o = (st.views && st.views.outside) || st, m = o.money || {};
-          var now = Date.now(), today = todayAms();
-          var weeks = officialWeeks(st, 2), w = weeks[1], w0 = weeks[0];
-          var people = list.map(function (p) {
-            var stg = nvStage(p), stepAt = [p.at, p.at, p.code_at, p.nidi_at, p.home_at][stg - 1] || p.at;
-            return { p: p, stg: stg, pct: [20, 40, 60, 80, 100][stg - 1], since: now - new Date(stepAt).getTime(), age: now - new Date(p.at).getTime(), gift: nvGift(p, m) };
-          });
-          // goal
-          var near = people.filter(function (x) { return x.stg === 3 && !x.p.duplicate && x.age < 14 * 864e5; });
-          var nearGift = near.filter(function (x) { return x.gift; });
-          var meter = ''; for (var i = 0; i < 8; i++) meter += '<i class="' + (i < w.n ? 'f' : i < 4 ? 't' : '') + '"></i>';
-          var goal = '<div class="card nv-goal"><div class="title"><span>Meta de la semana <em>desde el lunes ' + dmy(w.from + 'T12:00:00') + '</em></span></div>'
-            + '<div class="nv-big"><b>' + w.n + '</b><span>de 4 familias nuevas completas sin regalo · piso 2,5 · la semana anterior ' + w0.n + '</span></div>'
-            + '<div class="nv-meter">' + meter + '</div><div class="nv-meter-l"><span>0</span><span>meta 4</span><span>8</span></div>'
-            + (near.length ? '<p class="nv-q">Las más cerca: <b>' + near.map(function (x) { return esc(x.p.name || 'sin nombre'); }).join(', ') + '</b>, ' + plural(near.length, 'con su nidi y esperando', 'con su nidi y esperando') + ' a la otra casa.' + (nearGift.length ? ' Con regalo (no suman a la meta): ' + nearGift.map(function (x) { return esc(x.p.name); }).join(', ') + '.' : '') + '</p>' : '<p class="nv-q">Nadie está esperando a la otra casa ahora.</p>')
-            + (w.names.length ? '<p class="nv-q">Esta semana: ' + w.names.map(esc).join(', ') + '.</p>' : '')
-            + '</div>';
-          // per day
+          var today = todayAms(), weekFrom = officialWeeks(st, 2)[1].from;
+          var nToday = list.filter(function (p) { return ams(p.at) === today; });
+          var nWeek = list.filter(function (p) { return ams(p.at) >= weekFrom; }).length;
+          // families: one per nidi someone new created
+          var fams = [];
+          list.forEach(function (p) { (p.own_nidis || []).forEach(function (n) {
+            var names = [p.name, n.other], trialEnd = n.activated_at ? addDays(ams(n.activated_at), n.trial_days || 14) : null;
+            fams.push({ p: p, n: n, gift: nvGift(names, m), paid: nvPaid(names, m), dup: p.duplicate, second: p.invited && n.status === 'pending', trialEnd: trialEnd,
+              state: p.duplicate ? 'dup' : n.status === 'pending' ? 'wait' : n.both_sent ? 'done' : 'joined' });
+          }); });
+          var ord = { wait: 0, dup: 1, joined: 2, done: 3 };
+          fams.sort(function (a, b) { return ord[a.state] - ord[b.state] || new Date(b.n.created_at) - new Date(a.n.created_at); });
+          var notArmed = list.filter(function (p) { return nvRole(p) === 'none'; });
+          var makers = list.filter(function (p) { return nvRole(p) === 'maker'; });
+          var invitees = list.filter(function (p) { return nvRole(p) === 'invitee'; });
+          var mWait = makers.filter(function (p) { return !p.duplicate && !(p.own_nidis || []).some(function (n) { return n.status === 'active'; }); });
+          var mDup = makers.filter(function (p) { return p.duplicate; });
+          var mDone = makers.filter(function (p) { return (p.own_nidis || []).some(function (n) { return n.status === 'active'; }); });
+          var giftN = fams.filter(function (f) { return f.gift && f.state !== 'dup'; });
+          var head = '<div class="nv2-split nv2-3">'
+            + '<div class="nv2-box"><b>' + nToday.length + '</b><span>' + plural(nToday.length, 'persona nueva', 'personas nuevas') + ' <strong>hoy</strong>' + (nToday.length ? ': ' + nToday.map(function (p) { return esc(p.name || (p.platform === 'ios' ? 'un iPhone' : 'un Android') + (p.code ? '' : ' sin código')); }).join(', ') : '') + '</span></div>'
+            + '<div class="nv2-box"><b>' + nWeek + '</b><span>esta semana, desde el lunes ' + dmy(weekFrom + 'T12:00:00') + '</span></div>'
+            + '<div class="nv2-box"><b>' + list.length + '</b><span>en los últimos 14 días</span></div></div>';
+          // money
+          var need = Math.ceil(NV_GOAL_EUR / (NV_PRICE * NV_NET)), net = Math.round(NV_PRICE * NV_NET);
+          var paidSince = (m.paid_list || []).filter(function (p) { return p.since && ams(p.since) >= NV_MONEY_FROM; }).length;
+          var mf = fams.filter(function (f) { return f.state !== 'dup' && !f.gift && !f.paid; });
+          var decide = mf.filter(function (f) { return f.state !== 'wait'; }), canPay = mf.filter(function (f) { return f.state === 'wait'; });
+          var maxF = decide.length + canPay.length + notArmed.length, deadline = addDays(NV_GOAL_BY, -7);
+          var famName = function (f) { return esc(f.p.name || 'Sin nombre') + (f.n.other ? ' + ' + esc(f.n.other) : '') + (f.second ? ' (2.º nidi)' : ''); };
+          var meter = ''; for (var i = 0; i < need; i++) meter += '<i class="' + (i < paidSince ? 'f' : i < paidSince + maxF ? 't' : '') + '"></i>';
+          var money = card('Plata: meta 1, €' + NV_GOAL_EUR.toLocaleString('es-AR') + ' al ' + dmy(NV_GOAL_BY + 'T12:00:00'), 'Los regalos no cuentan acá. A €' + NV_PRICE + ' al año quedan unos €' + net + ' por familia después de la comisión de la tienda (aprox.), así que hacen falta unas ' + need + ' familias pagando. Pagos: cualquier suscripción paga que empezó desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + '. Las casillas con borde son las familias de estas personas que todavía pueden pagar.',
+            '<div class="nv-big"><b>' + paidSince + '</b><span>de ' + need + ' pagaron desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + '</span></div><div class="nv2-meter" style="grid-template-columns:repeat(' + need + ',1fr)">' + meter + '</div>'
+            + '<div class="nv2-split">'
+            + '<div class="nv2-box ok"><b>' + decide.length + '</b><span>' + (decide.length ? 'deciden cuando termina la prueba: ' + decide.map(function (f) { return famName(f) + ' (' + dmy(f.trialEnd + 'T12:00:00') + ')'; }).join(', ') : 'con las dos casas adentro y prueba en curso') + '</span></div>'
+            + '<div class="nv2-box wait"><b>' + canPay.length + '</b><span>pueden pagar si entra la otra casa' + (canPay.length ? ': ' + canPay.map(famName).join(', ') : '') + '</span></div>'
+            + '<div class="nv2-box left"><b>' + notArmed.length + '</b><span>todavía no armaron su nidi</span></div>'
+            + '<div class="nv2-box"><b>' + giftN.length + '</b><span>con regalo, no pagan' + (giftN.length ? ': ' + giftN.map(function (f) { return esc(f.p.name || ''); }).join(', ') : '') + '</span></div></div>'
+            + '<p class="nv2-next"><b>De las ' + list.length + ' personas, como mucho ' + maxF + ' ' + plural(maxF, 'familia puede', 'familias pueden') + ' pagar.</b>' + (paidSince + maxF < need ? ' Aunque pagaran todas, faltan unas ' + (need - paidSince - maxF) + ' familias de gente que todavía no llegó.' : '') + ' <b>Fecha límite:</b> la prueba nueva dura 7 días desde que entra la otra casa. Para pagar antes del ' + dmy(NV_GOAL_BY + 'T12:00:00') + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '.</p>');
+          // users
+          var done14 = fams.filter(function (f) { return f.state === 'done'; });
+          var doneWk = done14.filter(function (f) { return f.n.activated_at && ams(f.n.activated_at) >= weekFrom; });
+          var waitNames = fams.filter(function (f) { return f.state === 'wait' && !f.second; }).map(function (f) { return esc(f.p.name || 'sin nombre'); });
+          var users = card('Usuarios: familias funcionando', 'Acá los regalos sí cuentan. Una familia funciona cuando están las dos casas adentro y las dos mandaron algo.',
+            '<div class="nv-big"><b>' + done14.length + '</b><span>' + plural(done14.length, 'familia', 'familias') + ' en 14 días · ' + doneWk.length + ' esta semana (meta ' + NV_WEEK_GOAL + ')</span></div>'
+            + (waitNames.length ? '<p class="nv2-next"><b>Pueden sumar esta semana:</b> ' + waitNames.join(', ') + '. ' + plural(waitNames.length, 'Armó su nidi y le falta', 'Armaron su nidi y les falta') + ' que entre la otra casa.</p>' : '<p class="nv2-next">Nadie está esperando a la otra casa ahora.</p>'));
+          // what happened to everyone + per day
           var days = []; for (var k = 14; k >= 0; k--) days.push(addDays(today, -k));
-          var byDay = {}; people.forEach(function (x) { var dd = ams(x.p.at); (byDay[dd] = byDay[dd] || []).push(x.stg === 1 && x.age < 864e5 ? 2 : x.stg); });
-          var bars = days.map(function (dd) { var l = (byDay[dd] || []).sort(function (a, b) { return b - a; }); return '<div class="nv-day' + (l.length ? '' : ' empty') + '" title="' + dmy(dd + 'T12:00:00') + ': ' + l.length + '">' + l.map(function (sg) { return '<i class="nv-c' + sg + '"></i>'; }).join('') + '</div>'; }).join('');
-          var perDay = card('Personas nuevas por día', 'Cada cuadrito es una persona de afuera que se registró ese día, pintada según dónde está hoy. Sin cuentas de prueba ni familia.', '<div class="nv-days">' + bars + '</div><div class="nv-dl">' + days.map(function (dd) { return '<span>' + Number(dd.slice(8)) + '</span>'; }).join('') + '</div>'
-            + '<div class="nv-key"><span><i class="nv-c1"></i>se fue en el código</span><span><i class="nv-c2"></i>sin nidi o código de hoy</span><span><i class="nv-c3"></i>falta la otra casa</span><span><i class="nv-c4"></i>dos casas, falta que manden</span><span><i class="nv-c5"></i>completa</span></div>', people.length + ' en 14 días');
-          // funnel
-          var n = people.length, c = people.filter(function (x) { return x.p.code; }).length, ni = people.filter(function (x) { return x.p.nidi; }).length, oh = people.filter(function (x) { return x.p.other_home; }).length, bs = people.filter(function (x) { return x.p.both_sent; }).length;
-          var fs = [['Se registraron', n, null], ['Ingresaron el código', c, n], ['Armaron su nidi', ni, c], ['Entró la otra casa', oh, ni], ['Las dos casas mandan', bs, oh]];
-          var worst = -1, wv = 2; fs.forEach(function (x, i) { if (x[2]) { var r = x[1] / x[2]; if (r < wv) { wv = r; worst = i; } } });
-          var fun = card('Dónde se pierden', 'De las personas nuevas de los últimos 14 días, cuántas llegaron a cada paso. El porcentaje es sobre el paso anterior; el más bajo es el agujero a tapar primero.', '<div class="nv-fun">' + fs.map(function (x, i) { return '<div class="nv-fs' + (i === worst ? ' leak' : '') + '"><span>' + x[0] + '</span><div class="bar"><i style="width:' + (n ? Math.round(x[1] / n * 100) : 0) + '%"></i></div><span class="n">' + x[1] + '</span><span class="pc">' + (x[2] ? pct(x[1], x[2]) + '%' : '') + '</span></div>'; }).join('') + '</div>'
-            + (worst > 0 ? '<p class="nv-q">El agujero más grande hoy: <b>' + fs[worst][0].toLowerCase() + '</b> (' + (fs[worst][2] - fs[worst][1]) + ' de ' + fs[worst][2] + ' no pasaron).</p>' : ''), '14 días');
-          // to do
-          var todo = [];
-          people.forEach(function (x) {
-            var p = x.p, nm = esc(p.name || 'Sin nombre') + (p.platform ? ' <span class="quiet">(' + (p.platform === 'ios' ? 'iPhone' : 'Android') + ')</span>' : ''), rem = (p.reminders || []).map(function (r) { return r.step; });
-            var cr = p.came_from && /^cr-/.test(p.came_from.ref);
-            if (x.stg === 1) {
-              if (rem.indexOf('code_unconfirmed') >= 0) { if (x.age < 7 * 864e5) todo.push([nm + ' · no ingresó el código', 'Ya se le mandó «no ingresaste el código». No insistir.']); }
-              else if (x.age < 3 * 864e5) todo.push([nm + ' · no ingresó el código', 'Va en la lista de recordatorios de las 9:00 («no ingresaste el código»): aprobalo ahí.']);
-            } else if (x.stg === 3) {
-              if (p.duplicate) todo.push([nm + ' · nidi duplicado', 'No contactar, salvo que escriba.']);
-              else if (rem.indexOf('invite_waiting') >= 0) todo.push([nm + ' · falta la otra casa', 'Ya se le mandó «la otra casa no entró». El siguiente, no antes de 48 h.' + (cr ? ' Es creadora: un DM desde @hello.nidi puede ayudar.' : '')]);
-              else todo.push([nm + ' · falta la otra casa', 'Va en la lista de recordatorios de las 9:00 («la otra casa no entró») cuando pase un día sin que entre.' + (cr ? ' Es creadora: un DM desde @hello.nidi puede ayudar.' : '')]);
-            } else if (x.stg === 4) {
-              todo.push([nm + ' · las dos casas adentro, falta que manden', (p.pushes ? p.pushes + ' ' + plural(p.pushes, 'aviso', 'avisos') + ' hasta ahora. ' : '') + 'El siguiente sale según la regla: como máximo 2 sin responder, con 48 h entre uno y otro.']);
-            }
-          });
-          var todoC = card('Qué hacer hoy', 'Para cada persona trabada, lo que corresponde según la regla de los avisos. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.', todo.length ? '<div class="nv-todo">' + todo.slice(0, 10).map(function (x) { return '<div><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join('') + '</div>' : '<p class="quiet">Nadie trabado.</p>', todo.length ? todo.length + ' ' + plural(todo.length, 'persona', 'personas') : '');
-          // each person
-          var rows = people.map(function (x) {
-            var p = x.p, segs = '';
-            for (var i = 0; i < 5; i++) segs += '<i class="' + (i < x.stg - 1 || x.stg === 5 ? 'f' : i === x.stg - 1 ? (x.stg === 1 && x.age > 864e5 ? 'lost' : 'stuck') : '') + '"></i>';
-            var lab = x.stg === 1 ? (x.age > 864e5 ? ['Se fue en el código', 'declined'] : ['No ingresó el código', 'pending']) : p.duplicate ? ['Nidi duplicado', 'declined'] : x.stg === 2 ? ['Sin nidi', 'pending'] : x.stg === 3 ? ['Falta la otra casa', 'pending'] : x.stg === 4 ? ['Falta que manden', 'pending'] : ['Completa', 'active'];
-            var dev = [p.platform === 'ios' ? 'iPhone' : p.platform === 'android' ? 'Android' : null, p.country, p.lang === 'es' ? 'español' : p.lang === 'en' ? 'inglés' : p.lang].filter(Boolean).join(' · ');
-            var cf = p.came_from, facts = [];
-            facts.push(cf ? 'Vino de: <b>' + esc(cf.ref) + '</b> (' + esc(cf.sure) + ', ' + esc(cf.minutes) + ' min antes)' : p.invited ? 'Entró: <b>por invitación</b>' : 'Vino de: <b>sin dato</b>');
-            if (x.stg < 5) facts.push('En este paso: <b>' + nvDays(x.since) + '</b>');
-            if (x.gift) facts.push('<b>Con regalo</b>: no suma a la meta');
+          var byDay = {}; list.forEach(function (p) { var dd = ams(p.at); byDay[dd] = (byDay[dd] || 0) + 1; });
+          var mx = Math.max.apply(null, days.map(function (dd) { return byDay[dd] || 0; }).concat([1]));
+          var nTodayNo = notArmed.filter(function (p) { return ams(p.at) === today; }).length;
+          var split = card('Qué pasó con las ' + list.length + ' personas que llegaron', 'Últimos 14 días, sin cuentas de prueba ni familia. Cada persona está en una sola caja.',
+            '<div class="nv2-split">'
+            + '<div class="nv2-box left"><b>' + notArmed.length + '</b><span>todavía no armaron su nidi' + (nTodayNo ? ' <em>' + nTodayNo + ' de hoy</em>' : '') + '</span></div>'
+            + '<div class="nv2-box wait"><b>' + mWait.length + '</b><span>armaron su nidi y esperan a la otra casa' + (mDup.length ? ' <em>+' + mDup.length + ' ' + plural(mDup.length, 'duplicado', 'duplicados') + '</em>' : '') + '</span></div>'
+            + '<div class="nv2-box ok"><b>' + mDone.length + '</b><span>armaron y la otra casa ya entró' + (giftN.filter(function (f) { return f.state !== 'wait'; }).length ? ' <em>' + giftN.filter(function (f) { return f.state !== 'wait'; }).length + ' con regalo</em>' : '') + '</span></div>'
+            + '<div class="nv2-box"><b>' + invitees.length + '</b><span>entraron invitadas: son la otra casa de esas familias</span></div></div>'
+            + '<div class="nv2-days">' + days.map(function (dd) { var v = byDay[dd] || 0; return '<div class="' + (v ? '' : 'z') + '" style="height:' + (v ? Math.max(8, Math.round(v / mx * 100)) : 3) + '%" title="' + dmy(dd + 'T12:00:00') + ': ' + v + '">' + (v ? '<em>' + v + '</em>' : '') + '</div>'; }).join('') + '</div>'
+            + '<div class="nv-dl">' + days.map(function (dd) { return '<span>' + Number(dd.slice(8)) + '</span>'; }).join('') + '</div><p class="nv-note">Personas nuevas por día.</p>');
+          // families
+          var rows = fams.map(function (f) {
+            var p = f.p, n = f.n, rem = (p.reminders || []).map(function (r) { return r.step; });
+            var pill = f.state === 'dup' ? ['Nidi duplicado', 'dup'] : f.state === 'wait' ? ['Falta la otra casa' + (nvSince(n.created_at) ? ' · ' + nvDayWord(nvSince(n.created_at)) : ''), 'wait'] : f.state === 'joined' ? ['Falta que manden', 'wait'] : ['Completa', 'ok'];
+            var steps = f.state === 'dup' ? '' : '<div class="nv2-steps"><span class="ok">✓ Puso el código</span><span class="ok">✓ Armó el nidi</span><span class="' + (f.state === 'wait' ? 'now' : 'ok') + '">' + (f.state === 'wait' ? '' : '✓ ') + 'Entra la otra casa</span><span class="' + (f.state === 'done' ? 'ok' : f.state === 'joined' ? 'now' : '') + '">' + (f.state === 'done' ? '✓ ' : '') + 'Las dos mandan</span></div>';
+            var facts = [];
+            if (f.second) facts.push('Entró invitada a otro nidi y después armó este para otra persona');
+            else facts.push(nvFrom(p, d));
+            if (n.activated_at) facts.push('Otra casa adentro en <b>' + minsWord(Math.round((new Date(n.activated_at) - new Date(n.created_at)) / 6e4)) + '</b>');
+            if (f.state === 'wait' && p.last_seen) facts.push('Última vez: <b>' + esc(agoWord(p.last_seen)) + '</b>');
             if (p.accounts > 1) facts.push('<b>' + p.accounts + ' cuentas</b> en el mismo teléfono');
-            facts.push('Avisos: <b>' + (p.pushes || 'ninguno') + '</b>');
-            if (p.last_seen) facts.push('Última vez: <b>' + esc(agoWord(p.last_seen)) + '</b>');
-            var when = new Date(p.at).toLocaleString('es-AR', { timeZone: 'Europe/Amsterdam', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
-            return '<div class="nv-p"><div class="nv-who"><b>' + esc(p.name || 'Sin nombre') + '</b><span class="m">' + esc([dev, when].filter(Boolean).join(' · ')) + '</span><span class="pill ' + lab[1] + '">' + lab[0] + '</span></div><div class="nv-pct">' + x.pct + ' %</div><div class="nv-prog">' + segs + '</div><div class="nv-facts">' + facts.map(function (f) { return '<span>' + f + '</span>'; }).join('') + '</div></div>';
+            if (f.state !== 'dup') facts.push('Plata: <b>' + (f.gift ? 'regalo, no paga' : f.paid ? 'pagó' : n.activated_at ? (f.trialEnd >= today ? 'la prueba termina el ' + dmy(f.trialEnd + 'T12:00:00') : 'la prueba terminó el ' + dmy(f.trialEnd + 'T12:00:00') + ', sin pago') : 'si la otra casa entra hoy, puede pagar desde el ' + dmy(addDays(today, n.trial_days || 7) + 'T12:00:00')) + '</b>');
+            var todo = '';
+            if (f.state === 'dup') todo = (p.dup_of ? 'Es de la familia de ' + esc(p.dup_of) + ': armó un nidi en vez de entrar al suyo. ' : '') + 'Se arregla solo si la familia lo pide. Si no, se deja como está.';
+            else if (f.state === 'wait') {
+              if (f.second) todo = 'Ya tiene una familia funcionando como invitada. Esperar.';
+              else if (rem.indexOf('invite_waiting') >= 0) todo = 'Ya se le mandó «la otra casa no entró». El siguiente, no antes de 48 h.';
+              else todo = 'Si a las 9:00 la otra casa sigue afuera, entra en la lista de recordatorios. Lo aprobás ahí.';
+              if (!f.second && p.came_from && /^cr-/.test(p.came_from.ref)) todo += ' Vino de un link de creadora: un mensaje desde @hello.nidi también puede ayudar.';
+            } else if (f.state === 'joined') todo = 'Los avisos salen según la regla: como máximo 2 sin responder, con 48 h entre uno y otro.';
+            var dev = [nvDev(p), dmy(n.created_at)].filter(Boolean).join(' · ');
+            return '<div class="nv2-fam"><div class="nv2-top"><b>' + famName(f) + '</b>' + (f.gift ? ' <span class="nv2-tag">regalo</span>' : '') + '<span class="m">' + esc(dev) + '</span><span class="nv2-pill ' + pill[1] + '">' + pill[0] + '</span></div>' + steps
+              + '<div class="nv-facts">' + facts.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' + (todo ? '<div class="nv2-todo">' + todo + '</div>' : '') + '</div>';
           }).join('');
-          var each = card('Cada persona', 'Avance hasta el nidi funcionando: se registró 20 %, ingresó el código 40 %, armó su nidi 60 %, entró la otra casa 80 %, las dos casas mandaron algo 100 %. Amarillo: trabada ahí. Rosa: se fue. «Vino de» se adivina por una visita con link en las 2 h anteriores: «probable» si fue en los 15 min antes y del mismo país (o es un link de creadora).', people.length ? '<div>' + rows + '</div>' : '<p class="quiet">Nadie nuevo en 14 días.</p>', '14 días');
-          // by source
-          var src = {}; people.forEach(function (x) { var p = x.p, k = p.came_from ? p.came_from.ref : p.invited ? 'por invitación' : 'sin dato'; src[k] = src[k] || [0, 0, 0, 0]; src[k][0]++; if (p.nidi) src[k][1]++; if (p.other_home) src[k][2]++; if (p.both_sent) src[k][3]++; });
-          var sk = Object.keys(src).sort(function (a, b) { return src[b][2] - src[a][2] || src[b][0] - src[a][0]; });
-          var bySrc = card('De qué link vienen', 'Por cada origen, cuántas personas llegaron en 14 días y hasta dónde llegaron. Dice dónde conviene poner plata y tiempo: un link que trae toques pero no familias no sirve para la meta.', '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Origen</th><th class="n">Personas</th><th class="n">Con nidi</th><th class="n">Dos casas</th><th class="n">Mandan</th></tr></thead><tbody>' + sk.map(function (k) { return '<tr><td>' + esc(refLabel ? refLabel(k, d.marketing) : k) + '</td><td class="n">' + src[k][0] + '</td><td class="n">' + src[k][1] + '</td><td class="n">' + src[k][2] + '</td><td class="n">' + src[k][3] + '</td></tr>'; }).join('') + '</tbody></table></div>', '14 días');
-          return goal + '<div class="two">' + perDay + fun + '</div>' + todoC + each + bySrc + '<h3 class="nv-h">Desde el lanzamiento</h3>';
+          var famC = card('Familias', 'Una fila por nidi que armó alguien nuevo, las que necesitan algo primero. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.', rows || '<p class="quiet">Nadie armó un nidi en 14 días.</p>', fams.length + ' ' + plural(fams.length, 'nidi', 'nidis'));
+          // not armed yet
+          var na = notArmed.map(function (p) {
+            return '<tr><td>' + esc(nvWhen(p.at)) + '</td><td>' + (p.platform === 'ios' ? 'iPhone' : p.platform === 'android' ? 'Android' : '—') + '</td><td>' + (p.code ? 'Puso el código, le falta armar' : 'Le falta poner el código') + (p.accounts > 1 ? ' · ' + p.accounts + ' cuentas' : '') + '</td><td>' + nvDayWord(nvSince(p.last_seen || p.at)) + '</td><td>' + esc(nvSrc(p, d) || 'sin dato') + (p.came_from && p.came_from.sure === 'posible' ? ' (posible)' : '') + '</td></tr>';
+          }).join('');
+          var naC = card('Todavía no armaron su nidi', 'Nadie se da por perdido: cualquiera puede volver. «Sin abrir» son los días desde la última vez que abrió Nidi, para ver a quién vale la pena recordarle. Sin nombre hasta que arman, así que se ven por teléfono y día.',
+            na ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Llegó</th><th>Teléfono</th><th>Dónde está</th><th>Sin abrir</th><th>Vino de</th></tr></thead><tbody>' + na + '</tbody></table></div>' : '<p class="quiet">Todos armaron su nidi.</p>', notArmed.length + ' ' + plural(notArmed.length, 'persona', 'personas'));
+          // sources
+          var src = {};
+          list.forEach(function (p) {
+            var role = nvRole(p), k = role === 'invitee' ? 'Invitadas por otra casa' : nvSrc(p, d) || 'Sin dato';
+            var s = src[k] = src[k] || [0, 0, 0]; s[0]++;
+            if (role === 'maker') s[1]++;
+            if (role === 'invitee' ? p.both_sent : (p.own_nidis || []).some(function (n) { return n.both_sent; })) s[2]++;
+          });
+          var sk = Object.keys(src).sort(function (a, b) { return (a === 'Sin dato') - (b === 'Sin dato') || (a === 'Invitadas por otra casa') - (b === 'Invitadas por otra casa') || src[b][2] - src[a][2] || src[b][1] - src[a][1] || src[b][0] - src[a][0]; });
+          var srcC = card('De dónde vienen', 'Cuenta a quienes abrieron la web con un link y también a quienes tocaron la tienda desde un anuncio, en las 3 h antes de registrarse. Dice dónde conviene poner plata y tiempo: un link que trae gente pero no familias no sirve para la meta.',
+            '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Origen</th><th class="n">Llegaron</th><th class="n">Armaron nidi</th><th class="n">Familia completa</th></tr></thead><tbody>' + sk.map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="n">' + src[k][0] + '</td><td class="n">' + (k === 'Invitadas por otra casa' ? '—' : src[k][1]) + '</td><td class="n">' + src[k][2] + '</td></tr>'; }).join('') + '</tbody></table></div>', '14 días');
+          return head + money + users + split + famC + naC + srcC;
         }
         function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
@@ -1660,11 +1707,11 @@
           var chanKeys = Object.keys(chan).sort(function (a, b) { return chan[b].dl - chan[a].dl || chan[b].n - chan[a].n; });
           var chanMax = Math.max.apply(null, chanKeys.map(function (k) { return chan[k].dl; }).concat([1]));
           if (part === 'entrar') {
-            return nuevosSection(d, st) + '<div class="two">'
+            return nuevosSection(d, st) + '<details class="nv-more"><summary>Más detalle: embudo desde el lanzamiento, invitaciones y entrada nueva</summary><div class="two">'
               + card('Embudo', 'Un solo embudo, de la descarga a las dos casas compartiendo. Desde el lanzamiento. El porcentaje es sobre el paso anterior.', '<div class="funnel">' + steps.map(function (x, i) { return stepRow(x[0], x[1], f.installs, C1, i ? pct(x[1], steps[i - 1][1]) + '%' : ''); }).join('') + '</div>')
                 + card('Invitaciones', 'Cuántas llegan a destino.' + (inv.median_hours != null ? ' Tardan ' + minsWord(Number(inv.median_hours) * 60) + ' en aceptarla.' : ''), '<div class="funnel">' + stepRow('Enviadas', inv.sent, inv.sent) + stepRow('Aceptadas', inv.accepted, inv.sent) + stepRow('Esperando', inv.waiting, inv.sent, C3) + '</div>')
               + '</div>' + entrySection(st)
-              + '<div class="two" style="margin-top:10px">' + card('Dónde se quedaban', 'Entrada vieja, hasta el 17/11: el último paso del armado de quienes no lo terminaron. La entrada nueva está arriba, en Dónde se caen.', dropTot ? '<div class="funnel">' + Object.keys(dropped).sort(function (a, b) { return dropped[b] - dropped[a]; }).map(function (k) { return stepRow(k, dropped[k], dropTot); }).join('') + '</div>' : '<p class="quiet">Nadie se quedó a mitad de camino.</p>', en.onboarding_completed + ' de ' + en.onboarding_started + ' lo terminan') + '</div>';
+              + '<div class="two" style="margin-top:10px">' + card('Dónde se quedaban', 'Entrada vieja, hasta el 17/11: el último paso del armado de quienes no lo terminaron. La entrada nueva está arriba, en Dónde se caen.', dropTot ? '<div class="funnel">' + Object.keys(dropped).sort(function (a, b) { return dropped[b] - dropped[a]; }).map(function (k) { return stepRow(k, dropped[k], dropTot); }).join('') + '</div>' : '<p class="quiet">Nadie se quedó a mitad de camino.</p>', en.onboarding_completed + ' de ' + en.onboarding_started + ' lo terminan') + '</div></details>';
           }
           var html = '<div class="two">'
             + card('Llegadas por día', 'Instalaciones, cuentas nuevas y nidis con las dos casas. Un dispositivo cuenta una vez.', legend(KA) + chart(ser, KA, { lines: true, label: 'Llegadas por día' }))
