@@ -1793,7 +1793,8 @@
           pushes_per_share: { label: 'Avisos de "llegó algo" por cada momento o nota compartidos. Menos es mejor: las tandas y la noche van en un aviso.', unit: 'share', lower: true },
           unseen_push_open: { label: 'De los avisos "te dejó algo" (ahora solo el finde, diciendo qué), cuántos se abren en 24 h.', unit: 'share' },
           // 2026-11-18 (Dirección): the launch price moves from a line on Today to a carousel card.
-          launch_card_paywall: { label: 'Personas por día que llegan a la pantalla de pago desde el precio de lanzamiento: la línea arriba del círculo hasta el 18/11, la tarjeta del carrusel desde entonces. La meta también pide al menos una compra.', unit: 'day' }
+          launch_card_paywall: { label: 'Personas por día que llegan a la pantalla de pago desde el precio de lanzamiento: la línea arriba del círculo hasta el 18/11, la tarjeta del carrusel desde entonces. La meta también pide al menos una compra.', unit: 'day' },
+          housemate_link_48h: { label: 'De las invitaciones por link a alguien de la propia casa, cuántas se aceptan dentro de las 48 h. Solo cuentan las que ya tienen 48 h. La meta también pide ningún nidi propio por error.', unit: 'share' }
         };
         var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
         function todayAms() { try { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
@@ -1955,6 +1956,7 @@
                 ['Abrieron compartir', kv(a.share_opened), ''], ['Compartieron', kv(a.shared), ''],
                 ['"Otro nidi" con uno esperando', kv(a.waiting_choice), '']];
             }
+            else if (c.metric === 'housemate_link_48h') sup = [['Esperando (menos de 48 h)', a.waiting || 0, ''], ['Aceptadas después de 48 h', a.accepted_later || 0, 'antes ' + (b.accepted_later || 0)], ['Entraron y después armaron un nidi propio', a.own_nidi || 0, 'antes ' + (b.own_nidi || 0)]];
             else if (c.metric === 'invite_accepted_48h') sup = [['Esperando (menos de 48 h)', a.waiting || 0, ''], ['Aceptadas después de 48 h', a.accepted_later || 0, 'antes ' + (b.accepted_later || 0)], ['Horas hasta aceptar (mediana)', a.median_hours != null ? a.median_hours + ' h' : '—', b.median_hours != null ? 'antes ' + b.median_hours + ' h' : ''], ['Visitas a la invitación en la web', a.join_views || 0, 'antes ' + (b.join_views || 0)]];
             else if (c.metric === 'far_home_starts') sup = [['Pushes enviados', a.pushes || 0, ''], ['Con un momento de ella en 7 días', a.answered || 0, a.pushes ? 'de ' + a.pushes : ''], ['Momentos de la casa de lejos que son actividades', a.far_activity || 0, 'antes ' + (b.far_activity || 0)], ['Nidis', a.nidis || 0, ''], ['Meta', c.goal != null ? c.goal + '%' : '—', '']];
             else if (c.metric === 'web_store_tap') sup = [['Toques a App Store', a.app_store || 0, 'antes ' + (b.app_store || 0)], ['Toques a Google Play', a.google_play || 0, 'antes ' + (b.google_play || 0)], ['Visitas en español (/es/)', a.es || 0, 'antes ' + (b.es || 0)]];
