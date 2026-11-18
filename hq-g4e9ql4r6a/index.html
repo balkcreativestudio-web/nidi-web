@@ -491,6 +491,19 @@
       .nv3-tier b { font-family:var(--serif); font-weight:400; font-size:30px; line-height:1.1; }
       .nv3-tier span { font-size:13px; color:var(--ink2); }
       @media (max-width:520px) { .nv3-tier { padding:8px 9px; } .nv3-tier small { font-size:10px; letter-spacing:.03em; } .nv3-tier b { font-size:24px; } .nv3-tier span { font-size:12px; } }
+      .nv4-goals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+      .nv4-goal { display:grid; gap:8px; align-content:start; }
+      .nv4-meter { height:10px; background:var(--line2); border-radius:5px; overflow:hidden; } .nv4-meter i { display:block; height:100%; background:var(--olive); }
+      .nv4-sub { color:var(--ink2); font-size:13px; margin:0; } .nv4-sub b { color:var(--ink); font-weight:600; }
+      .nv4-fun { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; align-items:end; }
+      .nv4-step { display:grid; gap:6px; }
+      .nv4-step .bar { background:var(--olive-soft); border-radius:8px 8px 0 0; display:flex; align-items:flex-end; justify-content:center; font-family:var(--serif); font-size:30px; padding-bottom:6px; }
+      .nv4-step.leak .bar { background:var(--honey-soft); }
+      .nv4-step .lab { font-size:13px; text-align:center; } .nv4-step .pc { font-size:12px; color:var(--ink2); text-align:center; }
+      .nv4-step.leak .pc { color:var(--honey); font-weight:600; }
+      .nv4-call { background:var(--honey-soft); border-radius:10px; padding:11px 13px; font-size:14px; margin:12px 0 0; }
+      .nv4-pay { background:var(--olive-soft); color:var(--ink); }
+      @media (max-width:640px) { .nv4-goals { grid-template-columns:1fr; } .nv4-fun { grid-template-columns:1fr; } .nv4-step { grid-template-columns:60px 1fr; align-items:center; column-gap:10px; } .nv4-step .bar { height:auto !important; min-height:44px; border-radius:8px; align-items:center; padding:0; font-size:24px; grid-row:span 2; } .nv4-step .lab, .nv4-step .pc { text-align:left; } }
       .nv2-meter { display:grid; gap:3px; margin-top:10px; }
       .nv2-meter i { height:12px; border-radius:3px; background:var(--line2); } .nv2-meter i.f { background:var(--olive); } .nv2-meter i.t { background:transparent; box-shadow:inset 0 0 0 1.5px var(--honey); }
       .nv2-next { background:var(--olive-soft); border-radius:10px; padding:10px 12px; font-size:14px; margin:12px 0 0; }
@@ -1650,7 +1663,50 @@
           var sk = Object.keys(src).sort(function (a, b) { return (a === 'Sin dato') - (b === 'Sin dato') || (a === 'Invitadas por otra casa') - (b === 'Invitadas por otra casa') || src[b][2] - src[a][2] || src[b][1] - src[a][1] || src[b][0] - src[a][0]; });
           var srcC = card('De dónde vienen', 'Cuenta a quienes abrieron la web con un link y también a quienes tocaron la tienda desde un anuncio, en las 3 h antes de registrarse. Dice dónde conviene poner plata y tiempo: un link que trae gente pero no familias no sirve para la meta.',
             '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Origen</th><th class="n">Llegaron</th><th class="n">Armaron nidi</th><th class="n">Familia completa</th></tr></thead><tbody>' + sk.map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="n">' + src[k][0] + '</td><td class="n">' + (k === 'Invitadas por otra casa' ? '—' : src[k][1]) + '</td><td class="n">' + src[k][2] + '</td></tr>'; }).join('') + '</tbody></table></div>', '14 días');
-          return head + money + users + split + famC + naC + srcC;
+          // ── v3 (2026-11-18, Maru: "sigue siendo extremadamente confuso";
+          // mock 5jmTAx9fgUULjMsWRn1gRg): three blocks, one unit each
+          // (families), everything else folded under Detalle.
+          var arrived = list.filter(function (p) { return nvRole(p) !== 'invitee'; });
+          var madeP = makers.filter(function (p) { return !p.duplicate; });
+          var joinedP = madeP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return n.status === 'active'; }); });
+          var bothP = madeP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return n.both_sent; }); });
+          var payP = madeP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return nvPaid([p.name, n.other], m); }); });
+          var nextDecide = decide.map(function (f) { return f.trialEnd; }).filter(Boolean).sort()[0];
+          var steps3 = [[arrived.length, 'llegaron por su cuenta', 'personas'], [madeP.length, 'armaron un nidi'], [joinedP.length, 'entró la otra casa'], [bothP.length, 'las dos mandaron'], [payP.length, 'pagan']];
+          var leakI = -1, leakR = 2; steps3.forEach(function (x, i) { if (i > 0 && i < 4 && steps3[i - 1][0] > 0) { var r = x[0] / steps3[i - 1][0]; if (r < leakR) { leakR = r; leakI = i; } } });
+          var hMax = Math.max(1, steps3[0][0]);
+          var funnel = '<div class="nv4-fun">' + steps3.map(function (x, i) {
+            var pc = i === 0 ? x[2] : steps3[i - 1][0] ? pct(x[0], steps3[i - 1][0]) + ' %' : '';
+            if (i === leakI) pc += ' · el agujero';
+            if (i === 4 && nextDecide && !x[0]) pc = decide.length + ' ' + plural(decide.length, 'decide', 'deciden') + ' el ' + dmy(nextDecide + 'T12:00:00');
+            return '<div class="nv4-step' + (i === leakI ? ' leak' : '') + '"><div class="bar" style="height:' + Math.max(40, Math.round(x[0] / hMax * 150)) + 'px">' + x[0] + '</div><div class="lab">' + x[1] + '</div><div class="pc">' + pc + '</div></div>';
+          }).join('') + '</div>';
+          var waitF = fams.filter(function (f) { return f.state === 'wait' && !f.second; });
+          var waitToday = waitF.filter(function (f) { return ams(f.n.created_at) === today; }).length;
+          var leakTxt = leakI === 2 ? '<b>Dónde se pierden: la otra casa.</b> De ' + madeP.length + ' nidis, en ' + waitF.length + ' todavía no entró.' + (waitToday ? ' ' + waitToday + ' de esos se ' + plural(waitToday, 'armó', 'armaron') + ' hoy, así que todavía puede' + (waitToday === 1 ? '' : 'n') + ' entrar.' : '') + ' Ese es el paso a empujar.'
+            : leakI === 1 ? '<b>Dónde se pierden: antes de armar el nidi.</b> ' + (arrived.length - madeP.length) + ' de ' + arrived.length + ' llegaron y no armaron. Ver «Detalle».'
+            : leakI === 3 ? '<b>Dónde se pierden: entran las dos casas pero no mandan.</b> ' + (joinedP.length - bothP.length) + ' familias sin el primer momento de las dos.' : '';
+          var weekDone = fams.filter(function (f) { return f.state === 'done' && f.n.activated_at && ams(f.n.activated_at) >= weekFrom; }).length;
+          var left = function (t) { return Math.max(0, Math.ceil((t - earned) / NV_FAMILY_NET)); };
+          var goals = card('Las dos metas', 'Pagando: familias con una suscripción paga desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + ' (los regalos no pagan). Cada familia que paga el año deja unos €' + NV_FAMILY_NET + ' (cuenta de Finance) y los €' + NV_BASE_EUR + ' de Fernanda y Marcelo ya cuentan. Funcionando: las dos casas adentro y las dos mandaron algo, en nidis que se completaron desde el lunes; acá los regalos sí cuentan.',
+            '<div class="nv4-goals"><div class="nv4-goal"><div class="nv-big"><b>' + paidSince + '</b><span>' + plural(paidSince, 'familia pagando', 'familias pagando') + ' desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + '</span></div><div class="nv4-meter"><i style="width:' + Math.min(100, Math.max(2, paidSince / Math.max(1, paidSince + left(NV_TIERS[0])) * 100)).toFixed(0) + '%"></i></div>'
+            + '<p class="nv4-sub">' + (left(NV_TIERS[0]) ? 'Faltan <b>' + left(NV_TIERS[0]) + '</b> para ' + eur(NV_TIERS[0]) + ' (nivel 1).' : '<b>Nivel 1 logrado.</b>') + ' Para ' + eur(NV_TIERS[1]) + ' faltan ' + left(NV_TIERS[1]) + ', para ' + eur(NV_TIERS[2]) + ' faltan ' + left(NV_TIERS[2]) + '.</p></div>'
+            + '<div class="nv4-goal"><div class="nv-big"><b>' + weekDone + '</b><span>de ' + NV_WEEK_GOAL + ' familias funcionando esta semana</span></div><div class="nv4-meter"><i style="width:' + Math.min(100, weekDone / NV_WEEK_GOAL * 100).toFixed(0) + '%"></i></div>'
+            + '<p class="nv4-sub">Funcionando = las dos casas adentro y las dos mandaron algo. Los regalos cuentan acá.</p></div></div>');
+          var funC = card('El camino de una familia', 'Últimos 14 días, sin cuentas de prueba ni familia. El primer paso cuenta personas que llegaron solas (no las invitadas); los demás, sus nidis. El porcentaje es sobre el paso anterior. Un nidi duplicado no cuenta.', funnel + (leakTxt ? '<p class="nv4-call">' + leakTxt + '</p>' : ''), '14 días');
+          var nextStep = function (f) {
+            var p = f.p, rem = (p.reminders || []).map(function (r) { return r.step; });
+            var cr = p.came_from && /^cr-/.test(p.came_from.ref);
+            var t = rem.indexOf('invite_waiting') >= 0 ? 'Ya tuvo recordatorio; el siguiente, no antes de 48 h' : (ams(f.n.created_at) === today ? 'Recordatorio mañana 9:00' : 'Recordatorio en la lista de las 9:00');
+            return t + (cr ? ' + DM de @hello.nidi' : '');
+          };
+          var work = waitF.length ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Quién armó</th><th>Dónde</th><th>Espera</th><th>Plata</th><th>Vino de</th><th>Qué sigue</th></tr></thead><tbody>'
+            + waitF.map(function (f) { var p = f.p; return '<tr><td><b>' + esc(p.name || 'Sin nombre') + '</b></td><td>' + esc(p.country ? nvCountry(p.country) : '—') + '</td><td>' + nvDayWord(nvSince(f.n.created_at)) + '</td><td>' + (f.gift ? '<span class="nv2-tag">regalo</span>' : f.paid ? '<span class="nv2-tag">pagó</span>' : '<span class="nv2-tag nv4-pay">puede pagar</span>') + '</td><td>' + esc((p.came_from && p.came_from.sure === 'probable' && nvSrc(p, d)) || 'sin dato') + '</td><td>' + esc(nextStep(f)) + '</td></tr>'; }).join('')
+            + '</tbody></table></div><p class="nv-note">«Puede pagar» = sin regalo. Para pagar antes del ' + dmy(NV_GOAL_BY + 'T12:00:00') + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.</p>'
+            : '<p class="quiet">Ningún nidi está esperando a la otra casa.</p>';
+          var workC = card('Esperando a la otra casa', 'La lista de trabajo: los nidis de gente nueva donde todavía no entró la otra casa, del más nuevo al más viejo.', work, waitF.length + ' ' + plural(waitF.length, 'nidi', 'nidis'));
+          return goals + funC + workC
+            + '<details class="nv-more"><summary>Detalle de estos 14 días: hoy, cada familia, quienes no armaron, de dónde vienen</summary>' + head + split + famC + naC + srcC + '</details>';
         }
         function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
