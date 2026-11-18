@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="Nidi HQ" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
     <link rel="apple-touch-icon" href="/assets/press/nidi-app-icon-1024.png" />
+    <link rel="manifest" href="/hq-g4e9ql4r6a/manifest.webmanifest" />
     <style>
       /* Nidi HQ, Maru's own panel. One call to the hq function with her
          token (kept in this browser only); no analytics, no fonts fetched,
@@ -1276,6 +1277,32 @@
           };
         }
 
+        // ── Avisos al teléfono (2026-11-18, Maru: "hq me puede mandar mensajes?")
+        // The HQ opened from the home-screen icon subscribes to Web Push;
+        // hq-notify sends a new nidi, the other home in and a payment.
+        var VAPID_PUBLIC = 'BOMVTPsdSv9n1r9lAWQBRNkK1-v6o_QSedyU_qKtcMD-7NiUUkI2ko2XWIqNmmZe3BiXAdK5-G8fg22iBmuKdXk';
+        var PUSH_STATE = '';
+        function pushSupported() { return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+        function standalone() { return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; }
+        function pushLine() {
+          if (PUSH_STATE === 'on' || (pushSupported() && Notification.permission === 'granted' && PUSH_STATE !== 'failed')) return '<span class="quiet">Avisos activados en este teléfono.</span>';
+          if (PUSH_STATE === 'busy') return '<span class="quiet">Activando…</span>';
+          if (PUSH_STATE === 'denied' || (pushSupported() && Notification.permission === 'denied')) return '<span class="quiet">Avisos bloqueados: se activan en Ajustes → Notificaciones → Nidi HQ.</span>';
+          if (PUSH_STATE === 'failed') return '<button class="link" id="push-on">No se pudo. Probar de nuevo</button>';
+          if (!pushSupported() || !standalone()) return '<span class="quiet">Para recibir avisos en el teléfono, abrí la HQ desde su ícono en la pantalla de inicio.</span>';
+          return '<button class="link" id="push-on">Activar avisos en este teléfono</button>';
+        }
+        function b64ToBytes(s) { var p = '='.repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')), out = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) out[i] = b.charCodeAt(i); return out; }
+        function pushOn() {
+          PUSH_STATE = 'busy'; render();
+          Notification.requestPermission().then(function (perm) {
+            if (perm !== 'granted') { PUSH_STATE = 'denied'; render(); return; }
+            return navigator.serviceWorker.register('/hq-g4e9ql4r6a/sw.js', { scope: '/hq-g4e9ql4r6a/' }).then(function () { return navigator.serviceWorker.ready; })
+              .then(function (reg) { return reg.pushManager.getSubscription().then(function (sub) { return sub || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) }); }); })
+              .then(function (sub) { return api('POST', { action: 'push_subscribe', subscription: sub.toJSON() }); })
+              .then(function (r) { PUSH_STATE = r && r.ok ? 'on' : 'failed'; render(); });
+          }).catch(function () { PUSH_STATE = 'failed'; render(); });
+        }
         function render() {
           EDITING = false;
           var d = DATA, st = d.stats;
@@ -1305,7 +1332,7 @@
             + '<a href="https://www.instagram.com/hello.nidi/" target="_blank" rel="noopener">@hello.nidi</a>'
             + '<a href="https://drive.google.com/drive/folders/1DipIvwK3fUR_YR85jdYm6CTT7WwJ-UdH" target="_blank" rel="noopener">Tandas de Instagram</a>'
             + '<a href="https://nidi.life/prensa/" target="_blank" rel="noopener">Kit de prensa</a></div>';
-          html += '<footer><span>Solo vos ves esto. Sin emails, sin rastreo.</span><button class="link" id="logout">Borrar la clave de este dispositivo</button></footer>';
+          html += '<footer><span>Solo vos ves esto. Sin emails, sin rastreo.</span>' + pushLine() + '<button class="link" id="logout">Borrar la clave de este dispositivo</button></footer>';
           app.innerHTML = html;
           // on a phone the last rooms sit past the edge: keep the open one in sight
           var nav = app.querySelector('.tabs'), at = nav && nav.querySelector('[aria-selected="true"]');
@@ -2533,6 +2560,7 @@
           // Resumen: daily chart lines on and off
           Array.prototype.forEach.call(document.querySelectorAll('[data-dy]'), function (b) { b.onclick = function () { var k = b.getAttribute('data-dy'); if (DY_ON[k]) delete DY_ON[k]; else DY_ON[k] = 1; try { localStorage.setItem('nidi-hq-daily', JSON.stringify(DY_ON)); } catch (e) {} render(); }; });
           Array.prototype.forEach.call(document.querySelectorAll('[data-sok]'), function (b) { b.onclick = function () { SO_PICK = b.getAttribute('data-sok'); try { localStorage.setItem('nidi-hq-socialk', SO_PICK); } catch (e) {} render(); }; });
+          var po = document.getElementById('push-on'); if (po) po.onclick = pushOn;
           Array.prototype.forEach.call(document.querySelectorAll('[data-dyall]'), function (b) { b.onclick = function () { DY_ON = {}; if (b.getAttribute('data-dyall') === '1') DY.forEach(function (k) { DY_ON[k[0]] = 1; }); try { localStorage.setItem('nidi-hq-daily', JSON.stringify(DY_ON)); } catch (e) {} render(); }; });
           // Familias: origin filter, since launch, and the pencil
           Array.prototype.forEach.call(document.querySelectorAll('[data-fmorigin]'), function (b) { b.onclick = function () { FAM_ORIGIN = b.getAttribute('data-fmorigin'); render(); }; });

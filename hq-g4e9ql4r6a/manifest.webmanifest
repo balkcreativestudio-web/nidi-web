@@ -1,0 +1,10 @@
+{
+  "name": "Nidi HQ",
+  "short_name": "Nidi HQ",
+  "start_url": "/hq-g4e9ql4r6a/",
+  "scope": "/hq-g4e9ql4r6a/",
+  "display": "standalone",
+  "background_color": "#f4efe7",
+  "theme_color": "#f4efe7",
+  "icons": [{ "src": "/assets/press/nidi-app-icon-1024.png", "sizes": "1024x1024", "type": "image/png" }]
+}
