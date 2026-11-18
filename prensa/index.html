@@ -286,6 +286,14 @@
       .quote { font-family: var(--serif); font-style: italic; font-size: 20px; line-height: 28px; color: var(--ink); border-left: 2px solid var(--line); padding-left: 20px; margin: 24px 0 8px; }
       .quote small { display: block; font-family: var(--sans); font-style: normal; font-size: 12px; line-height: 14px; color: var(--ink2); margin-top: 10px; letter-spacing: 0.06em; }
       .dl { display: inline-block; margin: 16px 0 0; font-weight: 500; color: var(--ink); }
+      /* En los medios (18/11): one row per article, newest first. The outlet
+         as an eyebrow, the headline as they printed it, in the serif. */
+      .clip { display: block; border-top: 1px solid var(--line); padding: 20px 0 18px; color: var(--ink); text-decoration: none; }
+      .clip:last-child { border-bottom: 1px solid var(--line); }
+      .clip-src { font-size: 12px; line-height: 16px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink2); margin: 0 0 8px; }
+      .clip-title { font-family: var(--serif); font-size: 20px; line-height: 28px; margin: 0 0 8px; text-wrap: pretty; }
+      .clip:hover .clip-title { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+      .clip-by { font-size: 14px; line-height: 20px; color: var(--ink2); margin: 0; }
       @media (max-width: 520px) {
         .facts dl { grid-template-columns: 1fr; row-gap: 2px; }
         .facts dt { line-height: 18px; margin-top: 10px; }
@@ -340,6 +348,15 @@
           <p>Maru es argentina y vive en Países Bajos con su hija de un año. Los abuelos viven en Buenos Aires, a once mil kilómetros. Antes de Nidi trabajó más de diez años como CRM Marketing Specialist.</p>
           <p>Nidi nació en 2026, después de que naciera su hija. Maru quería recuperar lo cotidiano con su familia lejos, para que su hija pudiera crecer y aprender con ellos a pesar de la distancia. Empezó como algo para su propia casa y hoy es una app para cualquier familia que vive separada.</p>
         </div>
+      </div>
+
+      <h2>En los medios</h2>
+      <div class="clips">
+        <a class="clip" href="https://www.lanacion.com.ar/lifestyle/cambio-argentina-por-un-lugar-perfecto-en-paises-bajos-pero-ser-madre-evidencio-una-carencia-una-nid18112026/" target="_blank" rel="noopener">
+          <p class="clip-src">La Nación · Argentina · 18&nbsp;de&nbsp;noviembre&nbsp;de&nbsp;2026</p>
+          <p class="clip-title">Cambió Argentina por un lugar perfecto en Países Bajos, pero ser madre evidenció una carencia: “Una necesidad de muchos”</p>
+          <p class="clip-by">Carina Durn · Destinos inesperados</p>
+        </a>
       </div>
 
       <h2>Logos y capturas</h2>
