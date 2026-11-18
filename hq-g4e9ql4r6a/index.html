@@ -657,11 +657,31 @@
         // then Familias, visits per link and Google Play, merged in when they
         // arrive. One load at a time; a second tap waits for the first.
         var LOADING = false, MORE = false;
+        // Con familia (2026-11-18): asked only when that button is tapped
+        // (?part=family), so Externos, the usual view, loads with half the work.
+        var FAM = null, FAM_LOADING = false;
+        function mergeFamily() {
+          if (!FAM || !DATA || !DATA.stats) return;
+          ['views', 'entry', 'pushes'].forEach(function (k) { DATA.stats[k] = DATA.stats[k] || {}; if (FAM[k]) Object.keys(FAM[k]).forEach(function (x) { DATA.stats[k][x] = FAM[k][x]; }); });
+        }
+        function loadFamily() {
+          if (FAM_LOADING || FAM) return;
+          FAM_LOADING = true;
+          api('GET', null, 'family').then(function (r) {
+            FAM_LOADING = false;
+            if (!r || !r.ok) return;
+            FAM = r.family; mergeFamily();
+            if (!typing() && !EDITING) render();
+          }).catch(function () { FAM_LOADING = false; FAM = null; });
+        }
         function typing() { var a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.id !== 'tok'; }
         function loadMore() {
           api('GET', null, 'more').then(function (m) {
             if (!DATA || !m || !m.ok) return;
             DATA.play = m.play; DATA.roles = m.roles; DATA.web_refs = m.web_refs; MORE = true;
+            // App Store ratings and their notifications come here, so the first screen never waits on Apple.
+            if (m.appstore) DATA.appstore = m.appstore;
+            if (m.store_news && m.store_news.length) { var ids = {}; (DATA.news || []).forEach(function (n) { ids[n.id] = 1; }); DATA.news = m.store_news.filter(function (n) { return !ids[n.id]; }).concat(DATA.news || []); }
             if (!typing() && !EDITING) render();
           }).catch(function () {
             MORE = 'failed';
@@ -674,9 +694,10 @@
           if (!DATA) app.innerHTML = '<p class="skeleton">Cargando…</p>';
           api('GET', null, 'core').then(function (d) {
             LOADING = false;
-            var keep = DATA && MORE === true ? { play: DATA.play, roles: DATA.roles, web_refs: DATA.web_refs } : null;
+            var keep = DATA && MORE === true ? { play: DATA.play, roles: DATA.roles, web_refs: DATA.web_refs, appstore: DATA.appstore } : null;
             DATA = d;
-            if (keep) { DATA.play = keep.play; DATA.roles = keep.roles; DATA.web_refs = keep.web_refs; }
+            if (keep) { DATA.play = keep.play; DATA.roles = keep.roles; DATA.web_refs = keep.web_refs; if (keep.appstore && keep.appstore.length) DATA.appstore = keep.appstore; }
+            FAM = null; // a refresh asks Con familia again, only if it is the view shown
             render();
             loadMore();
           }).catch(function (e) {
@@ -1245,6 +1266,8 @@
         function render() {
           EDITING = false;
           var d = DATA, st = d.stats;
+          if (VIEW === 'with_family' && !(st.views && st.views.with_family)) loadFamily();
+          var famWait = VIEW === 'with_family' && !(st.views && st.views.with_family);
           var s = (st.views && st.views[VIEW]) || st;
           var gr = VIEW === 'with_family' && d.growth && d.growth.with_family ? d.growth.with_family : (d.growth || {});
           var all = s.series || [], ser = all.slice(-range), prev = all.slice(-range * 2, -range);
@@ -1252,7 +1275,8 @@
             + '<div class="controls"><div class="range" role="group" aria-label="A quién contar">'
             + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
-            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '</button>'; }).join('') + '</nav>';
+            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '</button>'; }).join('') + '</nav>'
+            + (famWait ? '<p class="quiet" style="margin:4px 2px 10px">Cargando «Con familia»… Mientras tanto se ven los números de Externos.</p>' : '');
           var ROOMS = {
             resumen: tabResumen, board: tabBoard, tests: tabCambios, plata: tabIng,
             llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : k === 'redes' ? tabSocial : tabMkt).apply(null, arguments); },
