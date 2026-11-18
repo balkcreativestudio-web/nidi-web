@@ -51,6 +51,7 @@
       .dy-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--paper); border-radius:999px; padding:5px 11px 5px 8px; font:inherit; font-size:13px; cursor:pointer; color:var(--ink2); }
       .dy-chip i { width:10px; height:10px; border-radius:50%; border:2px solid var(--ink3); display:inline-block; }
       .dy-chip[aria-pressed="true"] { color:var(--ink); border-color:var(--ink3); background:#fff; }
+      .so-k { padding:5px 12px; } .so-k[aria-pressed="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
       .dy-chip[aria-pressed="true"] i { background:var(--c); border-color:var(--c); }
       .dy-quick { display:flex; gap:12px; font-size:12px; margin-bottom:6px; }
       .dy-quick button { background:none; border:0; padding:0; color:var(--ink2); text-decoration:underline; cursor:pointer; font:inherit; }
@@ -1125,6 +1126,37 @@
           g += '<text x="' + (lx + (right ? -fs : fs)).toFixed(1) + '" y="' + (Y(lr.followers) + (Y(lr.followers) > H - B - 2 * fs ? -fs : 2 * fs)).toFixed(1) + '" text-anchor="' + (right ? 'end' : 'start') + '" class="sc-now">' + lr.followers + (lr.day === today ? ' today' : ' · ' + dmy(lr.day + 'T12:00:00')) + '</text>';
           return '<svg class="sc-ch ' + cls + '" viewBox="0 0 ' + W + ' ' + H + '" style="font-size:' + fs + 'px" role="img" aria-label="Followers per day">' + g + '</svg>';
         }
+        // Día por día as a chart (2026-11-18, Maru approved the mock,
+        // artifact NTHhHwidkgpyXAqn5iBgJG): one line per network, a chip per
+        // number. The choice stays on this device.
+        var SO_K = [['followers', 'Seguidores', 'Seguidores al día de la lectura de la mañana.'], ['views_7d', 'Vistas 7 d', 'Vistas de los últimos 7 días, como las muestra cada red ese día.'], ['reach_7d', 'Alcance 7 d', 'Cuentas alcanzadas en 7 días. TikTok no da este número.'], ['profile_visits_7d', 'Perfil 7 d', 'Visitas al perfil en 7 días.'], ['link_taps_7d', 'Clics en la bio 7 d', 'Toques en el link de la bio en 7 días.']];
+        var SO_PICK = 'followers';
+        try { SO_PICK = localStorage.getItem('nidi-hq-socialk') || SO_PICK; } catch (e) {}
+        var SO_LINES = [['instagram', 'Instagram', 'var(--rose)'], ['tiktok', 'TikTok', 'var(--ink)']];
+        function socialCompare(rows, k) {
+          var meta = SO_K.filter(function (x) { return x[0] === k; })[0] || SO_K[0];
+          var ok = (rows || []).filter(function (r) { return r[k] != null; });
+          if (!ok.length) return '<p class="quiet">Sin números cargados para esto todavía.</p>';
+          var all = (rows || []).map(function (r) { return r.day; }).sort(), from = all[0], to = all[all.length - 1];
+          var narrow = window.innerWidth < 640, W = narrow ? 560 : 1000, H = narrow ? 320 : 240, fs = narrow ? 18 : 11, L = narrow ? 64 : 48, R = narrow ? 70 : 56, T = 18, B = narrow ? 40 : 26, iw = W - L - R, ih = H - T - B;
+          var span = Math.max(1, dayDiff(from, to));
+          var mx = Math.max.apply(null, ok.map(function (r) { return Number(r[k]); }).concat([1]));
+          var step = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000].filter(function (st) { return mx / st <= 4; })[0] || mx, top = Math.ceil(mx / step) * step;
+          var X = function (day) { return L + iw * dayDiff(from, day) / span; }, Y = function (v) { return T + ih * (1 - v / top); };
+          var g = '';
+          for (var v = 0; v <= top + 1e-9; v += step) g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="var(--line2)"/><text x="' + (L - 8) + '" y="' + (Y(v) + fs * .35).toFixed(1) + '" text-anchor="end">' + v.toLocaleString('es-AR') + '</text>';
+          var every = span > 14 ? 7 : span > 7 ? 2 : 1;
+          for (var dd = 0; dd <= span; dd += every) { var day = addDays(from, dd); g += '<text x="' + X(day).toFixed(1) + '" y="' + (H - fs * .4).toFixed(1) + '" text-anchor="middle">' + dmy(day + 'T12:00:00') + '</text>'; }
+          SO_LINES.forEach(function (n) {
+            var pts = ok.filter(function (r) { return r.network === n[0]; });
+            if (!pts.length) return;
+            g += '<polyline points="' + pts.map(function (r) { return X(r.day).toFixed(1) + ',' + Y(Number(r[k])).toFixed(1); }).join(' ') + '" fill="none" stroke="' + n[2] + '" stroke-width="' + (narrow ? 4 : 2.5) + '" stroke-linejoin="round"/>';
+            pts.forEach(function (r, i) { var last = i === pts.length - 1; g += '<circle cx="' + X(r.day).toFixed(1) + '" cy="' + Y(Number(r[k])).toFixed(1) + '" r="' + (last ? (narrow ? 8 : 5) : (narrow ? 6 : 3.5)) + '" fill="' + (last ? n[2] : 'var(--paper)') + '" stroke="' + n[2] + '" stroke-width="2"><title>' + n[1] + ' · ' + dmy(r.day + 'T12:00:00') + ': ' + Number(r[k]).toLocaleString('es-AR') + '</title></circle>'; });
+            var lr = pts[pts.length - 1];
+            g += '<text x="' + (X(lr.day) + fs * .8).toFixed(1) + '" y="' + (Y(Number(lr[k])) + fs * .35).toFixed(1) + '" style="fill:' + n[2] + ';font-weight:600">' + Number(lr[k]).toLocaleString('es-AR') + '</text>';
+          });
+          return '<svg class="sc-ch" viewBox="0 0 ' + W + ' ' + H + '" style="font-size:' + fs + 'px" role="img" aria-label="' + esc(meta[1]) + ' por día">' + g + '</svg><p class="quiet" style="margin:6px 0 0;font-size:12.5px">' + esc(meta[2]) + '</p>';
+        }
         function tabSocial(d) {
           var t = socialTotals(d);
           // The card for each network (Redes' spec, approved by Maru 16/11 ~17:50,
@@ -1156,7 +1188,9 @@
             + '</table></div><p class="quiet" style="margin-top:8px">Visitas y toques desde el 11/11; descargas, cuentas y nidis con la regla de Marketing (la app abre por primera vez hasta 15 min después de la visita). Nidis = las dos casas adentro.</p></div>';
           // every day typed, newest first
           var rows = Array.isArray(d.social) ? d.social.slice().reverse() : null;
-          html += '<h2>Día por día</h2><div class="card"><div class="tablewrap"><table><tr><th>Día</th><th>Red</th><th class="num">Seguidores</th><th class="num">Vistas 7 d</th><th class="num">Alcance 7 d</th><th class="num">Perfil 7 d</th><th class="num">Clics en la bio 7 d</th><th>Nota</th></tr>'
+          html += '<h2>Día por día</h2><div class="card" style="margin-bottom:10px"><div class="dy-chips" role="group" aria-label="Qué número ver">' + SO_K.map(function (x) { return '<button type="button" class="dy-chip so-k" data-sok="' + x[0] + '" aria-pressed="' + (x[0] === SO_PICK) + '">' + x[1] + '</button>'; }).join('') + '</div>'
+            + '<div class="fm-legend" style="margin-top:8px">' + SO_LINES.map(function (n) { return '<span><i style="background:' + n[2] + '"></i>' + n[1] + '</span>'; }).join('') + '</div><div id="so-cmp">' + socialCompare(d.social, SO_PICK) + '</div></div>';
+          html += '<div class="card"><div class="tablewrap"><table><tr><th>Día</th><th>Red</th><th class="num">Seguidores</th><th class="num">Vistas 7 d</th><th class="num">Alcance 7 d</th><th class="num">Perfil 7 d</th><th class="num">Clics en la bio 7 d</th><th>Nota</th></tr>'
             + (rows === null ? '<tr><td colspan="8" class="quiet">Todavía no está activo: falta aplicar la migración hq_social_daily y publicar la función.</td></tr>'
               : rows.length ? rows.map(function (r) { var c = function (v) { return v == null ? '—' : Number(v).toLocaleString('es-AR'); }; return '<tr><td>' + dmy(r.day + 'T12:00:00') + '</td><td>' + (r.network === 'instagram' ? 'Instagram' : 'TikTok') + '</td><td class="num">' + c(r.followers) + '</td><td class="num">' + c(r.views_7d) + '</td><td class="num">' + c(r.reach_7d) + '</td><td class="num">' + c(r.profile_visits_7d) + '</td><td class="num">' + c(r.link_taps_7d) + '</td><td class="quiet">' + esc(r.note || '') + '</td></tr>'; }).join('')
               : '<tr><td colspan="8" class="quiet">Todavía ningún día cargado.</td></tr>')
@@ -2398,6 +2432,7 @@
 
           // Resumen: daily chart lines on and off
           Array.prototype.forEach.call(document.querySelectorAll('[data-dy]'), function (b) { b.onclick = function () { var k = b.getAttribute('data-dy'); if (DY_ON[k]) delete DY_ON[k]; else DY_ON[k] = 1; try { localStorage.setItem('nidi-hq-daily', JSON.stringify(DY_ON)); } catch (e) {} render(); }; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-sok]'), function (b) { b.onclick = function () { SO_PICK = b.getAttribute('data-sok'); try { localStorage.setItem('nidi-hq-socialk', SO_PICK); } catch (e) {} render(); }; });
           Array.prototype.forEach.call(document.querySelectorAll('[data-dyall]'), function (b) { b.onclick = function () { DY_ON = {}; if (b.getAttribute('data-dyall') === '1') DY.forEach(function (k) { DY_ON[k[0]] = 1; }); try { localStorage.setItem('nidi-hq-daily', JSON.stringify(DY_ON)); } catch (e) {} render(); }; });
           // Familias: origin filter, since launch, and the pencil
           Array.prototype.forEach.call(document.querySelectorAll('[data-fmorigin]'), function (b) { b.onclick = function () { FAM_ORIGIN = b.getAttribute('data-fmorigin'); render(); }; });
