@@ -478,6 +478,19 @@
       .nv2-box em, .nv2-tag { font-style:normal; font-size:11.5px; background:var(--paper); border-radius:5px; padding:1px 6px; color:var(--ink2); white-space:nowrap; }
       .nv2-box.left { background:var(--rose-soft); } .nv2-box.wait { background:var(--honey-soft); } .nv2-box.ok { background:var(--olive-soft); }
       .nv2-split.nv2-3 .nv2-box { background:var(--paper); border:1px solid var(--line); }
+      .nv3-bar { position:relative; height:14px; background:var(--line2); border-radius:7px; margin:30px 0 32px; }
+      .nv3-bar .f { position:absolute; left:0; top:0; bottom:0; border-radius:7px; background:var(--olive); min-width:6px; }
+      .nv3-bar .mk { position:absolute; top:-6px; bottom:-6px; width:2px; background:var(--ink3); }
+      .nv3-bar .mk span { position:absolute; top:-22px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--ink2); white-space:nowrap; }
+      .nv3-bar .mk em { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); font-style:normal; font-size:12px; font-weight:600; white-space:nowrap; }
+      .nv3-bar .mk:last-child span, .nv3-bar .mk:last-child em { left:auto; right:0; transform:none; }
+      .nv3-tiers { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+      .nv3-tier { border-radius:12px; padding:10px 12px; background:var(--line2); display:grid; gap:2px; }
+      .nv3-tier.next { background:var(--honey-soft); } .nv3-tier.done { background:var(--olive-soft); }
+      .nv3-tier small { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink2); }
+      .nv3-tier b { font-family:var(--serif); font-weight:400; font-size:30px; line-height:1.1; }
+      .nv3-tier span { font-size:13px; color:var(--ink2); }
+      @media (max-width:520px) { .nv3-tier { padding:8px 9px; } .nv3-tier small { font-size:10px; letter-spacing:.03em; } .nv3-tier b { font-size:24px; } .nv3-tier span { font-size:12px; } }
       .nv2-meter { display:grid; gap:3px; margin-top:10px; }
       .nv2-meter i { height:12px; border-radius:3px; background:var(--line2); } .nv2-meter i.f { background:var(--olive); } .nv2-meter i.t { background:transparent; box-shadow:inset 0 0 0 1.5px var(--honey); }
       .nv2-next { background:var(--olive-soft); border-radius:10px; padding:10px 12px; font-size:14px; margin:12px 0 0; }
@@ -1480,7 +1493,7 @@
         // one row per family with what's missing, who hasn't made a nidi yet
         // (nobody is called lost), and sources. Data: hq_new_people, 14 days,
         // with own_nidis per person.
-        var NV_GOAL_EUR = 1000, NV_PRICE = 69, NV_NET = 0.85, NV_GOAL_BY = '2026-12-09', NV_MONEY_FROM = '2026-11-09', NV_WEEK_GOAL = 4;
+        var NV_TIERS = [1000, 3000, 5000], NV_PRICE = 69, NV_FAMILY_NET = 48, NV_BASE_EUR = 141, NV_GOAL_BY = '2026-12-09', NV_MONEY_FROM = '2026-11-09', NV_WEEK_GOAL = 4;
         function nvFirst(x) { return String(x || '').trim().split(/\s+/)[0].toLowerCase(); }
         function nvGift(names, m) { return (m.gifts_list || []).filter(function (g) { return names.some(function (n) { return n && nvFirst(g.who) === nvFirst(n); }); })[0] || null; }
         function nvPaid(names, m) { return (m.paid_list || []).filter(function (p) { return names.some(function (n) { return n && nvFirst(p.who) === nvFirst(n); }); })[0] || null; }
@@ -1528,22 +1541,29 @@
             + '<div class="nv2-box"><b>' + nToday.length + '</b><span>' + plural(nToday.length, 'persona nueva', 'personas nuevas') + ' <strong>hoy</strong>' + (nToday.length ? ': ' + nToday.map(function (p) { return esc(p.name || (p.platform === 'ios' ? 'un iPhone' : 'un Android') + (p.code ? '' : ' sin código')); }).join(', ') : '') + '</span></div>'
             + '<div class="nv2-box"><b>' + nWeek + '</b><span>esta semana, desde el lunes ' + dmy(weekFrom + 'T12:00:00') + '</span></div>'
             + '<div class="nv2-box"><b>' + list.length + '</b><span>en los últimos 14 días</span></div></div>';
-          // money
-          var need = Math.ceil(NV_GOAL_EUR / (NV_PRICE * NV_NET)), net = Math.round(NV_PRICE * NV_NET);
+          // money: three levels to 9/12 (Maru, 18/11; mock 5xiWvVpTT26ph8tMzScSp8).
+          // Finance's numbers: about €48 net per launch annual (VAT out, store
+          // 15 %), and Fernanda + Marcelo's 1/11 payments (about €141) count.
           var paidSince = (m.paid_list || []).filter(function (p) { return p.since && ams(p.since) >= NV_MONEY_FROM; }).length;
+          var earned = NV_BASE_EUR + paidSince * NV_FAMILY_NET;
           var mf = fams.filter(function (f) { return f.state !== 'dup' && !f.gift && !f.paid; });
           var decide = mf.filter(function (f) { return f.state !== 'wait'; }), canPay = mf.filter(function (f) { return f.state === 'wait'; });
           var maxF = decide.length + canPay.length + notArmed.length, deadline = addDays(NV_GOAL_BY, -7);
           var famName = function (f) { return esc(f.p.name || 'Sin nombre') + (f.n.other ? ' + ' + esc(f.n.other) : '') + (f.second ? ' (2.º nidi)' : ''); };
-          var meter = ''; for (var i = 0; i < need; i++) meter += '<i class="' + (i < paidSince ? 'f' : i < paidSince + maxF ? 't' : '') + '"></i>';
-          var money = card('Plata: meta 1, €' + NV_GOAL_EUR.toLocaleString('es-AR') + ' al ' + dmy(NV_GOAL_BY + 'T12:00:00'), 'Los regalos no cuentan acá. A €' + NV_PRICE + ' al año quedan unos €' + net + ' por familia después de la comisión de la tienda (aprox.), así que hacen falta unas ' + need + ' familias pagando. Pagos: cualquier suscripción paga que empezó desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + '. Las casillas con borde son las familias de estas personas que todavía pueden pagar.',
-            '<div class="nv-big"><b>' + paidSince + '</b><span>de ' + need + ' pagaron desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + '</span></div><div class="nv2-meter" style="grid-template-columns:repeat(' + need + ',1fr)">' + meter + '</div>'
+          var eur = function (v) { return '€' + Math.round(v).toLocaleString('es-AR'); };
+          var topEur = NV_TIERS[NV_TIERS.length - 1], nextT = NV_TIERS.filter(function (t) { return earned < t; })[0];
+          var left1 = Math.max(0, Math.ceil((NV_TIERS[0] - earned) / NV_FAMILY_NET));
+          var bar = '<div class="nv3-bar" role="img" aria-label="' + eur(earned) + ' de ' + eur(topEur) + '"><div class="f" style="width:' + Math.min(100, earned / topEur * 100).toFixed(1) + '%"></div>'
+            + NV_TIERS.map(function (t, i) { return '<div class="mk" style="left:' + (t === topEur ? 'calc(100% - 2px)' : (t / topEur * 100) + '%') + '"><span>Nivel ' + (i + 1) + '</span><em>' + eur(t) + '</em></div>'; }).join('') + '</div>';
+          var tiers = '<div class="nv3-tiers">' + NV_TIERS.map(function (t, i) { var n = Math.max(0, Math.ceil((t - earned) / NV_FAMILY_NET)); return '<div class="nv3-tier' + (t === nextT ? ' next' : '') + (n === 0 ? ' done' : '') + '"><small>Nivel ' + (i + 1) + ' · ' + eur(t) + '</small><b>' + (n === 0 ? '✓' : n) + '</b><span>' + (n === 0 ? 'logrado' : plural(n, 'familia pagando más', 'familias pagando más')) + '</span></div>'; }).join('') + '</div>';
+          var money = card('Plata al ' + dmy(NV_GOAL_BY + 'T12:00:00'), 'Los regalos no cuentan acá. Cada familia que paga el año a €' + NV_PRICE + ' deja unos €' + NV_FAMILY_NET + ' después del IVA y la comisión de la tienda (cuenta de Finance). Los pagos de Fernanda y Marcelo del 1/11 (unos €' + NV_BASE_EUR + ') cuentan para la meta. Pagos nuevos: cualquier suscripción paga que empezó desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + ', a €' + NV_FAMILY_NET + ' cada una (estimado).',
+            '<div class="nv-big"><b>' + eur(earned) + '</b><span>de ' + eur(nextT || topEur) + ' · desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + ' ' + plural(paidSince, 'pagó', 'pagaron') + ' ' + paidSince + ' ' + plural(paidSince, 'familia', 'familias') + '</span></div>' + bar + tiers
             + '<div class="nv2-split">'
             + '<div class="nv2-box ok"><b>' + decide.length + '</b><span>' + (decide.length ? 'deciden cuando termina la prueba: ' + decide.map(function (f) { return famName(f) + ' (' + dmy(f.trialEnd + 'T12:00:00') + ')'; }).join(', ') : 'con las dos casas adentro y prueba en curso') + '</span></div>'
             + '<div class="nv2-box wait"><b>' + canPay.length + '</b><span>pueden pagar si entra la otra casa' + (canPay.length ? ': ' + canPay.map(famName).join(', ') : '') + '</span></div>'
             + '<div class="nv2-box left"><b>' + notArmed.length + '</b><span>todavía no armaron su nidi</span></div>'
             + '<div class="nv2-box"><b>' + giftN.length + '</b><span>con regalo, no pagan' + (giftN.length ? ': ' + giftN.map(function (f) { return esc(f.p.name || ''); }).join(', ') : '') + '</span></div></div>'
-            + '<p class="nv2-next"><b>De las ' + list.length + ' personas, como mucho ' + maxF + ' ' + plural(maxF, 'familia puede', 'familias pueden') + ' pagar.</b>' + (paidSince + maxF < need ? ' Aunque pagaran todas, faltan unas ' + (need - paidSince - maxF) + ' familias de gente que todavía no llegó.' : '') + ' <b>Fecha límite:</b> la prueba nueva dura 7 días desde que entra la otra casa. Para pagar antes del ' + dmy(NV_GOAL_BY + 'T12:00:00') + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '.</p>');
+            + '<p class="nv2-next"><b>De las ' + list.length + ' personas, como mucho ' + maxF + ' ' + plural(maxF, 'familia puede', 'familias pueden') + ' pagar.</b>' + (maxF < left1 ? ' Aunque pagaran todas, para el nivel 1 faltan unas ' + (left1 - maxF) + ' familias de gente que todavía no llegó.' : '') + ' <b>Fecha límite:</b> la prueba nueva dura 7 días desde que entra la otra casa. Para pagar antes del ' + dmy(NV_GOAL_BY + 'T12:00:00') + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '.</p>');
           // users
           var done14 = fams.filter(function (f) { return f.state === 'done'; });
           var doneWk = done14.filter(function (f) { return f.n.activated_at && ams(f.n.activated_at) >= weekFrom; });
