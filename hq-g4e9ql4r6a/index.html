@@ -923,7 +923,7 @@
             + '<div class="rm-list"><div><h3>Se fue sola <span>' + lOwn.length + '</span></h3>' + (lOwn.length ? lOwn.map(rowHtml).join('') : '<p class="quiet" style="margin:6px 0">Nada todavía.</p>') + '</div>'
             + '<div><h3>La mandaste vos <span>' + lSent.length + '</span></h3>' + (lSent.length ? lSent.map(rowHtml).join('') : '<p class="quiet" style="margin:6px 0">Nada acá.</p>') + '</div>'
             + (lFam.length ? '<div><h3>Tu familia, no suma <span>' + lFam.length + '</span></h3>' + lFam.map(rowHtml).join('') + '</div>' : '') + '</div>'
-            + (M.unplaced.length ? '<p class="rm-none"><b style="font-weight:500;color:var(--ink)">Sin lugar en el mapa:</b> ' + esc(M.unplaced.join(', ')) + '. Se cargan con "editar" en los links de abajo.</p>' : '');
+            + (M.unplaced.length ? '<p class="rm-none"><b style="font-weight:500;color:var(--ink)">Sin lugar en el mapa:</b> ' + esc(M.unplaced.join(', ')) + '. Se cargan con "editar" en Llegar → Web y tiendas, «Lugares y links».</p>' : '');
 
           Array.prototype.forEach.call(box.querySelectorAll('[data-mapview]'), function (b) { b.onclick = function () { MAP.view = b.getAttribute('data-mapview'); MAP.sel = null; drawMap(); }; });
           Array.prototype.forEach.call(box.querySelectorAll('[data-node]'), function (g) { g.onclick = function () { if (g.hasAttribute('data-cluster')) { MAP.view = 'nl'; MAP.sel = null; drawMap(); return; } var k = g.getAttribute('data-node'); MAP.sel = MAP.sel === k ? null : k; drawMap(); }; });
@@ -1543,10 +1543,18 @@
         function nvCountry(c) { try { return new Intl.DisplayNames(['es'], { type: 'region' }).of(c); } catch (e) { return c; } }
         function nvDev(p) { return [p.platform === 'ios' ? 'iPhone' : p.platform === 'android' ? 'Android' : null, p.country ? nvCountry(p.country) : null].filter(Boolean).join(' · '); }
         function nvSrc(p, d) { return p.came_from ? refLabel(p.came_from.ref, d.marketing) : null; }
+        // 19/11 (Maru): the origin in words. Same country within 3 hours is the origin;
+        // a guess (no country yet) gets a question mark; nothing at all since store
+        // taps are tracked (12/11) means they went straight to the store.
+        function nvSrcWord(p, d) {
+          var src = nvSrc(p, d);
+          if (src) return p.came_from.sure === 'posible' ? '¿' + src + '?' : src;
+          return String(p.at || '') >= '2026-11-12' ? 'Directo a la tienda' : 'Sin dato';
+        }
         function nvFrom(p, d) {
-          var c = p.came_from; if (!c) return 'Vino de: <b>sin dato</b>';
+          var c = p.came_from; if (!c) return 'Vino de: <b>' + esc(nvSrcWord(p, d).toLowerCase()) + '</b>';
           var how = c.via === 'tienda' ? (c.store === 'google_play' ? 'tocó Google Play' : c.store === 'app_store' ? 'tocó App Store' : 'tocó la tienda') : 'abrió la web';
-          return 'Vino de: <b>' + esc(nvSrc(p, d)) + '</b>, ' + how + ' ' + esc(c.minutes) + ' min antes' + (c.sure === 'posible' ? ' (posible)' : '');
+          return 'Vino de: <b>' + esc(nvSrcWord(p, d)) + '</b>, ' + how + ' ' + esc(c.minutes) + ' min antes';
         }
         function nvRole(p) {
           var own = p.own_nidis || [];
@@ -1655,7 +1663,7 @@
           // sources
           var src = {};
           list.forEach(function (p) {
-            var role = nvRole(p), k = role === 'invitee' ? 'Invitadas por otra casa' : nvSrc(p, d) || 'Sin dato';
+            var role = nvRole(p), k = role === 'invitee' ? 'Invitadas por otra casa' : nvSrcWord(p, d).replace(/^¿|\?$/g, '');
             var s = src[k] = src[k] || [0, 0, 0]; s[0]++;
             if (role === 'maker') s[1]++;
             if (role === 'invitee' ? p.both_sent : (p.own_nidis || []).some(function (n) { return n.both_sent; })) s[2]++;
@@ -1701,7 +1709,7 @@
             return t + (cr ? ' + DM de @hello.nidi' : '');
           };
           var work = waitF.length ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Quién armó</th><th>Dónde</th><th>Espera</th><th>Plata</th><th>Vino de</th><th>Qué sigue</th></tr></thead><tbody>'
-            + waitF.map(function (f) { var p = f.p; return '<tr><td><b>' + esc(p.name || 'Sin nombre') + '</b></td><td>' + esc(p.country ? nvCountry(p.country) : '—') + '</td><td>' + nvDayWord(nvSince(f.n.created_at)) + '</td><td>' + (f.gift ? '<span class="nv2-tag">regalo</span>' : f.paid ? '<span class="nv2-tag">pagó</span>' : '<span class="nv2-tag nv4-pay">puede pagar</span>') + '</td><td>' + esc((p.came_from && p.came_from.sure === 'probable' && nvSrc(p, d)) || 'sin dato') + '</td><td>' + esc(nextStep(f)) + '</td></tr>'; }).join('')
+            + waitF.map(function (f) { var p = f.p; return '<tr><td><b>' + esc(p.name || 'Sin nombre') + '</b></td><td>' + esc(p.country ? nvCountry(p.country) : '—') + '</td><td>' + nvDayWord(nvSince(f.n.created_at)) + '</td><td>' + (f.gift ? '<span class="nv2-tag">regalo</span>' : f.paid ? '<span class="nv2-tag">pagó</span>' : '<span class="nv2-tag nv4-pay">puede pagar</span>') + '</td><td>' + esc(nvSrcWord(p, d)) + '</td><td>' + esc(nextStep(f)) + '</td></tr>'; }).join('')
             + '</tbody></table></div><p class="nv-note">«Puede pagar» = sin regalo. Para pagar antes del ' + dmy(NV_GOAL_BY + 'T12:00:00') + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.</p>'
             : '<p class="quiet">Ningún nidi está esperando a la otra casa.</p>';
           var workC = card('Esperando a la otra casa', 'La lista de trabajo: los nidis de gente nueva donde todavía no entró la otra casa, del más nuevo al más viejo.', work, waitF.length + ' ' + plural(waitF.length, 'nidi', 'nidis'));
@@ -2384,7 +2392,9 @@
         // site_views/site_clicks. A ct ending in "*" covers every label that starts
         // with it (cr-* is every creator). Counted from 11/11: before that the web
         // kept only ig, ig-story, wa and li.
-        var REF_L = { ig: 'Instagram (bio)', 'ig-story': 'Historia de Instagram', wa: 'WhatsApp', li: 'LinkedIn' };
+        var REF_L = { ig: 'Instagram (bio)', 'ig-story': 'Historia de Instagram', wa: 'WhatsApp', li: 'LinkedIn',
+          // 19/11: visits without ?ref=, named by where the browser came from
+          'web-google': 'Google', 'web-instagram': 'Instagram (sin link)', 'web-facebook': 'Facebook', 'web-tiktok': 'TikTok', 'web-directo': 'WhatsApp o directo', 'web-otra': 'Otra página' };
         function ctMatches(ct, ref) {
           if (!ct) return false;
           ct = String(ct).toLowerCase();
