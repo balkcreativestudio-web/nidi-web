@@ -1731,6 +1731,8 @@
           // 2026-11-18: Resumen keeps the week and what to decide. Por día is in Usar → Uso, the
           // families table in Usar → Familias, Se fueron in Usar → Vuelven, the funnel in Entrar.
           html += '<div class="rs-grid">' + decideSoon(d) + readings(s, f, wm, wn) + '</div>';
+          // 2026-11-19 (Maru): the route map lives here, at the end, so it is seen without looking for it.
+          html += '<h2>Dónde está Nidi</h2><div class="card"><div id="routemap"></div></div>';
           return html;
         }
         // Installs this week against the week before, both after launch
@@ -1870,8 +1872,8 @@
           var PK_L = { post: 'Post', mail: 'Mail', dm: 'Mensaje', story: 'Historia', link: 'Link', press: 'Nota', talk: 'Boca en boca' };
           var countryOpts = function () { var W = window.NIDI_WORLD; if (!W) return ''; return '<option value="">País (si lo sabés)</option>' + Object.keys(W.countries).map(function (c) { return [regionName(c), c]; }).sort(function (a, b) { return a[0].localeCompare(b[0], 'es'); }).map(function (o) { return '<option value="' + o[1] + '">' + esc(o[0]) + '</option>'; }).join(''); };
           var places = d.campaigns.slice().sort(function (a, b) { return String(b.since).localeCompare(String(a.since)); });
-          html += '<h2>Dónde está Nidi</h2><div class="card"><div id="routemap"></div>'
-            + '<details class="add" id="campdetails" style="margin-top:14px"><summary>Lugares y links (' + places.length + ')</summary><div class="tablewrap" style="margin-top:8px"><table><tr><th>Cuándo</th><th>Dónde</th><th>Lugar</th><th class="num">Alcance</th><th class="num">Descargas</th><th>Qué pasó</th><th></th></tr>';
+          html += '<h2>Lugares y links</h2><div class="card">'
+            + '<details class="add" id="campdetails"><summary>Lugares y links (' + places.length + ')</summary><div class="tablewrap" style="margin-top:8px"><table><tr><th>Cuándo</th><th>Dónde</th><th>Lugar</th><th class="num">Alcance</th><th class="num">Descargas</th><th>Qué pasó</th><th></th></tr>';
           places.forEach(function (c) {
             html += '<tr><td>' + dmy(c.since) + '</td><td>' + esc(c.name) + '<br><span class="quiet">' + esc(c.where_used) + ' · <code>' + esc(c.ct) + '</code></span></td><td class="quiet">' + (c.place_country ? esc(c.place_city || regionName(c.place_country)) : '—') + '</td><td class="num quiet">' + (c.audience ? '~' + c.audience.toLocaleString('es-AR') : '—') + '</td><td class="num">' + (c.downloads || 0) + '</td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-camp=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
           });
