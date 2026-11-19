@@ -9,7 +9,8 @@
          it reads the names with get_invite_share, which does not mark the
          invitation opened, and offers the phone's own share sheet with the
          same message the app shares (nidi-app lib/invite-share). Without a
-         share sheet (a computer), the message and a Copy button.
+         share sheet (a computer), the message and a Copy button. A send or
+         a copy is noted on the invitation (note_invite_reshared).
          Not under /join/*, so it never opens the app. -->
     <title>Nidi</title>
     <meta name="robots" content="noindex" />
@@ -73,6 +74,16 @@
           return kids ? who + " invited you to Nidi, to stay close to " + kids + " every day. Tap the link to come in: " + url
                       : who + " invited you to Nidi. Tap the link to come in: " + url;
         }
+        // What the mail's button did, on the invitation itself (no third party).
+        function noteShared() {
+          fetch(SUPABASE_URL + "/rest/v1/rpc/note_invite_reshared", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
+            body: JSON.stringify({ p_code: code }),
+            credentials: "omit",
+            keepalive: true,
+          }).catch(function () {});
+        }
         var $ = function (id) { return document.getElementById(id); };
         function closed() {
           $("title").textContent = es ? "Este link ya no se puede usar." : "This link can no longer be used.";
@@ -92,6 +103,7 @@
             go.textContent = es ? "Compartir el link" : "Share the link";
             go.onclick = function () {
               navigator.share({ text: text }).then(function () {
+                noteShared();
                 $("done").hidden = false;
                 $("done").textContent = n ? (es ? "Listo. Cuando " + n + " toque el link, entra directo a tu nidi." : "Done. When " + n + " taps the link, they go straight into your nidi.")
                                           : (es ? "Listo. Con el link se entra directo a tu nidi." : "Done. The link goes straight into your nidi.");
@@ -102,7 +114,7 @@
             $("msg").textContent = text;
             go.textContent = es ? "Copiar el mensaje" : "Copy the message";
             go.onclick = function () {
-              var ok = function () { go.textContent = es ? "Copiado" : "Copied"; };
+              var ok = function () { go.textContent = es ? "Copiado" : "Copied"; noteShared(); };
               if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok).catch(function () {});
             };
           }
