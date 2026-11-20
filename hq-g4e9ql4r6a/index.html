@@ -1597,7 +1597,7 @@
           var fams = [];
           list.forEach(function (p) { (p.own_nidis || []).forEach(function (n) {
             var names = [p.name, n.other], trialEnd = n.activated_at ? addDays(ams(n.activated_at), n.trial_days || 14) : null;
-            fams.push({ p: p, n: n, gift: nvGift(names, m), paid: nvPaid(names, m), dup: p.duplicate, second: p.invited && n.status === 'pending', trialEnd: trialEnd,
+            fams.push({ p: p, n: n, gift: nvGift([p.name], m), paid: nvPaid(names, m), dup: p.duplicate, second: p.invited && n.status === 'pending', trialEnd: trialEnd,
               state: p.duplicate ? 'dup' : n.status === 'pending' ? 'wait' : n.both_sent ? 'done' : 'joined' });
           }); });
           var ord = { wait: 0, dup: 1, joined: 2, done: 3 };
@@ -1701,24 +1701,33 @@
           // ── v3 (2026-11-18, Maru: "sigue siendo extremadamente confuso";
           // mock 5jmTAx9fgUULjMsWRn1gRg): three blocks, one unit each
           // (families), everything else folded under Detalle.
-          var arrived = list.filter(function (p) { return nvRole(p) !== 'invitee'; });
-          var madeP = makers.filter(function (p) { return !p.duplicate; });
+          // 20/11 (Maru): the funnel follows only who can bring money, so a
+          // maker whose nidi carries a gift leaves it at every step; the gifts
+          // get their own line under it.
+          var giftMaker = function (p) { return !!nvGift([p.name], m); };
+          var arrived = list.filter(function (p) { return nvRole(p) !== 'invitee' && !giftMaker(p); });
+          var madeAll = makers.filter(function (p) { return !p.duplicate; });
+          var madeP = madeAll.filter(function (p) { return !giftMaker(p); });
+          var giftP = madeAll.filter(giftMaker);
           var joinedP = madeP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return n.status === 'active'; }); });
           var bothP = madeP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return n.both_sent; }); });
           var payP = madeP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return nvPaid([p.name, n.other], m); }); });
-          var nextDecide = decide.map(function (f) { return f.trialEnd; }).filter(Boolean).sort()[0];
+          var byEnd = {}; decide.forEach(function (f) { if (f.trialEnd) byEnd[f.trialEnd] = (byEnd[f.trialEnd] || 0) + 1; });
+          var ends = Object.keys(byEnd).sort();
+          var decideWhen = ends.length ? decide.length + ' ' + plural(decide.length, 'decide', 'deciden') + ': ' + ends.map(function (e) { return dmy(e + 'T12:00:00') + (ends.length > 1 || byEnd[e] > 1 ? ' (' + byEnd[e] + ')' : ''); }).join(', ') : '';
           var steps3 = [[arrived.length, 'llegaron por su cuenta', 'personas'], [madeP.length, 'armaron un nidi'], [joinedP.length, 'entró la otra casa'], [bothP.length, 'las dos mandaron'], [payP.length, 'pagan']];
           var leakI = -1, leakR = 2; steps3.forEach(function (x, i) { if (i > 0 && i < 4 && steps3[i - 1][0] > 0) { var r = x[0] / steps3[i - 1][0]; if (r < leakR) { leakR = r; leakI = i; } } });
           var hMax = Math.max(1, steps3[0][0]);
           var funnel = '<div class="nv4-fun">' + steps3.map(function (x, i) {
             var pc = i === 0 ? x[2] : steps3[i - 1][0] ? pct(x[0], steps3[i - 1][0]) + ' %' : '';
             if (i === leakI) pc += ' · el agujero';
-            if (i === 4 && nextDecide && !x[0]) pc = decide.length + ' ' + plural(decide.length, 'decide', 'deciden') + ' el ' + dmy(nextDecide + 'T12:00:00');
+            if (i === 4 && decideWhen) pc = decideWhen;
             return '<div class="nv4-step' + (i === leakI ? ' leak' : '') + '"><div class="bar" style="height:' + Math.max(40, Math.round(x[0] / hMax * 150)) + 'px">' + x[0] + '</div><div class="lab">' + x[1] + '</div><div class="pc">' + pc + '</div></div>';
           }).join('') + '</div>';
           var waitF = fams.filter(function (f) { return f.state === 'wait' && !f.second; });
-          var waitToday = waitF.filter(function (f) { return ams(f.n.created_at) === today; }).length;
-          var leakTxt = leakI === 2 ? '<b>Dónde se pierden: la otra casa.</b> De ' + madeP.length + ' nidis, en ' + waitF.length + ' todavía no entró.' + (waitToday ? ' ' + waitToday + ' de esos se ' + plural(waitToday, 'armó', 'armaron') + ' hoy, así que todavía puede' + (waitToday === 1 ? '' : 'n') + ' entrar.' : '') + ' Ese es el paso a empujar.'
+          var waitPay = waitF.filter(function (f) { return !f.gift; });
+          var waitToday = waitPay.filter(function (f) { return ams(f.n.created_at) === today; }).length;
+          var leakTxt = leakI === 2 ? '<b>Dónde se pierden: la otra casa.</b> De ' + madeP.length + ' nidis, en ' + waitPay.length + ' todavía no entró.' + (waitToday ? ' ' + waitToday + ' de esos se ' + plural(waitToday, 'armó', 'armaron') + ' hoy, así que todavía puede' + (waitToday === 1 ? '' : 'n') + ' entrar.' : '') + ' Ese es el paso a empujar.'
             : leakI === 1 ? '<b>Dónde se pierden: antes de armar el nidi.</b> ' + (arrived.length - madeP.length) + ' de ' + arrived.length + ' llegaron y no armaron. Ver «Detalle».'
             : leakI === 3 ? '<b>Dónde se pierden: entran las dos casas pero no mandan.</b> ' + (joinedP.length - bothP.length) + ' familias sin el primer momento de las dos.' : '';
           var weekDone = fams.filter(function (f) { return f.state === 'done' && f.n.activated_at && ams(f.n.activated_at) >= weekFrom; }).length;
@@ -1728,7 +1737,9 @@
             + '<p class="nv4-sub">' + (left(NV_TIERS[0]) ? 'Faltan <b>' + left(NV_TIERS[0]) + '</b> para ' + eur(NV_TIERS[0]) + ' (nivel 1).' : '<b>Nivel 1 logrado.</b>') + ' Para ' + eur(NV_TIERS[1]) + ' faltan ' + left(NV_TIERS[1]) + ', para ' + eur(NV_TIERS[2]) + ' faltan ' + left(NV_TIERS[2]) + '.</p></div>'
             + '<div class="nv4-goal"><div class="nv-big"><b>' + weekDone + '</b><span>de ' + NV_WEEK_GOAL + ' familias funcionando esta semana</span></div><div class="nv4-meter"><i style="width:' + Math.min(100, weekDone / NV_WEEK_GOAL * 100).toFixed(0) + '%"></i></div>'
             + '<p class="nv4-sub">Funcionando = las dos casas adentro y las dos mandaron algo. Los regalos cuentan acá.</p></div></div>');
-          var funC = card('El camino de una familia', 'Últimos 14 días, sin cuentas de prueba ni familia. El primer paso cuenta personas que llegaron solas (no las invitadas); los demás, sus nidis. El porcentaje es sobre el paso anterior. Un nidi duplicado no cuenta.', funnel + (leakTxt ? '<p class="nv4-call">' + leakTxt + '</p>' : ''), '14 días');
+          var giftJoined = giftP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return n.status === 'active'; }); });
+          var giftLine = giftP.length ? '<p class="nv-note">Aparte, con regalo (no pagan): ' + giftP.length + ' ' + plural(giftP.length, 'nidi', 'nidis') + ', ' + giftJoined.length + ' con la otra casa adentro. ' + giftP.map(function (p) { return esc(p.name || 'sin nombre'); }).join(', ') + '.</p>' : '';
+          var funC = card('El camino de una familia que puede pagar', 'Últimos 14 días, sin cuentas de prueba ni familia y sin los regalos, que van aparte abajo: solo quienes pueden traer plata. El primer paso cuenta personas que llegaron solas (no las invitadas); los demás, sus nidis. El porcentaje es sobre el paso anterior. Un nidi duplicado no cuenta.', funnel + giftLine + (leakTxt ? '<p class="nv4-call">' + leakTxt + '</p>' : ''), '14 días');
           var nextStep = function (f) {
             var p = f.p, rem = (p.reminders || []).map(function (r) { return r.step; });
             var cr = p.came_from && /^cr-/.test(p.came_from.ref);
