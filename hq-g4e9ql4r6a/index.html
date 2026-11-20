@@ -1710,7 +1710,7 @@
           });
           var mf = fams.filter(function (f) { return f.state !== 'dup' && !f.gift && !f.paid; });
           var decide = mf.filter(function (f) { return f.state !== 'wait'; }), canPay = mf.filter(function (f) { return f.state === 'wait'; });
-          var maxF = decide.length + canPay.length + notArmed.length, deadline = addDays(monthEnd, -7);
+          var maxF = decide.length + canPay.length + notArmed.length, deadline = addDays(monthEnd, -8); // Finance 20/11: in on the 23rd ends the trial on the 30th and may charge on the 1st
           var famName = function (f) { return esc(f.p.name || 'Sin nombre') + (f.n.other ? ' + ' + esc(f.n.other) : '') + (f.second ? ' (2.º nidi)' : ''); };
           var eur = function (v) { return '€' + Math.round(v).toLocaleString('es-AR'); };
           var topEur = NV_TIERS[NV_TIERS.length - 1], nextT = NV_TIERS.filter(function (t) { return earned < t; })[0];
@@ -1726,7 +1726,7 @@
             + '<div class="nv2-box wait"><b>' + canPay.length + '</b><span>pueden pagar si entra la otra casa' + (canPay.length ? ': ' + canPay.map(famName).join(', ') : '') + '</span></div>'
             + '<div class="nv2-box left"><b>' + notArmed.length + '</b><span>todavía no armaron su nidi</span></div>'
             + '<div class="nv2-box"><b>' + giftN.length + '</b><span>con regalo, no pagan' + (giftN.length ? ': ' + giftN.map(function (f) { return esc(f.p.name || ''); }).join(', ') : '') + '</span></div></div>'
-            + '<p class="nv2-next"><b>De las ' + list.length + ' personas, como mucho ' + maxF + ' ' + plural(maxF, 'familia puede', 'familias pueden') + ' pagar.</b>' + (maxF < left1 ? ' Aunque pagaran todas, para el nivel 1 faltan unas ' + (left1 - maxF) + ' familias de gente que todavía no llegó.' : '') + ' <b>Fecha límite:</b> la prueba nueva dura 7 días desde que entra la otra casa. Para pagar dentro de ' + monthName + ' (hasta el ' + dmy(monthEnd + 'T12:00:00') + '), la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '.</p>');
+            + '<p class="nv2-next"><b>De las ' + list.length + ' personas, como mucho ' + maxF + ' ' + plural(maxF, 'familia puede', 'familias pueden') + ' pagar.</b>' + (maxF < left1 ? ' Aunque pagaran todas, para el nivel 1 faltan unas ' + (left1 - maxF) + ' familias de gente que todavía no llegó.' : '') + ' <b>Fecha límite:</b> la prueba nueva dura 7 días desde que entra la otra casa. Para pagar dentro de ' + monthName + ' (hasta el ' + dmy(monthEnd + 'T12:00:00') + '), la otra casa tiene que entrar a más tardar el ' + dmy(deadline + 'T12:00:00') + '.</p>');
           // users
           var done14 = fams.filter(function (f) { return f.state === 'done'; });
           var doneWk = done14.filter(function (f) { return f.n.activated_at && ams(f.n.activated_at) >= weekFrom; });
@@ -1847,7 +1847,7 @@
           };
           var work = waitF.length ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Quién armó</th><th>Dónde</th><th>Espera</th><th>Plata</th><th>Vino de</th><th>Qué sigue</th></tr></thead><tbody>'
             + waitF.map(function (f) { var p = f.p; return '<tr><td><b>' + esc(p.name || 'Sin nombre') + '</b></td><td>' + esc(p.country ? nvCountry(p.country) : '—') + '</td><td><span class="stp ' + (nvSince(f.n.created_at) >= 3 ? 'bad' : 'wait') + '">' + nvDayWord(nvSince(f.n.created_at)) + '</span></td><td>' + (f.gift ? '<span class="nv2-tag">regalo</span>' : f.paid ? '<span class="nv2-tag">pagó</span>' : '<span class="nv2-tag nv4-pay">puede pagar</span>') + '</td><td>' + esc(nvSrcWord(p, d)) + '</td><td>' + esc(nextStep(f)) + '</td></tr>'; }).join('')
-            + '</tbody></table></div><p class="nv-note">«Puede pagar» = sin regalo. Para pagar dentro de ' + monthName + ' (hasta el ' + dmy(monthEnd + 'T12:00:00') + '), la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.</p>'
+            + '</tbody></table></div><p class="nv-note">«Puede pagar» = sin regalo. Para pagar dentro de ' + monthName + ' (hasta el ' + dmy(monthEnd + 'T12:00:00') + '), la otra casa tiene que entrar a más tardar el ' + dmy(deadline + 'T12:00:00') + '. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.</p>'
             : '<p class="quiet">Ningún nidi está esperando a la otra casa.</p>';
           var workC = card('Esperando a la otra casa', 'La lista de trabajo: los nidis de gente nueva (últimos 14 días) donde todavía no entró la otra casa, del más nuevo al más viejo. El color de la espera: miel hasta 2 días, rojo desde 3.', work, waitF.length + ' ' + plural(waitF.length, 'nidi', 'nidis'));
           if (mode === 'plata') {
@@ -1857,7 +1857,7 @@
             }).join('');
             return goals.replace('Las dos metas', 'La meta del mes')
               + '<div class="two">' + card('Deciden cuando termina la prueba', 'Familias sin regalo con las dos casas adentro y la prueba en curso. Ese día ven la pantalla de pago.', decideRows ? '<div class="tablewrap"><table class="nv-tbl"><tbody>' + decideRows + '</tbody></table></div>' : '<p class="quiet">Ninguna en prueba ahora.</p>', decide.length + ' ' + plural(decide.length, 'familia', 'familias'))
-              + card('Pueden pagar si entra la otra casa', 'Armaron su nidi, sin regalo, y esperan a la otra casa. La lista de trabajo está en Nuevos. Para pagar dentro de ' + monthName + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '.', '<div class="nv-big"><b>' + waitNames2.length + '</b><span>' + plural(waitNames2.length, 'nidi esperando', 'nidis esperando') + '</span></div>' + (waitNames2.length ? '<p class="nv-note">' + waitNames2.join(', ') + '.</p>' : ''))
+              + card('Pueden pagar si entra la otra casa', 'Armaron su nidi, sin regalo, y esperan a la otra casa. La lista de trabajo está en Nuevos. Para pagar dentro de ' + monthName + ', la otra casa tiene que entrar a más tardar el ' + dmy(deadline + 'T12:00:00') + '.', '<div class="nv-big"><b>' + waitNames2.length + '</b><span>' + plural(waitNames2.length, 'nidi esperando', 'nidis esperando') + '</span></div>' + (waitNames2.length ? '<p class="nv-note">' + waitNames2.join(', ') + '.</p>' : ''))
               + '</div>' + card('Con regalo, no pagan', 'Aparte, para no mezclarlos con la plata posible.', '<div class="nv-big"><b>' + giftN.length + '</b><span>' + plural(giftN.length, 'nidi', 'nidis') + ' en 14 días</span></div>' + (giftN.length ? '<p class="nv-note">' + giftN.map(function (f) { return esc(f.p.name || ''); }).join(', ') + '.</p>' : ''));
           }
           return funC + workC
