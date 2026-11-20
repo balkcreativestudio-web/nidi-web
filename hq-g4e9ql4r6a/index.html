@@ -384,6 +384,19 @@
       .pa-h { display:grid; grid-template-columns:repeat(24,1fr); gap:2px; align-items:end; height:90px; }
       .pa-h i { background:var(--olive); border-radius:2px 2px 0 0; }
       .pa-hl { display:flex; justify-content:space-between; font-size:11px; color:var(--ink3); margin-top:4px; }
+      .tabs button small { display:block; font-size:10.5px; color:var(--ink3); font-weight:300; letter-spacing:.02em; margin-top:1px; }
+      .tabs button[aria-selected="true"] small { color:var(--ink2); }
+      .legend { display:flex; flex-wrap:wrap; gap:6px; margin:-4px 0 14px; }
+      .stp { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; white-space:nowrap; }
+      .stp::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+      .stp.good { background:var(--olive-soft); color:#5c6b37; } .stp.wait { background:var(--honey-soft); color:#8a6417; } .stp.bad { background:#f5ddd6; color:#a2452f; } .stp.flat { background:var(--line2); color:var(--ink2); }
+      .tcols { display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); align-items:start; margin-bottom:14px; }
+      .tcol { display:grid; gap:8px; min-width:0; } .tcol h3 { margin:0; font-size:14px; font-weight:500; display:flex; justify-content:space-between; align-items:center; }
+      .tcard { background:var(--paper); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:10px; padding:10px 12px; display:grid; gap:2px; font-size:14px; }
+      .tcard small { color:var(--ink2); font-size:12px; }
+      .tcard.good { border-left-color:var(--olive); } .tcard.wait { border-left-color:var(--honey); } .tcard.bad { border-left-color:#c0563c; } .tcard.flat { border-left-color:var(--ink3); }
+      .mo td.up { color:#5c6b37; font-weight:600; } .mo td.down { color:#a2452f; font-weight:600; } .mo td.na { color:var(--ink3); }
+      .mo-big { display:flex; flex-wrap:wrap; gap:12px; }
       .room-q { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; margin:4px 0 12px; }
       .room-q h2 { margin:0; font-family:var(--serif); font-weight:400; font-size:22px; text-wrap:balance; }
       .room-q span { font-size:13px; color:var(--ink2); }
@@ -940,14 +953,18 @@
         // accounts are gone before the numbers get here (hq_group).
         // 2026-11-18 (Maru: "los tests no deberían estar en Design"): the tabs follow a family's way, one
         // question each, with the team that owns it: Resumen, Tests, Llegar, Entrar, Usar, Plata, Board.
-        var TABS = [['resumen', 'Resumen'], ['tests', 'Tests'], ['llegar', 'Llegar'], ['entrar', 'Nuevos'], ['usar', 'Usar'], ['plata', 'Plata'], ['board', 'Board']];
+        // 2026-11-20 (Maru: "alinear las tabs con los chats"; mock Pwf6KE7N8Y9Cevr911sPmo): one tab per
+        // team chat, everything by calendar month, one color code for state. Board lives at the end of Resumen.
+        var TABS = [['resumen', 'Resumen', 'Dirección'], ['plata', 'Plata', 'Finance'], ['llegar', 'Llegar', 'Marketing'], ['redes', 'Redes', 'Redes Sociales'], ['entrar', 'Nuevos', 'Producto'], ['usar', 'Usar', 'Producto'], ['errores', 'Errores', 'IT'], ['tests', 'Tests', 'todos'], ['meses', 'Meses', 'historial']];
         var ROOM_Q = {
           tests: ['¿Qué estamos probando y qué decidimos?', 'Todos los equipos'],
-          llegar: ['¿De dónde viene la gente?', 'Marketing y Redes'],
-          entrar: ['¿La gente que llega termina con un nidi funcionando?', 'Producto y Diseño'],
-          usar: ['¿Lo usan y vuelven?', 'Producto'],
-          plata: ['¿Pagan?', 'Finance'],
-          board: ['¿Qué acordamos?', 'Dirección']
+          llegar: ['¿De dónde viene la gente y cuánto cuesta?', 'Marketing'],
+          redes: ['¿Crecemos en redes?', 'Redes Sociales'],
+          entrar: ['¿La gente nueva termina con un nidi funcionando?', 'Producto · por mes, sin regalos ni plata'],
+          usar: ['¿Las familias usan Nidi y vuelven?', 'Producto'],
+          plata: ['¿Cuánta plata entra este mes?', 'Finance · los regalos no cuentan'],
+          errores: ['¿Algo falla?', 'IT · por mes'],
+          meses: ['¿Cómo venimos mes a mes?', 'Historial · verde si mejoró, rojo si empeoró']
         };
         function roomHead(tab) { var q = ROOM_Q[tab]; return q ? '<div class="room-q"><h2>' + q[0] + '</h2><span>' + q[1] + '</span></div>' : ''; }
         var C1 = 'var(--c1)', C2 = 'var(--c2)', C3 = 'var(--c3)', C4 = 'var(--c4)';
@@ -981,11 +998,11 @@
         // there before live inside their team: Familias, Uso and Retención
         // in Producto; Adquisición in Marketing; Tests in Design; Ingresos
         // in Finance. A room saved on this device from before opens in its team.
-        var TEAM_C = { resumen: 'var(--honey)', tests: '#9890b0', llegar: 'var(--c2)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', board: 'var(--ink)' };
+        var TEAM_C = { resumen: 'var(--honey)', tests: '#9890b0', llegar: 'var(--c2)', redes: 'var(--lagoon)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', errores: '#c0563c', meses: 'var(--ink3)', board: 'var(--ink)' };
         // A tab saved on this device from before opens where its content went.
-        var OLD_TAB = { fam: ['usar', 'fam'], uso: ['usar', 'uso'], ret: ['usar', 'ret'], prod: ['usar'], adq: ['llegar', 'web'], mkt: ['llegar'], social: ['llegar', 'redes'],
+        var OLD_TAB = { fam: ['usar', 'fam'], uso: ['usar', 'uso'], ret: ['usar', 'ret'], prod: ['usar'], adq: ['llegar', 'web'], mkt: ['llegar'], social: ['redes'], board: ['resumen'],
                         cambios: ['tests'], design: ['tests'], ing: ['plata'], fin: ['plata'] };
-        var SUBS = { llegar: [['acc', 'Acciones'], ['web', 'Web y tiendas'], ['redes', 'Redes']], usar: [['fam', 'Familias'], ['uso', 'Uso'], ['ret', 'Vuelven'], ['avisos', 'Avisos']] };
+        var SUBS = { llegar: [['acc', 'Acciones'], ['web', 'Web y tiendas']], usar: [['fam', 'Familias'], ['uso', 'Uso'], ['ret', 'Vuelven'], ['avisos', 'Avisos']] };
         var SUB = {};
         try { SUB = JSON.parse(localStorage.getItem('nidi-hq-sub') || '{}') || {}; } catch (e) {}
         if (OLD_TAB[TAB]) { if (OLD_TAB[TAB][1]) SUB[OLD_TAB[TAB][0]] = OLD_TAB[TAB][1]; TAB = OLD_TAB[TAB][0]; }
@@ -1051,13 +1068,20 @@
             return '<button class="ar" data-tab="' + tab + '" style="--c:' + TEAM_C[tab] + '"><span class="ar-top"><span class="ar-name">' + name + '</span>' + p + '</span><span class="ar-num">' + num + '</span><span class="ar-what">' + what + '</span></button>';
           };
           var w = weeks[1], w0 = weeks[0];
+          var mr = curMonth(d), mName = monthWord(today.slice(0, 7));
+          var mEur = monthEuros(mr), mNext = NV_TIERS.filter(function (t) { return mEur < t; })[0], mLeft = mNext ? Math.ceil((mNext - mEur) / NV_FAMILY_NET) : 0;
+          var mSends = mr ? mr.sends_ok + mr.sends_err : 0, mRate = mSends ? mr.sends_err / mSends * 100 : 0;
           return '<div class="areas">'
-            + cardA('board', 'Board', week7 ? pill('wait', week7 + ' ' + plural(week7, 'decisión', 'decisiones') + ' en 7 días') : pill('flat', 'sin decisiones esta semana'), w.n, plural(w.n, 'familia oficial', 'familias oficiales') + ' esta semana · ' + w0.n + ' la anterior')
+            + (mr ? cardA('plata', 'Plata · ' + mName, pill(mNext ? 'bad' : 'good', mNext ? 'faltan ' + mLeft + ' para €' + mNext.toLocaleString('es-AR') : 'todos los niveles'), '€' + Math.round(mEur).toLocaleString('es-AR'), mr.paid + ' ' + plural(mr.paid, 'familia pagó', 'familias pagaron') + ' en ' + mName)
+                  + cardA('entrar', 'Nuevos · ' + mName, pill(mr.made && mr.joined / mr.made >= 0.5 ? 'good' : 'bad', mr.joined + ' de ' + mr.made + ' con la otra casa'), mr.arrived, plural(mr.arrived, 'persona llegó', 'personas llegaron') + ' por su cuenta, sin regalo')
+                  + cardA('errores', 'Errores · ' + mName, pill(mRate < 5 ? 'good' : mRate < 10 ? 'wait' : 'bad', mRate.toFixed(1).replace('.', ',') + ' % de envíos fallidos'), mr.sends_err, 'de ' + mSends + ' envíos · ' + mr.recovered + ' rescatados') : '')
             + cardA('llegar', 'Llegar', mk ? pill('good', esc(mk.name) + ': ' + mk.families) : pill('flat', 'ninguna acción trajo familias'), inst, 'instalaciones en 7 días · ' + inst0 + ' los 7 anteriores · ' + web + ' visitas a la web')
             + cardA('tests', 'Tests', soon.length ? pill('wait', 'próxima: ' + dmy(soon[0].decide_on + 'T12:00:00')) : pill('flat', 'nada por decidir'), open.length, plural(open.length, 'test midiendo', 'tests midiendo') + (soon.length ? ' · ' + esc(soon[0].title) : ''))
-            + cardA('entrar', 'Nuevos', pill((s.funnel || {}).activated ? 'good' : 'flat', ((s.funnel || {}).activated || 0) + ' de ' + ((s.funnel || {}).nidi || 0) + ' nidis completos'), active, plural(active, 'familia', 'familias') + ' con las dos casas adentro · ' + ((s.funnel || {}).installs || 0) + ' descargas desde el lanzamiento')
+            + (mr ? '' : cardA('entrar', 'Nuevos', pill((s.funnel || {}).activated ? 'good' : 'flat', ((s.funnel || {}).activated || 0) + ' de ' + ((s.funnel || {}).nidi || 0) + ' nidis completos'), active, plural(active, 'familia', 'familias') + ' con las dos casas adentro · ' + ((s.funnel || {}).installs || 0) + ' descargas desde el lanzamiento'))
+            + (function () { var last = {}; (d.social || []).forEach(function (r) { last[r.network] = r; }); var ig = last.instagram || last.ig, tt = last.tiktok;
+                return cardA('redes', 'Redes', pill(ig && ig.followers >= 300 ? 'good' : 'wait', 'meta 300 al 9/12'), ig ? ig.followers : '—', 'seguidores en Instagram' + (tt ? ' · ' + tt.followers + ' en TikTok' : '')); })()
             + cardA('usar', 'Usar', pill((gr.both_ways_7d || 0) ? 'good' : 'bad', (gr.both_ways_7d || 0) + ' de ' + (gr.families || 0) + ' comparten'), (s.moments ? s.moments.total : 0), 'momentos desde el lanzamiento · ' + (s.moments ? s.moments.notes : 0) + ' notas')
-            + cardA('plata', 'Plata', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con gift')
+            + (mr ? '' : cardA('plata', 'Plata', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con gift'))
             + '</div>';
         }
 
@@ -1315,13 +1339,16 @@
             + '<div class="controls"><div class="range" role="group" aria-label="A quién contar">'
             + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
-            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '</button>'; }).join('') + '</nav>'
+            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '<small>' + t[2] + '</small></button>'; }).join('') + '</nav>'
+            + '<div class="legend" aria-label="Código de colores"><span class="stp good">Va bien</span><span class="stp wait">En observación</span><span class="stp bad">Hay que actuar</span><span class="stp flat">Cerrado</span></div>'
             + (famWait ? '<p class="quiet" style="margin:4px 2px 10px">Cargando «Con familia»… Mientras tanto se ven los números de Externos.</p>' : '');
           var ROOMS = {
-            resumen: tabResumen, board: tabBoard, tests: tabCambios, plata: tabIng,
-            llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : k === 'redes' ? tabSocial : tabMkt).apply(null, arguments); },
+            resumen: function () { return tabResumen.apply(null, arguments) + '<h2>Board</h2>' + tabBoard.apply(null, arguments); },
+            tests: tabCambios, redes: tabSocial, errores: tabErrores, meses: tabMeses,
+            plata: function (d, st, s) { return nuevosSection(d, st, 'plata') + '<details class="nv-more"><summary>Detalle: todas las suscripciones, gifts y paywall</summary>' + tabIng(d, st, s) + '</details>'; },
+            llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : tabMkt).apply(null, arguments); },
             entrar: function (d, st, s, gr, ser) { return tabAdq(d, st, s, gr, ser, 'entrar'); },
-            usar: function () { return subNav('usar') + ({ fam: tabFamAll, uso: tabUso, ret: tabRet, avisos: tabAvisos })[subOf('usar')].apply(null, arguments); }
+            usar: function () { return usarGoal() + subNav('usar') + ({ fam: tabFamAll, uso: tabUso, ret: tabRet, avisos: tabAvisos })[subOf('usar')].apply(null, arguments); }
           };
           html += roomHead(TAB) + (ROOMS[TAB] || tabResumen)(d, st, s, gr, ser, prev);
           html += '<h2>Accesos</h2><div class="links">'
@@ -1588,7 +1615,53 @@
           if (own.some(function (n) { return n.status === 'active'; }) || (own.length && !p.invited)) return 'maker';
           return p.invited ? 'invitee' : 'none';
         }
-        function nuevosSection(d, st) {
+        // ── By month (2026-11-20) ─────────────────────────────────────
+        // hq_months: one row per calendar month from November, the gift by
+        // account (handed over as the nidis' creation times), send errors.
+        function monthsOf(d) { return (d.months && d.months.months) || []; }
+        function curMonth(d) { var k = todayAms().slice(0, 7); return monthsOf(d).filter(function (r) { return r.month === k; })[0] || null; }
+        function monthWord(ym) { return new Date(ym + '-15T12:00:00').toLocaleDateString('es-AR', { month: 'long' }); }
+        function giftNidi(d, p, n, m) {
+          var at = d.months && d.months.gift_nidis_at;
+          if (at) { var t = new Date(n.created_at).getTime(); return at.some(function (x) { return Math.abs(new Date(x).getTime() - t) < 1000; }); }
+          return !!nvGift([p.name], m);
+        }
+        function monthEuros(r) { return r ? Math.max(0, r.paid - r.paid_early) * NV_FAMILY_NET + (r.paid_early ? NV_BASE_EUR * r.paid_early / 2 : 0) : 0; }
+        function usarGoal() {
+          return card('La meta de uso', 'Hasta el 20/11 la meta era «4 familias funcionando por semana». No cerraba con la plata, así que sale de ella.',
+            '<p class="nv-note" style="font-size:14px">Funcionando = las dos casas adentro y las dos mandaron algo; acá los regalos sí cuentan. Para €1.000 en el mes hacen falta 18 familias pagando. Cuántas familias funcionando hacen falta para eso depende de cuántas pagan al terminar la prueba: las primeras deciden el 26 y el 28/11, y con eso se fija la meta.</p>');
+        }
+        function tabErrores(d) {
+          var r = curMonth(d), name = monthWord(todayAms().slice(0, 7));
+          if (!r) return card('Errores', '', '<p class="quiet">Todavía no hay datos por mes (falta publicar hq_months).</p>');
+          var tot = r.sends_ok + r.sends_err, rate = tot ? r.sends_err / tot * 100 : 0;
+          var cls = rate < 5 ? 'good' : rate < 10 ? 'wait' : 'bad';
+          var REASON = { camera_denied: 'Sin permiso de cámara', upload_failed: 'No se pudo subir', rpc_failed: 'El servidor no lo guardó', recover_no_file: 'Envío cortado: el archivo no llegó', recover_rejected: 'Envío cortado: el servidor lo rechazó', recover_failed: 'Envío cortado: no se pudo terminar', recover_too_old: 'Envío cortado: demasiado viejo' };
+          var STAGE = { opened: 'Al abrir', send_tapped: 'Al tocar Enviar', upload: 'Subiendo', recovery: 'Al volver a abrir la app', saving: 'Guardando' };
+          var errs = (d.months.errors_now || []).map(function (e) { return '<tr><td>' + esc(REASON[e.reason] || e.reason) + '</td><td>' + esc(e.type === 'photo' ? 'Foto' : e.type === 'voice' ? 'Audio' : e.type) + '</td><td>' + esc(STAGE[e.stage] || e.stage) + '</td><td class="num">' + e.n + '</td></tr>'; }).join('');
+          return '<div class="two">'
+            + card('Envíos que fallaron', 'Fotos y audios que la gente de afuera intentó mandar en ' + name + ' y no llegaron, sobre todos los intentos. Verde por debajo del 5 %, miel hasta el 10 %, rojo arriba.', '<div class="nv-big"><b>' + r.sends_err + '</b><span>de ' + tot + ' en ' + name + '</span></div><span class="stp ' + cls + '">' + rate.toFixed(1).replace('.', ',') + ' %</span>')
+            + card('Envíos cortados, rescatados', 'Se mandaron, la app se cerró a mitad de camino y se terminaron al volver a abrirla (desde el 20/11).', '<div class="nv-big"><b>' + r.recovered + '</b><span>en ' + name + '</span></div><span class="stp ' + (r.recovered ? 'good' : 'flat') + '">' + (r.recovered ? 'el arreglo funciona' : 'ninguno todavía') + '</span>')
+            + '</div>' + card('Por qué fallaron en ' + name, 'Una fila por motivo. Lo arregla IT.', errs ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Motivo</th><th>Qué</th><th>Dónde</th><th class="num">Veces</th></tr></thead><tbody>' + errs + '</tbody></table></div>' : '<p class="quiet">Ningún envío falló este mes.</p>');
+        }
+        function tabMeses(d) {
+          var rows = monthsOf(d).slice().reverse();
+          if (!rows.length) return card('Meses', '', '<p class="quiet">Todavía no hay datos por mes (falta publicar hq_months).</p>');
+          var cols = [['Plata', function (r) { return monthEuros(r); }, function (v) { return '€' + Math.round(v).toLocaleString('es-AR'); }], ['Pagaron', 'paid'], ['Llegaron', 'arrived'], ['Armaron', 'made'], ['Otra casa', 'joined'], ['Funcionando', 'working'], ['Regalos', 'gifts'], ['Envíos fallidos', function (r) { return r.sends_ok + r.sends_err ? r.sends_err / (r.sends_ok + r.sends_err) * 100 : 0; }, function (v) { return v.toFixed(1).replace('.', ',') + ' %'; }, true]];
+          var val = function (r, c) { return typeof c[1] === 'function' ? c[1](r) : r[c[1]]; };
+          var cur = todayAms().slice(0, 7), all = monthsOf(d);
+          var body = rows.map(function (r) {
+            var i = all.indexOf(r), prev = i > 0 ? all[i - 1] : null;
+            return '<tr><td>' + monthWord(r.month) + (r.month === cur ? ' <span class="quiet">(hasta hoy)</span>' : '') + '</td>' + cols.map(function (c) {
+              var v = val(r, c), pv = prev ? val(prev, c) : null, cls = pv == null || v === pv ? '' : ((v > pv) !== !!c[3] ? 'up' : 'down');
+              return '<td class="num ' + cls + '">' + (c[2] ? c[2](v) : v) + '</td>';
+            }).join('') + '</tr>';
+          }).join('');
+          return card('Mes a mes', 'Del 1 al último día de cada mes, sin cuentas de prueba ni familia. Verde si mejoró contra el mes anterior, rojo si empeoró (en envíos fallidos, bajar es mejorar). El mes en curso se compara aunque no terminó.',
+            '<div class="tablewrap mo"><table><thead><tr><th>Mes</th>' + cols.map(function (c) { return '<th class="num">' + c[0] + '</th>'; }).join('') + '</tr></thead><tbody>' + body + '</tbody></table></div>'
+            + (all.length < 2 ? '<p class="nv-note">Noviembre es el primer mes (la app salió el 31/10). Desde diciembre cada número se pinta contra el mes anterior.</p>' : ''));
+        }
+        function nuevosSection(d, st, mode) {
           var list = st.new_people || [], o = (st.views && st.views.outside) || st, m = o.money || {};
           var today = todayAms(), weekFrom = officialWeeks(st, 2)[1].from;
           var nToday = list.filter(function (p) { return ams(p.at) === today; });
@@ -1597,7 +1670,7 @@
           var fams = [];
           list.forEach(function (p) { (p.own_nidis || []).forEach(function (n) {
             var names = [p.name, n.other], trialEnd = n.activated_at ? addDays(ams(n.activated_at), n.trial_days || 14) : null;
-            fams.push({ p: p, n: n, gift: nvGift([p.name], m), paid: nvPaid(names, m), dup: p.duplicate, second: p.invited && n.status === 'pending', trialEnd: trialEnd,
+            fams.push({ p: p, n: n, gift: giftNidi(d, p, n, m), paid: nvPaid(names, m), dup: p.duplicate, second: p.invited && n.status === 'pending', trialEnd: trialEnd,
               state: p.duplicate ? 'dup' : n.status === 'pending' ? 'wait' : n.both_sent ? 'done' : 'joined' });
           }); });
           var ord = { wait: 0, dup: 1, joined: 2, done: 3 };
@@ -1722,7 +1795,7 @@
           // 20/11 (Maru): the funnel follows only who can bring money, so a
           // maker whose nidi carries a gift leaves it at every step; the gifts
           // get their own line under it.
-          var giftMaker = function (p) { return !!nvGift([p.name], m); };
+          var giftMaker = function (p) { return (p.own_nidis || []).some(function (n) { return giftNidi(d, p, n, m); }); };
           var arrived = list.filter(function (p) { return nvRole(p) !== 'invitee' && !giftMaker(p); });
           var madeAll = makers.filter(function (p) { return !p.duplicate; });
           var madeP = madeAll.filter(function (p) { return !giftMaker(p); });
@@ -1733,7 +1806,10 @@
           var byEnd = {}; decide.forEach(function (f) { if (f.trialEnd) byEnd[f.trialEnd] = (byEnd[f.trialEnd] || 0) + 1; });
           var ends = Object.keys(byEnd).sort();
           var decideWhen = ends.length ? decide.length + ' ' + plural(decide.length, 'decide', 'deciden') + ': ' + ends.map(function (e) { return dmy(e + 'T12:00:00') + (ends.length > 1 || byEnd[e] > 1 ? ' (' + byEnd[e] + ')' : ''); }).join(', ') : '';
-          var steps3 = [[arrived.length, 'llegaron por su cuenta', 'personas'], [madeP.length, 'armaron un nidi'], [joinedP.length, 'entró la otra casa'], [bothP.length, 'las dos mandaron'], [payP.length, 'pagan']];
+          // By calendar month when the server sends it (hq_months, 20/11); else the 14-day list.
+          var mrow = curMonth(d);
+          var steps3 = mrow ? [[mrow.arrived, 'llegaron por su cuenta', 'personas'], [mrow.made, 'armaron un nidi'], [mrow.joined, 'entró la otra casa'], [mrow.both, 'las dos mandaron'], [payP.length, 'pagan']]
+            : [[arrived.length, 'llegaron por su cuenta', 'personas'], [madeP.length, 'armaron un nidi'], [joinedP.length, 'entró la otra casa'], [bothP.length, 'las dos mandaron'], [payP.length, 'pagan']];
           var leakI = -1, leakR = 2; steps3.forEach(function (x, i) { if (i > 0 && i < 4 && steps3[i - 1][0] > 0) { var r = x[0] / steps3[i - 1][0]; if (r < leakR) { leakR = r; leakI = i; } } });
           var hMax = Math.max(1, steps3[0][0]);
           var funnel = '<div class="nv4-fun">' + steps3.map(function (x, i) {
@@ -1751,14 +1827,18 @@
           var weekDone = fams.filter(function (f) { return f.state === 'done' && f.n.activated_at && ams(f.n.activated_at) >= weekFrom; }).length;
           var left = function (t) { return Math.max(0, Math.ceil((t - earned) / NV_FAMILY_NET)); };
           var nextI = NV_TIERS.filter(function (t) { return earned >= t; }).length, nextTier = NV_TIERS[nextI];
-          var goals = card('Las dos metas', 'Pagando: la meta es por mes, del 1 al último día; arranca de cero cada mes. Se ve solo el próximo nivel: cuando lo alcanzás, aparece el siguiente. Los regalos no pagan. Cada familia que paga el año deja unos €' + NV_FAMILY_NET + ' (cuenta de Finance); los dos pagos del 1/11 (Fernanda y Marcelo) suman unos €' + NV_BASE_EUR + '. Funcionando: las dos casas adentro y las dos mandaron algo, en nidis que se completaron desde el lunes; acá los regalos sí cuentan.',
+          var goals = card('Las dos metas', 'Pagando: la meta es por mes, del 1 al último día; arranca de cero cada mes. Se ve solo el próximo nivel: cuando lo alcanzás, aparece el siguiente. Los regalos no pagan. Cada familia que paga el año deja unos €' + NV_FAMILY_NET + ' (cuenta de Finance); los dos pagos del 1/11 (Fernanda y Marcelo) suman unos €' + NV_BASE_EUR + '.',
             '<div class="nv4-goals"><div class="nv4-goal"><div class="nv-big"><b>' + eur(earned) + '</b><span>en ' + monthName + ' · ' + paidSince + ' ' + plural(paidSince, 'familia pagó', 'familias pagaron') + '</span></div><div class="nv4-meter"><i style="width:' + Math.min(100, Math.max(2, earned / (nextTier || NV_TIERS[NV_TIERS.length - 1]) * 100)).toFixed(0) + '%"></i></div>'
+            + (function () { var dim = Number(monthEnd.slice(8)), day = Number(today.slice(8)), exp = (nextTier || 0) * day / dim; return nextTier ? '<span class="stp ' + (earned >= exp ? 'good' : 'bad') + '">' + (earned >= exp ? 'a ritmo' : 'por debajo del ritmo') + ' · día ' + day + ' de ' + dim + '</span>' : '<span class="stp good">todos los niveles</span>'; })()
             + '<p class="nv4-sub">' + (nextTier ? (nextI ? '<b>Nivel ' + nextI + ' logrado.</b> ' : '') + 'Faltan <b>' + left(nextTier) + '</b> ' + plural(left(nextTier), 'familia', 'familias') + ' pagando para ' + eur(nextTier) + ' (nivel ' + (nextI + 1) + '), hasta el ' + dmy(monthEnd + 'T12:00:00') + '.' : '<b>Nivel ' + NV_TIERS.length + ' logrado este mes.</b>') + '</p></div>'
-            + '<div class="nv4-goal"><div class="nv-big"><b>' + weekDone + '</b><span>de ' + NV_WEEK_GOAL + ' familias funcionando esta semana</span></div><div class="nv4-meter"><i style="width:' + Math.min(100, weekDone / NV_WEEK_GOAL * 100).toFixed(0) + '%"></i></div>'
-            + '<p class="nv4-sub">Funcionando = las dos casas adentro y las dos mandaron algo. Los regalos cuentan acá.</p></div></div>');
+            + '</div>');
           var giftJoined = giftP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return n.status === 'active'; }); });
-          var giftLine = giftP.length ? '<p class="nv-note">Aparte, con regalo (no pagan): ' + giftP.length + ' ' + plural(giftP.length, 'nidi', 'nidis') + ', ' + giftJoined.length + ' con la otra casa adentro. ' + giftP.map(function (p) { return esc(p.name || 'sin nombre'); }).join(', ') + '.</p>' : '';
-          var funC = card('El camino de una familia que puede pagar', 'Últimos 14 días, sin cuentas de prueba ni familia y sin los regalos, que van aparte abajo: solo quienes pueden traer plata. El primer paso cuenta personas que llegaron solas (no las invitadas); los demás, sus nidis. El porcentaje es sobre el paso anterior. Un nidi duplicado no cuenta.', funnel + giftLine + (leakTxt ? '<p class="nv4-call">' + leakTxt + '</p>' : ''), '14 días');
+          var giftLine = mrow ? (mrow.gifts ? '<p class="nv-note">Aparte, con regalo (no pagan): ' + mrow.gifts + ' ' + plural(mrow.gifts, 'persona armó', 'personas armaron') + ' un nidi en ' + monthName + '.</p>' : '')
+            : giftP.length ? '<p class="nv-note">Aparte, con regalo (no pagan): ' + giftP.length + ' ' + plural(giftP.length, 'nidi', 'nidis') + ', ' + giftJoined.length + ' con la otra casa adentro. ' + giftP.map(function (p) { return esc(p.name || 'sin nombre'); }).join(', ') + '.</p>' : '';
+          if (mrow) leakTxt = leakI === 2 ? '<b>Dónde se pierden: la otra casa.</b> En ' + monthName + ', de ' + mrow.made + ' que armaron, en ' + (mrow.made - mrow.joined) + ' todavía no entró. Ese es el paso a empujar: la lista está abajo.'
+            : leakI === 1 ? '<b>Dónde se pierden: antes de armar el nidi.</b> ' + (mrow.arrived - mrow.made) + ' de ' + mrow.arrived + ' llegaron y no armaron. Ver «Detalle».'
+            : leakI === 3 ? '<b>Dónde se pierden: entran las dos casas pero no mandan.</b> ' + (mrow.joined - mrow.both) + ' familias sin el primer momento de las dos.' : '';
+          var funC = card('El camino de una familia que puede pagar', (mrow ? 'Del 1 al último día del mes' : 'Últimos 14 días') + ', sin cuentas de prueba ni familia y sin los regalos, que van aparte: solo quienes pueden traer plata. El primer paso cuenta personas que llegaron solas (no las invitadas); los demás, quienes armaron un nidi ese mes. El porcentaje es sobre el paso anterior. «Pagan» cuenta a la gente nueva que ya pagó.', funnel + giftLine + (leakTxt ? '<p class="nv4-call">' + leakTxt + '</p>' : ''), mrow ? monthName : '14 días');
           var nextStep = function (f) {
             var p = f.p, rem = (p.reminders || []).map(function (r) { return r.step; });
             var cr = p.came_from && /^cr-/.test(p.came_from.ref);
@@ -1766,11 +1846,21 @@
             return t + (cr ? ' + DM de @hello.nidi' : '');
           };
           var work = waitF.length ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Quién armó</th><th>Dónde</th><th>Espera</th><th>Plata</th><th>Vino de</th><th>Qué sigue</th></tr></thead><tbody>'
-            + waitF.map(function (f) { var p = f.p; return '<tr><td><b>' + esc(p.name || 'Sin nombre') + '</b></td><td>' + esc(p.country ? nvCountry(p.country) : '—') + '</td><td>' + nvDayWord(nvSince(f.n.created_at)) + '</td><td>' + (f.gift ? '<span class="nv2-tag">regalo</span>' : f.paid ? '<span class="nv2-tag">pagó</span>' : '<span class="nv2-tag nv4-pay">puede pagar</span>') + '</td><td>' + esc(nvSrcWord(p, d)) + '</td><td>' + esc(nextStep(f)) + '</td></tr>'; }).join('')
+            + waitF.map(function (f) { var p = f.p; return '<tr><td><b>' + esc(p.name || 'Sin nombre') + '</b></td><td>' + esc(p.country ? nvCountry(p.country) : '—') + '</td><td><span class="stp ' + (nvSince(f.n.created_at) >= 3 ? 'bad' : 'wait') + '">' + nvDayWord(nvSince(f.n.created_at)) + '</span></td><td>' + (f.gift ? '<span class="nv2-tag">regalo</span>' : f.paid ? '<span class="nv2-tag">pagó</span>' : '<span class="nv2-tag nv4-pay">puede pagar</span>') + '</td><td>' + esc(nvSrcWord(p, d)) + '</td><td>' + esc(nextStep(f)) + '</td></tr>'; }).join('')
             + '</tbody></table></div><p class="nv-note">«Puede pagar» = sin regalo. Para pagar dentro de ' + monthName + ' (hasta el ' + dmy(monthEnd + 'T12:00:00') + '), la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.</p>'
             : '<p class="quiet">Ningún nidi está esperando a la otra casa.</p>';
-          var workC = card('Esperando a la otra casa', 'La lista de trabajo: los nidis de gente nueva donde todavía no entró la otra casa, del más nuevo al más viejo.', work, waitF.length + ' ' + plural(waitF.length, 'nidi', 'nidis'));
-          return goals + funC + workC
+          var workC = card('Esperando a la otra casa', 'La lista de trabajo: los nidis de gente nueva (últimos 14 días) donde todavía no entró la otra casa, del más nuevo al más viejo. El color de la espera: miel hasta 2 días, rojo desde 3.', work, waitF.length + ' ' + plural(waitF.length, 'nidi', 'nidis'));
+          if (mode === 'plata') {
+            var waitNames2 = waitF.filter(function (f) { return !f.gift; }).map(function (f) { return esc(f.p.name || 'sin nombre'); });
+            var decideRows = decide.slice().sort(function (a, b) { return (a.trialEnd || '') < (b.trialEnd || '') ? -1 : 1; }).map(function (f) {
+              return '<tr><td><b>' + famName(f) + '</b></td><td>' + (f.trialEnd ? '<span class="stp ' + (f.trialEnd < today ? 'bad' : 'wait') + '">' + (f.trialEnd < today ? 'terminó el ' : '') + dmy(f.trialEnd + 'T12:00:00') + '</span>' : '—') + '</td></tr>';
+            }).join('');
+            return goals.replace('Las dos metas', 'La meta del mes')
+              + '<div class="two">' + card('Deciden cuando termina la prueba', 'Familias sin regalo con las dos casas adentro y la prueba en curso. Ese día ven la pantalla de pago.', decideRows ? '<div class="tablewrap"><table class="nv-tbl"><tbody>' + decideRows + '</tbody></table></div>' : '<p class="quiet">Ninguna en prueba ahora.</p>', decide.length + ' ' + plural(decide.length, 'familia', 'familias'))
+              + card('Pueden pagar si entra la otra casa', 'Armaron su nidi, sin regalo, y esperan a la otra casa. La lista de trabajo está en Nuevos. Para pagar dentro de ' + monthName + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '.', '<div class="nv-big"><b>' + waitNames2.length + '</b><span>' + plural(waitNames2.length, 'nidi esperando', 'nidis esperando') + '</span></div>' + (waitNames2.length ? '<p class="nv-note">' + waitNames2.join(', ') + '.</p>' : ''))
+              + '</div>' + card('Con regalo, no pagan', 'Aparte, para no mezclarlos con la plata posible.', '<div class="nv-big"><b>' + giftN.length + '</b><span>' + plural(giftN.length, 'nidi', 'nidis') + ' en 14 días</span></div>' + (giftN.length ? '<p class="nv-note">' + giftN.map(function (f) { return esc(f.p.name || ''); }).join(', ') + '.</p>' : ''));
+          }
+          return funC + workC
             + '<details class="nv-more"><summary>Detalle de estos 14 días: hoy, cada familia, quienes no armaron, de dónde vienen</summary>' + head + split + famC + naC + srcC + '</details>';
         }
         function tabResumen(d, st, s, gr, ser) {
@@ -2383,7 +2473,15 @@
             + '<div class="kpi"><span class="k">Con muestra suficiente</span><span class="v">' + enough + '<small>de ' + rows.length + '</small></span><span class="spacer"></span><span class="d">Mínimo: 10 por lado</span></div>'
             + '<div class="kpi"><span class="k">Próximo veredicto</span><span class="v">' + (nextDay ? day12(nextDay) : '—') + '</span><span class="spacer"></span><span class="d">' + nextNames.join(' · ') + '</span></div>'
             + '<div class="kpi"><span class="k">Mejor señal hasta hoy</span><span class="v">' + best.v + '</span><span class="spacer"></span><span class="d">' + best.d + '</span></div></div>';
-          html = filters + html + (noGoal ? '<p class="quiet" style="margin:4px 2px 10px">' + noGoal + ' de ' + allRows.length + ' tests no tienen meta: sin meta no hay veredicto.</p>' : '');
+          // 20/11 (Maru): one column per state, the same colors as everywhere.
+          var TCOL = [['works', 'Funcionan', 'good'], ['open', 'En observación', 'wait'], ['no', 'No funcionan', 'bad'], ['closed', 'Cerrados', 'flat']];
+          var colOf = function (c) { return c.verdict === 'works' ? 'works' : c.verdict === 'no' ? 'no' : c.verdict ? 'closed' : 'open'; };
+          var tcols = '<div class="tcols">' + TCOL.map(function (k) {
+            var its = info.filter(function (x) { return colOf(x.c) === k[0]; });
+            return '<div class="tcol"><h3><span>' + k[1] + '</span><span class="stp ' + k[2] + '">' + its.length + '</span></h3>'
+              + (its.length ? its.map(function (x) { return '<div class="tcard ' + k[2] + '">' + esc(x.c.title) + '<small>' + esc(CH_TEAM[x.c.team] || x.c.team || '') + (x.c.decide ? ' · decide ' + day12(x.c.decide) : '') + (k[0] === 'open' && x.s.st !== 'none' ? ' · ' + esc(x.s.label) : '') + '</small></div>'; }).join('') : '<p class="quiet" style="margin:0">Ninguno.</p>') + '</div>';
+          }).join('') + '</div>';
+          html = filters + tcols + html + (noGoal ? '<p class="quiet" style="margin:4px 2px 10px">' + noGoal + ' de ' + allRows.length + ' tests no tienen meta: sin meta no hay veredicto.</p>' : '');
           html += '<div class="card tt"><div class="tt-h"><span>Tests</span><span>Ordenados por fecha de decisión · tocá una fila para abrirla</span></div><table class="tt-table"><thead><tr>'
             + '<th>Test</th><th class="hide-m">Mide</th><th class="r hide-s">Antes</th><th class="r hide-s">Después</th><th class="r">Cambio</th><th class="r hide-m">Muestra</th><th class="hide-m">Decide</th><th>Estado</th></tr></thead><tbody>';
           info.forEach(function (x) {
