@@ -1616,11 +1616,28 @@
           // money: three levels to 9/12 (Maru, 18/11; mock 5xiWvVpTT26ph8tMzScSp8).
           // Finance's numbers: about €48 net per launch annual (VAT out, store
           // 15 %), and Fernanda + Marcelo's 1/11 payments (about €141) count.
-          var paidSince = (m.paid_list || []).filter(function (p) { return p.since && ams(p.since) >= NV_MONEY_FROM; }).length;
-          var earned = NV_BASE_EUR + paidSince * NV_FAMILY_NET;
+          var eur0 = function (v) { return '€' + Math.round(v).toLocaleString('es-AR'); };
+          // 20/11 (Maru): the goal is per calendar month, 1st to last day.
+          // A new paid subscription counts in the month it started; the two
+          // payments of 1/11 (Fernanda and Marcelo) are worth NV_BASE_EUR
+          // together, every later one NV_FAMILY_NET (Finance's estimate).
+          var monthFrom = today.slice(0, 8) + '01';
+          var monthEnd = addDays(addDays(monthFrom, 32).slice(0, 8) + '01', -1);
+          var monthName = new Date(monthFrom + 'T12:00:00').toLocaleDateString('es-AR', { month: 'long' });
+          var payEur = function (p) { return ams(p.since) < NV_MONEY_FROM ? NV_BASE_EUR / 2 : NV_FAMILY_NET; };
+          var byMonth = {};
+          (m.paid_list || []).forEach(function (p) { if (!p.since) return; var k = ams(p.since).slice(0, 7); byMonth[k] = byMonth[k] || { n: 0, eur: 0 }; byMonth[k].n++; byMonth[k].eur += payEur(p); });
+          var cur = byMonth[monthFrom.slice(0, 7)] || { n: 0, eur: 0 };
+          var paidSince = cur.n;
+          var earned = cur.eur;
+          var levelOf = function (v) { return NV_TIERS.filter(function (t) { return v >= t; }).length; };
+          var pastMonths = Object.keys(byMonth).filter(function (k) { return k < monthFrom.slice(0, 7); }).sort().reverse().map(function (k) {
+            var v = byMonth[k], lv = levelOf(v.eur);
+            return new Date(k + '-15T12:00:00').toLocaleDateString('es-AR', { month: 'long' }) + ': ' + eur0(v.eur) + ', ' + v.n + ' ' + plural(v.n, 'pago', 'pagos') + (lv ? ', nivel ' + lv + ' logrado' : ', sin llegar al nivel 1');
+          });
           var mf = fams.filter(function (f) { return f.state !== 'dup' && !f.gift && !f.paid; });
           var decide = mf.filter(function (f) { return f.state !== 'wait'; }), canPay = mf.filter(function (f) { return f.state === 'wait'; });
-          var maxF = decide.length + canPay.length + notArmed.length, deadline = addDays(NV_GOAL_BY, -7);
+          var maxF = decide.length + canPay.length + notArmed.length, deadline = addDays(monthEnd, -7);
           var famName = function (f) { return esc(f.p.name || 'Sin nombre') + (f.n.other ? ' + ' + esc(f.n.other) : '') + (f.second ? ' (2.º nidi)' : ''); };
           var eur = function (v) { return '€' + Math.round(v).toLocaleString('es-AR'); };
           var topEur = NV_TIERS[NV_TIERS.length - 1], nextT = NV_TIERS.filter(function (t) { return earned < t; })[0];
@@ -1628,14 +1645,15 @@
           var bar = '<div class="nv3-bar" role="img" aria-label="' + eur(earned) + ' de ' + eur(topEur) + '"><div class="f" style="width:' + Math.min(100, earned / topEur * 100).toFixed(1) + '%"></div>'
             + NV_TIERS.map(function (t, i) { return '<div class="mk" style="left:' + (t === topEur ? 'calc(100% - 2px)' : (t / topEur * 100) + '%') + '"><span>Nivel ' + (i + 1) + '</span><em>' + eur(t) + '</em></div>'; }).join('') + '</div>';
           var tiers = '<div class="nv3-tiers">' + NV_TIERS.map(function (t, i) { var n = Math.max(0, Math.ceil((t - earned) / NV_FAMILY_NET)); return '<div class="nv3-tier' + (t === nextT ? ' next' : '') + (n === 0 ? ' done' : '') + '"><small>Nivel ' + (i + 1) + ' · ' + eur(t) + '</small><b>' + (n === 0 ? '✓' : n) + '</b><span>' + (n === 0 ? 'logrado' : plural(n, 'familia pagando más', 'familias pagando más')) + '</span></div>'; }).join('') + '</div>';
-          var money = card('Plata al ' + dmy(NV_GOAL_BY + 'T12:00:00'), 'Los regalos no cuentan acá. Cada familia que paga el año a €' + NV_PRICE + ' deja unos €' + NV_FAMILY_NET + ' después del IVA y la comisión de la tienda (cuenta de Finance). Los pagos de Fernanda y Marcelo del 1/11 (unos €' + NV_BASE_EUR + ') cuentan para la meta. Pagos nuevos: cualquier suscripción paga que empezó desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + ', a €' + NV_FAMILY_NET + ' cada una (estimado).',
-            '<div class="nv-big"><b>' + eur(earned) + '</b><span>de ' + eur(nextT || topEur) + ' · desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + ' ' + plural(paidSince, 'pagó', 'pagaron') + ' ' + paidSince + ' ' + plural(paidSince, 'familia', 'familias') + '</span></div>' + bar + tiers
+          var money = card('Plata de ' + monthName, 'La meta es por mes, del 1 al último día. Los regalos no cuentan acá. Cada familia que paga el año a €' + NV_PRICE + ' deja unos €' + NV_FAMILY_NET + ' después del IVA y la comisión de la tienda (cuenta de Finance); los dos pagos del 1/11 (Fernanda y Marcelo) suman unos €' + NV_BASE_EUR + '. Cuenta cada suscripción paga en el mes en que empezó (estimado).',
+            '<div class="nv-big"><b>' + eur(earned) + '</b><span>de ' + eur(nextT || topEur) + ' · en ' + monthName + ' ' + plural(paidSince, 'pagó', 'pagaron') + ' ' + paidSince + ' ' + plural(paidSince, 'familia', 'familias') + '</span></div>' + bar + tiers
+            + (pastMonths.length ? '<p class="nv-note">Meses anteriores: ' + pastMonths.join(' · ') + '.</p>' : '')
             + '<div class="nv2-split">'
             + '<div class="nv2-box ok"><b>' + decide.length + '</b><span>' + (decide.length ? 'deciden cuando termina la prueba: ' + decide.map(function (f) { return famName(f) + ' (' + dmy(f.trialEnd + 'T12:00:00') + ')'; }).join(', ') : 'con las dos casas adentro y prueba en curso') + '</span></div>'
             + '<div class="nv2-box wait"><b>' + canPay.length + '</b><span>pueden pagar si entra la otra casa' + (canPay.length ? ': ' + canPay.map(famName).join(', ') : '') + '</span></div>'
             + '<div class="nv2-box left"><b>' + notArmed.length + '</b><span>todavía no armaron su nidi</span></div>'
             + '<div class="nv2-box"><b>' + giftN.length + '</b><span>con regalo, no pagan' + (giftN.length ? ': ' + giftN.map(function (f) { return esc(f.p.name || ''); }).join(', ') : '') + '</span></div></div>'
-            + '<p class="nv2-next"><b>De las ' + list.length + ' personas, como mucho ' + maxF + ' ' + plural(maxF, 'familia puede', 'familias pueden') + ' pagar.</b>' + (maxF < left1 ? ' Aunque pagaran todas, para el nivel 1 faltan unas ' + (left1 - maxF) + ' familias de gente que todavía no llegó.' : '') + ' <b>Fecha límite:</b> la prueba nueva dura 7 días desde que entra la otra casa. Para pagar antes del ' + dmy(NV_GOAL_BY + 'T12:00:00') + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '.</p>');
+            + '<p class="nv2-next"><b>De las ' + list.length + ' personas, como mucho ' + maxF + ' ' + plural(maxF, 'familia puede', 'familias pueden') + ' pagar.</b>' + (maxF < left1 ? ' Aunque pagaran todas, para el nivel 1 faltan unas ' + (left1 - maxF) + ' familias de gente que todavía no llegó.' : '') + ' <b>Fecha límite:</b> la prueba nueva dura 7 días desde que entra la otra casa. Para pagar dentro de ' + monthName + ' (hasta el ' + dmy(monthEnd + 'T12:00:00') + '), la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '.</p>');
           // users
           var done14 = fams.filter(function (f) { return f.state === 'done'; });
           var doneWk = done14.filter(function (f) { return f.n.activated_at && ams(f.n.activated_at) >= weekFrom; });
@@ -1732,9 +1750,10 @@
             : leakI === 3 ? '<b>Dónde se pierden: entran las dos casas pero no mandan.</b> ' + (joinedP.length - bothP.length) + ' familias sin el primer momento de las dos.' : '';
           var weekDone = fams.filter(function (f) { return f.state === 'done' && f.n.activated_at && ams(f.n.activated_at) >= weekFrom; }).length;
           var left = function (t) { return Math.max(0, Math.ceil((t - earned) / NV_FAMILY_NET)); };
-          var goals = card('Las dos metas', 'Pagando: familias con una suscripción paga desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + ' (los regalos no pagan). Cada familia que paga el año deja unos €' + NV_FAMILY_NET + ' (cuenta de Finance) y los €' + NV_BASE_EUR + ' de Fernanda y Marcelo ya cuentan. Funcionando: las dos casas adentro y las dos mandaron algo, en nidis que se completaron desde el lunes; acá los regalos sí cuentan.',
-            '<div class="nv4-goals"><div class="nv4-goal"><div class="nv-big"><b>' + paidSince + '</b><span>' + plural(paidSince, 'familia pagando', 'familias pagando') + ' desde el ' + dmy(NV_MONEY_FROM + 'T12:00:00') + '</span></div><div class="nv4-meter"><i style="width:' + Math.min(100, Math.max(2, paidSince / Math.max(1, paidSince + left(NV_TIERS[0])) * 100)).toFixed(0) + '%"></i></div>'
-            + '<p class="nv4-sub">' + (left(NV_TIERS[0]) ? 'Faltan <b>' + left(NV_TIERS[0]) + '</b> para ' + eur(NV_TIERS[0]) + ' (nivel 1).' : '<b>Nivel 1 logrado.</b>') + ' Para ' + eur(NV_TIERS[1]) + ' faltan ' + left(NV_TIERS[1]) + ', para ' + eur(NV_TIERS[2]) + ' faltan ' + left(NV_TIERS[2]) + '.</p></div>'
+          var nextI = NV_TIERS.filter(function (t) { return earned >= t; }).length, nextTier = NV_TIERS[nextI];
+          var goals = card('Las dos metas', 'Pagando: la meta es por mes, del 1 al último día; arranca de cero cada mes. Se ve solo el próximo nivel: cuando lo alcanzás, aparece el siguiente. Los regalos no pagan. Cada familia que paga el año deja unos €' + NV_FAMILY_NET + ' (cuenta de Finance); los dos pagos del 1/11 (Fernanda y Marcelo) suman unos €' + NV_BASE_EUR + '. Funcionando: las dos casas adentro y las dos mandaron algo, en nidis que se completaron desde el lunes; acá los regalos sí cuentan.',
+            '<div class="nv4-goals"><div class="nv4-goal"><div class="nv-big"><b>' + eur(earned) + '</b><span>en ' + monthName + ' · ' + paidSince + ' ' + plural(paidSince, 'familia pagó', 'familias pagaron') + '</span></div><div class="nv4-meter"><i style="width:' + Math.min(100, Math.max(2, earned / (nextTier || NV_TIERS[NV_TIERS.length - 1]) * 100)).toFixed(0) + '%"></i></div>'
+            + '<p class="nv4-sub">' + (nextTier ? (nextI ? '<b>Nivel ' + nextI + ' logrado.</b> ' : '') + 'Faltan <b>' + left(nextTier) + '</b> ' + plural(left(nextTier), 'familia', 'familias') + ' pagando para ' + eur(nextTier) + ' (nivel ' + (nextI + 1) + '), hasta el ' + dmy(monthEnd + 'T12:00:00') + '.' : '<b>Nivel ' + NV_TIERS.length + ' logrado este mes.</b>') + '</p></div>'
             + '<div class="nv4-goal"><div class="nv-big"><b>' + weekDone + '</b><span>de ' + NV_WEEK_GOAL + ' familias funcionando esta semana</span></div><div class="nv4-meter"><i style="width:' + Math.min(100, weekDone / NV_WEEK_GOAL * 100).toFixed(0) + '%"></i></div>'
             + '<p class="nv4-sub">Funcionando = las dos casas adentro y las dos mandaron algo. Los regalos cuentan acá.</p></div></div>');
           var giftJoined = giftP.filter(function (p) { return (p.own_nidis || []).some(function (n) { return n.status === 'active'; }); });
@@ -1748,7 +1767,7 @@
           };
           var work = waitF.length ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Quién armó</th><th>Dónde</th><th>Espera</th><th>Plata</th><th>Vino de</th><th>Qué sigue</th></tr></thead><tbody>'
             + waitF.map(function (f) { var p = f.p; return '<tr><td><b>' + esc(p.name || 'Sin nombre') + '</b></td><td>' + esc(p.country ? nvCountry(p.country) : '—') + '</td><td>' + nvDayWord(nvSince(f.n.created_at)) + '</td><td>' + (f.gift ? '<span class="nv2-tag">regalo</span>' : f.paid ? '<span class="nv2-tag">pagó</span>' : '<span class="nv2-tag nv4-pay">puede pagar</span>') + '</td><td>' + esc(nvSrcWord(p, d)) + '</td><td>' + esc(nextStep(f)) + '</td></tr>'; }).join('')
-            + '</tbody></table></div><p class="nv-note">«Puede pagar» = sin regalo. Para pagar antes del ' + dmy(NV_GOAL_BY + 'T12:00:00') + ', la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.</p>'
+            + '</tbody></table></div><p class="nv-note">«Puede pagar» = sin regalo. Para pagar dentro de ' + monthName + ' (hasta el ' + dmy(monthEnd + 'T12:00:00') + '), la otra casa tiene que entrar antes del ' + dmy(deadline + 'T12:00:00') + '. Nada sale sin tu sí: los recordatorios se aprueban en la lista de las 9:00.</p>'
             : '<p class="quiet">Ningún nidi está esperando a la otra casa.</p>';
           var workC = card('Esperando a la otra casa', 'La lista de trabajo: los nidis de gente nueva donde todavía no entró la otra casa, del más nuevo al más viejo.', work, waitF.length + ' ' + plural(waitF.length, 'nidi', 'nidis'));
           return goals + funC + workC
