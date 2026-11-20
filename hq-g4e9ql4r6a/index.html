@@ -2131,7 +2131,9 @@
           unseen_push_open: { label: 'De los avisos "te dejó algo" (ahora solo el finde, diciendo qué), cuántos se abren en 24 h.', unit: 'share' },
           // 2026-11-18 (Dirección): the launch price moves from a line on Today to a carousel card.
           launch_card_paywall: { label: 'Personas por día que llegan a la pantalla de pago desde el precio de lanzamiento: la línea arriba del círculo hasta el 18/11, la tarjeta del carrusel desde entonces. La meta también pide al menos una compra.', unit: 'day' },
-          housemate_link_48h: { label: 'De las invitaciones por link a alguien de la propia casa, cuántas se aceptan dentro de las 48 h. Solo cuentan las que ya tienen 48 h. La meta también pide ningún nidi propio por error.', unit: 'share' }
+          housemate_link_48h: { label: 'De las invitaciones por link a alguien de la propia casa, cuántas se aceptan dentro de las 48 h. Solo cuentan las que ya tienen 48 h. La meta también pide ningún nidi propio por error.', unit: 'share' },
+          // 2026-11-20 (Maru, photos-load-faster): Android was three times slower to open a photo.
+          android_photo_open_fast: { label: 'De las veces que se abre un momento con foto en Android, cuántas cargan en menos de 1 segundo. La meta también pide que iOS no empeore.', unit: 'share' }
         };
         var CH_ST = { works: 'Funciona', no: 'No funciona', unclear: 'No se sabe', decide: 'Toca decidir', measuring: 'Midiendo', waiting_ship: 'Esperando que salga', waiting_data: 'Esperando datos' };
         function todayAms() { try { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
@@ -2292,6 +2294,12 @@
                 ['El código falló', kv(a.code_failed), ''], ['Copiaron el código en la web', a.copy_code || 0, 'de ' + (a.join_views || 0) + ' visitas a la invitación'],
                 ['Abrieron compartir', kv(a.share_opened), ''], ['Compartieron', kv(a.shared), ''],
                 ['"Otro nidi" con uno esperando', kv(a.waiting_choice), '']];
+            }
+            else if (c.metric === 'android_photo_open_fast') {
+              var secs = function (ms) { return ms != null ? (Math.round(ms / 10) / 100).toString().replace('.', ',') + ' s' : '—'; };
+              sup = [['Android, mediana', secs(a.android_median_ms), 'antes ' + secs(b.android_median_ms)],
+                ['iOS, en menos de 1 s', a.ios_opens ? (a.ios_fast || 0) + ' de ' + a.ios_opens : '—', 'antes ' + (b.ios_fast || 0) + ' de ' + (b.ios_opens || 0)],
+                ['iOS, mediana', secs(a.ios_median_ms), 'antes ' + secs(b.ios_median_ms)]];
             }
             else if (c.metric === 'housemate_link_48h') sup = [['Esperando (menos de 48 h)', a.waiting || 0, ''], ['Aceptadas después de 48 h', a.accepted_later || 0, 'antes ' + (b.accepted_later || 0)], ['Entraron y después armaron un nidi propio', a.own_nidi || 0, 'antes ' + (b.own_nidi || 0)]];
             else if (c.metric === 'invite_accepted_48h') sup = [['Esperando (menos de 48 h)', a.waiting || 0, ''], ['Aceptadas después de 48 h', a.accepted_later || 0, 'antes ' + (b.accepted_later || 0)], ['Horas hasta aceptar (mediana)', a.median_hours != null ? a.median_hours + ' h' : '—', b.median_hours != null ? 'antes ' + b.median_hours + ' h' : ''], ['Visitas a la invitación en la web', a.join_views || 0, 'antes ' + (b.join_views || 0)]];
