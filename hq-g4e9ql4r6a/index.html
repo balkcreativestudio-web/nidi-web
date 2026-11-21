@@ -2075,6 +2075,24 @@
           return card('Actividades', 'Qué parte de todo lo que pasa sale de una actividad: fotos, audios y textos, y también las notas. La actividad de bienvenida no cuenta. Los corazones no tienen fecha y quedan afuera.',
             legend(K) + chart(all, K, { label: 'Interacciones por día' }) + body, last7.p + '% esta semana');
         }
+        // Usar → Uso (2026-11-21, Maru): iPhone against Android, outside people only,
+        // by the phone of their newest event (hq_months().platforms).
+        function platCard(d) {
+          var p = d.months && d.months.platforms;
+          if (!p) return card('iPhone y Android', '', '<p class="quiet">Sin datos todavía.</p>');
+          var CI = '#507291', CA = '#87995B';
+          var row = function (label, x) {
+            var i = x.ios || 0, a = x.android || 0, t = (i + a) || 1;
+            return '<div class="fm-pair"><span>' + esc(label) + '<small>' + (i + a) + ' ' + plural(i + a, 'persona', 'personas') + '</small></span>'
+              + '<div class="fm-track"><i style="width:' + pct(i, t) + '%;background:' + CI + '"></i><i style="width:' + pct(a, t) + '%;background:' + CA + '"></i></div>'
+              + '<span class="num">' + pct(i, t) + '% / ' + pct(a, t) + '%</span></div>';
+          };
+          var m = monthWord(todayAms().slice(0, 7));
+          return card('iPhone y Android', 'Personas de afuera (sin familia ni pruebas) según el teléfono de su último uso. Todas desde el lanzamiento, las que crearon la cuenta este mes, y las que abrieron Nidi en los últimos 7 días.',
+            '<div class="fm-legend"><span><i style="background:' + CI + '"></i>iPhone</span><span><i style="background:' + CA + '"></i>Android</span></div>'
+            + row('Todas', p.all || {}) + row('Nuevas en ' + m, p.month || {}) + row('Activas en 7 días', p.active7 || {}),
+            (p.all.ios || 0) + ' iPhone · ' + (p.all.android || 0) + ' Android');
+        }
         function tabUso(d, st, s, gr, ser) {
           var en = s.engagement || {}, bt = s.moments.by_type || {}, tot = (bt.photo || 0) + (bt.voice_note || 0) + (bt.text || 0);
           var html = '<div class="kpis">'
@@ -2091,6 +2109,7 @@
             + card('Personas activas por día', 'Quienes abrieron Nidi ese día.', chart(ser, KU, { label: 'Personas activas por día' }))
             + card('Qué comparten', 'Desde el lanzamiento. El porcentaje es sobre los momentos; las notas van aparte.', '<div class="funnel">' + stepRow('Fotos', bt.photo || 0, tot) + stepRow('Audios', bt.voice_note || 0, tot) + stepRow('Textos', bt.text || 0, tot) + stepRow('Notas', s.moments.notes || 0, Math.max(tot, s.moments.notes || 0), C2, '') + '</div>')
             + activityCard(gr.activity)
+            + platCard(d)
             + card('Un momento que llega', 'Qué pasa con cada momento que llega a la otra casa. Responder es una nota o un momento de vuelta.', '<div class="funnel">' + stepRow('Lo abren', en.received_opened, en.received) + stepRow('En la primera hora', en.opened_within_1h, en.received) + stepRow('Responden en el día', en.answered_within_24h, en.received) + '</div>', en.median_min_to_open != null ? 'tardan ' + minsWord(en.median_min_to_open) : '')
             + card('Cuándo comparten', 'Momentos por hora y día, hora de Ámsterdam.', hbars(en.by_hour, Array.from({ length: 24 }, function (_, i) { return i + ' h'; }), C1, 6) + '<div style="height:10px"></div>' + hbars(en.by_weekday, ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], C1, 1))
             + '</div>';
