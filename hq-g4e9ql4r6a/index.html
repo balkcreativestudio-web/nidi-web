@@ -1072,7 +1072,7 @@
           var mEur = monthEuros(mr), mNext = NV_TIERS.filter(function (t) { return mEur < t; })[0], mLeft = mNext ? Math.ceil((mNext - mEur) / NV_FAMILY_NET) : 0;
           var mSends = mr ? mr.sends_ok + mr.sends_err : 0, mRate = mSends ? mr.sends_err / mSends * 100 : 0;
           return '<div class="areas">'
-            + (mr ? cardA('plata', 'Plata · ' + mName, pill(mNext ? 'bad' : 'good', mNext ? 'faltan ' + mLeft + ' para €' + mNext.toLocaleString('es-AR') : 'todos los niveles'), '€' + Math.round(mEur).toLocaleString('es-AR'), mr.paid + ' ' + plural(mr.paid, 'familia pagó', 'familias pagaron') + ' en ' + mName)
+            + (mr ? cardA('plata', 'Plata · ' + mName, pill(mNext ? 'bad' : 'good', mNext ? 'faltan ' + mLeft + ' para €' + mNext.toLocaleString('es-AR') : 'todos los niveles'), '€' + Math.round(mEur).toLocaleString('es-AR'), mr.paid + ' ' + plural(mr.paid, 'pago', 'pagos') + (mr.paid_outside != null ? ' (' + mr.paid_outside + ' de afuera)' : '') + ' en ' + mName)
                   + cardA('entrar', 'Nuevos · ' + mName, pill(mr.made && mr.joined / mr.made >= 0.5 ? 'good' : 'bad', mr.joined + ' de ' + mr.made + ' con la otra casa'), mr.arrived, plural(mr.arrived, 'persona llegó', 'personas llegaron') + ' por su cuenta, sin regalo')
                   + cardA('errores', 'Errores · ' + mName, pill(mRate < 5 ? 'good' : mRate < 10 ? 'wait' : 'bad', mRate.toFixed(1).replace('.', ',') + ' % de envíos fallidos'), mr.sends_err, 'de ' + mSends + ' envíos · ' + mr.recovered + ' rescatados') : '')
             + cardA('llegar', 'Llegar', mk ? pill('good', esc(mk.name) + ': ' + mk.families) : pill('flat', 'ninguna acción trajo familias'), inst, 'instalaciones en 7 días · ' + inst0 + ' los 7 anteriores · ' + web + ' visitas a la web')
@@ -1254,10 +1254,10 @@
           var html = '<div class="sc-list">' + net('ig', 'Instagram', 'var(--rose)') + net('tiktok', 'TikTok', 'var(--ink)') + '</div>';
           var refs = Object.keys(d.web_refs || {}).filter(socialRef).sort(function (a, b) { return d.web_refs[b].visits - d.web_refs[a].visits; });
           var rowOf = function (ref) { return (d.marketing || []).filter(function (r) { return r.ct && String(r.ct).toLowerCase() === ref; })[0] || {}; };
-          html += '<h2>Por link</h2><div class="card"><div class="tablewrap"><table><tr><th>Link</th><th class="num">Visitas a la web</th><th class="num">Toques a las tiendas</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th></tr>'
-            + (refs.length ? refs.map(function (r) { var w = d.web_refs[r], m = rowOf(r); return '<tr><td>' + esc(refLabel(r, d.marketing)) + ' <span class="quiet">' + esc(r) + '</span></td><td class="num">' + w.visits + '</td><td class="num">' + w.clicks + '</td><td class="num">' + (known(m.downloads) ? m.downloads : '—') + '</td><td class="num">' + (known(m.accounts) ? m.accounts : '—') + '</td><td class="num">' + (known(m.families) ? m.families : '—') + '</td></tr>'; }).join('')
-              : '<tr><td colspan="6" class="quiet">Todavía nadie llegó desde las redes.</td></tr>')
-            + '</table></div><p class="quiet" style="margin-top:8px">Visitas y toques desde el 11/11; descargas, cuentas y nidis con la regla de Marketing (la app abre por primera vez hasta 15 min después de la visita). Nidis = las dos casas adentro.</p></div>';
+          html += '<h2>Por link</h2><div class="card"><div class="tablewrap"><table><tr><th>Link</th><th class="num">Visitas a la web</th><th class="num">Aperturas de link</th><th class="num">Toques a las tiendas</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Nidis</th></tr>'
+            + (refs.length ? refs.map(function (r) { var w = d.web_refs[r], m = rowOf(r); return '<tr><td>' + esc(refLabel(r, d.marketing)) + ' <span class="quiet">' + esc(r) + '</span></td><td class="num">' + w.visits + '</td><td class="num">' + (w.opens || 0) + '</td><td class="num">' + w.clicks + '</td><td class="num">' + (known(m.downloads) ? m.downloads : '—') + '</td><td class="num">' + (known(m.accounts) ? m.accounts : '—') + '</td><td class="num">' + (known(m.families) ? m.families : '—') + '</td></tr>'; }).join('')
+              : '<tr><td colspan="7" class="quiet">Todavía nadie llegó desde las redes.</td></tr>')
+            + '</table></div><p class="quiet" style="margin-top:8px">Visitas y toques desde el 11/11, aperturas de link sin repetidos; descargas, cuentas y nidis con la regla de Marketing (la app abre por primera vez hasta 15 min después de la visita). Nidis = las dos casas adentro.</p></div>';
           // every day typed, newest first
           var rows = Array.isArray(d.social) ? d.social.slice().reverse() : null;
           html += '<h2>Día por día</h2><div class="card" style="margin-bottom:10px"><div class="dy-chips" role="group" aria-label="Qué número ver">' + SO_K.map(function (x) { return '<button type="button" class="dy-chip so-k" data-sok="' + x[0] + '" aria-pressed="' + (x[0] === SO_PICK) + '">' + x[1] + '</button>'; }).join('') + '</div>'
@@ -1626,6 +1626,8 @@
           if (at) { var t = new Date(n.created_at).getTime(); return at.some(function (x) { return Math.abs(new Date(x).getTime() - t) < 1000; }); }
           return !!nvGift([p.name], m);
         }
+        // One payment rule (single sheet, 21/11): still active and price > 0.
+        var PAID_ST = ['active', 'active_will_not_renew', 'in_grace_period'];
         function monthEuros(r) { return r ? Math.max(0, r.paid - r.paid_early) * NV_FAMILY_NET + (r.paid_early ? NV_BASE_EUR * r.paid_early / 2 : 0) : 0; }
         function usarGoal() {
           return card('La meta de uso', 'Hasta el 20/11 la meta era «4 familias funcionando por semana». No cerraba con la plata, así que sale de ella.',
@@ -1699,7 +1701,7 @@
           var monthName = new Date(monthFrom + 'T12:00:00').toLocaleDateString('es-AR', { month: 'long' });
           var payEur = function (p) { return ams(p.since) < NV_MONEY_FROM ? NV_BASE_EUR / 2 : NV_FAMILY_NET; };
           var byMonth = {};
-          (m.paid_list || []).forEach(function (p) { if (!p.since) return; var k = ams(p.since).slice(0, 7); byMonth[k] = byMonth[k] || { n: 0, eur: 0 }; byMonth[k].n++; byMonth[k].eur += payEur(p); });
+          (m.paid_list || []).forEach(function (p) { if (!p.since || (p.status && PAID_ST.indexOf(p.status) < 0)) return; var k = ams(p.since).slice(0, 7); byMonth[k] = byMonth[k] || { n: 0, eur: 0 }; byMonth[k].n++; byMonth[k].eur += payEur(p); });
           var cur = byMonth[monthFrom.slice(0, 7)] || { n: 0, eur: 0 };
           var paidSince = cur.n;
           var earned = cur.eur;
@@ -1981,11 +1983,22 @@
             + '</div>';
         }
 
+        // Llegar → Web y tiendas (single sheet, 21/11): phones that opened Nidi
+        // for the first time, per platform, the download figure without the
+        // stores' delay (Apple 2 days, Play 3-7).
+        function phonesCard(d) {
+          var rows = (d.months && d.months.phones_daily) || null;
+          if (!rows) return '';
+          var KP = [{ k: 'ios', color: '#507291', label: 'iPhone' }, { k: 'android', color: '#87995B', label: 'Android' }];
+          var i7 = rows.slice(-7).reduce(function (a, r) { return a + (r.ios || 0); }, 0), a7 = rows.slice(-7).reduce(function (a, r) { return a + (r.android || 0); }, 0);
+          return '<div class="two" style="margin-top:10px">' + card('Teléfonos nuevos en la app', 'Teléfonos que abrieron Nidi por primera vez, por día y plataforma, sin las cuentas de prueba ni de familia. Es el único dato de descargas sin atraso: Apple publica con 2 días y Google Play con 3 a 7. Últimos 28 días.', legend(KP) + chart(rows, KP, { label: 'Teléfonos nuevos por día' }), i7 + ' iPhone · ' + a7 + ' Android en 7 días') + '</div>';
+        }
         function tabAdq(d, st, s, gr, ser, part) {
           var f = s.funnel, w = st.web, en = s.engagement || {}, inv = gr.invitations || {};
           var KA = [{ k: 'installs', color: C1, label: 'Instalaciones' }, { k: 'accounts', color: C2, label: 'Cuentas' }, { k: 'activated', color: C3, label: 'Nidis con las dos casas' }];
           var webSer = ser.map(function (r) { return Object.assign({}, r, { web_other: Math.max(0, r.web - r.web_ig - r.web_direct) }); });
           var KC = [{ k: 'app_store', color: C1, label: 'App Store' }, { k: 'google_play', color: C2, label: 'Google Play' }, { k: 'open_app', color: C3, label: 'Ábrela (invitación)' }];
+          var KO = [{ k: 'link_opens', color: '#E2A75A', label: 'Aperturas de link' }];
           var PATH_L = { '/': 'Inicio (en)', '/es/': 'Inicio (es)', '/join/:code': 'Invitación', '/other': 'Otras páginas' };
           var clkPath = Object.keys(w.clicks_by_path || {}).sort(function (a, b) { return w.clicks_by_path[b] - w.clicks_by_path[a]; });
           var wr = d.web_refs || {}, webRefK = Object.keys(wr).sort(function (a, b) { return wr[b].visits - wr[a].visits || wr[b].clicks - wr[a].clicks; }), webRefMax = Math.max.apply(null, webRefK.map(function (k) { return wr[k].visits; }).concat([1])), webRefT = webRefK.reduce(function (a, k) { return a + wr[k].visits; }, 0);
@@ -2007,12 +2020,13 @@
           var html = '<div class="two">'
             + card('Llegadas por día', 'Instalaciones, cuentas nuevas y nidis con las dos casas. Un dispositivo cuenta una vez.', legend(KA) + chart(ser, KA, { lines: true, label: 'Llegadas por día' }))
             + card('Visitas a la web', 'Visitas a nidi.life. "Sin origen" es un link sin etiqueta abierto desde WhatsApp o mail, o escrito a mano. Los links con etiqueta (?ref=fam, ?ref=bb…) entran en "Otros" y se ven uno por uno en "Visitas por link". Instagram es solo quien tocó un link: Instagram no está conectado, así que no hay seguidores ni alcance.', legend(KW) + chart(webSer, KW, { label: 'Visitas por día' }), w.total + ' desde el lanzamiento')
-            + card('Clicks en la web', 'Toques en los botones de nidi.life desde el 9/11: App Store, Google Play, y "¿Ya tienes Nidi? Ábrela" en la página de invitación. Cuenta toques, no personas.', legend(KC) + chart(w.clicks_daily || [], KC, { label: 'Clicks por día' }) + (clkPath.length ? '<div class="funnel" style="margin-top:10px">' + clkPath.map(function (k) { return stepRow(PATH_L[k] || k, w.clicks_by_path[k], w.clicks_total, C1); }).join('') + '</div>' : ''), (w.clicks_total || 0) + ' ' + plural(w.clicks_total || 0, 'click', 'clicks'))
-            + card('Visitas por link', 'Cada link que publicamos con su etiqueta (nidi.life/?ref=fam): visitas a la web y toques en App Store o Google Play. Cuenta desde el 11/11; antes la web descartaba todas las etiquetas menos ig, ig-story, wa y li, y esas visitas quedaron en "Sin origen". Una etiqueta se cuenta cuando está en "Link ct" de Marketing.', webRefK.length ? '<div class="funnel">' + webRefK.map(function (k) { return stepRow(refLabel(k, d.marketing), wr[k].visits, webRefMax, C1, wr[k].clicks + ' ' + plural(wr[k].clicks, 'click', 'clicks')); }).join('') + '</div>' : '<p class="quiet">' + (d.web_refs ? 'Todavía ninguna visita con etiqueta.' : 'Sin datos: falta publicar la función del HQ.') + '</p>', webRefK.length ? webRefT + ' ' + plural(webRefT, 'visita', 'visitas') + ' con etiqueta' : '')
+            + card('Aperturas de link', 'Veces que alguien abrió un link nidi.life/go/… (los de anuncios, prensa y creadoras) en un teléfono. No es un toque a la tienda: la página lo anota al abrirse y manda directo a la tienda. Sin repetidos: mismo link, país y tienda en menos de 60 segundos cuenta una vez.', legend(KO) + chart(w.clicks_daily || [], KO, { label: 'Aperturas de link por día' }), (w.link_opens_total || 0) + ' ' + plural(w.link_opens_total || 0, 'apertura', 'aperturas'))
+            + card('Toques en la web', 'Toques reales en los botones de nidi.life: App Store y Google Play en la portada, y "¿Ya tienes Nidi? Ábrela" en la página de invitación. No incluye los links /go/, que van en Aperturas de link. Cuenta toques, no personas.', legend(KC) + chart(w.clicks_daily || [], KC, { label: 'Clicks por día' }) + (clkPath.length ? '<div class="funnel" style="margin-top:10px">' + clkPath.map(function (k) { return stepRow(PATH_L[k] || k, w.clicks_by_path[k], w.clicks_total, C1); }).join('') + '</div>' : ''), (w.clicks_total || 0) + ' ' + plural(w.clicks_total || 0, 'toque', 'toques'))
+            + card('Visitas por link', 'Cada link que publicamos con su etiqueta (nidi.life/?ref=fam o nidi.life/go/…): visitas a la web, aperturas de los links /go/ y toques reales en App Store o Google Play. Cuenta desde el 11/11; antes la web descartaba todas las etiquetas menos ig, ig-story, wa y li, y esas visitas quedaron en "Sin origen". Una etiqueta se cuenta cuando está en "Link ct" de Marketing.', webRefK.length ? '<div class="funnel">' + webRefK.map(function (k) { return stepRow(refLabel(k, d.marketing), wr[k].visits, webRefMax, C1, (wr[k].opens ? wr[k].opens + ' ' + plural(wr[k].opens, 'apertura', 'aperturas') + ' · ' : '') + wr[k].clicks + ' ' + plural(wr[k].clicks, 'toque', 'toques')); }).join('') + '</div>' : '<p class="quiet">' + (d.web_refs ? 'Todavía ninguna visita con etiqueta.' : 'Sin datos: falta publicar la función del HQ.') + '</p>', webRefK.length ? webRefT + ' ' + plural(webRefT, 'visita', 'visitas') + ' con etiqueta' : '')
             + card('Países de las visitas', 'De dónde es cada visita a nidi.life, por la zona horaria del navegador. Solo se guarda el país. Se sabe desde el 9/11.', webCoK.length ? '<div class="funnel">' + webCoK.map(function (k) { return stepRow(regionName(k), webCo[k], webCoT, C1, (w.clicks_by_country || {})[k] ? w.clicks_by_country[k] + ' ' + plural(w.clicks_by_country[k], 'click', 'clicks') : ''); }).join('') + (w.no_country_since ? stepRow('Sin dato', w.no_country_since, webCoT + w.no_country_since, C3) : '') + '</div>' : '<p class="quiet">Sin datos todavía.</p>')
             + card('Descargas por canal', 'Las que Apple atribuye a cada link. Se cargan a mano en "Lugares y links".', chanKeys.length ? '<div class="funnel">' + chanKeys.map(function (k) { return stepRow(k, chan[k].dl, chanMax, C1, chan[k].n + ' ' + plural(chan[k].n, 'link', 'links')); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>', chanKeys.some(function (k) { return chan[k].dl; }) ? '' : 'ninguna cargada todavía')
             + '</div>';
-          html += playSection(d.play, range);
+          html += phonesCard(d) + playSection(d.play, range);
           var co = s.countries || {}, acc = co.accounts || {}, accK = Object.keys(acc), accT = accK.reduce(function (a, k) { return a + acc[k]; }, 0);
           var ast = d.appstore || [], votes = ast.reduce(function (a, r) { return a + r.count; }, 0);
           var reviews = []; ast.forEach(function (r) { (r.reviews || []).forEach(function (v) { reviews.push(Object.assign({ country: r.country }, v)); }); });
