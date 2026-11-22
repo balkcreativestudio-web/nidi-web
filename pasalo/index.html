@@ -16,7 +16,13 @@
          (Maru's rule of 10/11): WhatsApp is only a word on it.
 
          Measured like /go/: one visit on arrival and one "whatsapp" tap,
-         through site-view, with the ref. No cookie, no identifier. -->
+         through site-view, with the ref. No cookie, no identifier.
+
+         Download line (Maru, 22/11 night): under the button, «Bajala ahora y
+         entrás cuando te llegue la invitación». After 30 visits and no
+         WhatsApp tap, some readers may rather install it themselves. It goes
+         to /go/?r=ad-a-dl, which picks the store for the phone and counts the
+         opening under its own ref, apart from the forwarded link (ad-a-wa). -->
     <title>Pásaselo a quien vive allá · Nidi</title>
     <meta name="description" content="Tu hijo o tu hija arma Nidi desde allá y te invita. Mandáselo y listo." />
     <meta name="robots" content="noindex" />
@@ -57,6 +63,8 @@
       .btn { margin-top: clamp(32px, 7.6svh, 64px); width: 100%; height: 62px; border-radius: 31px; background: var(--ink); color: var(--paper); font-family: "Hanken Grotesk", system-ui, sans-serif; font-weight: 600; font-size: 19px; text-decoration: none; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
       .btn:active { transform: scale(.985); }
       .btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+      .dl { margin-top: 22px; font-size: 15px; }
+      .dl a { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
     </style>
   </head>
   <body>
@@ -69,6 +77,7 @@
       <h1>Pásaselo a quien vive&nbsp;allá.</h1>
       <p>Tu hijo o tu hija arma Nidi desde allá y te invita. Mandáselo y&nbsp;listo.</p>
       <a class="btn" id="wa" href="https://wa.me/?text=Mir%C3%A1%20esto%20que%20vi%20hoy%2C%20%C2%A1me%20acord%C3%A9%20de%20ustedes%21%0A%0A%C2%BFAbrimos%20nuestro%20Nidi%20esta%20semana%3F%20Son%20cositas%20de%20cada%20d%C3%ADa%20para%20hacer%20entre%20all%C3%A1%20y%20ac%C3%A1.%0A%0Ahttps%3A%2F%2Fnidi.life%2Fgo%2F%3Fr%3Dad-a-wa">Mandáselo por WhatsApp</a>
+      <p class="dl"><a id="dl" href="/go/?r=ad-a-dl">Bajala ahora</a> y entrás cuando te llegue la invitación. iPhone y&nbsp;Android.</p>
     </main>
     <script>
       (function () {
