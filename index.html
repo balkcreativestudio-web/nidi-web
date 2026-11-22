@@ -482,6 +482,11 @@
         box-shadow: 0 40px 80px rgba(42,36,29,.22), 0 10px 24px rgba(42,36,29,.14); }
       .hero-phone img { display: block; width: 100%; height: auto; border-radius: 38px; }
       @media (max-width: 939px) { .hero-phone { width: min(300px, 78vw); } }
+      /* Press (2026-11-22): La Nación by name and link, no logo or screenshot. */
+      .press-card { margin-top: 36px; max-width: 760px; border-top: 1px solid rgba(244, 239, 231, 0.24); padding-top: 28px; }
+      .press-src { font-weight: 500; font-size: 12px; line-height: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244, 239, 231, 0.62); }
+      .press-card p { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 30px); line-height: 1.35; margin: 14px 0 24px; text-wrap: pretty; }
+      .press-link { color: var(--cream); font-weight: 500; text-underline-offset: 5px; }
     </style>
   </head>
   <body>
@@ -494,6 +499,7 @@
           <a href="#how">How it works</a>
           <a href="#who">Who it is for</a>
           <a href="#why">Why</a>
+          <a href="#press">Press</a>
           <a href="#questions">Questions</a>
         </nav>
         <nav class="lang" aria-label="Language">
@@ -733,6 +739,19 @@
               <img class="doodle draws" style="transition-delay:.5s" src="/assets/doodles/doodle-33-moon-stars.png" alt="" width="74" height="73" loading="lazy" />
             </div>
             <blockquote class="rv">My daughter is not yet two. She knows her grandparents' voices.</blockquote>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11b. PRESS ─────────────────────────────────────────── -->
+      <section class="bg-ink" id="press">
+        <div class="wrap">
+          <p class="eyebrow rv">In the press</p>
+          <h2 class="rv">La Nación told our&nbsp;<em>story.</em></h2>
+          <div class="press-card rv">
+            <div class="press-src">La Nación · Argentina · 18 November 2026</div>
+            <p>An Argentine mother in the Netherlands, a daughter far from her grandparents, and why she made Nidi. In Spanish.</p>
+            <a class="press-link" href="https://www.lanacion.com.ar/lifestyle/cambio-argentina-por-un-lugar-perfecto-en-paises-bajos-pero-ser-madre-evidencio-una-carencia-una-nid18112026/" target="_blank" rel="noopener">Read the article &rarr;</a>
           </div>
         </div>
       </section>
