@@ -1887,7 +1887,7 @@
               + '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--line2)">' + parts.map(function (p) { return p[1] ? '<span title="' + p[0] + '" style="width:' + (p[1] * 100 / tot) + '%;background:' + p[2] + '"></span>' : ''; }).join('') + '</div>'
               + '<span></span><div style="display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12px">' + parts.map(function (p) { return '<span style="white-space:nowrap"><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:' + p[2] + ';margin-right:5px"></i>' + p[0] + ' <b>' + p[1] + '</b> <span style="color:var(--ink2)">(' + Math.round(p[1] * 100 / tot) + ' %)</span></span>'; }).join('') + '</div></div>';
           };
-          return '<div class="card" style="margin-top:14px"><div class="title"><span>Nidis Today · ' + tot + ' nidis</span></div>'
+          return '<div class="card" style="margin:14px 0"><div class="title"><span>Nidis Today · ' + tot + ' nidis</span></div>'
             + '<p class="def" style="display:block;margin:0">Sin pruebas. Cada número es de los ' + tot + ', y el % también.</p>'
             + line('Plata', [['Pagan', pays, 'var(--olive)'], ['Con regalo', gift, 'var(--c2)'], ['Pueden pagar', can, 'var(--honey)'], ['Familia, sin pagar', famRest, 'var(--ink3)']])
             + line('Estado', [['Funcionan', c(function (n) { return n.status === 'active'; }), 'var(--olive)'], ['Esperan a la otra casa', c(function (n) { return n.status === 'pending'; }), 'var(--ink3)']])
@@ -1906,6 +1906,7 @@
           var giftNidis = plans.filter(function (p) { return /^Gift/.test(p); }).length;
           var trialNidis = plans.filter(function (p) { return /^Prueba/.test(p); }).length;
           var html = newsHtml(d.news || []) + areasHtml(d, st, s, gr);
+          html += nidisToday(d);
           html += '<h2>Familias y uso</h2><div class="kpis rs-kpis">'
             + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron en el período elegido arriba (7, 14 o 28 días) contra el mismo período anterior.', active.length, '', wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + ' en ' + range + ' días<br>' + wkDelta(wa) + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
             + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), (gr.families ? '<span class="delta ' + ((gr.both_ways_7d || 0) === gr.families ? 'up' : 'flat') + '">' + pct(gr.both_ways_7d || 0, gr.families) + '%</span> · ' : '') + 'las dos casas esta semana')
@@ -1914,7 +1915,6 @@
             + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez en el período elegido arriba, contra el mismo período anterior. No cuenta los que entraron con una cuenta de prueba.', wi.now, 'en ' + range + ' días', wkDelta(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
             + tile('Pagan', 'Familias (nidis con las dos casas adentro) donde alguien paga. Gifts: un año (códigos) o meses (founding families y creadoras). Si alguien paga, el nidi cuenta como que paga aunque la otra casa tenga tiempo gratis. Ingresos muestra todos los pagos.', paying, 'de ' + active.length, giftNidis + ' con gift' + (trialNidis ? '<br>' + trialNidis + ' en prueba' : ''))
             + '</div>';
-          html += nidisToday(d);
           // 2026-11-18: Resumen keeps the week and what to decide. Por día is in Usar → Uso, the
           // families table in Usar → Familias, Se fueron in Usar → Vuelven, the funnel in Entrar.
           html += '<div class="rs-grid">' + decideSoon(d) + readings(s, f, wm, wn) + '</div>';
