@@ -1881,27 +1881,32 @@
           var payN = out.filter(function (n) { return plan(n) === 'Paga'; }).length;
           var giftN = out.filter(function (n) { return /^Gift/.test(plan(n)); }).length;
           var canN = out.length - payN - giftN;
-          var rows = [
-            ['Funcionan', 'las dos casas adentro', all.filter(function (n) { return n.status === 'active'; }).length, 'var(--olive)'],
-            ['Esperan', 'falta la otra casa', all.filter(function (n) { return n.status === 'pending'; }).length, 'var(--ink3)'],
-            ['De afuera', '', out.length, 'var(--c2)'],
-            ['De familia', '', tot - out.length, 'var(--ink3)'],
-            ['Pagan', '', payN, 'var(--olive)'],
-            ['Con regalo', 'no pagan', giftN, 'var(--ink3)'],
-            ['Pueden pagar', 'de afuera, sin regalo, en prueba o esperando a la otra casa', canN, 'var(--honey)']
+          // 22/11 (Maru: "no sabés el porcentaje con respecto a qué es"):
+          // every row says "N de TOTAL", always the same total, in groups.
+          var groups = [
+            ['Cómo están', [
+              ['Funcionan', 'las dos casas adentro', all.filter(function (n) { return n.status === 'active'; }).length, 'var(--olive)'],
+              ['Esperan', 'falta la otra casa', all.filter(function (n) { return n.status === 'pending'; }).length, 'var(--ink3)']]],
+            ['De quién son', [
+              ['De afuera', '', out.length, 'var(--c2)'],
+              ['De familia', '', tot - out.length, 'var(--ink3)']]],
+            ['Plata', [
+              ['Pagan', '', payN, 'var(--olive)'],
+              ['Con regalo', 'no pagan', giftN, 'var(--ink3)'],
+              ['Pueden pagar', 'de afuera, sin regalo', canN, 'var(--honey)']]]
           ];
-          var pctTxt = function (v) { return Math.round(v * 100 / tot) + ' %'; };
-          var bar = function (r, strong) {
-            return '<div style="display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.2em 3.4em;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)' + (strong ? ';font-weight:600' : '') + '">'
-              + '<span style="min-width:0">' + r[0] + (r[1] ? '<br><small style="color:var(--ink2);font-weight:400">' + r[1] + '</small>' : '') + '</span>'
+          var pct = function (v) { return Math.round(v * 100 / tot) + ' %'; };
+          var bar = function (r) {
+            return '<div style="display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 0">'
+              + '<span style="min-width:0">' + r[0] + (r[1] ? '<br><small style="color:var(--ink2)">' + r[1] + '</small>' : '') + '</span>'
               + '<span style="height:10px;border-radius:5px;background:var(--line2);overflow:hidden"><span style="display:block;height:100%;width:' + (r[2] * 100 / tot) + '%;background:' + r[3] + '"></span></span>'
-              + '<b style="text-align:right;font-family:var(--serif);font-size:17px">' + r[2] + '</b>'
-              + '<span style="text-align:right;color:var(--ink2)">' + pctTxt(r[2]) + '</span></div>';
+              + '<span style="text-align:right;white-space:nowrap"><b style="font-family:var(--serif);font-size:17px">' + r[2] + '</b> <span style="color:var(--ink2)">de ' + tot + ' · ' + pct(r[2]) + '</span></span></div>';
           };
           return '<div class="card"><div class="title"><span>Nidis Today</span></div>'
-            + '<div class="nv-big"><b>' + canN + '</b><span>pueden pagar · ' + pctTxt(canN) + ' de ' + tot + ' nidis</span></div>'
-            + '<p class="def" style="display:block">Porcentajes sobre los ' + tot + ' nidis de hoy (sin pruebas). Igual en Externos y Con familia.</p>'
-            + '<div>' + rows.map(function (r, k) { return bar(r, k === 6); }).join('') + '</div></div>';
+            + '<div class="nv-big"><b>' + canN + ' de ' + tot + '</b><span>nidis pueden pagar (' + pct(canN) + ')</span></div>'
+            + '<p class="def" style="display:block">Hoy hay ' + tot + ' nidis (sin cuentas de prueba). Cada porcentaje es sobre esos ' + tot + '.</p>'
+            + groups.map(function (g) { return '<div style="border-top:1px solid var(--line);margin-top:8px;padding-top:6px"><small style="text-transform:uppercase;letter-spacing:.06em;color:var(--ink2)">' + g[0] + '</small>' + g[1].map(bar).join('') + '</div>'; }).join('')
+            + '</div>';
         }
         function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
