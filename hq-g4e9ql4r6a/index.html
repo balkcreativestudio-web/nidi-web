@@ -2625,7 +2625,7 @@
           var rows = a.days.slice().reverse().map(function (r) {
             return '<tr><td>' + dmy(r.day + 'T12:00:00') + '</td><td class="num">' + r.visits + '</td><td class="num">' + r.wa_taps + '</td><td class="num">' + r.opens + '</td><td class="num">' + r.store_taps + '</td><td class="num">' + r.phones_ios + ' / ' + r.phones_android + '</td></tr>';
           }).join('');
-          return card('Anuncio A · la familia que se quedó', 'El anuncio abre nidi.life/pasalo/?ref=ad-a, con un solo botón: «Mandáselo por WhatsApp», que manda nidi.life/go/?r=ad-a-wa. Visitas: llegaron desde el anuncio. Toques: tocaron el botón de WhatsApp. Aperturas: alguien abrió el link reenviado (sin repetidos). Teléfonos nuevos: todos los de esos días, no solo los del anuncio, porque la app no sabe de qué link vino cada teléfono. Cortes de Finance: hasta €0,30 por toque y hasta €0,60 por apertura; con €8 gastados y ningún toque, se apaga.',
+          return card('Anuncio A · la familia que se quedó', 'El anuncio abre nidi.life/pasalo/?ref=ad-a, con un solo botón: «Mandáselo por WhatsApp», que manda nidi.life/go/?r=ad-a-wa. Visitas: llegaron desde el anuncio. Toques: tocaron el botón de WhatsApp. Aperturas: alguien abrió el link reenviado (sin repetidos). Teléfonos nuevos: todos los de esos días, no solo los del anuncio, porque la app no sabe de qué link vino cada teléfono. Solo cuentan visitas y toques con la etiqueta del anuncio; las ráfagas (3 o más visitas del mismo país en el mismo segundo, como la revisión de Meta) y los toques de ese minuto quedan afuera. Cortes de Finance: hasta €0,30 por toque y hasta €0,60 por apertura; con €8 gastados y ningún toque, se apaga.',
             (off ? '<p><span class="stp bad">Apagar: €8 gastados y ningún toque</span></p>' : '')
             + '<div class="kpis">'
             + tile('Visitas', '', v, '', 'desde el anuncio')
@@ -2634,7 +2634,7 @@
             + tile('Teléfonos nuevos', '', pi + pa, '', pi + ' iPhone · ' + pa + ' Android en ' + days + ' ' + plural(days, 'día', 'días') + ' · semana anterior ' + ((wb.ios || 0) + (wb.android || 0)))
             + '</div>'
             + '<div class="tablewrap" style="margin-top:10px"><table><tr><th>Día</th><th class="num">Visitas</th><th class="num">Toques WhatsApp</th><th class="num">Aperturas reenvío</th><th class="num">Toques tienda</th><th class="num">Teléfonos iPhone / Android</th></tr>' + rows + '</table></div>',
-            spent == null ? 'sin gasto cargado' : '€' + spent.toFixed(2).replace('.', ',') + ' gastados');
+            (spent == null ? 'sin gasto cargado' : '€' + spent.toFixed(2).replace('.', ',') + ' gastados') + (a.bursts_left_out ? ' · ' + a.bursts_left_out + ' ' + plural(a.bursts_left_out, 'ráfaga descartada', 'ráfagas descartadas') : ''));
         }
         function tabMkt(d, st, s) {
           var adA = adACard(d);
