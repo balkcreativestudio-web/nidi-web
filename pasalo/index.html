@@ -88,8 +88,20 @@
           try { fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(o), credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {}); } catch (e) {}
         };
         send({ referrer: document.referrer || null });
-        // keepalive lets the tap reach site-view while the page hands over to WhatsApp.
-        document.getElementById("wa").addEventListener("click", function () { send({ click: "whatsapp" }); });
+        // The tap (2026-11-22). Inside Instagram's browser, WhatsApp opens the
+        // moment the button is tapped and the page is torn down; on the first
+        // day 18 visits came in and no tap did. sendBeacon is the call browsers
+        // keep alive through that: a text/plain body, so no preflight, and
+        // site-view reads it as JSON all the same. The link itself is never
+        // held back, so WhatsApp still opens from the tap. fetch is only the
+        // fallback where sendBeacon does not exist.
+        document.getElementById("wa").addEventListener("click", function () {
+          var o = { click: "whatsapp", path: "/pasalo/", lang: "es", ref: ref, tz: tz };
+          var url = "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view";
+          var queued = false;
+          try { queued = !!(navigator.sendBeacon && navigator.sendBeacon(url, JSON.stringify(o))); } catch (e) {}
+          if (!queued) send({ click: "whatsapp" });
+        });
       })();
     </script>
   </body>
