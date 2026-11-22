@@ -35,7 +35,8 @@
         {"@type":"Organization","@id":"https://nidi.life/#org","name":"Nidi","url":"https://nidi.life/","logo":"https://nidi.life/assets/favicon.svg","sameAs":["https://www.instagram.com/hello.nidi/"],"parentOrganization":{"@type":"Organization","name":"BALK Creative Studio"}},
         {"@type":"WebSite","@id":"https://nidi.life/#site","url":"https://nidi.life/","name":"Nidi","inLanguage":["en","es"],"publisher":{"@id":"https://nidi.life/#org"}},
         {"@type":"WebPage","url":"https://nidi.life/","name":"Nidi: the app for families who live far apart","description":"Nidi connects two homes: the one where a child is growing up, and one far away. Voice, photo and text, and small things to do together, kept in Memory.","inLanguage":"en","isPartOf":{"@id":"https://nidi.life/#site"}},
-        {"@type":"MobileApplication","@id":"https://nidi.life/#app","name":"Nidi: Long Distance Family","operatingSystem":"iOS, Android","applicationCategory":"LifestyleApplication","author":{"@id":"https://nidi.life/#org"},"url":"https://nidi.life/","downloadUrl":["https://apps.apple.com/app/id6774968835","https://play.google.com/store/apps/details?id=life.nidi.app"],"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}
+        {"@type":"MobileApplication","@id":"https://nidi.life/#app","name":"Nidi: Long Distance Family","operatingSystem":"iOS, Android","applicationCategory":"LifestyleApplication","author":{"@id":"https://nidi.life/#org"},"url":"https://nidi.life/","downloadUrl":["https://apps.apple.com/app/id6774968835","https://play.google.com/store/apps/details?id=life.nidi.app"],"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}},
+        {"@type":"FAQPage","@id":"https://nidi.life/#faq","inLanguage":"en","isPartOf":{"@id":"https://nidi.life/#site"},"mainEntity":[{"@type":"Question","name":"Is Nidi free?","acceptedAnswer":{"@type":"Answer","text":"7 free days, with no payment details. Then the person who started the nidi chooses a monthly or yearly subscription, and the people they invite never pay."}},{"@type":"Question","name":"How is Nidi different from a video call?","acceptedAnswer":{"@type":"Answer","text":"A call needs everyone free at the same moment, and a small child rarely sits still for one. In Nidi each home does its half when it suits them. For example, both homes look for something red outside and send a photo, and each one sees what the other found. It all stays in Memory."}},{"@type":"Question","name":"Does the other home need the app?","acceptedAnswer":{"@type":"Answer","text":"Yes. They install Nidi, sign in with a code sent to their email, and join with your invitation. It is free for them."}},{"@type":"Question","name":"Who can see what we share?","acceptedAnswer":{"@type":"Answer","text":"Only the people in your nidi. Nothing is public or searchable."}},{"@type":"Question","name":"What languages does it speak?","acceptedAnswer":{"@type":"Answer","text":"English and Spanish, each person in their own language."}},{"@type":"Question","name":"How old is the child?","acceptedAnswer":{"@type":"Answer","text":"From the first months to six years old, with activities chosen for their age. Up to three, the home where they grow up also keeps their firsts."}},{"@type":"Question","name":"What happens if we stop the subscription?","acceptedAnswer":{"@type":"Answer","text":"The nidi pauses for now and nothing new can be added, but everything already shared stays in Memory for anyone in it. You can manage or cancel a subscription anytime: on iPhone in Settings, on Android in Google Play."}}]}
       ]}
     </script>
     <script>
@@ -481,6 +482,11 @@
         box-shadow: 0 40px 80px rgba(42,36,29,.22), 0 10px 24px rgba(42,36,29,.14); }
       .hero-phone img { display: block; width: 100%; height: auto; border-radius: 38px; }
       @media (max-width: 939px) { .hero-phone { width: min(300px, 78vw); } }
+      /* Press (2026-11-22): La Nación by name and link, no logo or screenshot. */
+      .press-card { margin-top: 36px; max-width: 760px; border-top: 1px solid rgba(244, 239, 231, 0.24); padding-top: 28px; }
+      .press-src { font-weight: 500; font-size: 12px; line-height: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244, 239, 231, 0.62); }
+      .press-card p { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 30px); line-height: 1.35; margin: 14px 0 24px; text-wrap: pretty; }
+      .press-link { color: var(--cream); font-weight: 500; text-underline-offset: 5px; }
     </style>
   </head>
   <body>
@@ -493,6 +499,7 @@
           <a href="#how">How it works</a>
           <a href="#who">Who it is for</a>
           <a href="#why">Why</a>
+          <a href="#press">Press</a>
           <a href="#questions">Questions</a>
         </nav>
         <nav class="lang" aria-label="Language">
@@ -736,6 +743,19 @@
         </div>
       </section>
 
+      <!-- 11b. PRESS ─────────────────────────────────────────── -->
+      <section class="bg-ink" id="press">
+        <div class="wrap">
+          <p class="eyebrow rv">In the press</p>
+          <h2 class="rv">La Nación told our&nbsp;<em>story.</em></h2>
+          <div class="press-card rv">
+            <div class="press-src">La Nación · Argentina · 18 November 2026</div>
+            <p>An Argentine mother in the Netherlands, a daughter far from her grandparents, and why she made Nidi. In Spanish.</p>
+            <a class="press-link" href="https://www.lanacion.com.ar/lifestyle/cambio-argentina-por-un-lugar-perfecto-en-paises-bajos-pero-ser-madre-evidencio-una-carencia-una-nid18112026/" target="_blank" rel="noopener">Read the article &rarr;</a>
+          </div>
+        </div>
+      </section>
+
       <!-- 12. QUESTIONS ─────────────────────────────────────────── -->
       <section class="bg-cream" id="questions">
         <div class="wrap">
@@ -743,6 +763,7 @@
           <h2 class="rv">A few things you might be&nbsp;<em>wondering.</em></h2>
           <div class="faq rv">
             <details><summary>Is Nidi free?</summary><div>7 free days, with no payment details. Then the person who started the nidi chooses a monthly or yearly subscription, and the people they invite never pay.</div></details>
+            <details><summary>How is Nidi different from a video call?</summary><div>A call needs everyone free at the same moment, and a small child rarely sits still for one. In Nidi each home does its half when it suits them. For example, both homes look for something red outside and send a photo, and each one sees what the other found. It all stays in Memory.</div></details>
             <details><summary>Does the other home need the app?</summary><div>Yes. They install Nidi, sign in with a code sent to their email, and join with your invitation. It is free for them.</div></details>
             <details><summary>Who can see what we share?</summary><div>Only the people in your nidi. Nothing is public or searchable.</div></details>
             <details><summary>What languages does it speak?</summary><div>English and Spanish, each person in their own language.</div></details>

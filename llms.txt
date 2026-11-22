@@ -1,0 +1,97 @@
+# Nidi
+
+> Nidi is an iPhone and Android app for families who live far apart. It connects two homes: the one where a child from 0 to 6 is growing up, and one far away (grandparents, aunts, uncles, godparents). Each day Nidi suggests something small to do, each in their own home, and both homes share a photo, a voice note or a few words. In the App Store and Google Play it is "Nidi: Long Distance Family" in English and "Nidi: Familia a distancia" in Spanish.
+
+## What it does
+
+- Today: opens with a line about the other home (their time, their sky), then something to do or to share.
+- Activities: small things chosen for the child's age. Some are done alone, some are the same thing done in each home (for example, both homes look for something red outside and send a photo), and some are for the next call.
+- Sharing: a photo, a voice note or a few words.
+- Memory: everything from both homes, by date. Anyone in the nidi can reply to any of it.
+- Firsts: until the child is three, the home where they grow up also keeps their firsts.
+
+Each home does its half when it suits them. Nobody needs to be online at the same time.
+
+## How a nidi starts
+
+1. Either home starts a nidi: a few words about themselves and the child, and a colour that stands for them.
+2. They send the other home an invitation link. The person invited installs Nidi and joins free.
+3. Each home can have up to two adults. One person can be part of several nidis, for example one with each side of the family.
+
+## Price
+
+- 7 free days, counted from the day the other home joins. No payment details.
+- Then the person who started the nidi chooses a monthly or yearly subscription. One subscription covers up to three nidis.
+- The people they invite never pay.
+- If the subscription stops, the nidi pauses: nothing new can be added, and everything already shared stays in Memory.
+
+## Privacy
+
+Only the people in a nidi see what is shared. Nothing is public or searchable. No ads, no feed, no counting. Sign-in is a code sent by email, with no password.
+
+## Languages
+
+English and Spanish. Each person uses Nidi in their own language.
+
+## Who made it
+
+María Calabrese, an Argentine mother living in the Netherlands, made Nidi so her daughter would grow up knowing her grandparents' voices in Buenos Aires. Nidi is published by BALK Creative Studio.
+
+## Links
+
+- Website: https://nidi.life/ (Spanish: https://nidi.life/es/)
+- App Store: https://apps.apple.com/app/id6774968835
+- Google Play: https://play.google.com/store/apps/details?id=life.nidi.app
+- Support: https://nidi.life/support/ (hello@nidi.life)
+- Press: La Nación (Argentina), 18 November 2026: https://www.lanacion.com.ar/lifestyle/cambio-argentina-por-un-lugar-perfecto-en-paises-bajos-pero-ser-madre-evidencio-una-carencia-una-nid18112026/
+- Instagram: https://www.instagram.com/hello.nidi/
+
+---
+
+# Nidi (en español)
+
+> Nidi es una app para iPhone y Android para familias que viven lejos. Une dos hogares: el de un niño de 0 a 6 años que crece y otro que está lejos (abuelos, tíos, padrinos). Cada día Nidi propone algo simple para hacer, cada uno en su hogar, y los dos hogares comparten una foto, un audio o unas palabras. En App Store y Google Play se llama «Nidi: Familia a distancia».
+
+## Qué hace
+
+- Hoy: empieza con una línea sobre el otro hogar (su hora, su cielo) y después algo para hacer o compartir.
+- Actividades: cosas simples, elegidas para la edad del niño. Algunas son para hacer por tu cuenta, otras se hacen igual en cada hogar (por ejemplo, los dos hogares buscan algo rojo afuera y envían una foto) y otras, para la próxima llamada.
+- Compartir: una foto, un audio o unas palabras.
+- Recuerdos: todo lo de los dos hogares, por fecha. Cualquiera del nidi puede contestar a todo.
+- Primeras veces: hasta los tres años, el hogar donde crece el niño también guarda sus primeras veces.
+
+Cada hogar hace su parte cuando puede. Nadie necesita estar conectado al mismo tiempo.
+
+## Cómo empieza un nidi
+
+1. Cualquiera de los dos hogares empieza un nidi: unas palabras sobre sí y sobre el niño, y un color que lo representa.
+2. Envía al otro hogar un link de invitación. La persona invitada instala Nidi y se suma gratis.
+3. En cada hogar puede haber hasta dos personas adultas. Una misma persona puede tener más de un nidi, por ejemplo uno con cada rama de la familia.
+
+## Precio
+
+- 7 días gratis, desde el día en que se suma el otro hogar. Sin datos de pago.
+- Después, quien inició el nidi elige una suscripción mensual o anual. Una suscripción cubre hasta tres nidis.
+- Las personas que invita nunca pagan.
+- Si se deja la suscripción, el nidi queda en pausa: no se puede sumar nada nuevo y todo lo compartido sigue en Recuerdos.
+
+## Privacidad
+
+Solo las personas del nidi ven lo que se comparte. Nada es público ni aparece en búsquedas. Sin publicidad, sin feed, sin contadores. Se entra con un código que llega por email, sin contraseña.
+
+## Idiomas
+
+Español e inglés. Cada persona usa Nidi en su idioma.
+
+## Quién la hizo
+
+María Calabrese, una mamá argentina que vive en Países Bajos, hizo Nidi para que su hija creciera conociendo la voz de sus abuelos en Buenos Aires. Nidi la publica BALK Creative Studio.
+
+## Links
+
+- Web: https://nidi.life/es/
+- App Store: https://apps.apple.com/app/id6774968835
+- Google Play: https://play.google.com/store/apps/details?id=life.nidi.app
+- Soporte: https://nidi.life/soporte/ (hello@nidi.life)
+- Prensa: La Nación, 18 de noviembre de 2026: https://www.lanacion.com.ar/lifestyle/cambio-argentina-por-un-lugar-perfecto-en-paises-bajos-pero-ser-madre-evidencio-una-carencia-una-nid18112026/
+- Instagram: https://www.instagram.com/hello.nidi/
