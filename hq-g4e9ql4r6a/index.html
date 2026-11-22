@@ -1339,7 +1339,7 @@
             + '<div class="controls"><div class="range" role="group" aria-label="A quién contar">'
             + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
-            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '<small>' + t[2] + '</small></button>'; }).join('') + '</nav>'
+            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '</button>'; }).join('') + '</nav>'
             + '<div class="legend" aria-label="Código de colores"><span class="stp good">Va bien</span><span class="stp wait">En observación</span><span class="stp bad">Hay que actuar</span><span class="stp flat">Cerrado</span></div>'
             + (famWait ? '<p class="quiet" style="margin:4px 2px 10px">Cargando «Con familia»… Mientras tanto se ven los números de Externos.</p>' : '');
           var ROOMS = {
