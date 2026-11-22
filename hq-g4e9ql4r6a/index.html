@@ -2636,8 +2636,33 @@
             + '<div class="tablewrap" style="margin-top:10px"><table><tr><th>Día</th><th class="num">Visitas</th><th class="num">Toques WhatsApp</th><th class="num">Aperturas reenvío</th><th class="num">Toques tienda</th><th class="num">Teléfonos iPhone / Android</th></tr>' + rows + '</table></div>',
             (spent == null ? 'sin gasto cargado' : '€' + spent.toFixed(2).replace('.', ',') + ' gastados') + (a.bursts_left_out ? ' · ' + a.bursts_left_out + ' ' + plural(a.bursts_left_out, 'ráfaga descartada', 'ráfagas descartadas') : ''));
         }
+        // Llegar → Acciones (22/11): ad B, the Spanish «qué se hace en Nidi»
+        // carousel. It links straight to nidi.life/go/?r=ad-b: opens without
+        // repeats by store, and new phones as a time window.
+        function adBCard(d) {
+          var a = d.ad_b;
+          if (!a || !a.days) return '';
+          var sum = function (k) { return a.days.reduce(function (t, r) { return t + (Number(r[k]) || 0); }, 0); };
+          var o = sum('opens'), oi = sum('opens_ios'), oa = sum('opens_android'), pi = sum('phones_ios'), pa = sum('phones_android');
+          var spent = a.spent_eur == null ? null : Number(a.spent_eur), budget = a.budget_eur == null ? null : Number(a.budget_eur);
+          var per = spent == null || !o ? '—' : '€' + (spent / o).toFixed(2).replace('.', ',');
+          var wb = a.phones_week_before || {}, days = a.days.length;
+          var co = a.countries || {}, coK = Object.keys(co).sort(function (x, y) { return co[y] - co[x]; });
+          var rows = a.days.slice().reverse().map(function (r) {
+            return '<tr><td>' + dmy(r.day + 'T12:00:00') + '</td><td class="num">' + r.opens + '</td><td class="num">' + r.opens_ios + ' / ' + r.opens_android + '</td><td class="num">' + r.phones_ios + ' / ' + r.phones_android + '</td></tr>';
+          }).join('');
+          return card('Anuncio B · qué se hace en Nidi', 'Carrusel en español para padres que viven lejos con chicos de 0 a 5 años. Lleva directo a nidi.life/go/?r=ad-b, que abre la tienda. Aperturas: alguien abrió ese link en un teléfono (sin repetidos: mismo país y tienda en menos de 60 segundos cuenta una vez), separadas en App Store y Google Play. Teléfonos nuevos: todos los de esos días, no solo los del anuncio, porque la app no sabe de qué link vino cada teléfono. El gasto sale de la fila ad-b de Marketing.',
+            '<div class="kpis">'
+            + tile('Aperturas del link', '', o, '', oi + ' App Store · ' + oa + ' Google Play')
+            + tile('Costo por apertura', '', per, '', spent == null ? 'sin gasto cargado' : '€' + spent.toFixed(2).replace('.', ',') + ' gastados' + (budget ? ' de €' + budget.toFixed(0) : ''))
+            + tile('Teléfonos nuevos', '', pi + pa, '', pi + ' iPhone · ' + pa + ' Android en ' + days + ' ' + plural(days, 'día', 'días') + ' · semana anterior ' + ((wb.ios || 0) + (wb.android || 0)))
+            + '</div>'
+            + (coK.length ? '<p class="quiet" style="margin-top:6px">Países: ' + coK.map(function (k) { return esc(/^[A-Z]{2}$/.test(k) ? regionName(k) : k) + ' ' + co[k]; }).join(' · ') + '</p>' : '')
+            + '<div class="tablewrap" style="margin-top:10px"><table><tr><th>Día</th><th class="num">Aperturas</th><th class="num">App Store / Google Play</th><th class="num">Teléfonos iPhone / Android</th></tr>' + rows + '</table></div>',
+            o + ' ' + plural(o, 'apertura', 'aperturas'));
+        }
         function tabMkt(d, st, s) {
-          var adA = adACard(d);
+          var adA = adACard(d) + adBCard(d);
           var rows = d.marketing;
           if (!Array.isArray(rows)) return adA + card('Marketing', '', '<p class="quiet">El registro todavía no está activo: falta aplicar la migración hq_marketing y publicar la función.</p>');
           // active first, and within each state what costs money first
