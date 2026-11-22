@@ -1865,6 +1865,38 @@
           return funC + workC
             + '<details class="nv-more"><summary>Detalle de estos 14 días: hoy, cada familia, quienes no armaron, de dónde vienen</summary>' + head + split + famC + naC + srcC + '</details>';
         }
+        // Nidis Today (22/11, Maru: "cuántos nidis hay funcionando en total,
+        // cuántos de familia, cuántos externos, cuántos con posibilidad de
+        // pagar"). Same whatever view is shown: hq_nidis_today brings every
+        // nidi that is not over and not a test; planOf (the Pagan tile's
+        // rule) says who pays, has a gift or is in trial.
+        function nidisToday(d, m) {
+          var all = d.nidis_today;
+          if (!all) return '';
+          var first = function (x) { return esc(String(x || '').trim().split(/\s+/)[0] || '?'); };
+          var cnt = function (g, st) { return all.filter(function (n) { return (!g || n.grp === g) && (!st || n.status === st); }).length; };
+          var row = function (label, g) { return '<tr><th>' + label + '</th><td>' + cnt(g, 'active') + '</td><td>' + cnt(g, 'pending') + '</td><td><b>' + cnt(g) + '</b></td></tr>'; };
+          var out = all.filter(function (n) { return n.grp === 'outside'; });
+          var act = out.filter(function (n) { return n.status === 'active'; });
+          var plan = function (n) { return planOf(n, m); };
+          var pays = act.filter(function (n) { return plan(n) === 'Paga'; });
+          var gift = act.filter(function (n) { return /^Gift/.test(plan(n)); });
+          var trial = act.filter(function (n) { return /^Prueba/.test(plan(n)); });
+          var wait = out.filter(function (n) { return n.status === 'pending'; });
+          var waitPay = wait.filter(function (n) { return !/^Gift/.test(plan(n)) && plan(n) !== 'Paga'; });
+          var names = function (l) { return l.map(function (n) { return first(n.a) + (n.b ? ' + ' + first(n.b) : ''); }).join(', '); };
+          return '<div class="card"><div class="title"><span>Nidis Today</span></div>'
+            + '<p class="def" style="display:block">Todos los nidis de hoy, sin pruebas, con la misma cuenta en Externos y Con familia. Funcionan: las dos casas adentro. Esperan: falta la otra casa.</p>'
+            + '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th></th><th>Funcionan</th><th>Esperan</th><th>Total</th></tr></thead><tbody>'
+            + row('De afuera', 'outside') + row('De familia', 'family') + row('Total', null)
+            + '</tbody></table></div>'
+            + '<p class="nv-note"><b>De afuera que funcionan (' + act.length + '):</b> '
+            + pays.length + ' ' + plural(pays.length, 'paga', 'pagan') + (pays.length ? ' (' + names(pays) + ')' : '')
+            + ' · ' + gift.length + ' con regalo' + (gift.length ? ' (' + names(gift) + ')' : '')
+            + ' · <b>' + trial.length + ' pueden pagar</b> al terminar la prueba' + (trial.length ? ' (' + names(trial) + ')' : '') + '.</p>'
+            + '<p class="nv-note"><b>De afuera que esperan (' + wait.length + '):</b> ' + waitPay.length + ' pueden pagar si entra la otra casa'
+            + (wait.length - waitPay.length ? ', ' + (wait.length - waitPay.length) + ' con regalo' : '') + '.</p></div>';
+        }
         function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
           var pending = s.nidis.filter(function (n) { return n.status === 'pending'; });
@@ -1876,7 +1908,7 @@
           var paying = plans.filter(function (p) { return p === 'Paga'; }).length;
           var giftNidis = plans.filter(function (p) { return /^Gift/.test(p); }).length;
           var trialNidis = plans.filter(function (p) { return /^Prueba/.test(p); }).length;
-          var html = newsHtml(d.news || []) + areasHtml(d, st, s, gr);
+          var html = nidisToday(d, m) + newsHtml(d.news || []) + areasHtml(d, st, s, gr);
           html += '<h2>Familias y uso</h2><div class="kpis rs-kpis">'
             + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron en el período elegido arriba (7, 14 o 28 días) contra el mismo período anterior.', active.length, '', wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + ' en ' + range + ' días<br>' + wkDelta(wa) + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
             + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), (gr.families ? '<span class="delta ' + ((gr.both_ways_7d || 0) === gr.families ? 'up' : 'flat') + '">' + pct(gr.both_ways_7d || 0, gr.families) + '%</span> · ' : '') + 'las dos casas esta semana')
