@@ -1871,31 +1871,37 @@
         // nidi that is not over and not a test; planOf (the Pagan tile's
         // rule) says who pays, has a gift or is in trial.
         function nidisToday(d, m) {
+          // 22/11 (Maru): one clear number for who can pay, percentages of
+          // all nidis to judge it, no names or written breakdown.
           var all = d.nidis_today;
-          if (!all) return '';
-          var first = function (x) { return esc(String(x || '').trim().split(/\s+/)[0] || '?'); };
-          var cnt = function (g, st) { return all.filter(function (n) { return (!g || n.grp === g) && (!st || n.status === st); }).length; };
-          var row = function (label, g) { return '<tr><th>' + label + '</th><td>' + cnt(g, 'active') + '</td><td>' + cnt(g, 'pending') + '</td><td><b>' + cnt(g) + '</b></td></tr>'; };
-          var out = all.filter(function (n) { return n.grp === 'outside'; });
-          var act = out.filter(function (n) { return n.status === 'active'; });
+          if (!all || !all.length) return '';
+          var tot = all.length;
           var plan = function (n) { return planOf(n, m); };
-          var pays = act.filter(function (n) { return plan(n) === 'Paga'; });
-          var gift = act.filter(function (n) { return /^Gift/.test(plan(n)); });
-          var trial = act.filter(function (n) { return /^Prueba/.test(plan(n)); });
-          var wait = out.filter(function (n) { return n.status === 'pending'; });
-          var waitPay = wait.filter(function (n) { return !/^Gift/.test(plan(n)) && plan(n) !== 'Paga'; });
-          var names = function (l) { return l.map(function (n) { return first(n.a) + (n.b ? ' + ' + first(n.b) : ''); }).join(', '); };
+          var out = all.filter(function (n) { return n.grp === 'outside'; });
+          var payN = out.filter(function (n) { return plan(n) === 'Paga'; }).length;
+          var giftN = out.filter(function (n) { return /^Gift/.test(plan(n)); }).length;
+          var canN = out.length - payN - giftN;
+          var rows = [
+            ['Funcionan', 'las dos casas adentro', all.filter(function (n) { return n.status === 'active'; }).length, 'var(--olive)'],
+            ['Esperan', 'falta la otra casa', all.filter(function (n) { return n.status === 'pending'; }).length, 'var(--ink3)'],
+            ['De afuera', '', out.length, 'var(--c2)'],
+            ['De familia', '', tot - out.length, 'var(--ink3)'],
+            ['Pagan', '', payN, 'var(--olive)'],
+            ['Con regalo', 'no pagan', giftN, 'var(--ink3)'],
+            ['Pueden pagar', 'de afuera, sin regalo, en prueba o esperando a la otra casa', canN, 'var(--honey)']
+          ];
+          var pctTxt = function (v) { return Math.round(v * 100 / tot) + ' %'; };
+          var bar = function (r, strong) {
+            return '<div style="display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.2em 3.4em;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)' + (strong ? ';font-weight:600' : '') + '">'
+              + '<span style="min-width:0">' + r[0] + (r[1] ? '<br><small style="color:var(--ink2);font-weight:400">' + r[1] + '</small>' : '') + '</span>'
+              + '<span style="height:10px;border-radius:5px;background:var(--line2);overflow:hidden"><span style="display:block;height:100%;width:' + (r[2] * 100 / tot) + '%;background:' + r[3] + '"></span></span>'
+              + '<b style="text-align:right;font-family:var(--serif);font-size:17px">' + r[2] + '</b>'
+              + '<span style="text-align:right;color:var(--ink2)">' + pctTxt(r[2]) + '</span></div>';
+          };
           return '<div class="card"><div class="title"><span>Nidis Today</span></div>'
-            + '<p class="def" style="display:block">Todos los nidis de hoy, sin pruebas, con la misma cuenta en Externos y Con familia. Funcionan: las dos casas adentro. Esperan: falta la otra casa.</p>'
-            + '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th></th><th>Funcionan</th><th>Esperan</th><th>Total</th></tr></thead><tbody>'
-            + row('De afuera', 'outside') + row('De familia', 'family') + row('Total', null)
-            + '</tbody></table></div>'
-            + '<p class="nv-note"><b>De afuera que funcionan (' + act.length + '):</b> '
-            + pays.length + ' ' + plural(pays.length, 'paga', 'pagan') + (pays.length ? ' (' + names(pays) + ')' : '')
-            + ' · ' + gift.length + ' con regalo' + (gift.length ? ' (' + names(gift) + ')' : '')
-            + ' · <b>' + trial.length + ' pueden pagar</b> al terminar la prueba' + (trial.length ? ' (' + names(trial) + ')' : '') + '.</p>'
-            + '<p class="nv-note"><b>De afuera que esperan (' + wait.length + '):</b> ' + waitPay.length + ' pueden pagar si entra la otra casa'
-            + (wait.length - waitPay.length ? ', ' + (wait.length - waitPay.length) + ' con regalo' : '') + '.</p></div>';
+            + '<div class="nv-big"><b>' + canN + '</b><span>pueden pagar · ' + pctTxt(canN) + ' de ' + tot + ' nidis</span></div>'
+            + '<p class="def" style="display:block">Porcentajes sobre los ' + tot + ' nidis de hoy (sin pruebas). Igual en Externos y Con familia.</p>'
+            + '<div>' + rows.map(function (r, k) { return bar(r, k === 6); }).join('') + '</div></div>';
         }
         function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
