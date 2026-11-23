@@ -1090,7 +1090,7 @@
             + cardA('tests', 'Tests', soon.length ? pill('wait', 'próxima: ' + dmy(soon[0].decide_on + 'T12:00:00')) : pill('flat', 'nada por decidir'), open.length, plural(open.length, 'test midiendo', 'tests midiendo') + (soon.length ? ' · ' + esc(soon[0].title) : ''))
             + (mr ? '' : cardA('entrar', 'Nuevos', pill((s.funnel || {}).activated ? 'good' : 'flat', ((s.funnel || {}).activated || 0) + ' de ' + ((s.funnel || {}).nidi || 0) + ' nidis completos'), active, plural(active, 'familia', 'familias') + ' con las dos casas adentro · ' + ((s.funnel || {}).installs || 0) + ' descargas desde el lanzamiento'))
             + (function () { var last = {}; (d.social || []).forEach(function (r) { last[r.network] = r; }); var ig = last.instagram || last.ig, tt = last.tiktok;
-                return cardA('redes', 'Redes', pill(ig && ig.followers >= 200 ? 'good' : 'wait', 'meta 200 al 9/12'), ig ? ig.followers : '—', 'seguidores en Instagram' + (tt ? ' · ' + tt.followers + ' en TikTok' : '')); })()
+                return cardA('redes', 'Redes', pill(ig && ig.followers >= SO_GOAL.ig.v1 ? 'good' : 'wait', 'meta ' + SO_GOAL.ig.v1 + ' al 30/11'), ig ? ig.followers : '—', 'seguidores en Instagram' + (tt ? ' · ' + tt.followers + ' en TikTok' : '')); })()
             + cardA('usar', 'Usar', pill((gr.both_ways_7d || 0) ? 'good' : 'bad', (gr.both_ways_7d || 0) + ' de ' + (gr.families || 0) + ' comparten'), (s.moments ? s.moments.total : 0), 'momentos desde el lanzamiento · ' + (s.moments ? s.moments.notes : 0) + ' notas')
             + (mr ? '' : cardA('plata', 'Plata', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con gift'))
             + '</div>';
@@ -1165,22 +1165,23 @@
           var pts = v.map(function (y, i) { return (i / (v.length - 1) * w).toFixed(1) + ',' + (hi === lo ? h / 2 : h - 3 - (y - lo) / (hi - lo) * (h - 6)).toFixed(1); }).join(' ');
           return '<svg class="so-spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>';
         }
-        // Instagram's goal: from 43 on 13/11 to 200 by 9/12 (was 300; lowered on 23/11, Maru + Redes).
-        var SO_GOAL = { ig: { from: '2026-11-13', v0: 43, to: '2026-12-09', v1: 200 } };
+        // Instagram's goal: from 43 on 13/11 to 150 by 30/11, so December starts
+        // fresh on 1/12 like the other goals (Maru, 23/11). Was 300 by 9/12.
+        var SO_GOAL = { ig: { from: '2026-11-13', v0: 43, to: '2026-11-30', v1: 150 } };
         function dayDiff(a, b) { return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5); }
         function followEn(x) {
           var dd = x.last.followers - x.base.followers;
           return (dd > 0 ? '+' + dd : dd === 0 ? '=' : dd) + ' since ' + dmy(x.base.day + 'T12:00:00');
         }
         // One dot per day loaded; a missing day gets no dot and the line runs
-        // across it. From the first day loaded to 9/12, with the goal dashed.
+        // across it. From the first day loaded to the goal's end, with the goal dashed.
         function socialChart(f, goal, color, today) {
           if (!f) return '';
           // a wide one for a computer and a tall one for a phone, so the text stays readable
           return socialSvg(f, goal, color, today, 1100, 170, 'sc-wide') + socialSvg(f, goal, color, today, 560, 300, 'sc-narrow');
         }
         function socialSvg(f, goal, color, today, W, H, cls) {
-          var rows = f.rows, from = rows[0].day, to = '2026-12-09';
+          var rows = f.rows, from = rows[0].day, to = goal ? goal.to : SO_GOAL.ig.to;
           if (today > to) to = today;
           var big = cls === 'sc-narrow', fs = big ? 20 : 11;
           var span = Math.max(1, dayDiff(from, to)), Lp = big ? 56 : 34, Rp = big ? 64 : 40, T = 14, B = big ? 40 : 24;
