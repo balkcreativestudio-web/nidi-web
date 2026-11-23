@@ -2692,7 +2692,8 @@
             o + ' ' + plural(o, 'apertura', 'aperturas'));
         }
         function tabMkt(d, st, s) {
-          var adA = adACard(d) + adBCard(d);
+          // Ad A left the board on 23/11 (Maru, town meeting): it is a finished test in Tests (ad-a-pasalo).
+          var adA = adBCard(d);
           var rows = d.marketing;
           if (!Array.isArray(rows)) return adA + card('Marketing', '', '<p class="quiet">El registro todavía no está activo: falta aplicar la migración hq_marketing y publicar la función.</p>');
           // active first, and within each state what costs money first
