@@ -2612,6 +2612,28 @@
             else if (c.metric === 'duplicate_nidi') sup = [['Que igual entraron después al que las esperaba', a.num ? (a.joined_too || 0) + ' de ' + a.num : '—', 'antes ' + (b.joined_too || 0) + ' de ' + (b.num || 0)]];
             else if (c.metric === 'play_search_visitors') sup = (a.terms || []).map(function (t) { return [esc(t.term), t.visitors, 'visitas']; });
             col2 = '<div class="dl">Métricas de apoyo</div>' + (sup && sup.length ? ttSec(sup, head) : '<p class="quiet">Todavía nada para mostrar.</p>');
+            // 23/11 (Maru, «Sí, sumalo»): the invitation by mail, outside only, from
+            // hq_invite_mail: who uses it, whether it arrives, what it brings back.
+            var im = c.slug === 'invite-by-mail' && DATA && DATA.invite_mail;
+            if (im) {
+              var IMS = { card_before: 'antes del link', card_after: 'al volver del link', bounced: 'tras un rebote', resend: 'reenvío' };
+              var kvm = function (o, names) { o = o || {}; var k = Object.keys(o); return k.length ? k.map(function (x) { return esc((names && names[x]) || x) + ' ' + o[x]; }).join(' · ') : '—'; };
+              var tot = function (o) { return Object.keys(o || {}).reduce(function (t, k) { return t + Number(o[k] || 0); }, 0); };
+              var ms = im.mail_status || {}, w = im.links_48h_with_mail || {}, l = im.links_48h_link_only || {};
+              var in48 = function (x) { return Number(x.mature) ? x.in_48h + ' de ' + x.mature : '—'; };
+              col2 += '<div class="dl">Por mail, desde el ' + day12(String(im.since).slice(0, 10)) + '</div>' + ttSec([
+                ['Abrieron la hoja «Por mail»', tot(im.sheet_opened_by_source), kvm(im.sheet_opened_by_source, IMS)],
+                ['Mandaron el mail', im.senders || 0, (im.sent_events || 0) + ' ' + plural(Number(im.sent_events || 0), 'envío', 'envíos') + ' · de ' + (im.pending_nidis || 0) + ' nidis pendientes'],
+                ['Entregados', im.mails_rows ? (ms.delivered || 0) + ' de ' + im.mails_rows : '—', ms.sent ? (ms.sent + ' sin respuesta de Resend aún') : ''],
+                ['Rebotaron', (ms.bounced || 0) + (ms.complained ? ' · ' + ms.complained + ' spam' : ''), ''],
+                ['Fallaron', tot(im.failed_by_reason), kvm(im.failed_by_reason)],
+                ['Frenados (límite o dirección)', tot(im.refused_by_reason), kvm(im.refused_by_reason)],
+                ['Link sin abrir cuando salió el mail', im.stalled_when_mailed || 0, ''],
+                ['De esos, entró el otro hogar', im.stalled_then_joined || 0, (im.hours_to_join || []).length ? 'a las ' + im.hours_to_join.map(function (h) { return String(h).replace('.', ','); }).join(' · ') + ' h del mail' : ''],
+                ['Adentro a las 48 h, con mail', in48(w), w.waiting ? w.waiting + ' todavía sin 48 h' : ''],
+                ['Adentro a las 48 h, solo link', in48(l), l.waiting ? l.waiting + ' todavía sin 48 h' : '']
+              ]) + '<p class="quiet tt-foot">Solo de afuera. Las versiones de desarrollo no dejan eventos.</p>';
+            }
           }
           var col3 = '<div class="dl">Lectura</div>' + (c.reading ? '<p class="tt-read">' + esc(c.reading) + '</p>' : '<p class="quiet">' + chSay(c, unit, chState(c, todayAms()), todayAms()).replace(/<[^>]+>/g, '') + '</p>')
             + (c.note ? '<details class="tt-note"><summary>Notas</summary><p>' + esc(c.note) + '</p></details>' : '')
