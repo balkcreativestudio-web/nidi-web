@@ -769,6 +769,7 @@
           savedButton: "Saved",
           badEmail: "Check your email: something's missing.",
           ownEmail: "That's the email of the person who invited you. Type yours.",
+          noMailServer: function (domain) { return domain + " doesn't receive email. Check the address. If it's right, tap again."; },
           didYouMean: "Did you mean ",
           deskLead: "Nidi lives on your phone. Scan with your camera:",
           deskLeadNoQr: "Nidi lives on your phone. Open this link there, or get it from the store:",
@@ -804,6 +805,7 @@
           savedButton: "Guardado",
           badEmail: "Revisa tu email: falta algo.",
           ownEmail: "Ese es el email de quien te invitó. Escribe el tuyo.",
+          noMailServer: function (domain) { return domain + " no recibe correos. Revisa la dirección. Si está bien, toca de nuevo."; },
           didYouMean: "¿Quisiste decir ",
           deskLead: "Nidi se usa en el teléfono. Escanea con la cámara:",
           deskLeadNoQr: "Nidi se usa en el teléfono. Abre este link ahí, o descárgala de la tienda:",
@@ -954,6 +956,47 @@
         return true;
       }
 
+      // ── A domain that takes no mail (23/11) ───────────────────────────
+      //
+      // Rocío's invitee saved "…@tiemporeal.com" here on 18/11 (meaning
+      // tiemporeal.com.ar). That domain is parked: its only mail record is
+      // "0 localhost.". Her sign-in code bounced after fourteen hours and she
+      // never got in. The app checks this since 23/11 (nidi-app #251,
+      // lib/mail-domain.ts); this is the same rule, with the same words.
+      // Known providers are never looked up. For any other domain, only the
+      // domain goes to Cloudflare's DNS over HTTPS, never the address. It
+      // counts as taking no mail when the domain doesn't exist, when its MX
+      // records are all null ("." or localhost), or when it has neither MX
+      // nor an address. A failed lookup, or one slower than 3 s, says
+      // nothing. The warning shows once; the same address again goes on.
+      var KNOWN_MAIL = ["gmail.com", "googlemail.com", "hotmail.com", "hotmail.es", "hotmail.co.uk", "hotmail.nl", "hotmail.de", "hotmail.fr", "hotmail.it", "hotmail.com.ar", "hotmail.com.mx", "outlook.com", "outlook.es", "outlook.de", "outlook.com.ar", "live.com", "live.nl", "live.co.uk", "live.com.ar", "live.com.mx", "msn.com", "yahoo.com", "yahoo.es", "yahoo.co.uk", "yahoo.de", "yahoo.fr", "yahoo.com.ar", "yahoo.com.mx", "ymail.com", "icloud.com", "me.com", "mac.com", "aol.com", "mail.com", "gmx.com", "gmx.de", "gmx.net", "gmx.at", "web.de", "t-online.de", "proton.me", "protonmail.com", "pm.me", "ziggo.nl", "kpnmail.nl", "xs4all.nl", "planet.nl", "home.nl", "orange.fr", "free.fr", "wanadoo.fr", "libero.it", "telefonica.net", "fibertel.com.ar"];
+      function dnsLookup(name, type) {
+        var timer = null;
+        var timeout = new Promise(function (resolve) { timer = setTimeout(function () { resolve(null); }, 3000); });
+        var ask = fetch("https://cloudflare-dns.com/dns-query?name=" + encodeURIComponent(name) + "&type=" + type, {
+          headers: { accept: "application/dns-json" }, credentials: "omit", mode: "cors",
+        }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+        return Promise.race([ask, timeout]).then(function (v) { clearTimeout(timer); return v; });
+      }
+      function domainTakesNoMail(email) {
+        var domain = email.slice(email.lastIndexOf("@") + 1);
+        if (!domain || KNOWN_MAIL.indexOf(domain) >= 0) return Promise.resolve(false);
+        return dnsLookup(domain, "MX").then(function (mx) {
+          if (!mx) return false;
+          if (mx.Status === 3) return true;
+          if (mx.Status !== 0) return false;
+          var hosts = (mx.Answer || []).filter(function (a) { return a.type === 15; }).map(function (a) {
+            return String(a.data).trim().split(/\s+/).pop().replace(/\.$/, "").toLowerCase();
+          });
+          if (hosts.length) return hosts.every(function (h) { return h === "" || h === "localhost"; });
+          return Promise.all([dnsLookup(domain, "A"), dnsLookup(domain, "AAAA")]).then(function (r) {
+            if (!r[0] || !r[1]) return false;
+            var has = function (x) { return (x.Answer || []).some(function (a) { return a.type === 1 || a.type === 28; }); };
+            return !has(r[0]) && !has(r[1]);
+          });
+        });
+      }
+
       function showDesk() {
         document.getElementById("desk").hidden = false;
         fillStores(document.getElementById("deskStores"), false);
@@ -1001,6 +1044,7 @@
       }
 
       var sending = false;
+      var noMailAsked = null;
       function submit(e) {
         e.preventDefault();
         if (sending || !linkCode) return;
@@ -1023,6 +1067,22 @@
         var button = document.getElementById("submit");
         button.disabled = true;
         button.textContent = c.saving;
+        if (noMailAsked !== email) {
+          domainTakesNoMail(email).then(function (noMail) {
+            sending = false;
+            if (noMail) {
+              noMailAsked = email;
+              button.disabled = false;
+              button.textContent = onDesktop ? c.save : c.get;
+              showError(c.noMailServer(email.slice(email.lastIndexOf("@") + 1)));
+              track("no_mail_server");
+              return;
+            }
+            noMailAsked = email;
+            submit(e);
+          });
+          return;
+        }
         var goOn = function () {
           sending = false;
           button.disabled = false;
@@ -1156,8 +1216,9 @@
           // "Copiar" counts too (copy_code, 2026-11-14): the code is never sent.
           // Entry v6: the store opens from the page script after the email
           // is saved, so it reports the tap itself (2026-11-17).
+          // no_mail_server (23/11): the "doesn't receive email" line was shown.
           document.addEventListener("nidi-click", function (e) {
-            var t = e.detail === "google_play" || e.detail === "app_store" ? e.detail : null;
+            var t = e.detail === "google_play" || e.detail === "app_store" || e.detail === "no_mail_server" ? e.detail : null;
             if (!t) return;
             var tz = null;
             try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e2) {}
