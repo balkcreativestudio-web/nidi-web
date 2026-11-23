@@ -405,6 +405,16 @@
       .chf button[aria-pressed="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
       .tt-tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:3px; }
       .tt-tag { font-size:11px; color:var(--ink2); border:1px solid var(--line); border-radius:6px; padding:0 6px; }
+      .tt-tag.real { color:#5c6b37; border-color:#cfd8b5; } .tt-tag.rem { color:#8a6417; border-color:#e8d5a6; } .tt-tag.fail { color:#a2452f; border-color:#ecc3b7; }
+      .j-form { display:flex; gap:8px; margin:4px 0 10px; } .j-form input { flex:1; min-width:0; }
+      .j-hits { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; } .j-hit { text-align:left; background:none; border:1px solid var(--line); border-radius:8px; padding:7px 10px; cursor:pointer; font:inherit; color:inherit; }
+      .j-head { display:flex; flex-direction:column; gap:4px; margin:6px 0 10px; }
+      .j-steps { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; } .j-step { font-size:12px; padding:3px 9px; border-radius:999px; background:var(--line2); color:var(--ink3); } .j-step.on { background:var(--olive-soft); color:#5c6b37; } .j-step small { opacity:.75; }
+      .j-day { font-size:12px; font-weight:600; color:var(--ink2); margin:12px 0 4px; }
+      .j-row { display:grid; grid-template-columns:44px 22px 90px 1fr; gap:6px; align-items:baseline; font-size:13px; padding:3px 0; border-bottom:1px solid var(--line2); }
+      .j-t { color:var(--ink3); font-variant-numeric:tabular-nums; } .j-who { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .j-open .j-what { color:var(--ink2); }
+      .jh { display:inline-block; width:18px; text-align:center; font-size:11px; font-weight:600; border-radius:4px; } .jh-a { background:var(--honey-soft); color:#8a6417; } .jh-b { background:var(--olive-soft); color:#5c6b37; }
+      .j-rules { margin:0 0 8px 18px; padding:0; font-size:13px; line-height:1.6; }
       .tt-tag.nogoal { color:#8a6417; border-color:#e8d5a6; background:var(--honey-soft, #f5e9cc); }
       .ds { display:grid; gap:8px; }
       .ds button { font:inherit; text-align:left; display:grid; grid-template-columns:52px 1fr auto; gap:10px; align-items:center; background:var(--line2); border:0; border-radius:10px; padding:9px 12px; color:var(--ink); cursor:pointer; }
@@ -955,7 +965,7 @@
         // question each, with the team that owns it: Resumen, Tests, Llegar, Entrar, Usar, Plata, Board.
         // 2026-11-20 (Maru: "alinear las tabs con los chats"; mock Pwf6KE7N8Y9Cevr911sPmo): one tab per
         // team chat, everything by calendar month, one color code for state. Board lives at the end of Resumen.
-        var TABS = [['resumen', 'Resumen', 'Dirección'], ['plata', 'Plata', 'Finance'], ['llegar', 'Llegar', 'Marketing'], ['redes', 'Redes', 'Redes Sociales'], ['entrar', 'Nuevos', 'Producto'], ['usar', 'Usar', 'Producto'], ['errores', 'Errores', 'IT'], ['tests', 'Tests', 'todos'], ['meses', 'Meses', 'historial']];
+        var TABS = [['resumen', 'Resumen', 'Dirección'], ['plata', 'Plata', 'Finance'], ['llegar', 'Llegar', 'Marketing'], ['redes', 'Redes', 'Redes Sociales'], ['entrar', 'Nuevos', 'Producto'], ['usar', 'Usar', 'Producto'], ['errores', 'Errores', 'IT'], ['contactos', 'Contactos', 'HQ'], ['tests', 'Tests', 'todos'], ['meses', 'Meses', 'historial']];
         var ROOM_Q = {
           tests: ['¿Qué estamos probando y qué decidimos?', 'Todos los equipos'],
           llegar: ['¿De dónde viene la gente y cuánto cuesta?', 'Marketing'],
@@ -964,6 +974,7 @@
           usar: ['¿Las familias usan Nidi y vuelven?', 'Producto'],
           plata: ['¿Cuánta plata entra este mes?', 'Finance · los regalos no cuentan'],
           errores: ['¿Algo falla?', 'IT · por mes'],
+          contactos: ['¿A quién le escribimos y cuándo?', 'HQ · las 8 reglas, la alarma diaria y el recorrido de cada familia'],
           meses: ['¿Cómo venimos mes a mes?', 'Historial · verde si mejoró, rojo si empeoró']
         };
         function roomHead(tab) { var q = ROOM_Q[tab]; return q ? '<div class="room-q"><h2>' + q[0] + '</h2><span>' + q[1] + '</span></div>' : ''; }
@@ -998,7 +1009,7 @@
         // there before live inside their team: Familias, Uso and Retención
         // in Producto; Adquisición in Marketing; Tests in Design; Ingresos
         // in Finance. A room saved on this device from before opens in its team.
-        var TEAM_C = { resumen: 'var(--honey)', tests: '#9890b0', llegar: 'var(--c2)', redes: 'var(--lagoon)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', errores: '#c0563c', meses: 'var(--ink3)', board: 'var(--ink)' };
+        var TEAM_C = { resumen: 'var(--honey)', tests: '#9890b0', llegar: 'var(--c2)', redes: 'var(--lagoon)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', errores: '#c0563c', contactos: '#7a8fa6', meses: 'var(--ink3)', board: 'var(--ink)' };
         // A tab saved on this device from before opens where its content went.
         var OLD_TAB = { fam: ['usar', 'fam'], uso: ['usar', 'uso'], ret: ['usar', 'ret'], prod: ['usar'], adq: ['llegar', 'web'], mkt: ['llegar'], social: ['redes'], board: ['resumen'],
                         cambios: ['tests'], design: ['tests'], ing: ['plata'], fin: ['plata'] };
@@ -1344,7 +1355,7 @@
             + (famWait ? '<p class="quiet" style="margin:4px 2px 10px">Cargando «Con familia»… Mientras tanto se ven los números de Externos.</p>' : '');
           var ROOMS = {
             resumen: function () { return tabResumen.apply(null, arguments) + '<h2>Board</h2>' + tabBoard.apply(null, arguments); },
-            tests: tabCambios, redes: tabSocial, errores: tabErrores, meses: tabMeses,
+            tests: tabCambios, redes: tabSocial, errores: tabErrores, contactos: tabContactos, meses: tabMeses,
             plata: function (d, st, s) { return nuevosSection(d, st, 'plata') + '<details class="nv-more"><summary>Detalle: todas las suscripciones, gifts y paywall</summary>' + tabIng(d, st, s) + '</details>'; },
             llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : tabMkt).apply(null, arguments); },
             entrar: function (d, st, s, gr, ser) { return tabAdq(d, st, s, gr, ser, 'entrar'); },
@@ -1645,6 +1656,100 @@
             + card('Envíos que fallaron', 'Fotos y audios que la gente de afuera intentó mandar en ' + name + ' y no llegaron, sobre todos los intentos. Verde por debajo del 5 %, miel hasta el 10 %, rojo arriba.', '<div class="nv-big"><b>' + r.sends_err + '</b><span>de ' + tot + ' en ' + name + '</span></div><span class="stp ' + cls + '">' + rate.toFixed(1).replace('.', ',') + ' %</span>')
             + card('Envíos cortados, rescatados', 'Se mandaron, la app se cerró a mitad de camino y se terminaron al volver a abrirla (desde el 20/11).', '<div class="nv-big"><b>' + r.recovered + '</b><span>en ' + name + '</span></div><span class="stp ' + (r.recovered ? 'good' : 'flat') + '">' + (r.recovered ? 'el arreglo funciona' : 'ninguno todavía') + '</span>')
             + '</div>' + card('Por qué fallaron en ' + name, 'Una fila por motivo. Lo arregla IT.', errs ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Motivo</th><th>Qué</th><th>Dónde</th><th class="num">Veces</th></tr></thead><tbody>' + errs + '</tbody></table></div>' : '<p class="quiet">Ningún envío falló este mes.</p>');
+        }
+        // ── Contactos (23/11, Maru): the 8 rules, the daily alarm, and each
+        // nidi's journey in order. Reads push_log, push_queue, dropout_reach,
+        // events, invitations, exchanges and subscriptions for now; when IT has
+        // the single contact log, hq_contact_rows() reads from there instead.
+        var J = { q: '', found: null, data: null, busy: false, err: '' };
+        var J_KIND = { exchange: 'Momento nuevo', note: 'Nota nueva', seen_all: 'Vio todo', relationship_joined: 'Entró el otro hogar', relationship_activated: 'Ya están los dos', morning: 'Resumen de la mañana', burst: 'Ráfaga («y más fotos»)', resume_nudge: 'Retomar', your_turn: 'Te toca', activity_waiting: 'Actividad para hoy', reengage: 'Volver', go_first: 'Empezás vos', dropout_invite: 'Abandono: el otro hogar no entró', unseen_ask: 'Pedido único: no visto', invite_bounced_ask: 'Pedido único: invitación rebotada',
+          dropout_code_unconfirmed: 'Abandono: no confirmó el código', dropout_code_unconfirmed_invitee: 'Abandono: el otro hogar no confirmó el código', dropout_profile_unfinished: 'Abandono: perfil sin terminar', dropout_invite_waiting: 'Abandono: link sin mandar', dropout_moment_unseen: 'Abandono: momento sin ver', dropout_invite_opened: 'Abandono: abrió el link y no entró' };
+        var J_STEP = [['account', 'Cuenta'], ['nidi', 'Nidi armado'], ['link_sent', 'Link mandado'], ['link_opened', 'Link abierto'], ['joined', 'Entró el otro hogar'], ['first_moment', 'Primer momento'], ['trial', 'Prueba'], ['paid', 'Pago']];
+        var J_STEP_L = { trial_end: 'Fin de la prueba', gift: 'Regalo' }; J_STEP.forEach(function (s) { J_STEP_L[s[0]] = s[1]; });
+        var J_RULE = { person_48h: 'Dos recordatorios a la misma persona en 48 h', nidi_48h: 'Los dos hogares de un nidi en 48 h', push_mail_day: 'Push y mail el mismo día' };
+        function jKind(k) { return J_KIND[k] || k; }
+        function jTime(iso) { return new Date(iso).toLocaleTimeString('es-AR', { timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', hour12: false }); }
+        function jHome(h) { return h ? '<span class="jh jh-' + h.toLowerCase() + '">' + h + '</span>' : '<span class="jh"></span>'; }
+        function jRules() {
+          return '<ol class="j-rules"><li>Un recordatorio por persona cada 48 h.</li><li>Un solo hogar por nidi cada 48 h.</li><li>Nunca push y mail el mismo día.</li><li>Nada en las 3 h siguientes a algo real.</li><li>Uno solo por vez, en este orden: entrar &gt; no visto &gt; actividad &gt; volver &gt; empiezas tú.</li><li>Máximo 2 sin respuesta por persona.</li><li>La lista de no contactar vale para todos.</li><li>Un solo registro.</li></ol>'
+            + '<p class="nv-note">Real: momento, nota, «vio todo», entró el otro hogar, y sus versiones juntas (resumen de la mañana, ráfaga), retomar y los avisos de encuentro. Todo lo demás es recordatorio: te toca, actividad, volver, empiezas tú, los mails y pushes de abandono y los pedidos únicos.</p>';
+        }
+        function jAlarm(a) {
+          if (!a) return card('Alarma de contactos', '', '<p class="quiet">Todavía no hay datos (falta publicar hq_contact_alarm).</p>');
+          var rows = (a.rows || []).map(function (r) {
+            return '<tr><td>' + esc(nvWhen(r.at)) + '</td><td>' + esc(J_RULE[r.rule] || r.rule) + '</td><td>' + esc(r.who) + (r.other ? ' <span class="quiet">y ' + esc(r.other) + '</span>' : '') + '</td><td>' + esc(jKind(r.first_kind)) + ' <span class="quiet">' + esc(nvWhen(r.first_at)) + '</span></td><td>' + esc(jKind(r.second_kind)) + '</td></tr>';
+          }).join('');
+          return card('Alarma de contactos', 'Se revisa todos los días: dos recordatorios a la misma persona en 48 h, los dos hogares de un nidi en 48 h, o push y mail a la misma persona el mismo día (su día). Con las reglas nuevas tendría que dar siempre cero. Si las últimas 24 h dan más de cero, a las 9:30 llega un aviso al iPhone. Solo gente de afuera.',
+            '<div class="nv-big"><b>' + a.last24 + '</b><span>' + plural(a.last24, 'regla rota', 'reglas rotas') + ' en las últimas 24 h · ' + a.week + ' en 7 días</span></div>'
+            + '<span class="stp ' + (a.last24 ? 'bad' : a.week ? 'wait' : 'good') + '">' + (a.last24 ? 'hay que mirar' : a.week ? 'cero hoy; hubo cruces esta semana' : 'cero') + '</span>'
+            + (rows ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Cuándo</th><th>Regla</th><th>A quién</th><th>Primero</th><th>Después</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : ''));
+        }
+        function jTimeline(j) {
+          var n = j.nidi, st = j.steps || {}, items = j.items || [];
+          var who = (j.people || []).map(function (p) { return jHome(p.home) + ' ' + esc(p.name) + (p.has_token ? '' : ' <span class="quiet">(sin push)</span>') + (p.other_nidis ? ' <span class="quiet">(también en ' + (p.other_nidis === 1 ? 'otro nidi' : p.other_nidis + ' nidis más') + ': los push no dicen de qué nidi son, se ven todos)</span>' : ''); }).join(' &nbsp; ');
+          if (n && n.status === 'pending') who += ' &nbsp; ' + jHome('B') + ' <span class="quiet">' + esc(n.invitee || 'el otro hogar') + ', todavía no entró</span>';
+          var last = null;
+          var chips = J_STEP.map(function (s) {
+            var at = st[s[0]] || (s[0] === 'paid' ? st.gift : null), label = s[0] === 'paid' && !st.paid && st.gift ? 'Regalo' : s[1];
+            if (at) last = label;
+            return '<span class="j-step' + (at ? ' on' : '') + '">' + esc(label) + (at ? ' <small>' + esc(dmy(at)) + '</small>' : '') + '</span>';
+          }).join('');
+          var reminders = items.filter(function (i) { return (i.type === 'push' || i.type === 'mail') && i.real === false; }).length;
+          var reals = items.filter(function (i) { return (i.type === 'push' || i.type === 'mail') && i.real === true; }).length;
+          var day = '', out = '';
+          items.slice().reverse().forEach(function (i) {
+            var dd = ams(i.at);
+            if (dd !== day) { day = dd; out += '<div class="j-day">' + (dd === todayAms() ? 'Hoy' : dd === addDays(todayAms(), -1) ? 'Ayer' : esc(dmy(i.at))) + '</div>'; }
+            var what, cls = '';
+            if (i.type === 'open') { what = 'Abrió la app' + (i.n > 1 ? ' <span class="quiet">' + i.n + ' veces ese día</span>' : ''); cls = 'j-open'; }
+            else if (i.type === 'step') { what = '<b>' + esc(J_STEP_L[i.kind] || i.kind) + '</b>'; cls = 'j-stepline'; }
+            else {
+              what = (i.type === 'mail' ? 'Mail' : 'Push') + ': ' + esc(jKind(i.kind)) + ' <span class="tt-tag ' + (i.real ? 'real' : 'rem') + '">' + (i.real ? 'real' : 'recordatorio') + '</span>'
+                + (i.failed ? ' <span class="tt-tag fail">no llegó</span>' : '') + (i.queued ? ' <span class="tt-tag">programado</span>' : '');
+              cls = i.real ? 'j-real' : 'j-rem';
+            }
+            out += '<div class="j-row ' + cls + '"><span class="j-t">' + jTime(i.at) + '</span>' + jHome(i.home) + '<span class="j-who">' + esc(i.who || '') + '</span><span class="j-what">' + what + '</span></div>';
+          });
+          return '<div class="j-head"><div>' + who + '</div><div class="quiet">Está en: <b>' + esc(last || '—') + '</b> · ' + reals + ' ' + plural(reals, 'aviso real', 'avisos reales') + ', ' + reminders + ' ' + plural(reminders, 'recordatorio', 'recordatorios') + '</div></div>'
+            + '<div class="j-steps">' + chips + '</div><div class="j-list">' + (out || '<p class="quiet">Nada todavía.</p>') + '</div>';
+        }
+        function tabContactos(d) {
+          var f = J.found, res = '';
+          if (f) {
+            var list = (f.nidis || []).map(function (n) { return '<button class="j-hit" data-jnidi="' + esc(n.id) + '">' + esc(n.a) + ' + ' + esc(n.b || 'el otro hogar') + ' <span class="quiet">' + (n.status === 'pending' ? 'pendiente' : 'los dos') + ' · ' + esc(dmy(n.created_at)) + '</span></button>'; })
+              .concat((f.people || []).map(function (p) { return '<button class="j-hit" data-juser="' + esc(p.id) + '">' + esc(p.name || 'Sin nombre') + ' <span class="quiet">sin nidi · ' + esc(dmy(p.created_at)) + '</span></button>'; }));
+            res = list.length ? '<div class="j-hits">' + list.join('') + '</div>' : '<p class="quiet">Nadie de afuera con ese nombre o email.</p>';
+          }
+          return jAlarm(d.contact_alarm)
+            + card('Recorrido de una familia', 'Todo lo que le llegó a cada hogar (A = el que armó el nidi, B = el otro), cada día que abrió la app y en qué paso está, en orden, lo más nuevo arriba. Se busca por nombre o email; el email no se muestra. Hora de Amsterdam. Por ahora lee push_log, push_queue, dropout_reach y events; cuando IT tenga el registro único de contactos, lee de ahí.',
+              '<form id="jform" class="j-form"><input name="q" type="search" placeholder="Nombre o email" value="' + esc(J.q) + '" autocomplete="off" /><button class="primary" type="submit"' + (J.busy ? ' disabled' : '') + '>' + (J.busy ? 'Buscando…' : 'Buscar') + '</button></form>'
+              + (J.err ? '<p class="warn">' + esc(J.err) + '</p>' : '') + res + (J.data ? jTimeline(J.data) : ''))
+            + card('Las 8 reglas', 'Aprobadas por Maru el 23/11. Valen para todo recordatorio, push o mail.', jRules());
+        }
+        function jWire() {
+          var jf = document.getElementById('jform');
+          if (!jf) return;
+          jf.onsubmit = function (e) {
+            e.preventDefault();
+            var q = jf.q.value.trim(); J.q = q; J.err = '';
+            if (q.length < 2) { J.err = 'Escribí al menos dos letras.'; render(); return; }
+            J.busy = true; J.data = null; render();
+            api('POST', { action: 'journey_find', q: q }).then(function (r) {
+              J.busy = false; if (!r.ok) throw new Error(r.error);
+              J.found = r.found;
+              var hits = (r.found.nidis || []).length + (r.found.people || []).length;
+              if (hits === 1) return jOpen((r.found.nidis[0] || {}).id, (r.found.people[0] || {}).id);
+              render();
+            }).catch(function (err) { J.busy = false; J.err = 'No se pudo buscar: ' + err.message; render(); });
+          };
+          Array.prototype.forEach.call(document.querySelectorAll('[data-jnidi],[data-juser]'), function (b) { b.onclick = function () { jOpen(b.getAttribute('data-jnidi'), b.getAttribute('data-juser')); }; });
+        }
+        function jOpen(rel, user) {
+          J.busy = true; render();
+          return api('POST', rel ? { action: 'journey', relationship_id: rel } : { action: 'journey', user_id: user }).then(function (r) {
+            J.busy = false; if (!r.ok) throw new Error(r.error);
+            J.data = r.journey; render();
+          }).catch(function (err) { J.busy = false; J.err = 'No se pudo abrir: ' + err.message; render(); });
         }
         function tabMeses(d) {
           var rows = monthsOf(d).slice().reverse();
@@ -2827,6 +2932,7 @@
           Array.prototype.forEach.call(document.querySelectorAll('[data-dy]'), function (b) { b.onclick = function () { var k = b.getAttribute('data-dy'); if (DY_ON[k]) delete DY_ON[k]; else DY_ON[k] = 1; try { localStorage.setItem('nidi-hq-daily', JSON.stringify(DY_ON)); } catch (e) {} render(); }; });
           Array.prototype.forEach.call(document.querySelectorAll('[data-sok]'), function (b) { b.onclick = function () { SO_PICK = b.getAttribute('data-sok'); try { localStorage.setItem('nidi-hq-socialk', SO_PICK); } catch (e) {} render(); }; });
           var po = document.getElementById('push-on'); if (po) po.onclick = pushOn;
+          jWire();
           Array.prototype.forEach.call(document.querySelectorAll('[data-dyall]'), function (b) { b.onclick = function () { DY_ON = {}; if (b.getAttribute('data-dyall') === '1') DY.forEach(function (k) { DY_ON[k[0]] = 1; }); try { localStorage.setItem('nidi-hq-daily', JSON.stringify(DY_ON)); } catch (e) {} render(); }; });
           // Familias: origin filter, since launch, and the pencil
           Array.prototype.forEach.call(document.querySelectorAll('[data-fmorigin]'), function (b) { b.onclick = function () { FAM_ORIGIN = b.getAttribute('data-fmorigin'); render(); }; });
