@@ -1684,6 +1684,21 @@
             + '<span class="stp ' + (a.last24 ? 'bad' : a.week ? 'wait' : 'good') + '">' + (a.last24 ? 'hay que mirar' : a.week ? 'cero hoy; hubo cruces esta semana' : 'cero') + '</span>'
             + (rows ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Cuándo</th><th>Regla</th><th>A quién</th><th>Primero</th><th>Después</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : ''));
         }
+        // What came after a push or mail (23/11, Maru): the push tapped, the
+        // mail button where it leaves a trace, else the app opened in 24 h.
+        function jAfterAt(i, at) { return ams(at) === ams(i.at) ? jTime(at) : dmy(at) + ' ' + jTime(at); }
+        function jAfter(i) {
+          if (i.failed || i.queued) return '';
+          if (i.type === 'push') {
+            if (i.opened) return ' <span class="tt-tag real">lo abrió ' + esc(jAfterAt(i, i.opened)) + '</span>';
+            return ' <span class="quiet">· no tocó el push' + (i.app_after ? '; abrió Nidi ' + esc(jAfterAt(i, i.app_after)) : '') + '</span>';
+          }
+          if (i.trackable) {
+            if (i.clicked) return ' <span class="tt-tag real">tocó el botón ' + esc(jAfterAt(i, i.clicked)) + '</span>';
+            return ' <span class="quiet">· no tocó el botón' + (i.app_after ? '; abrió Nidi ' + esc(jAfterAt(i, i.app_after)) : '') + '</span>';
+          }
+          return ' <span class="quiet">· ' + (i.app_after ? 'abrió Nidi ' + esc(jAfterAt(i, i.app_after)) : 'no abrió Nidi en 24 h') + ' (este botón no se mide)</span>';
+        }
         function jTimeline(j) {
           var n = j.nidi, st = j.steps || {}, items = j.items || [];
           var who = (j.people || []).map(function (p) { return jHome(p.home) + ' ' + esc(p.name) + (p.has_token ? '' : ' <span class="quiet">(sin push)</span>') + (p.other_nidis ? ' <span class="quiet">(también en ' + (p.other_nidis === 1 ? 'otro nidi' : p.other_nidis + ' nidis más') + ': los push no dicen de qué nidi son, se ven todos)</span>' : ''); }).join(' &nbsp; ');
@@ -1705,7 +1720,8 @@
             else if (i.type === 'step') { what = '<b>' + esc(J_STEP_L[i.kind] || i.kind) + '</b>'; cls = 'j-stepline'; }
             else {
               what = (i.type === 'mail' ? 'Mail' : 'Push') + ': ' + esc(jKind(i.kind)) + ' <span class="tt-tag ' + (i.real ? 'real' : 'rem') + '">' + (i.real ? 'real' : 'recordatorio') + '</span>'
-                + (i.failed ? ' <span class="tt-tag fail">no llegó</span>' : '') + (i.queued ? ' <span class="tt-tag">programado</span>' : '');
+                + (i.failed ? ' <span class="tt-tag fail">no llegó</span>' : '') + (i.queued ? ' <span class="tt-tag">programado</span>' : '')
+                + jAfter(i);
               cls = i.real ? 'j-real' : 'j-rem';
             }
             out += '<div class="j-row ' + cls + '"><span class="j-t">' + jTime(i.at) + '</span>' + jHome(i.home) + '<span class="j-who">' + esc(i.who || '') + '</span><span class="j-what">' + what + '</span></div>';
@@ -1721,7 +1737,7 @@
             res = list.length ? '<div class="j-hits">' + list.join('') + '</div>' : '<p class="quiet">Nadie de afuera con ese nombre o email.</p>';
           }
           return jAlarm(d.contact_alarm)
-            + card('Recorrido de una familia', 'Todo lo que le llegó a cada hogar (A = el que armó el nidi, B = el otro), cada día que abrió la app y en qué paso está, en orden, lo más nuevo arriba. Se busca por nombre o email; el email no se muestra. Hora de Amsterdam. Por ahora lee push_log, push_queue, dropout_reach y events; cuando IT tenga el registro único de contactos, lee de ahí.',
+            + card('Recorrido de una familia', 'Todo lo que le llegó a cada hogar (A = el que armó el nidi, B = el otro), cada día que abrió la app y en qué paso está, en orden, lo más nuevo arriba. Se busca por nombre o email; el email no se muestra. Hora de Amsterdam. Al lado de cada push: si lo tocó. De cada mail: si tocó el botón, donde se puede medir («Compartir el link» y «Entrar a Nidi»); en los otros, si abrió Nidi en las 24 h siguientes. Si abrieron un mail no se mide. Por ahora lee push_log, push_queue, dropout_reach y events; cuando IT tenga el registro único de contactos, lee de ahí.',
               '<form id="jform" class="j-form"><input name="q" type="search" placeholder="Nombre o email" value="' + esc(J.q) + '" autocomplete="off" /><button class="primary" type="submit"' + (J.busy ? ' disabled' : '') + '>' + (J.busy ? 'Buscando…' : 'Buscar') + '</button></form>'
               + (J.err ? '<p class="warn">' + esc(J.err) + '</p>' : '') + res + (J.data ? jTimeline(J.data) : ''))
             + card('Las 8 reglas', 'Aprobadas por Maru el 23/11. Valen para todo recordatorio, push o mail.', jRules());
