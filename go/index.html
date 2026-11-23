@@ -48,11 +48,24 @@
         var es = /^es/i.test(navigator.language || "");
         var web = (es ? "/es/" : "/") + (ref ? "?ref=" + ref : "");
         if (!ref || (!ios && !android)) { location.replace(web); return; }
+        var playReferrer = encodeURIComponent("utm_source=" + ref + "&utm_medium=go&utm_campaign=" + ref);
         var dest = ios
           ? "https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&ct=" + ref + "&mt=8"
-          : "https://play.google.com/store/apps/details?id=life.nidi.app&referrer=" + encodeURIComponent("utm_source=" + ref + "&utm_medium=go&utm_campaign=" + ref);
-        var gone = false, go = function () { if (!gone) { gone = true; location.replace(dest); } };
-        // If the store does not open (a browser that blocks it), a plain link after a moment.
+          : "https://play.google.com/store/apps/details?id=life.nidi.app&referrer=" + playReferrer;
+        // Android opens the Play Store app itself (23/11). Since 22/11, 15
+        // Android opens of /go/?r=ad-b went to Play and no new Android phone
+        // reached Nidi: inside Instagram's browser the https Play address
+        // opens Play's web page inside Instagram, one more tap away from
+        // installing. An intent:// address hands it to the Play Store app,
+        // with the same referrer (the Install Referrer reads utm_source), and
+        // a browser that cannot open it goes to the https address instead.
+        var leave = android
+          ? "intent://details?id=life.nidi.app&referrer=" + playReferrer
+            + "#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url=" + encodeURIComponent(dest) + ";end"
+          : dest;
+        var gone = false, go = function () { if (!gone) { gone = true; location.replace(leave); } };
+        // If the store does not open (a browser that blocks it), a plain link
+        // to the https store page after a moment.
         setTimeout(function () { var a = document.getElementById("fallback"); if (a) { a.href = dest; a.hidden = false; } }, 2500);
         try {
           if (location.hostname.replace(/^www\./, "") !== "nidi.life") throw 0;
