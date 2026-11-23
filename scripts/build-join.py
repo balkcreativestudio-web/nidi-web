@@ -6,8 +6,15 @@ how nidi.life/join/<code> got a page without a server, but with a 404
 status, and WhatsApp draws no link preview for a 404. So since
 2026-11-16 the app shares nidi.life/join/?c=<code> (English) or
 nidi.life/join/es/?c=<code> (Spanish): two real pages that answer 200
-and carry the home page's preview, the honey orb on cream with phrase A
-in the inviter's language (Maru's choice, town meeting 16/11).
+and, until 2026-11-23, carried the home page's preview, the honey orb on
+cream with phrase A in the inviter's language.
+
+Since 2026-11-23 (Maru: "La genérica") both pages carry ONE preview that
+reads the same whoever receives it: the wordmark alone on the honey orb
+(assets/og-join.png), the title "Nidi" and one line in both languages.
+The preview used to follow the inviter's language, and in 3 of 9 complete
+families the other home used Nidi in the other language. The home pages
+(/ and /es/) keep og-en.png and og-es.png with the phrase.
 
 The page itself is 404.html, unchanged: its script reads the code from
 ?c= and the language from /join/es/. Edit 404.html, never the two copies,
@@ -18,21 +25,27 @@ import os
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 
+# One preview for everyone (2026-11-23). Only the page address and the
+# locale differ: the page still greets in the language of its path.
+TITLE = 'Nidi'
+DESC = 'Para familias que viven lejos. For families who live far apart.'
+IMAGE = 'https://nidi.life/assets/og-join.png'
+
 PAGES = {
     'en': dict(
         path='join/index.html',
         url='https://nidi.life/join/',
-        title='Nidi: the app for families who live far apart',
-        desc='Small things to do together, every day, from both homes.',
-        image='https://nidi.life/assets/og-en.png',
+        title=TITLE,
+        desc=DESC,
+        image=IMAGE,
         locale='en_GB',
     ),
     'es': dict(
         path='join/es/index.html',
         url='https://nidi.life/join/es/',
-        title='Nidi: la app para familias que viven lejos',
-        desc='Cosas para hacer juntos, todos los días, desde las dos casas.',
-        image='https://nidi.life/assets/og-es.png',
+        title=TITLE,
+        desc=DESC,
+        image=IMAGE,
         locale='es_AR',
     ),
 }
