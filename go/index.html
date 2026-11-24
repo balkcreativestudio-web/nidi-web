@@ -18,7 +18,18 @@
          and one store tap with the ref, like the home page, so HQ keeps
          counting by ref (site-view stores the path as /go/:ref). It waits
          at most 400 ms for those two, on the cream background with the
-         wordmark, never a white page. No cookie, no identifier. -->
+         wordmark, never a white page. No cookie, no identifier.
+
+         The page left behind (2026-11-24, Maru: «esto es fundamental»).
+         Until now /go/ used location.replace, so whoever closed the store
+         was left on Apple's or Google's page with nothing of Nidi. Now it
+         leaves with a normal navigation, so /go/ stays in history, and the
+         page under the store says what Nidi is, «7 días gratis», «la familia
+         de lejos nunca paga», and has the store button for the phone.
+         Coming back to it (back button, or back from the store app) counts
+         one view as /go/back/ with the ref, and its button counts a tap as
+         /go/back/ with its target, so HQ tells them apart from the automatic
+         jump. It never jumps to the store a second time in the same tab. -->
     <title>Nidi: the app for families who live far apart</title>
     <meta name="description" content="Small things to do together, every day, from both homes." />
     <meta name="robots" content="noindex" />
@@ -46,6 +57,8 @@
         var android = /Android/.test(ua);
         var ios = !android && (/iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
         var es = /^es/i.test(navigator.language || "");
+        document.documentElement.lang = es ? "es" : "en";
+        document.documentElement.className = (es ? "es" : "en") + (android ? " android" : " ios");
         var web = (es ? "/es/" : "/") + (ref ? "?ref=" + ref : "");
         if (!ref || (!ios && !android)) { location.replace(web); return; }
         var playReferrer = encodeURIComponent("utm_source=" + ref + "&utm_medium=go&utm_campaign=" + ref);
@@ -63,37 +76,120 @@
           ? "intent://details?id=life.nidi.app&referrer=" + playReferrer
             + "#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url=" + encodeURIComponent(dest) + ";end"
           : dest;
-        var gone = false, go = function () { if (!gone) { gone = true; location.replace(leave); } };
-        // If the store does not open (a browser that blocks it), a plain link
-        // to the https store page after a moment.
-        setTimeout(function () { var a = document.getElementById("fallback"); if (a) { a.href = dest; a.hidden = false; } }, 2500);
+        var target = ios ? "app_store" : "google_play";
+        var url = "https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view";
+        var tracking = false, tz = null;
         try {
-          if (location.hostname.replace(/^www\./, "") !== "nidi.life") throw 0;
-          // Maru and Claude are not visitors (nidi.life/?notrack once on a device).
-          if (localStorage.getItem("nidi-notrack")) throw 0;
-          var tz = null;
-          try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) {}
-          var send = function (extra) {
-            var o = { path: "/go/", lang: es ? "es" : "en", ref: ref, tz: tz };
-            for (var k in extra) o[k] = extra[k];
-            // credentials omitted so no vendor cookie is ever set (see the home page).
-            return fetch("https://orqdnuikcdskmvorchly.supabase.co/functions/v1/site-view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(o), credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});
-          };
-          Promise.all([send({ referrer: document.referrer || null }), send({ click: ios ? "app_store" : "google_play" })]).then(go, go);
-          setTimeout(go, 400);
-        } catch (e) { go(); }
+          tracking = location.hostname.replace(/^www\./, "") === "nidi.life" && !localStorage.getItem("nidi-notrack");
+          tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+        } catch (e) {}
+        var body = function (path, extra) {
+          var o = { path: path, lang: es ? "es" : "en", ref: ref, tz: tz };
+          for (var k in extra) o[k] = extra[k];
+          return JSON.stringify(o);
+        };
+        // credentials omitted so no vendor cookie is ever set (see the home page).
+        var send = function (path, extra) {
+          if (!tracking) return Promise.resolve();
+          return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: body(path, extra), credentials: "omit", keepalive: true, mode: "cors" }).catch(function () {});
+        };
+        // A tap that leaves the page right away (the store opens): sendBeacon
+        // survives that, fetch is only the fallback (see /pasalo/).
+        var beacon = function (path, extra) {
+          if (!tracking) return;
+          var queued = false;
+          try { queued = !!(navigator.sendBeacon && navigator.sendBeacon(url, body(path, extra))); } catch (e) {}
+          if (!queued) send(path, extra);
+        };
+        var key = "nidi-go-left-" + ref, left = false;
+        try { left = !!sessionStorage.getItem(key); } catch (e) {}
+        var backCounted = false, gone = false;
+        var cameBack = function () { if (backCounted) return; backCounted = true; send("/go/back/", { referrer: null }); };
+        var show = function () { document.documentElement.className += " back"; };
+        document.addEventListener("DOMContentLoaded", function () {
+          var b = document.querySelectorAll(".store");
+          for (var i = 0; i < b.length; i++) {
+            b[i].href = leave;
+            b[i].addEventListener("click", function () { beacon("/go/back/", { click: target }); });
+          }
+        });
+        if (left) { show(); cameBack(); return; }
+        // Back to this page: from the bfcache, or the tab shown again after
+        // the store app opened over it.
+        window.addEventListener("pageshow", function (e) { if (e.persisted && gone) cameBack(); });
+        document.addEventListener("visibilitychange", function () { if (gone && document.visibilityState === "visible") cameBack(); });
+        var go = function () {
+          if (gone) return;
+          gone = true;
+          try { sessionStorage.setItem(key, "1"); } catch (e) {}
+          show();
+          // Only once the page exists: Chrome stops parsing when an intent://
+          // navigation starts mid-load, and the page left behind came out empty.
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", function () { location.href = leave; });
+          } else {
+            location.href = leave;
+          }
+        };
+        if (!tracking) { go(); return; }
+        Promise.all([send("/go/", { referrer: document.referrer || null }), send("/go/", { click: target })]).then(go, go);
+        setTimeout(go, 400);
       })();
     </script>
     <style>
-      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Medium.ttf) format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
-      html, body { margin: 0; height: 100%; background: #f4efe7; }
-      body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
-      .wordmark { width: 112px; height: auto; }
-      #fallback { font: 500 16px/1.4 "Hanken Grotesk", system-ui, sans-serif; color: #2a241d; }
+      @font-face { font-family: "Lora"; src: url(/assets/fonts/Lora-Regular.ttf) format("truetype"); font-weight: 400; font-display: swap; }
+      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-Regular.ttf) format("truetype"); font-weight: 400; font-display: swap; }
+      @font-face { font-family: "Hanken Grotesk"; src: url(/assets/fonts/HankenGrotesk-SemiBold.ttf) format("truetype"); font-weight: 600; font-display: swap; }
+      :root { --cream: #F4EFE7; --ink: #2A241D; --text: #5B5045; --paper: #FFFEF8; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { background: var(--cream); -webkit-text-size-adjust: 100%; }
+      body { min-height: 100vh; min-height: 100svh; background: var(--cream); color: var(--ink); }
+      main { width: min(390px, 100%); margin: 0 auto; padding: clamp(28px, 5svh, 60px) 30px calc(48px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; text-align: center; }
+      .wordmark { width: 85px; height: auto; display: block; }
+      /* Until it leaves for the store: only the wordmark, centred, as before. */
+      html:not(.back) main { min-height: 100svh; justify-content: center; }
+      html:not(.back) .page { display: none; }
+      html.es [lang="en"], html.en [lang="es"], html.ios .gp, html.android .as { display: none; }
+      .page { display: flex; flex-direction: column; align-items: center; width: 100%; }
+      h1 { font-family: "Lora", Georgia, serif; font-weight: 400; font-size: 33px; line-height: 1.1; letter-spacing: -0.01em; margin-top: clamp(22px, 3.6svh, 36px); text-wrap: balance; }
+      p { font-family: "Hanken Grotesk", system-ui, sans-serif; font-size: 17px; line-height: 1.4; color: var(--text); margin-top: 17px; padding: 0 10px; text-wrap: balance; }
+      .free { margin-top: 14px; color: var(--ink); font-weight: 600; }
+      .btn { margin-top: clamp(22px, 3.8svh, 36px); width: 100%; height: 62px; border-radius: 31px; background: var(--ink); color: var(--paper); font-family: "Hanken Grotesk", system-ui, sans-serif; font-weight: 600; font-size: 19px; text-decoration: none; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+      .btn:active { transform: scale(.985); }
+      .btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+      .shot { margin-top: 40px; display: flex; flex-direction: column; align-items: center; }
+      .phone { width: min(220px, 60vw); border-radius: 34px; background: #141414; padding: 8px; box-shadow: 0 30px 60px rgba(42,36,29,.20), 0 8px 20px rgba(42,36,29,.12); }
+      .phone img { display: block; width: 100%; height: auto; border-radius: 27px; }
+      figcaption { font-family: "Hanken Grotesk", system-ui, sans-serif; font-size: 15px; line-height: 1.4; color: var(--text); margin-top: 18px; padding: 0 10px; text-wrap: balance; }
     </style>
   </head>
   <body>
-    <svg class="wordmark" role="img" aria-label="nidi" xmlns="http://www.w3.org/2000/svg" viewBox="218.588 216.642 500.002 218.598"><path d="M384.857,425.076c-.856-.691-2.135-1.25-3.841-1.678l-7.842-1.6c-2.453-.534-4.376-1.572-5.76-3.122-1.388-1.544-2.082-3.651-2.082-6.32v-80.332c0-14.296-4.054-25.551-12.161-33.768-8.107-8.214-18.831-12.321-32.165-12.321-8.642,0-17.522,2.16-26.645,6.482-8.673,4.108-18.677,11.045-30.005,20.798v-19.119c0-2.132-.506-3.732-1.519-4.801-1.016-1.066-2.588-1.6-4.723-1.6-1.175,0-2.638.188-4.401.559-1.76.375-3.976,1.041-6.639,2l-23.204,7.842c-2.028.641-3.416,1.334-4.163,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.747.587,1.975.938,3.682,1.041l13.283.322c1.813.106,3.119.638,3.919,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.616,4.482-1.841,5.76-1.228,1.282-3.016,2.188-5.36,2.722l-8.801,1.76c-1.707.428-2.988.988-3.841,1.678-.853.697-1.278,1.575-1.278,2.641,0,1.175.478,2.135,1.438,2.882.963.747,2.347,1.119,4.163,1.119h52.646c3.948,0,5.923-1.385,5.923-4.16,0-2.025-1.71-3.466-5.123-4.32l-8.32-1.6c-2.241-.534-3.976-1.466-5.201-2.8-1.228-1.335-1.841-3.226-1.841-5.682v-90.318l3.201-2.656c8.323-7.042,16.003-12.161,23.044-15.362,7.042-3.201,13.546-4.801,19.522-4.801,9.814,0,17.709,2.96,23.685,8.879,5.973,5.923,8.961,14.859,8.961,26.805v76.653c0,2.669-.588,4.748-1.76,6.242-1.175,1.494-3.041,2.507-5.601,3.041l-8.801,1.6c-3.307.853-4.96,2.294-4.96,4.32,0,2.775,1.972,4.16,5.92,4.16h52.809c2.025,0,3.494-.372,4.401-1.119.906-.747,1.36-1.707,1.36-2.882,0-1.066-.425-1.944-1.278-2.641Z" fill="#2a241e"/><path d="M463.411,424.916c-.91-.691-2.216-1.253-3.923-1.678l-8.48-1.6c-2.241-.425-3.976-1.334-5.201-2.722-1.228-1.385-1.841-3.304-1.841-5.76v-119.06c0-2.132-.51-3.732-1.522-4.801-1.013-1.066-2.588-1.6-4.72-1.6-1.175,0-2.616.188-4.32.559-1.71.375-3.95,1.041-6.723,2l-23.204,7.842c-2.028.641-3.416,1.334-4.16,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.744.587,1.972.938,3.682,1.041l13.28.322c1.813.106,3.122.638,3.923,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.616,4.482-1.841,5.76-1.228,1.282-3.016,2.188-5.36,2.722l-8.801,1.76c-1.71.428-2.988.988-3.841,1.678-.856.697-1.282,1.575-1.282,2.641,0,1.175.481,2.135,1.441,2.882.959.747,2.344,1.119,4.16,1.119h52.968c2.025,0,3.522-.372,4.482-1.119.959-.747,1.441-1.707,1.441-2.882s-.456-2.103-1.36-2.8Z" fill="#2a241e"/><path d="M429.094,264.41c4.66,0,8.503-1.517,11.53-4.551,3.027-3.034,4.542-6.876,4.542-11.528,0-4.551-1.515-8.343-4.542-11.377-3.027-3.034-6.871-4.551-11.53-4.551s-8.478,1.517-11.459,4.551c-2.983,3.034-4.474,6.826-4.474,11.377,0,4.651,1.491,8.494,4.474,11.528,2.981,3.034,6.8,4.551,11.459,4.551Z" fill="#2a241e"/><path d="M685.235,264.41c4.659,0,8.503-1.517,11.53-4.551,3.027-3.034,4.542-6.876,4.542-11.528,0-4.551-1.515-8.343-4.542-11.377-3.027-3.034-6.871-4.551-11.53-4.551s-8.478,1.517-11.459,4.551c-2.983,3.034-4.474,6.826-4.474,11.377,0,4.651,1.49,8.494,4.474,11.528,2.981,3.034,6.8,4.551,11.459,4.551Z" fill="#2a241e"/><path d="M638.122,424.916c-.909-.691-2.269-1.253-4.082-1.678l-8.32-1.6c-2.35-.425-4.138-1.334-5.363-2.722-1.225-1.385-1.838-3.304-1.838-5.76v-189.95c0-2.135-.51-3.763-1.522-4.882-1.016-1.119-2.535-1.682-4.56-1.682-1.282,0-2.775.216-4.482.641-1.707.428-3.947,1.122-6.72,2.082l-23.204,7.842c-1.919.638-3.257,1.335-4,2.078-.747.747-1.119,1.6-1.119,2.56s.344,1.738,1.038,2.322c.694.588,1.894.935,3.601,1.041l13.283.319c1.919.106,3.254.641,4.001,1.6.744.96,1.119,2.507,1.119,4.641v63.537c-3.496-3.663-7.36-6.871-11.602-9.61-10.08-6.504-21.469-9.761-34.165-9.761-13.23,0-25.31,3.257-36.247,9.761-10.936,6.511-19.656,15.79-26.164,27.845-6.507,12.058-9.761,20.003-9.761,36.647,0,14.509,2.825,27.42,8.483,38.725,5.651,11.311,13.387,20.191,23.204,26.645,9.814,6.454,21.066,9.683,33.765,9.683,12.161,0,23.657-3.229,34.484-9.683,6.752-4.025,12.913-9.057,18.484-15.093v8.292c0,4.588,1.041,7.895,3.119,9.92,2.082,2.028,5.201,3.041,9.364,3.041h24.642c1.922,0,3.388-.372,4.401-1.119s1.522-1.707,1.522-2.882-.457-2.103-1.36-2.8ZM595.953,399.582c-5.231,6.115-10.858,11.042-16.881,14.773-8.698,5.388-17.843,8.083-27.445,8.083-9.495,0-17.978-2.507-25.445-7.523-7.467-5.013-13.337-12.374-17.603-22.082-4.266-9.708-6.401-21.55-6.401-35.528,0-19.883,7.755-41.464,25.126-52.65,7.786-5.013,16.428-7.52,25.923-7.52,10.026,0,19.469,2.857,28.323,8.561,5.371,3.463,10.169,7.824,14.402,13.071v80.815Z" fill="#2a241e"/><path d="M717.23,424.916c-.909-.691-2.216-1.253-3.922-1.678l-8.48-1.6c-2.241-.425-3.976-1.334-5.201-2.722-1.228-1.385-1.841-3.304-1.841-5.76v-119.06c0-2.132-.509-3.732-1.522-4.801-1.013-1.066-2.588-1.6-4.719-1.6-1.175,0-2.616.188-4.319.559-1.71.375-3.951,1.041-6.723,2l-23.204,7.842c-2.028.641-3.416,1.334-4.16,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.744.587,1.972.938,3.682,1.041l13.28.322c1.813.106,3.122.638,3.923,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.615,4.482-1.841,5.76-1.229,1.282-3.016,2.188-5.36,2.722l-8.802,1.76c-1.71.428-2.988.988-3.841,1.678-.857.697-1.282,1.575-1.282,2.641,0,1.175.482,2.135,1.441,2.882.96.747,2.344,1.119,4.16,1.119h52.968c2.025,0,3.523-.372,4.482-1.119.96-.747,1.441-1.707,1.441-2.882s-.456-2.103-1.36-2.8Z" fill="#2a241e"/></svg>
-    <a id="fallback" hidden>Open the store · Abrir la tienda</a>
+    <main>
+      <svg class="wordmark" role="img" aria-label="nidi" xmlns="http://www.w3.org/2000/svg" viewBox="218.588 216.642 500.002 218.598"><path d="M384.857,425.076c-.856-.691-2.135-1.25-3.841-1.678l-7.842-1.6c-2.453-.534-4.376-1.572-5.76-3.122-1.388-1.544-2.082-3.651-2.082-6.32v-80.332c0-14.296-4.054-25.551-12.161-33.768-8.107-8.214-18.831-12.321-32.165-12.321-8.642,0-17.522,2.16-26.645,6.482-8.673,4.108-18.677,11.045-30.005,20.798v-19.119c0-2.132-.506-3.732-1.519-4.801-1.016-1.066-2.588-1.6-4.723-1.6-1.175,0-2.638.188-4.401.559-1.76.375-3.976,1.041-6.639,2l-23.204,7.842c-2.028.641-3.416,1.334-4.163,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.747.587,1.975.938,3.682,1.041l13.283.322c1.813.106,3.119.638,3.919,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.616,4.482-1.841,5.76-1.228,1.282-3.016,2.188-5.36,2.722l-8.801,1.76c-1.707.428-2.988.988-3.841,1.678-.853.697-1.278,1.575-1.278,2.641,0,1.175.478,2.135,1.438,2.882.963.747,2.347,1.119,4.163,1.119h52.646c3.948,0,5.923-1.385,5.923-4.16,0-2.025-1.71-3.466-5.123-4.32l-8.32-1.6c-2.241-.534-3.976-1.466-5.201-2.8-1.228-1.335-1.841-3.226-1.841-5.682v-90.318l3.201-2.656c8.323-7.042,16.003-12.161,23.044-15.362,7.042-3.201,13.546-4.801,19.522-4.801,9.814,0,17.709,2.96,23.685,8.879,5.973,5.923,8.961,14.859,8.961,26.805v76.653c0,2.669-.588,4.748-1.76,6.242-1.175,1.494-3.041,2.507-5.601,3.041l-8.801,1.6c-3.307.853-4.96,2.294-4.96,4.32,0,2.775,1.972,4.16,5.92,4.16h52.809c2.025,0,3.494-.372,4.401-1.119.906-.747,1.36-1.707,1.36-2.882,0-1.066-.425-1.944-1.278-2.641Z" fill="#2a241e"/><path d="M463.411,424.916c-.91-.691-2.216-1.253-3.923-1.678l-8.48-1.6c-2.241-.425-3.976-1.334-5.201-2.722-1.228-1.385-1.841-3.304-1.841-5.76v-119.06c0-2.132-.51-3.732-1.522-4.801-1.013-1.066-2.588-1.6-4.72-1.6-1.175,0-2.616.188-4.32.559-1.71.375-3.95,1.041-6.723,2l-23.204,7.842c-2.028.641-3.416,1.334-4.16,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.744.587,1.972.938,3.682,1.041l13.28.322c1.813.106,3.122.638,3.923,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.616,4.482-1.841,5.76-1.228,1.282-3.016,2.188-5.36,2.722l-8.801,1.76c-1.71.428-2.988.988-3.841,1.678-.856.697-1.282,1.575-1.282,2.641,0,1.175.481,2.135,1.441,2.882.959.747,2.344,1.119,4.16,1.119h52.968c2.025,0,3.522-.372,4.482-1.119.959-.747,1.441-1.707,1.441-2.882s-.456-2.103-1.36-2.8Z" fill="#2a241e"/><path d="M429.094,264.41c4.66,0,8.503-1.517,11.53-4.551,3.027-3.034,4.542-6.876,4.542-11.528,0-4.551-1.515-8.343-4.542-11.377-3.027-3.034-6.871-4.551-11.53-4.551s-8.478,1.517-11.459,4.551c-2.983,3.034-4.474,6.826-4.474,11.377,0,4.651,1.491,8.494,4.474,11.528,2.981,3.034,6.8,4.551,11.459,4.551Z" fill="#2a241e"/><path d="M685.235,264.41c4.659,0,8.503-1.517,11.53-4.551,3.027-3.034,4.542-6.876,4.542-11.528,0-4.551-1.515-8.343-4.542-11.377-3.027-3.034-6.871-4.551-11.53-4.551s-8.478,1.517-11.459,4.551c-2.983,3.034-4.474,6.826-4.474,11.377,0,4.651,1.49,8.494,4.474,11.528,2.981,3.034,6.8,4.551,11.459,4.551Z" fill="#2a241e"/><path d="M638.122,424.916c-.909-.691-2.269-1.253-4.082-1.678l-8.32-1.6c-2.35-.425-4.138-1.334-5.363-2.722-1.225-1.385-1.838-3.304-1.838-5.76v-189.95c0-2.135-.51-3.763-1.522-4.882-1.016-1.119-2.535-1.682-4.56-1.682-1.282,0-2.775.216-4.482.641-1.707.428-3.947,1.122-6.72,2.082l-23.204,7.842c-1.919.638-3.257,1.335-4,2.078-.747.747-1.119,1.6-1.119,2.56s.344,1.738,1.038,2.322c.694.588,1.894.935,3.601,1.041l13.283.319c1.919.106,3.254.641,4.001,1.6.744.96,1.119,2.507,1.119,4.641v63.537c-3.496-3.663-7.36-6.871-11.602-9.61-10.08-6.504-21.469-9.761-34.165-9.761-13.23,0-25.31,3.257-36.247,9.761-10.936,6.511-19.656,15.79-26.164,27.845-6.507,12.058-9.761,20.003-9.761,36.647,0,14.509,2.825,27.42,8.483,38.725,5.651,11.311,13.387,20.191,23.204,26.645,9.814,6.454,21.066,9.683,33.765,9.683,12.161,0,23.657-3.229,34.484-9.683,6.752-4.025,12.913-9.057,18.484-15.093v8.292c0,4.588,1.041,7.895,3.119,9.92,2.082,2.028,5.201,3.041,9.364,3.041h24.642c1.922,0,3.388-.372,4.401-1.119s1.522-1.707,1.522-2.882-.457-2.103-1.36-2.8ZM595.953,399.582c-5.231,6.115-10.858,11.042-16.881,14.773-8.698,5.388-17.843,8.083-27.445,8.083-9.495,0-17.978-2.507-25.445-7.523-7.467-5.013-13.337-12.374-17.603-22.082-4.266-9.708-6.401-21.55-6.401-35.528,0-19.883,7.755-41.464,25.126-52.65,7.786-5.013,16.428-7.52,25.923-7.52,10.026,0,19.469,2.857,28.323,8.561,5.371,3.463,10.169,7.824,14.402,13.071v80.815Z" fill="#2a241e"/><path d="M717.23,424.916c-.909-.691-2.216-1.253-3.922-1.678l-8.48-1.6c-2.241-.425-3.976-1.334-5.201-2.722-1.228-1.385-1.841-3.304-1.841-5.76v-119.06c0-2.132-.509-3.732-1.522-4.801-1.013-1.066-2.588-1.6-4.719-1.6-1.175,0-2.616.188-4.319.559-1.71.375-3.951,1.041-6.723,2l-23.204,7.842c-2.028.641-3.416,1.334-4.16,2.082-.747.747-1.119,1.6-1.119,2.56s.372,1.735,1.119,2.319c.744.587,1.972.938,3.682,1.041l13.28.322c1.813.106,3.122.638,3.923,1.6.8.959,1.2,2.507,1.2,4.638v100.498c0,2.56-.615,4.482-1.841,5.76-1.229,1.282-3.016,2.188-5.36,2.722l-8.802,1.76c-1.71.428-2.988.988-3.841,1.678-.857.697-1.282,1.575-1.282,2.641,0,1.175.482,2.135,1.441,2.882.96.747,2.344,1.119,4.16,1.119h52.968c2.025,0,3.523-.372,4.482-1.119.96-.747,1.441-1.707,1.441-2.882s-.456-2.103-1.36-2.8Z" fill="#2a241e"/></svg>
+      <div class="page">
+        <div lang="es">
+          <h1>La app para familias que viven&nbsp;lejos.</h1>
+          <p>Cada día, una cosa chica para hacer entre los dos hogares. Una foto, un audio, un&nbsp;dibujo.</p>
+          <p class="free">7 días gratis.<br />La familia de lejos nunca&nbsp;paga.</p>
+          <a class="btn store as" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&amp;ct=go&amp;mt=8">Bajar Nidi en el App&nbsp;Store</a>
+          <a class="btn store gp" href="https://play.google.com/store/apps/details?id=life.nidi.app">Bajar Nidi en Google&nbsp;Play</a>
+          <figure class="shot">
+            <div class="phone"><img src="/assets/screens/es-rosa-today.jpg" width="720" height="1600" loading="lazy" alt="La pantalla Hoy de Nidi: el clima del otro hogar y la actividad del día." /></div>
+            <figcaption>Así se ve Nidi: cada hogar hace su parte cuando puede, y los dos ven la del&nbsp;otro.</figcaption>
+          </figure>
+        </div>
+        <div lang="en">
+          <h1>The app for families who live far&nbsp;apart.</h1>
+          <p>Every day, one small thing to do between both homes. A photo, a voice note, a&nbsp;drawing.</p>
+          <p class="free">7 days free.<br />Family far away never&nbsp;pays.</p>
+          <a class="btn store as" href="https://apps.apple.com/app/apple-store/id6774968835?pt=128973002&amp;ct=go&amp;mt=8">Get Nidi on the App&nbsp;Store</a>
+          <a class="btn store gp" href="https://play.google.com/store/apps/details?id=life.nidi.app">Get Nidi on Google&nbsp;Play</a>
+          <figure class="shot">
+            <div class="phone"><img src="/assets/screens/en-rosa-today.jpg" width="720" height="1600" loading="lazy" alt="Nidi's Today screen: the other home's weather and the day's activity." /></div>
+            <figcaption>This is Nidi: each home does its part when it can, and both see the other&rsquo;s.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </main>
   </body>
 </html>
