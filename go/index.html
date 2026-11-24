@@ -123,7 +123,13 @@
           gone = true;
           try { sessionStorage.setItem(key, "1"); } catch (e) {}
           show();
-          location.href = leave;
+          // Only once the page exists: Chrome stops parsing when an intent://
+          // navigation starts mid-load, and the page left behind came out empty.
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", function () { location.href = leave; });
+          } else {
+            location.href = leave;
+          }
         };
         if (!tracking) { go(); return; }
         Promise.all([send("/go/", { referrer: document.referrer || null }), send("/go/", { click: target })]).then(go, go);
