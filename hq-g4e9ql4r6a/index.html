@@ -1370,7 +1370,7 @@
           var ROOMS = {
             resumen: function () { return tabResumen.apply(null, arguments) + '<h2>Board</h2>' + tabBoard.apply(null, arguments); },
             tests: tabCambios, redes: tabSocial, errores: tabErrores, contactos: tabContactos, meses: tabMeses,
-            plata: function (d, st, s) { return nuevosSection(d, st, 'plata') + '<details class="nv-more"><summary>Detalle: todas las suscripciones, gifts y paywall</summary>' + tabIng(d, st, s) + '</details>'; },
+            plata: function (d, st, s) { return nuevosSection(d, st, 'plata') + goal30Card(d, s) + '<details class="nv-more"><summary>Detalle: todas las suscripciones, gifts y paywall</summary>' + tabIng(d, st, s) + '</details>'; },
             llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : tabMkt).apply(null, arguments); },
             entrar: function (d, st, s, gr, ser) { return tabAdq(d, st, s, gr, ser, 'entrar'); },
             usar: function () { return usarGoal() + subNav('usar') + ({ fam: tabFamAll, uso: tabUso, ret: tabRet, avisos: tabAvisos })[subOf('usar')].apply(null, arguments); }
@@ -2213,9 +2213,6 @@
           var steps = [['Abrieron la app', f.installs], ['Pusieron el email', f.signed_in], ['Crearon la cuenta', f.profile], ['Armaron un nidi', f.nidi], ['Invitaron', f.invited], ['La otra casa entró', f.activated], ['Alguien compartió', f.shared], ['Participaron las dos', f.both_shared]];
           var dropped = {}, raw = en.onboarding_dropped_at || {}; Object.keys(raw).forEach(function (k) { var l = STEP_L[k] || k; dropped[l] = (dropped[l] || 0) + raw[k]; });
           var dropTot = Object.keys(dropped).reduce(function (a, k) { return a + dropped[k]; }, 0);
-          var chan = {}; (d.campaigns || []).forEach(function (c) { var l = ({ facebook: 'Facebook', instagram: 'Instagram', whatsapp: 'WhatsApp', mail: 'Mail', slack: 'Slack', web: 'Web', press: 'Prensa', other: 'Otro' })[c.channel] || c.channel; chan[l] = chan[l] || { n: 0, dl: 0 }; chan[l].n++; chan[l].dl += Number(c.downloads) || 0; });
-          var chanKeys = Object.keys(chan).sort(function (a, b) { return chan[b].dl - chan[a].dl || chan[b].n - chan[a].n; });
-          var chanMax = Math.max.apply(null, chanKeys.map(function (k) { return chan[k].dl; }).concat([1]));
           if (part === 'entrar') {
             return nuevosSection(d, st) + '<details class="nv-more"><summary>Más detalle: embudo desde el lanzamiento, invitaciones y entrada nueva</summary><div class="two">'
               + card('Embudo', 'Un solo embudo, de la descarga a las dos casas compartiendo. Desde el lanzamiento. El porcentaje es sobre el paso anterior.', '<div class="funnel">' + steps.map(function (x, i) { return stepRow(x[0], x[1], f.installs, C1, i ? pct(x[1], steps[i - 1][1]) + '%' : ''); }).join('') + '</div>')
@@ -2230,7 +2227,6 @@
             + card('Toques en la web', 'Toques reales en los botones de nidi.life: App Store y Google Play en la portada, y "¿Ya tienes Nidi? Ábrela" en la página de invitación. No incluye los links /go/, que van en Aperturas de link. Cuenta toques, no personas.', legend(KC) + chart(w.clicks_daily || [], KC, { label: 'Clicks por día' }) + (clkPath.length ? '<div class="funnel" style="margin-top:10px">' + clkPath.map(function (k) { return stepRow(PATH_L[k] || k, w.clicks_by_path[k], w.clicks_total, C1); }).join('') + '</div>' : ''), (w.clicks_total || 0) + ' ' + plural(w.clicks_total || 0, 'toque', 'toques'))
             + card('Visitas por link', 'Cada link que publicamos con su etiqueta (nidi.life/?ref=fam o nidi.life/go/…): visitas a la web, aperturas de los links /go/ y toques reales en App Store o Google Play. Cuenta desde el 11/11; antes la web descartaba todas las etiquetas menos ig, ig-story, wa y li, y esas visitas quedaron en "Sin origen". Una etiqueta se cuenta cuando está en "Link ct" de Marketing.', webRefK.length ? '<div class="funnel">' + webRefK.map(function (k) { return stepRow(refLabel(k, d.marketing), wr[k].visits, webRefMax, C1, (wr[k].opens ? wr[k].opens + ' ' + plural(wr[k].opens, 'apertura', 'aperturas') + ' · ' : '') + wr[k].clicks + ' ' + plural(wr[k].clicks, 'toque', 'toques')); }).join('') + '</div>' : '<p class="quiet">' + (d.web_refs ? 'Todavía ninguna visita con etiqueta.' : 'Sin datos: falta publicar la función del HQ.') + '</p>', webRefK.length ? webRefT + ' ' + plural(webRefT, 'visita', 'visitas') + ' con etiqueta' : '')
             + card('Países de las visitas', 'De dónde es cada visita a nidi.life, por la zona horaria del navegador. Solo se guarda el país. Se sabe desde el 9/11.', webCoK.length ? '<div class="funnel">' + webCoK.map(function (k) { return stepRow(regionName(k), webCo[k], webCoT, C1, (w.clicks_by_country || {})[k] ? w.clicks_by_country[k] + ' ' + plural(w.clicks_by_country[k], 'click', 'clicks') : ''); }).join('') + (w.no_country_since ? stepRow('Sin dato', w.no_country_since, webCoT + w.no_country_since, C3) : '') + '</div>' : '<p class="quiet">Sin datos todavía.</p>')
-            + card('Descargas por canal', 'Las que Apple atribuye a cada link. Se cargan a mano en "Lugares y links".', chanKeys.length ? '<div class="funnel">' + chanKeys.map(function (k) { return stepRow(k, chan[k].dl, chanMax, C1, chan[k].n + ' ' + plural(chan[k].n, 'link', 'links')); }).join('') + '</div>' : '<p class="quiet">Sin datos todavía.</p>', chanKeys.some(function (k) { return chan[k].dl; }) ? '' : 'ninguna cargada todavía')
             + '</div>';
           html += phonesCard(d) + playSection(d.play, range);
           var co = s.countries || {}, acc = co.accounts || {}, accK = Object.keys(acc), accT = accK.reduce(function (a, k) { return a + acc[k]; }, 0);
@@ -2843,83 +2839,38 @@
           return pre ? pre.name + ' (' + ref + ')' : REF_L[ref] || ref;
         }
 
-        // Acquisition → Acciones (22/11): ad A, with Finance's cuts. The ad opens
-        // nidi.life/pasalo/?ref=ad-a; its one button sends nidi.life/go/?r=ad-a-wa
-        // by WhatsApp. Cuts: ≤ €0,30 per tap, ≤ €0,60 per forwarded open, off
-        // with €8 spent and no taps. Phones are a time window, not per person.
-        function adACard(d) {
-          var a = d.ad_a;
-          if (!a || !a.days) return '';
-          var sum = function (k) { return a.days.reduce(function (t, r) { return t + (Number(r[k]) || 0); }, 0); };
-          var v = sum('visits'), t = sum('wa_taps'), o = sum('opens'), st = sum('store_taps'), pi = sum('phones_ios'), pa = sum('phones_android');
-          var spent = a.spent_eur == null ? null : Number(a.spent_eur);
-          var per = function (n) { return spent == null || !n ? '—' : '€' + (spent / n).toFixed(2).replace('.', ','); };
-          var cut = function (n, max) { if (spent == null || !n) return ''; return ' <span class="stp ' + (spent / n <= max ? 'good' : 'bad') + '">' + (spent / n <= max ? 'dentro del corte' : 'pasa el corte') + '</span>'; };
-          var off = spent != null && spent >= 8 && t === 0;
-          var wb = a.phones_week_before || {}, days = a.days.length;
-          var rows = a.days.slice().reverse().map(function (r) {
-            return '<tr><td>' + dmy(r.day + 'T12:00:00') + '</td><td class="num">' + r.visits + '</td><td class="num">' + r.wa_taps + '</td><td class="num">' + r.opens + '</td><td class="num">' + r.store_taps + '</td><td class="num">' + r.phones_ios + ' / ' + r.phones_android + '</td></tr>';
-          }).join('');
-          return card('Anuncio A · la familia que se quedó', 'El anuncio abre nidi.life/pasalo/?ref=ad-a, con un solo botón: «Mandáselo por WhatsApp», que manda nidi.life/go/?r=ad-a-wa. Visitas: llegaron desde el anuncio. Toques: tocaron el botón de WhatsApp. Aperturas: alguien abrió el link reenviado (sin repetidos). Teléfonos nuevos: todos los de esos días, no solo los del anuncio, porque la app no sabe de qué link vino cada teléfono. Solo cuentan visitas y toques con la etiqueta del anuncio; las ráfagas (3 o más visitas del mismo país en el mismo segundo, como la revisión de Meta) y los toques de ese minuto quedan afuera. Cortes de Finance: hasta €0,30 por toque y hasta €0,60 por apertura; con €8 gastados y ningún toque, se apaga.',
-            (off ? '<p><span class="stp bad">Apagar: €8 gastados y ningún toque</span></p>' : '')
-            + '<div class="kpis">'
-            + tile('Visitas', '', v, '', 'desde el anuncio')
-            + tile('Toques a WhatsApp', '', t, '', 'costo ' + per(t) + cut(t, 0.30))
-            + tile('Aperturas del reenvío', '', o, '', 'costo ' + per(o) + cut(o, 0.60))
-            + tile('Teléfonos nuevos', '', pi + pa, '', pi + ' iPhone · ' + pa + ' Android en ' + days + ' ' + plural(days, 'día', 'días') + ' · semana anterior ' + ((wb.ios || 0) + (wb.android || 0)))
-            + '</div>'
-            + '<div class="tablewrap" style="margin-top:10px"><table><tr><th>Día</th><th class="num">Visitas</th><th class="num">Toques WhatsApp</th><th class="num">Aperturas reenvío</th><th class="num">Toques tienda</th><th class="num">Teléfonos iPhone / Android</th></tr>' + rows + '</table></div>',
-            (spent == null ? 'sin gasto cargado' : '€' + spent.toFixed(2).replace('.', ',') + ' gastados') + (a.bursts_left_out ? ' · ' + a.bursts_left_out + ' ' + plural(a.bursts_left_out, 'ráfaga descartada', 'ráfagas descartadas') : ''));
-        }
-        // Acquisition → Acciones (22/11): ad B, the Spanish «qué se hace en Nidi»
-        // carousel. It links straight to nidi.life/go/?r=ad-b: opens without
-        // repeats by store, and new phones as a time window.
-        function adBCard(d) {
+        // Ad B's own numbers, inside its row's «ver detalle» (25/11). Until then
+        // this was a card above the table that repeated what its row already
+        // said — the money spent and the opens — and added «Teléfonos nuevos»,
+        // which its own small print admitted are every phone of those days, not
+        // the ad's: those live in Web y tiendas. What is left here is the only
+        // thing the row cannot show: the opens split by store and by country,
+        // day by day. Ad A's card left the board on 23/11 (Maru, town meeting);
+        // it is a finished test in Tests (ad-a-pasalo).
+        function adBDetail(d) {
           var a = d.ad_b;
           if (!a || !a.days) return '';
           var sum = function (k) { return a.days.reduce(function (t, r) { return t + (Number(r[k]) || 0); }, 0); };
-          var o = sum('opens'), oi = sum('opens_ios'), oa = sum('opens_android'), pi = sum('phones_ios'), pa = sum('phones_android');
-          var spent = a.spent_eur == null ? null : Number(a.spent_eur), budget = a.budget_eur == null ? null : Number(a.budget_eur);
-          var per = spent == null || !o ? '—' : '€' + (spent / o).toFixed(2).replace('.', ',');
-          var wb = a.phones_week_before || {}, days = a.days.length;
+          var o = sum('opens'), oi = sum('opens_ios'), oa = sum('opens_android');
           var co = a.countries || {}, coK = Object.keys(co).sort(function (x, y) { return co[y] - co[x]; });
           var rows = a.days.slice().reverse().map(function (r) {
-            return '<tr><td>' + dmy(r.day + 'T12:00:00') + '</td><td class="num">' + r.opens + '</td><td class="num">' + r.opens_ios + ' / ' + r.opens_android + '</td><td class="num">' + r.phones_ios + ' / ' + r.phones_android + '</td></tr>';
+            return '<tr><td>' + dmy(r.day + 'T12:00:00') + '</td><td class="num">' + r.opens + '</td><td class="num">' + r.opens_ios + ' / ' + r.opens_android + '</td></tr>';
           }).join('');
-          return card('Anuncio B · qué se hace en Nidi', 'Carrusel en español para padres que viven lejos con chicos de 0 a 5 años. Lleva directo a nidi.life/go/?r=ad-b, que abre la tienda. Aperturas: alguien abrió ese link en un teléfono (sin repetidos: mismo país y tienda en menos de 60 segundos cuenta una vez), separadas en App Store y Google Play. Teléfonos nuevos: todos los de esos días, no solo los del anuncio, porque la app no sabe de qué link vino cada teléfono. El gasto sale de la fila ad-b de Marketing.',
-            '<div class="kpis">'
-            + tile('Aperturas del link', '', o, '', oi + ' App Store · ' + oa + ' Google Play')
-            + tile('Costo por apertura', '', per, '', spent == null ? 'sin gasto cargado' : '€' + spent.toFixed(2).replace('.', ',') + ' gastados' + (budget ? ' de €' + budget.toFixed(0) : ''))
-            + tile('Teléfonos nuevos', '', pi + pa, '', pi + ' iPhone · ' + pa + ' Android en ' + days + ' ' + plural(days, 'día', 'días') + ' · semana anterior ' + ((wb.ios || 0) + (wb.android || 0)))
-            + '</div>'
-            + (coK.length ? '<p class="quiet" style="margin-top:6px">Países: ' + coK.map(function (k) { return esc(/^[A-Z]{2}$/.test(k) ? regionName(k) : k) + ' ' + co[k]; }).join(' · ') + '</p>' : '')
-            + '<div class="tablewrap" style="margin-top:10px"><table><tr><th>Día</th><th class="num">Aperturas</th><th class="num">App Store / Google Play</th><th class="num">Teléfonos iPhone / Android</th></tr>' + rows + '</table></div>',
-            o + ' ' + plural(o, 'apertura', 'aperturas'));
+          return '<p class="quiet" style="margin-top:8px"><b style="font-weight:500;color:var(--ink)">Aperturas del link:</b> ' + o + ' ' + plural(o, 'apertura', 'aperturas') + ' · ' + oi + ' App Store · ' + oa + ' Google Play. Alguien abrió nidi.life/go/?r=ad-b en un teléfono; mismo país y tienda en menos de 60 segundos cuenta una vez.</p>'
+            + (coK.length ? '<p class="quiet">Países: ' + coK.map(function (k) { return esc(/^[A-Z]{2}$/.test(k) ? regionName(k) : k) + ' ' + co[k]; }).join(' · ') + '</p>' : '')
+            + '<div class="tablewrap"><table><tr><th>Día</th><th class="num">Aperturas</th><th class="num">App Store / Google Play</th></tr>' + rows + '</table></div>';
         }
-        function tabMkt(d, st, s) {
-          // Ad A left the board on 23/11 (Maru, town meeting): it is a finished test in Tests (ad-a-pasalo).
-          var adA = adBCard(d);
-          var rows = d.marketing;
-          if (!Array.isArray(rows)) return adA + card('Marketing', '', '<p class="quiet">El registro todavía no está activo: falta aplicar la migración hq_marketing y publicar la función.</p>');
-          // active first, and within each state what costs money first
-          var order = { active: 0, planned: 1, paused: 2, done: 3 }, korder = { paid: 0, offer: 1, free: 2 };
-          rows = rows.slice().sort(function (a, b) { return (order[a.status] - order[b.status]) || (korder[a.kind] - korder[b.kind]) || String(a.starts_on || '9999').localeCompare(String(b.starts_on || '9999')); });
-          var spent = sum(rows, 'spent_eur'), budget = sum(rows, 'budget_eur');
-          var withNet = rows.filter(function (r) { return known(r.net_eur); }), net = sum(withNet, 'net_eur');
-          var paidDl = rows.filter(function (r) { return r.kind === 'paid' && known(r.downloads); }), dlSpent = sum(paidDl, 'spent_eur'), dl = sum(paidDl, 'downloads');
-          var paidFam = rows.filter(function (r) { return r.kind === 'paid' && known(r.paying); }), famSpent = sum(paidFam, 'spent_eur'), fam = sum(paidFam, 'paying');
-          var html = adA + '<div class="kpis four">'
-            + tile('Invertido', 'Lo gastado hasta hoy en todas las acciones. Lo previsto es la suma de los presupuestos.', eur(spent), '', budget ? 'de ' + eur(budget) + ' previstos' : '')
-            + tile('Ganado neto', 'Lo que dejaron las familias que pagaron, después de la tienda e impuestos. Se carga a mano en cada acción.', withNet.length ? eur(net) : '—', '', withNet.length ? (spent ? (net / spent).toFixed(1).replace('.', ',') + ' veces lo invertido' : '') : 'sin resultados cargados')
-            + tile('Costo por descarga', 'Solo acciones pagas con descargas cargadas: lo gastado dividido por sus descargas. Verde hasta €4, ámbar hasta €8, rojo después.', dl ? costWord(dlSpent / dl, true) : '—', '', dl ? dl + ' ' + plural(dl, 'descarga', 'descargas') + ' de acciones pagas' : paidDl.length && dlSpent ? '<span class="warn">' + eur(dlSpent) + ' sin descargas</span>' : 'sin descargas cargadas')
-            + tile('Costo por familia que paga', 'Solo acciones pagas con familias cargadas: lo gastado dividido por las familias que pagan.', fam ? eur(famSpent / fam) : '—', '', fam ? fam + ' ' + plural(fam, 'familia', 'familias') : paidFam.length && famSpent ? '<span class="warn">' + eur(famSpent) + ' sin familias</span>' : 'sin familias cargadas')
-            + '</div>';
-
-          // the 30-day goal
-          // Payments from 1/11 to 8/11 count too (Finance, 2026-11-11: the
-          // annual payments of 1/11 go toward the €1k). No action row covers
-          // them, so they are added here, net as in the pace email: annual €70,
-          // monthly €7 (no launch price before 10/11).
+        // The €1k / €3k / €5k goal of the 30 days from 9/11 to 9/12. Until
+        // 25/11 it was drawn in Acciones, so the money was in three places with
+        // three definitions (Maru's rule since 18/11: a number lives in one tab
+        // only). It is Finance's question, so it is drawn in Finance, under the
+        // month. Payments from 1/11 to 8/11 count too (Finance, 11/11: the
+        // annual payments of 1/11 go toward the €1k). No action row covers
+        // them, so they are added here, net as in the pace email: annual €70,
+        // monthly €7 (no launch price before 10/11).
+        function goal30Card(d, s) {
+          var rows = Array.isArray(d.marketing) ? d.marketing : [];
+          var net = sum(rows.filter(function (r) { return known(r.net_eur); }), 'net_eur');
           var early = ((s && s.money && s.money.paid_list) || []).filter(function (p) { var dd = String(p.since || '').slice(0, 10); return dd >= '2026-11-01' && dd < GOAL.from; });
           var earlyNet = early.reduce(function (a, p) { return a + (String(p.product).indexOf('month') >= 0 ? 7 : 70); }, 0);
           var goalNet = net + earlyNet;
@@ -2930,39 +2881,132 @@
           var bar = '<div class="goal-bar" role="img" aria-label="' + esc(eur(goalNet) + ' de ' + eur(top)) + '"><i style="width:' + Math.min(100, goalNet / top * 100).toFixed(1) + '%"></i>'
             + GOAL.steps.map(function (g) { return '<b style="left:' + (g[0] / top * 100) + '%"></b>'; }).join('') + '</div>'
             + '<div class="goal-ticks">' + GOAL.steps.map(function (g, i) { return '<span class="' + (i === GOAL.steps.length - 1 ? 'end' : '') + (goalNet >= g[0] ? ' hit' : '') + '" style="left:' + (g[0] / top * 100) + '%">€' + (g[0] / 1000) + 'k ' + g[1] + '</span>'; }).join('') + '</div>';
-          html += '<div style="margin-top:10px">' + card('Meta de 30 días', 'Suma de los € netos cargados en las acciones, más los pagos del 1/11 al 8/11, que ninguna acción trajo (anual €70 neto, mensual €7). €1k es el mínimo, €3k el óptimo y €5k excede lo esperado.',
+          return '<div style="margin-top:10px">' + card('Meta de 30 días', 'Suma de los € netos cargados en las acciones de Acquisition, más los pagos del 1/11 al 8/11, que ninguna acción trajo (anual €70 neto, mensual €7). €1k es el mínimo, €3k el óptimo y €5k excede lo esperado.',
             '<div class="goal-v">' + eur(goalNet) + '<small>' + (next ? 'de ' + eur(next[0]) + ' (' + next[1] + ')' : 'pasaste los €5k') + '</small></div><div class="d quiet">' + (left ? 'Día ' + dayN + ' de 30 · ' + (left === 1 ? 'falta 1 día' : 'faltan ' + left + ' días') : 'Terminó el 9/12') + '</div>' + bar,
             (earlyNet ? 'incluye ' + eur(earlyNet) + ' de ' + early.length + ' ' + plural(early.length, 'pago', 'pagos') + ' del 1/11 al 8/11 · ' : '') + 'hasta el 9/12') + '</div>';
+        }
 
-          // the actions
-          var num = function (v) { return known(v) ? Number(v).toLocaleString('es-AR') : '<span class="quiet">—</span>'; };
-          html += '<h2>Acciones <small>' + rows.length + '</small></h2><div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th>Estado</th><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Cuentas</th><th class="num">Invite</th><th class="num">Nidis</th><th class="num">Pagan</th><th class="num">Neto</th><th class="num">€/descarga</th></tr></thead><tbody>';
-          if (!rows.length) html += '<tr><td colspan="11" class="quiet">Todavía ninguna.</td></tr>';
+        // Is there anything to show yet, and did it cost anything?
+        var MK_RESULTS = ['downloads', 'accounts', 'nidis', 'families', 'paying'];
+        function mkHas(r) { return MK_RESULTS.some(function (k) { return Number(r[k]) > 0; }); }
+        function mkCosts(r) { return Number(r.spent_eur) > 0 || Number(r.budget_eur) > 0; }
+        // The dates decide the state: an action whose last day has passed is
+        // finished, whatever the row says. On 25/11 «Ads Manager: argentinos y
+        // latinos afuera» still read «Activa» two days after it ended, so the
+        // tab showed three ads running when only one was. A pause is a
+        // decision of Maru's, so a paused action stays paused.
+        function mkState(r, today) { return r.status === 'active' && r.ends_on && r.ends_on < today ? 'done' : r.status; }
+        // «Armaron nidi» is every nidi someone that link brought made; «familia
+        // completa» is the ones with the two homes inside. Rows typed by hand
+        // keep their old meaning: what was typed as nidis is complete families
+        // (Maru, 16/11), and how many were made is not known.
+        function mkMade(r) { return r.results_auto_at ? r.nidis : null; }
+        function mkFam(r) { return r.results_auto_at ? r.families : r.nidis; }
+        function tabMkt(d, st, s) {
+          var rows = d.marketing;
+          if (!Array.isArray(rows)) return card('Acciones', '', '<p class="quiet">El registro todavía no está activo: falta aplicar la migración hq_marketing y publicar la función.</p>');
+          var today = todayAms();
+          // newest first inside each group
+          rows = rows.slice().sort(function (a, b) { return String(b.starts_on || '0000').localeCompare(String(a.starts_on || '0000')); });
+          var spent = sum(rows, 'spent_eur'), budget = sum(rows, 'budget_eur');
+          var withNet = rows.filter(function (r) { return known(r.net_eur); }), net = sum(withNet, 'net_eur');
+          var paidDl = rows.filter(function (r) { return r.kind === 'paid' && known(r.downloads); }), dlSpent = sum(paidDl, 'spent_eur'), dl = sum(paidDl, 'downloads');
+          var got = { acc: 0, made: 0, fam: 0, pay: 0 };
           rows.forEach(function (r) {
-            var when = r.starts_on ? day12(r.starts_on) + ' → ' + (r.ends_on ? day12(r.ends_on) : '') : r.ends_on ? 'hasta ' + day12(r.ends_on) : '<span class="quiet">sin fecha</span>';
-            var cpd = Number(r.spent_eur) > 0 && known(r.downloads) ? (Number(r.downloads) ? costWord(r.spent_eur / r.downloads, r.kind === 'paid') : '<span class="warn">sin descargas</span>') : '<span class="quiet">—</span>';
-            html += '<tr><td class="nm"><div class="mk-top"><b>' + esc(r.name) + '</b><button class="link" data-mk=\'' + esc(JSON.stringify(r)) + '\'>editar</button></div>'
-              + '<div class="meta">' + esc(MK_CH[r.channel] || r.channel) + (MK_KIND[r.kind] !== MK_CH[r.channel] ? ' · ' + esc(MK_KIND[r.kind] || r.kind) : '') + (r.ct ? ' · <code>ct=' + esc(r.ct) + '</code>' : '') + (r.ct && d.web_refs ? (function (t) { return ' · ' + t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'); })(refsFor(r.ct, d.web_refs)) : '') + (r.results_auto_at ? ' · <span class="auto" data-tip="' + esc('Descargas, cuentas, invite, nidis y pagan se cargan solos cada hora: la app se abrió por primera vez hasta 15 min después de una visita con este link. Invite: armó el nidi y la otra casa todavía no entró. Nidis: las dos casas adentro. Solo gente de afuera. Última carga: ' + dmy(r.results_auto_at) + ' ' + String(new Date(r.results_auto_at).toTimeString()).slice(0, 5)) + '">resultados automáticos</span>' : '') + '</div>'
-              + (r.note ? '<details class="nt"><summary>ver detalle</summary><div>' + esc(r.note) + '</div></details>' : '') + '</td>'
-              + '<td class="when" data-l="Cuándo">' + when + '</td>'
-              + '<td data-l="Estado"><span class="pill ' + esc(r.status) + '">' + esc(MK_ST[r.status] || r.status) + '</span></td>'
-              + '<td class="num" data-l="Gastado">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '</td>'
-              + '<td class="num" data-l="Descargas">' + num(r.downloads) + '</td>'
-              + '<td class="num" data-l="Cuentas">' + num(r.accounts) + '</td>'
-              // Invite: a nidi made, the other home not in yet. Nidis: both homes in (Maru, 16/11). Typed rows keep their own nidis.
-              + '<td class="num" data-l="Invite">' + (r.results_auto_at && known(r.nidis) && known(r.families) ? num(r.nidis - r.families) : num(null)) + '</td>'
-              + '<td class="num" data-l="Nidis">' + num(r.results_auto_at ? r.families : r.nidis) + '</td>'
-              + '<td class="num" data-l="Pagan">' + num(r.paying) + '</td>'
-              + '<td class="num" data-l="Neto">' + (known(r.net_eur) ? eur(r.net_eur) : '<span class="quiet">—</span>') + '</td>'
-              + '<td class="num" data-l="€/descarga">' + cpd + '</td></tr>';
+            got.acc += Number(r.accounts) || 0; got.made += Number(mkMade(r)) || 0;
+            got.fam += Number(mkFam(r)) || 0; got.pay += Number(r.paying) || 0;
           });
-          html += '</tbody></table></div>';
+          var html = '<div class="kpis">'
+            + tile('Invertido', 'Lo gastado hasta hoy en todas las acciones. Lo previsto es la suma de los presupuestos. El neto lo cargás a mano en cada acción: vacío es «todavía no se sabe», nunca cero.', eur(spent), '', (budget ? 'de ' + eur(budget) + ' previstos · ' : '') + (withNet.length ? 'neto ' + eur(net) : 'neto todavía sin cargar'))
+            + tile('Por descarga', 'Solo acciones pagas con descargas cargadas: lo gastado dividido por sus descargas. Verde hasta €4, ámbar hasta €8, rojo después.', dl ? costWord(dlSpent / dl, true) : '—', '', dl ? dl + ' ' + plural(dl, 'descarga', 'descargas') + ' de acciones pagas' : paidDl.length && dlSpent ? '<span class="warn">' + eur(dlSpent) + ' sin descargas</span>' : 'sin descargas cargadas')
+            + tile('Familias completas', 'Las dos casas adentro, de gente que llegó por una acción. Los regalos no cuentan como pago.', got.fam, '', got.pay ? got.pay + ' ' + plural(got.pay, 'paga', 'pagan') : 'ninguna paga todavía')
+            + '</div>';
+          // the same chain, in the same words, as Activation
+          html += '<div style="margin-top:10px">' + card('De las ' + got.acc + ' ' + plural(got.acc, 'persona que llegó', 'personas que llegaron') + ' por una acción',
+            'Solo gente de afuera. Cada paso, sobre las personas que llegaron por un link o un anuncio nuestro. Lo que pasa después de que la app se abre se mira entero en Activation.',
+            '<div class="funnel">'
+            + stepRow('Llegaron', got.acc, got.acc || 1, C1)
+            + stepRow('Armaron su nidi', got.made, got.acc || 1, C1)
+            + stepRow('Familia completa', got.fam, got.acc || 1, C1)
+            + stepRow('Pagan', got.pay, got.acc || 1, C3) + '</div>') + '</div>';
+
+          var num = function (v) { return known(v) ? Number(v).toLocaleString('es-AR') : '<span class="quiet">—</span>'; };
+          var when = function (r) { return r.starts_on ? day12(r.starts_on) + (r.ends_on ? ' → ' + day12(r.ends_on) : ' →') : r.ends_on ? 'hasta ' + day12(r.ends_on) : '<span class="quiet">sin fecha</span>'; };
+          var cpdOf = function (r) { return Number(r.spent_eur) > 0 && known(r.downloads) ? (Number(r.downloads) ? costWord(r.spent_eur / r.downloads, r.kind === 'paid') : '<span class="warn">sin descargas</span>') : '<span class="quiet">—</span>'; };
+          // Everything that is not one of the six columns lives here, with the
+          // edit button: the channel, the link and its visits, the downloads,
+          // the nidis still waiting for the other home, the net and the note.
+          var detail = function (r) {
+            var t = r.ct && d.web_refs ? refsFor(r.ct, d.web_refs) : null;
+            var made = mkMade(r), fam = mkFam(r), waiting = made != null && fam != null ? Number(made) - Number(fam) : 0;
+            var bits = [esc(MK_CH[r.channel] || r.channel)];
+            if (MK_KIND[r.kind] !== MK_CH[r.channel]) bits.push(esc(MK_KIND[r.kind] || r.kind));
+            bits.push(r.ct ? '<code>ct=' + esc(r.ct) + '</code>' : 'sin link');
+            if (t) bits.push(t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'));
+            if (known(r.downloads)) bits.push(num(r.downloads) + ' ' + plural(Number(r.downloads), 'descarga', 'descargas'));
+            if (waiting > 0) bits.push(waiting + ' ' + plural(waiting, 'nidi esperando a la otra casa', 'nidis esperando a la otra casa'));
+            if (known(r.net_eur)) bits.push('neto ' + eur(r.net_eur));
+            if (r.results_auto_at) bits.push('<span class="auto" data-tip="' + esc('Descargas, cuentas, nidis y pagan se cargan solos cada hora: la app se abrió por primera vez hasta 15 min después de una visita con este link. Solo gente de afuera. Última carga: ' + dmy(r.results_auto_at) + ' ' + String(new Date(r.results_auto_at).toTimeString()).slice(0, 5)) + '">resultados automáticos</span>');
+            return '<details class="nt"><summary>ver detalle</summary><div><p class="quiet">' + bits.join(' · ') + '</p>'
+              + (r.note ? '<p>' + esc(r.note) + '</p>' : '')
+              + (r.ct === 'ad-b' ? adBDetail(d) : '')
+              + '<p><button class="link" data-mk=\'' + esc(JSON.stringify(r)) + '\'>editar</button></p></div></details>';
+          };
+          // what is running: one card each, because it is what you came to see
+          var liveCard = function (r) {
+            return card(r.name, 'Lo que gastó y lo que trajo. Lo demás, en «ver detalle».',
+              '<div class="tablewrap"><table><thead><tr><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Llegaron</th><th class="num">Armaron nidi</th><th class="num">Familia completa</th><th class="num">€/descarga</th></tr></thead><tbody><tr>'
+              + '<td class="num">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '</td>'
+              + '<td class="num">' + num(r.downloads) + '</td><td class="num">' + num(r.accounts) + '</td>'
+              + '<td class="num">' + num(mkMade(r)) + '</td><td class="num">' + num(mkFam(r)) + '</td>'
+              + '<td class="num">' + cpdOf(r) + '</td></tr></tbody></table></div>'
+              + '<p class="quiet" style="margin:8px 0 0">' + when(r) + '</p>' + detail(r), MK_ST[mkState(r, today)]);
+          };
+          var nameCell = function (r) { return '<td class="nm" data-l="Acción"><b>' + esc(r.name) + '</b>' + detail(r) + '</td>'; };
+          var paidTable = function (list) {
+            return '<div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Llegaron</th><th class="num">Familia completa</th></tr></thead><tbody>'
+              + list.map(function (r) {
+                return '<tr>' + nameCell(r) + '<td class="when" data-l="Cuándo">' + when(r) + '</td>'
+                  + '<td class="num" data-l="Gastado">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '<div class="meta">' + cpdOf(r) + ' por descarga</div></td>'
+                  + '<td class="num" data-l="Descargas">' + num(r.downloads) + '</td>'
+                  + '<td class="num" data-l="Llegaron">' + num(r.accounts) + '</td>'
+                  + '<td class="num" data-l="Familia completa">' + num(mkFam(r)) + '</td></tr>';
+              }).join('') + '</tbody></table></div></div>';
+          };
+          var freeTable = function (list) {
+            return '<div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Desde</th><th class="num">Llegaron</th><th class="num">Armaron nidi</th><th class="num">Familia completa</th></tr></thead><tbody>'
+              + list.map(function (r) {
+                return '<tr>' + nameCell(r) + '<td class="when" data-l="Desde">' + when(r) + '</td>'
+                  + '<td class="num" data-l="Llegaron">' + num(r.accounts) + '</td>'
+                  + '<td class="num" data-l="Armaron nidi">' + num(mkMade(r)) + '</td>'
+                  + '<td class="num" data-l="Familia completa">' + num(mkFam(r)) + '</td></tr>';
+              }).join('') + '</tbody></table></div></div>';
+          };
+          // The dates and what the action cost decide where each row lands.
+          var G = { now: [], planned: [], spent: [], links: [], quiet: [] };
+          rows.forEach(function (r) {
+            var state = mkState(r, today);
+            if (state === 'planned') G.planned.push(r);
+            else if (!mkCosts(r) && !mkHas(r)) G.quiet.push(r);
+            else if (r.kind !== 'free') (state === 'active' ? G.now : G.spent).push(r);
+            else G.links.push(r);
+          });
+          html += '<h2>Corriendo ahora <small>' + G.now.length + '</small></h2>'
+            + (G.now.length ? G.now.map(liveCard).join('') : card('Ninguna corriendo', '', '<p class="quiet">No hay ninguna acción paga en marcha.</p>'));
+          if (G.planned.length) html += '<h2>Planeadas <small>' + G.planned.length + '</small></h2>'
+            + '<div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th class="num">Presupuesto</th></tr></thead><tbody>'
+            + G.planned.map(function (r) { return '<tr>' + nameCell(r) + '<td class="when" data-l="Cuándo">' + when(r) + '</td><td class="num" data-l="Presupuesto">' + (Number(r.budget_eur) > 0 ? eur(r.budget_eur) : '<span class="quiet">—</span>') + '</td></tr>'; }).join('')
+            + '</tbody></table></div></div>';
+          if (G.spent.length) html += '<h2>Terminadas, costaron plata <small>' + G.spent.length + ' · ' + eur(sum(G.spent, 'spent_eur')) + '</small></h2>' + paidTable(G.spent);
+          if (G.links.length) html += '<h2>Links abiertos, no cuestan plata <small>' + G.links.length + '</small></h2>' + freeTable(G.links);
+          if (G.quiet.length) html += '<div class="card" style="margin-top:10px"><details class="nt"><summary>' + G.quiet.length + ' sin una sola visita todavía</summary><div><p class="quiet">Nadie se da por perdido: cualquiera puede traer gente mañana. Se pliegan para que no tapen lo que sí se mueve.</p><p>'
+            + G.quiet.map(function (r) { return esc(r.name) + ' <span class="quiet">· ' + esc(MK_ST[mkState(r, today)] || '') + (r.ct ? ' · ct=' + esc(r.ct) : ' · sin link') + '</span>'; }).join('<br>') + '</p></div></details></div>';
 
           var opts = function (map) { return Object.keys(map).map(function (k) { return '<option value="' + k + '">' + esc(map[k]) + '</option>'; }).join(''); };
           var f = function (label, input, cls) { return '<label class="f' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span>' + input + '</label>'; };
           var money = function (name) { return '<input name="' + name + '" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" autocomplete="off" />'; };
           var count = function (name) { return '<input name="' + name + '" type="number" min="0" step="1" inputmode="numeric" />'; };
-          html += '<details class="add" id="mkdetails" style="margin-top:12px"><summary>Agregar acción</summary><form class="row mkf" id="mkform"><input type="hidden" name="id" />'
+          html += '<div class="card" style="margin-top:12px"><details class="add" id="mkdetails"><summary>Agregar acción</summary><form class="row mkf" id="mkform"><input type="hidden" name="id" />'
             + f('Nombre', '<input name="name" required maxlength="80" />', 'wide')
             + f('Canal', '<select name="channel">' + opts(MK_CH) + '</select>')
             + f('Tipo', '<select name="kind">' + opts(MK_KIND) + '</select>')
@@ -2978,7 +3022,7 @@
             + f('Neto ganado €', money('net_eur'))
             + f('Link ct', '<input name="ct" placeholder="ej. ig-boost" pattern="[a-z0-9_\\-]{1,40}\\*?" maxlength="41" autocomplete="off" />')
             + f('Notas', '<textarea name="note" maxlength="500" placeholder="sin emails"></textarea>', 'full')
-            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero. Las acciones con link (ct) cargan solas descargas, cuentas, invite, nidis y pagan cada hora; lo gastado y el neto siguen siendo a mano.</p>'
+            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero. Las acciones con link (ct) cargan solas descargas, cuentas, nidis y pagan cada hora; lo gastado y el neto siguen siendo a mano.</p>'
             + '<div class="full"><button class="primary" type="submit" id="mksave">Guardar</button> <button type="button" class="ghost" id="mkclear">Limpiar</button> <button type="button" class="link" id="mkdelete" hidden>Borrar esta acción</button></div></form></details></div>';
           return html;
         }
