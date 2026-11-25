@@ -1675,9 +1675,11 @@
         var J_KIND = { exchange: 'le dejaron algo', note: 'le dejaron una nota', seen_all: 'vieron lo que dejó', relationship_joined: 'entró el otro hogar', relationship_activated: 'ya están los dos', morning: 'resumen de la mañana', burst: 'y le dejaron más cosas', resume_nudge: 'que retome', your_turn: 'tiene algo sin ver', activity_waiting: 'la actividad de hoy', reengage: 'que vuelva', go_first: 'que le toca empezar', dropout_invite: 'que mande el link', unseen_ask: 'que tiene algo sin ver', invite_bounced_ask: 'el mail otra vez (rebotó)', invite_opened: 'que entre (abrió el link)', invite_waiting: 'que mande el link',
           dropout_code_unconfirmed: 'que confirme el código', dropout_code_unconfirmed_invitee: 'que el otro hogar confirme el código', dropout_profile_unfinished: 'que termine el perfil', dropout_invite_waiting: 'que mande el link', dropout_moment_unseen: 'que mire lo que le dejaron', dropout_invite_opened: 'que entre (abrió el link y no entró)' };
         // What the person DID. 'saw_*' only counts opening it from Hoy: a
-        // moment opened in Recuerdos is never marked seen.
+        // moment opened in Recuerdos is never marked seen. 'read_note' is the
+        // same rule the orb uses: they had the moment open after the note was
+        // written (get_unread_notes).
         var J_ACT = { left_photo: 'Dejó una foto', left_voice: 'Dejó un audio', left_text: 'Dejó un mensaje', left_note: 'Dejó una nota',
-          saw_photo: 'Vio una foto', saw_voice: 'Escuchó un audio', saw_text: 'Leyó un mensaje' };
+          saw_photo: 'Vio una foto', saw_voice: 'Escuchó un audio', saw_text: 'Leyó un mensaje', read_note: 'Leyó la nota' };
         var J_STEP = [['account', 'Cuenta'], ['nidi', 'Nidi armado'], ['link_sent', 'Link mandado'], ['link_opened', 'Link abierto'], ['joined', 'Entró el otro hogar'], ['first_moment', 'Primer momento'], ['trial', 'Prueba'], ['paid', 'Pago']];
         var J_STEP_L = { trial_end: 'Fin de la prueba', gift: 'Regalo' }; J_STEP.forEach(function (s) { J_STEP_L[s[0]] = s[1]; });
         var J_RULE = { person_48h: 'Dos recordatorios a la misma persona en 48 h', nidi_48h: 'Los dos hogares de un nidi en 48 h', push_mail_day: 'Push y mail el mismo día' };
@@ -1731,12 +1733,37 @@
           var reals = items.filter(function (i) { return (i.type === 'push' || i.type === 'mail') && i.real === true; }).length;
           var acts = items.filter(function (i) { return i.type === 'act'; }).length;
           var day = '', out = '';
+          // Someone catching up reads several notes in one sitting, and
+          // moment_views keeps one time per moment, so they all land on the
+          // same minute. Six identical lines said less than one.
+          var rows = [];
           items.slice().reverse().forEach(function (i) {
+            var host = null;
+            if (i.type === 'act' && i.kind === 'read_note') {
+              // look back through the same minute, not just the row before:
+              // another row can sit between two notes read together
+              for (var k = rows.length - 1; k >= 0 && ams(rows[k].at) === ams(i.at) && jTime(rows[k].at) === jTime(i.at); k--) {
+                if (rows[k].type === 'act' && rows[k].kind === 'read_note' && rows[k].who === i.who && rows[k].home === i.home) { host = rows[k]; break; }
+              }
+            }
+            if (host) {
+              host.notes = (host.notes || 1) + 1;
+              host.age = Math.max(host.age || 0, i.age || 0);
+              return;
+            }
+            rows.push(Object.assign({}, i));
+          });
+          rows.forEach(function (i) {
             var dd = ams(i.at);
             if (dd !== day) { day = dd; out += '<div class="j-day">' + (dd === todayAms() ? 'Hoy' : dd === addDays(todayAms(), -1) ? 'Ayer' : esc(dmy(i.at))) + '</div>'; }
             var what, cls = '';
             if (i.type === 'open') { what = 'Entró a Nidi' + (i.n > 1 ? ' <span class="quiet">· ' + i.n + ' veces en el día</span>' : ''); cls = 'j-open'; }
-            else if (i.type === 'act') { what = esc(J_ACT[i.kind] || i.kind) + (i.age >= 1 ? ' <span class="quiet">· de hace ' + i.age + (i.age === 1 ? ' día' : ' días') + '</span>' : ''); cls = 'j-act'; }
+            else if (i.type === 'act') {
+              what = (i.notes > 1 ? 'Leyó ' + i.notes + ' notas' : esc(J_ACT[i.kind] || i.kind))
+                + (i.age >= 1 ? ' <span class="quiet">· ' + (i.notes > 1 ? 'la más vieja, ' : '') + 'de hace ' + i.age + (i.age === 1 ? ' día' : ' días') + '</span>' : '')
+                + (i.unread === true ? ' <span class="tt-tag rem">sin leer</span>' : '');
+              cls = 'j-act';
+            }
             else if (i.type === 'step') { what = '<b>' + esc(J_STEP_L[i.kind] || i.kind) + '</b>'; cls = 'j-stepline'; }
             else {
               what = '<span class="j-arrow">←</span> ' + (i.real ? 'Aviso' : 'Recordatorio') + ': ' + esc(jKind(i.kind))
@@ -1757,7 +1784,7 @@
             res = list.length ? '<div class="j-hits">' + list.join('') + '</div>' : '<p class="quiet">Nadie de afuera con ese nombre o email.</p>';
           }
           return jAlarm(d.contact_alarm)
-            + card('Recorrido de una familia', 'Lo que hizo cada hogar (A = el que armó el nidi, B = el otro) y lo que le mandamos, en orden, lo más nuevo arriba. Cada fila habla de la persona que tiene al lado: en negro lo que hizo ella (entró, dejó una foto, vio lo que le dejaron) y con ← lo que le mandamos nosotros, aviso o recordatorio, con si lo tocó. Se busca por nombre o email; el email no se muestra. Hora de Amsterdam. «Vio una foto» cuenta solo si la abrió desde Hoy: en Recuerdos no queda marcada, y de las notas no hay marca de leído. De cada mail se ve si tocó el botón donde se puede medir («Compartir el link» y «Entrar a Nidi»); en los otros, si entró a Nidi en las 24 h siguientes. Si abrieron un mail no se mide. Lee exchanges, moment_notes, moment_views, push_log, push_queue, dropout_reach y events.',
+            + card('Recorrido de una familia', 'Lo que hizo cada hogar (A = el que armó el nidi, B = el otro) y lo que le mandamos, en orden, lo más nuevo arriba. Cada fila habla de la persona que tiene al lado: en negro lo que hizo ella (entró, dejó una foto, vio lo que le dejaron) y con ← lo que le mandamos nosotros, aviso o recordatorio, con si lo tocó. Se busca por nombre o email; el email no se muestra. Hora de Amsterdam. «Vio una foto» es la primera vez que la abrió desde Hoy: en Recuerdos no queda marcada. «Leyó la nota» es la misma regla que hace latir la bola: tuvo ese momento abierto después de que se escribió la nota; la nota que el otro hogar todavía no abrió dice «sin leer». De cada mail se ve si tocó el botón donde se puede medir («Compartir el link» y «Entrar a Nidi»); en los otros, si entró a Nidi en las 24 h siguientes. Si abrieron un mail no se mide. Lee exchanges, moment_notes, moment_views, push_log, push_queue, dropout_reach y events.',
               '<form id="jform" class="j-form"><input name="q" type="search" placeholder="Nombre o email" value="' + esc(J.q) + '" autocomplete="off" /><button class="primary" type="submit"' + (J.busy ? ' disabled' : '') + '>' + (J.busy ? 'Buscando…' : 'Buscar') + '</button></form>'
               + (J.err ? '<p class="warn">' + esc(J.err) + '</p>' : '') + res + (J.data ? jTimeline(J.data) : ''))
             + card('Las 8 reglas', 'Aprobadas por Maru el 23/11. Valen para todo recordatorio, push o mail.', jRules());
