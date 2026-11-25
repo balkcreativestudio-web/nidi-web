@@ -803,12 +803,15 @@
           var FAMILY = ['matías', 'matias', 'cheli', 'lola', 'loli', 'marcelo', 'martu', 'male', 'michelle', 'cris'];
           var first = function (n) { return String(n || '').trim().split(/\s+/)[0].replace(/^@/, '').toLowerCase(); };
           var sent = [], unplaced = [];
-          (d.campaigns || []).forEach(function (c) {
+          // 25/11: los lugares salen de las acciones (hq_marketing), que ahora
+          // llevan ciudad, país y alcance. Solo entran al mapa las que tienen
+          // lugar: un link de la bio no se pone en ningún punto.
+          (d.marketing || []).forEach(function (c) {
             var p = pointOf(c.place_city, c.place_country);
-            var row = { type: 'sent', at: dayOf(c.since), name: c.name, what: c.where_used, result: (c.downloads || 0) ? c.downloads + ' ' + plural(c.downloads, 'descarga', 'descargas') : '', audience: c.audience };
-            if (p) { row.to = p; sent.push(row); } else unplaced.push(c.name);
+            if (!p || !c.starts_on) return;
+            sent.push({ type: 'sent', at: dayOf(c.starts_on), name: c.name, what: MK_CH[c.channel] || c.channel, result: (c.downloads || 0) ? c.downloads + ' ' + plural(c.downloads, 'descarga', 'descargas') : '', audience: c.audience, to: p });
           });
-          var campaignNames = (d.campaigns || []).map(function (c) { return String(c.name).toLowerCase(); }).join(' · ');
+          var campaignNames = (d.marketing || []).map(function (c) { return String(c.name).toLowerCase(); }).join(' · ');
           (d.contacts || []).forEach(function (c) {
             var key = first(c.name);
             // nothing has been sent to a candidate yet
@@ -950,7 +953,7 @@
             + '<div class="rm-list"><div><h3>Se fue sola <span>' + lOwn.length + '</span></h3>' + (lOwn.length ? lOwn.map(rowHtml).join('') : '<p class="quiet" style="margin:6px 0">Nada todavía.</p>') + '</div>'
             + '<div><h3>La mandaste vos <span>' + lSent.length + '</span></h3>' + (lSent.length ? lSent.map(rowHtml).join('') : '<p class="quiet" style="margin:6px 0">Nada acá.</p>') + '</div>'
             + (lFam.length ? '<div><h3>Tu familia, no suma <span>' + lFam.length + '</span></h3>' + lFam.map(rowHtml).join('') + '</div>' : '') + '</div>'
-            + (M.unplaced.length ? '<p class="rm-none"><b style="font-weight:500;color:var(--ink)">Sin lugar en el mapa:</b> ' + esc(M.unplaced.join(', ')) + '. Se cargan con "editar" en Acquisition → Web y tiendas, «Lugares y links».</p>' : '');
+            + (M.unplaced.length ? '<p class="rm-none"><b style="font-weight:500;color:var(--ink)">Sin lugar en el mapa:</b> ' + esc(M.unplaced.join(', ')) + '. La ciudad y el país se cargan con «editar» en Acquisition → Acciones.</p>' : '');
 
           Array.prototype.forEach.call(box.querySelectorAll('[data-mapview]'), function (b) { b.onclick = function () { MAP.view = b.getAttribute('data-mapview'); MAP.sel = null; drawMap(); }; });
           Array.prototype.forEach.call(box.querySelectorAll('[data-node]'), function (g) { g.onclick = function () { if (g.hasAttribute('data-cluster')) { MAP.view = 'nl'; MAP.sel = null; drawMap(); return; } var k = g.getAttribute('data-node'); MAP.sel = MAP.sel === k ? null : k; drawMap(); }; });
@@ -2238,23 +2241,10 @@
             + card('App Store', 'Calificaciones y reseñas por país. Las descargas por país están en App Store Connect.', (ast.length ? '<table>' + ast.map(function (r) { return '<tr><td>' + esc(r.country) + '</td><td class="num">' + (r.rating != null ? r.rating.toFixed(1) + ' ★' : '—') + '</td><td class="num quiet">' + r.count + ' ' + plural(r.count, 'voto', 'votos') + '</td></tr>'; }).join('') + '</table>' : '<p class="quiet">Todavía ninguna.</p>') + (reviews.length ? '<details class="data"><summary>Reseñas (' + reviews.length + ')</summary>' + reviews.map(function (v) { return '<div class="rev"><b>' + '★'.repeat(v.rating) + '</b> ' + esc(v.title) + ' <span class="quiet">· ' + esc(v.author) + ' · ' + dmy(v.date) + '</span><div>' + esc(v.body) + '</div></div>'; }).join('') + '</details>' : ''), votes ? votes + ' ' + plural(votes, 'voto', 'votos') : '')
             + '</div>';
 
-          // the route map, and under it every link with its numbers
-          var CH_L = { facebook: 'Facebook', instagram: 'Instagram', whatsapp: 'WhatsApp', mail: 'Mail', slack: 'Slack', web: 'Web', press: 'Prensa', other: 'Otro' };
-          var PK_L = { post: 'Post', mail: 'Mail', dm: 'Mensaje', story: 'Historia', link: 'Link', press: 'Nota', talk: 'Boca en boca' };
-          var countryOpts = function () { var W = window.NIDI_WORLD; if (!W) return ''; return '<option value="">País (si lo sabés)</option>' + Object.keys(W.countries).map(function (c) { return [regionName(c), c]; }).sort(function (a, b) { return a[0].localeCompare(b[0], 'es'); }).map(function (o) { return '<option value="' + o[1] + '">' + esc(o[0]) + '</option>'; }).join(''); };
-          var places = d.campaigns.slice().sort(function (a, b) { return String(b.since).localeCompare(String(a.since)); });
-          html += '<h2>Lugares y links</h2><div class="card">'
-            + '<details class="add" id="campdetails"><summary>Lugares y links (' + places.length + ')</summary><div class="tablewrap" style="margin-top:8px"><table><tr><th>Cuándo</th><th>Dónde</th><th>Lugar</th><th class="num">Alcance</th><th class="num">Descargas</th><th>Qué pasó</th><th></th></tr>';
-          places.forEach(function (c) {
-            html += '<tr><td>' + dmy(c.since) + '</td><td>' + esc(c.name) + '<br><span class="quiet">' + esc(c.where_used) + ' · <code>' + esc(c.ct) + '</code></span></td><td class="quiet">' + (c.place_country ? esc(c.place_city || regionName(c.place_country)) : '—') + '</td><td class="num quiet">' + (c.audience ? '~' + c.audience.toLocaleString('es-AR') : '—') + '</td><td class="num">' + (c.downloads || 0) + '</td><td class="quiet">' + esc(c.note || '') + '</td><td><button class="link" data-camp=\'' + esc(JSON.stringify(c)) + '\'>editar</button></td></tr>';
-          });
-          html += '</table></div>'
-            + '<form class="row" id="campform"><input name="name" placeholder="nombre (ej. Haarlem Expats)" required maxlength="80" /><input name="ct" placeholder="ct= (ej. haarlem-expats)" required pattern="[a-z0-9_-]{1,40}" />'
-            + '<select name="kind">' + Object.keys(PK_L).map(function (k) { return '<option value="' + k + '">' + PK_L[k] + '</option>'; }).join('') + '</select>'
-            + '<select name="channel">' + Object.keys(CH_L).map(function (k) { return '<option value="' + k + '">' + CH_L[k] + '</option>'; }).join('') + '</select>'
-            + '<input name="where_used" placeholder="dónde exactamente" required /><input name="place_city" placeholder="Ciudad (si tiene)" maxlength="60" /><select name="place_country">' + countryOpts() + '</select><input name="since" type="date" /><input name="audience" type="number" min="0" placeholder="alcance (personas)" /><input name="downloads" type="number" min="0" placeholder="descargas (Apple)" />'
-            + '<textarea class="full" name="note" placeholder="qué pasó ahí (sin emails)" maxlength="500"></textarea><div class="full"><button class="primary" type="submit">Guardar</button></div></form></details></div>';
-
+          // «Lugares y links» (hq_campaigns) se fue el 25/11: era un segundo
+          // registro de acciones, escondido acá, con 8 filas y las 8 en 0
+          // descargas, y tres ct repetidos de Acciones. Ciudad, país y alcance
+          // ahora son campos de la acción, en Acquisition → Acciones.
           return html;
         }
 
@@ -2811,6 +2801,15 @@
         var MK_CH = { apple_ads: 'Apple Ads', ig_boost: 'Boost de Instagram', creators: 'Creadoras', press: 'Prensa', offer: 'Oferta', organic: 'Post orgánico', whatsapp: 'WhatsApp', other: 'Otro' };
         var MK_KIND = { paid: 'Pago', free: 'Gratis', offer: 'Oferta' };
         var MK_ST = { active: 'Activa', planned: 'Planeada', paused: 'Pausada', done: 'Terminada' };
+        // the country list for the place of an action (25/11: it used to live in
+        // the «Lugares y links» form, which is gone)
+        function countryOpts() {
+          var W = window.NIDI_WORLD;
+          if (!W) return '<option value="">País (si lo sabés)</option>';
+          return '<option value="">País (si lo sabés)</option>' + Object.keys(W.countries).map(function (c) { return [regionName(c), c]; })
+            .sort(function (a, b) { return a[0].localeCompare(b[0], 'es'); })
+            .map(function (o) { return '<option value="' + o[1] + '">' + esc(o[0]) + '</option>'; }).join('');
+        }
         function eur(n) { n = Math.round((Number(n) || 0) * 100) / 100; return '€' + n.toLocaleString('es-AR', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
         function known(v) { return v !== null && v !== undefined && v !== ''; }
         function costWord(cost, paid) { return paid ? '<span class="' + (cost <= 4 ? 'ok' : cost <= 8 ? 'meh' : 'warn') + '">' + eur(cost) + '</span>' : eur(cost); }
@@ -2945,6 +2944,8 @@
             if (t) bits.push(t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'));
             if (known(r.downloads)) bits.push(num(r.downloads) + ' ' + plural(Number(r.downloads), 'descarga', 'descargas'));
             if (waiting > 0) bits.push(waiting + ' ' + plural(waiting, 'nidi esperando a la otra casa', 'nidis esperando a la otra casa'));
+            if (r.place_city || r.place_country) bits.push(esc([r.place_city, r.place_country ? regionName(r.place_country) : null].filter(Boolean).join(', ')) + (known(r.audience) ? ' · ~' + Number(r.audience).toLocaleString('es-AR') + ' ' + plural(Number(r.audience), 'persona', 'personas') : ''));
+            else if (known(r.audience)) bits.push('~' + Number(r.audience).toLocaleString('es-AR') + ' ' + plural(Number(r.audience), 'persona', 'personas'));
             if (known(r.net_eur)) bits.push('neto ' + eur(r.net_eur));
             if (r.results_auto_at) bits.push('<span class="auto" data-tip="' + esc('Descargas, cuentas, nidis y pagan se cargan solos cada hora: la app se abrió por primera vez hasta 15 min después de una visita con este link. Solo gente de afuera. Última carga: ' + dmy(r.results_auto_at) + ' ' + String(new Date(r.results_auto_at).toTimeString()).slice(0, 5)) + '">resultados automáticos</span>');
             return '<details class="nt"><summary>ver detalle</summary><div><p class="quiet">' + bits.join(' · ') + '</p>'
@@ -2999,8 +3000,11 @@
             + '</tbody></table></div></div>';
           if (G.spent.length) html += '<h2>Terminadas, costaron plata <small>' + G.spent.length + ' · ' + eur(sum(G.spent, 'spent_eur')) + '</small></h2>' + paidTable(G.spent);
           if (G.links.length) html += '<h2>Links abiertos, no cuestan plata <small>' + G.links.length + '</small></h2>' + freeTable(G.links);
-          if (G.quiet.length) html += '<div class="card" style="margin-top:10px"><details class="nt"><summary>' + G.quiet.length + ' sin una sola visita todavía</summary><div><p class="quiet">Nadie se da por perdido: cualquiera puede traer gente mañana. Se pliegan para que no tapen lo que sí se mueve.</p><p>'
-            + G.quiet.map(function (r) { return esc(r.name) + ' <span class="quiet">· ' + esc(MK_ST[mkState(r, today)] || '') + (r.ct ? ' · ct=' + esc(r.ct) : ' · sin link') + '</span>'; }).join('<br>') + '</p></div></details></div>';
+          // plegadas, pero enteras: cada una con su detalle y su botón editar
+          if (G.quiet.length) html += '<div class="card" style="margin-top:10px"><details class="nt"><summary>' + G.quiet.length + ' sin una sola visita todavía</summary><div><p class="quiet">Nadie se da por perdido: cualquiera puede traer gente mañana. Se pliegan para que no tapen lo que sí se mueve.</p>'
+            + '<div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Desde</th><th>Estado</th></tr></thead><tbody>'
+            + G.quiet.map(function (r) { return '<tr>' + nameCell(r) + '<td class="when" data-l="Desde">' + when(r) + '</td><td data-l="Estado"><span class="pill ' + esc(mkState(r, today)) + '">' + esc(MK_ST[mkState(r, today)] || '') + '</span></td></tr>'; }).join('')
+            + '</tbody></table></div></div></details></div>';
 
           var opts = function (map) { return Object.keys(map).map(function (k) { return '<option value="' + k + '">' + esc(map[k]) + '</option>'; }).join(''); };
           var f = function (label, input, cls) { return '<label class="f' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span>' + input + '</label>'; };
@@ -3021,6 +3025,9 @@
             + f('Familias que pagan', count('paying'))
             + f('Neto ganado €', money('net_eur'))
             + f('Link ct', '<input name="ct" placeholder="ej. ig-boost" pattern="[a-z0-9_\\-]{1,40}\\*?" maxlength="41" autocomplete="off" />')
+            + f('Ciudad del lugar', '<input name="place_city" maxlength="60" placeholder="ej. Haarlem" autocomplete="off" />')
+            + f('País del lugar', '<select name="place_country">' + countryOpts() + '</select>')
+            + f('Alcance (personas)', count('audience'))
             + f('Notas', '<textarea name="note" maxlength="500" placeholder="sin emails"></textarea>', 'full')
             + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero. Las acciones con link (ct) cargan solas descargas, cuentas, nidis y pagan cada hora; lo gastado y el neto siguen siendo a mano.</p>'
             + '<div class="full"><button class="primary" type="submit" id="mksave">Guardar</button> <button type="button" class="ghost" id="mkclear">Limpiar</button> <button type="button" class="link" id="mkdelete" hidden>Borrar esta acción</button></div></form></details></div>';
@@ -3035,9 +3042,10 @@
           mf.onsubmit = function (e) {
             e.preventDefault();
             var fd = new FormData(mf), body = { action: 'marketing_upsert' }, bad = false;
-            ['name', 'channel', 'kind', 'status', 'starts_on', 'ends_on', 'ct', 'note'].forEach(function (k) { body[k] = String(fd.get(k) || '').trim(); });
+            ['name', 'channel', 'kind', 'status', 'starts_on', 'ends_on', 'ct', 'note', 'place_city', 'place_country'].forEach(function (k) { body[k] = String(fd.get(k) || '').trim(); });
             MONEY.forEach(function (k) { var v = String(fd.get(k) || '').trim().replace(',', '.'); body[k] = v === '' ? null : Number(v); if (v !== '' && !isFinite(body[k])) bad = true; });
-            COUNTS.forEach(function (k) { var v = String(fd.get(k) || '').trim(); body[k] = v === '' ? null : Number(v); });
+            // el alcance se escribe siempre a mano, así que no se bloquea como los resultados
+            COUNTS.concat(['audience']).forEach(function (k) { var v = String(fd.get(k) || '').trim(); body[k] = v === '' ? null : Number(v); });
             if (bad) { alert('Revisá los montos: solo números, con coma para los centavos.'); return; }
             if (body.starts_on && body.ends_on && body.ends_on < body.starts_on) { alert('Termina antes de empezar.'); return; }
             if (fd.get('id')) body.id = fd.get('id');
@@ -3055,6 +3063,7 @@
               reset();
               mf.id.value = r.id; mf.name.value = r.name; mf.channel.value = r.channel; mf.kind.value = r.kind; mf.status.value = r.status;
               mf.starts_on.value = r.starts_on || ''; mf.ends_on.value = r.ends_on || ''; mf.ct.value = r.ct || ''; mf.note.value = r.note || '';
+              mf.place_city.value = r.place_city || ''; mf.place_country.value = r.place_country || ''; mf.audience.value = known(r.audience) ? r.audience : '';
               MONEY.forEach(function (k) { mf[k].value = known(r[k]) ? String(Number(r[k])).replace('.', ',') : ''; });
               COUNTS.forEach(function (k) { mf[k].value = known(r[k]) ? r[k] : ''; mf[k].readOnly = !!r.results_auto_at; });
               del.hidden = false; det.open = true; det.querySelector('summary').textContent = 'Editando: ' + r.name; EDITING = true;
@@ -3091,23 +3100,6 @@
             api('POST', { action: 'origin_clear', relationship_id: b.getAttribute('data-originclear') }).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(function (err) { alert('No se guardó: ' + err.message); });
           }; });
 
-          if (!document.getElementById('campform')) return; // the forms live in Adquisición
-          var pf = document.getElementById('campform'), pdet = document.getElementById('campdetails');
-          pf.onsubmit = function (e) {
-            e.preventDefault();
-            var fd = new FormData(pf), body = { action: 'campaign_upsert', ct: fd.get('ct'), where_used: fd.get('where_used'), name: fd.get('name'), channel: fd.get('channel'), kind: fd.get('kind'), place_city: fd.get('place_city'), place_country: fd.get('place_country'), note: fd.get('note') };
-            if (fd.get('downloads') !== '') body.downloads = Number(fd.get('downloads'));
-            if (fd.get('audience') !== '') body.audience = Number(fd.get('audience'));
-            if (fd.get('since')) body.since = fd.get('since');
-            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se guardó: ' + err.message); });
-          };
-          Array.prototype.forEach.call(document.querySelectorAll('[data-camp]'), function (b) {
-            b.onclick = function () {
-              var c = JSON.parse(b.getAttribute('data-camp'));
-              pf.name.value = c.name; pf.ct.value = c.ct; pf.channel.value = c.channel; pf.kind.value = c.kind || 'link'; pf.where_used.value = c.where_used; pf.place_city.value = c.place_city || ''; pf.place_country.value = c.place_country || ''; pf.since.value = c.since || ''; pf.audience.value = c.audience == null ? '' : c.audience; pf.downloads.value = c.downloads; pf.note.value = c.note || '';
-              pdet.open = true; EDITING = true; pdet.scrollIntoView({ behavior: 'smooth', block: 'start' }); pf.downloads.focus();
-            };
-          });
         }
 
         // the hover layer: one tooltip, for whatever carries data-tip
