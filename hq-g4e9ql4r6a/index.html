@@ -413,6 +413,9 @@
       .j-day { font-size:12px; font-weight:600; color:var(--ink2); margin:12px 0 4px; }
       .j-row { display:grid; grid-template-columns:44px 22px 90px 1fr; gap:6px; align-items:baseline; font-size:13px; padding:3px 0; border-bottom:1px solid var(--line2); }
       .j-t { color:var(--ink3); font-variant-numeric:tabular-nums; } .j-who { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .j-open .j-what { color:var(--ink2); }
+      .j-sub { display:block; font-size:12px; color:var(--ink3); margin-top:1px; }
+      .j-arrow { color:var(--ink3); margin-right:2px; }
+      .j-real .j-what, .j-rem .j-what { color:var(--ink2); } .j-act .j-what { color:var(--ink); }
       .jh { display:inline-block; width:18px; text-align:center; font-size:11px; font-weight:600; border-radius:4px; } .jh-a { background:var(--honey-soft); color:#8a6417; } .jh-b { background:var(--olive-soft); color:#5c6b37; }
       .j-rules { margin:0 0 8px 18px; padding:0; font-size:13px; line-height:1.6; }
       .tt-tag.nogoal { color:#8a6417; border-color:#e8d5a6; background:var(--honey-soft, #f5e9cc); }
@@ -1665,8 +1668,16 @@
         // events, invitations, exchanges and subscriptions for now; when IT has
         // the single contact log, hq_contact_rows() reads from there instead.
         var J = { q: '', found: null, data: null, busy: false, err: '' };
-        var J_KIND = { exchange: 'Momento nuevo', note: 'Nota nueva', seen_all: 'Vio todo', relationship_joined: 'Entró el otro hogar', relationship_activated: 'Ya están los dos', morning: 'Resumen de la mañana', burst: 'Ráfaga («y más fotos»)', resume_nudge: 'Retomar', your_turn: 'Te toca', activity_waiting: 'Actividad para hoy', reengage: 'Volver', go_first: 'Empezás vos', dropout_invite: 'Abandono: el otro hogar no entró', unseen_ask: 'Pedido único: no visto', invite_bounced_ask: 'Pedido único: invitación rebotada',
-          dropout_code_unconfirmed: 'Abandono: no confirmó el código', dropout_code_unconfirmed_invitee: 'Abandono: el otro hogar no confirmó el código', dropout_profile_unfinished: 'Abandono: perfil sin terminar', dropout_invite_waiting: 'Abandono: link sin mandar', dropout_moment_unseen: 'Abandono: momento sin ver', dropout_invite_opened: 'Abandono: abrió el link y no entró' };
+        // Every row speaks about the person named beside it (Maru 25/11:
+        // «si hablamos de la persona ejemplo (yo) — Maru: Dejó una nota»,
+        // «si la lee mi hermana sería: Leyó la nota»). So an aviso reads as
+        // what happened TO that person, and the internal kind never shows.
+        var J_KIND = { exchange: 'le dejaron algo', note: 'le dejaron una nota', seen_all: 'vieron lo que dejó', relationship_joined: 'entró el otro hogar', relationship_activated: 'ya están los dos', morning: 'resumen de la mañana', burst: 'y le dejaron más cosas', resume_nudge: 'que retome', your_turn: 'tiene algo sin ver', activity_waiting: 'la actividad de hoy', reengage: 'que vuelva', go_first: 'que le toca empezar', dropout_invite: 'que mande el link', unseen_ask: 'que tiene algo sin ver', invite_bounced_ask: 'el mail otra vez (rebotó)', invite_opened: 'que entre (abrió el link)', invite_waiting: 'que mande el link',
+          dropout_code_unconfirmed: 'que confirme el código', dropout_code_unconfirmed_invitee: 'que el otro hogar confirme el código', dropout_profile_unfinished: 'que termine el perfil', dropout_invite_waiting: 'que mande el link', dropout_moment_unseen: 'que mire lo que le dejaron', dropout_invite_opened: 'que entre (abrió el link y no entró)' };
+        // What the person DID. 'saw_*' only counts opening it from Hoy: a
+        // moment opened in Recuerdos is never marked seen.
+        var J_ACT = { left_photo: 'Dejó una foto', left_voice: 'Dejó un audio', left_text: 'Dejó un mensaje', left_note: 'Dejó una nota',
+          saw_photo: 'Vio una foto', saw_voice: 'Escuchó un audio', saw_text: 'Leyó un mensaje' };
         var J_STEP = [['account', 'Cuenta'], ['nidi', 'Nidi armado'], ['link_sent', 'Link mandado'], ['link_opened', 'Link abierto'], ['joined', 'Entró el otro hogar'], ['first_moment', 'Primer momento'], ['trial', 'Prueba'], ['paid', 'Pago']];
         var J_STEP_L = { trial_end: 'Fin de la prueba', gift: 'Regalo' }; J_STEP.forEach(function (s) { J_STEP_L[s[0]] = s[1]; });
         var J_RULE = { person_48h: 'Dos recordatorios a la misma persona en 48 h', nidi_48h: 'Los dos hogares de un nidi en 48 h', push_mail_day: 'Push y mail el mismo día' };
@@ -1690,17 +1701,21 @@
         // What came after a push or mail (23/11, Maru): the push tapped, the
         // mail button where it leaves a trace, else the app opened in 24 h.
         function jAfterAt(i, at) { return ams(at) === ams(i.at) ? jTime(at) : dmy(at) + ' ' + jTime(at); }
+        // «al instante» when the tap landed in the same minute as the send:
+        // repeating the row's own hour said nothing. And «entró a Nidi», never
+        // «abrió», which the app rows already use for something else.
+        function jAfterWhen(i, at) { return ams(at) === ams(i.at) && jTime(at) === jTime(i.at) ? 'al instante' : jAfterAt(i, at); }
         function jAfter(i) {
           if (i.failed || i.queued) return '';
           if (i.type === 'push') {
-            if (i.opened) return ' <span class="tt-tag real">lo abrió ' + esc(jAfterAt(i, i.opened)) + '</span>';
-            return ' <span class="quiet">· no tocó el push' + (i.app_after ? '; abrió Nidi ' + esc(jAfterAt(i, i.app_after)) : '') + '</span>';
+            if (i.opened) return ' · lo tocó ' + esc(jAfterWhen(i, i.opened));
+            return ' · no lo tocó' + (i.app_after ? '; entró a Nidi ' + esc(jAfterAt(i, i.app_after)) : '');
           }
           if (i.trackable) {
-            if (i.clicked) return ' <span class="tt-tag real">tocó el botón ' + esc(jAfterAt(i, i.clicked)) + '</span>';
-            return ' <span class="quiet">· no tocó el botón' + (i.app_after ? '; abrió Nidi ' + esc(jAfterAt(i, i.app_after)) : '') + '</span>';
+            if (i.clicked) return ' · tocó el botón ' + esc(jAfterWhen(i, i.clicked));
+            return ' · no tocó el botón' + (i.app_after ? '; entró a Nidi ' + esc(jAfterAt(i, i.app_after)) : '');
           }
-          return ' <span class="quiet">· ' + (i.app_after ? 'abrió Nidi ' + esc(jAfterAt(i, i.app_after)) : 'no abrió Nidi en 24 h') + ' (este botón no se mide)</span>';
+          return ' · ' + (i.app_after ? 'entró a Nidi ' + esc(jAfterAt(i, i.app_after)) : 'no entró en 24 h') + ' (este botón no se mide)';
         }
         function jTimeline(j) {
           var n = j.nidi, st = j.steps || {}, items = j.items || [];
@@ -1714,22 +1729,24 @@
           }).join('');
           var reminders = items.filter(function (i) { return (i.type === 'push' || i.type === 'mail') && i.real === false; }).length;
           var reals = items.filter(function (i) { return (i.type === 'push' || i.type === 'mail') && i.real === true; }).length;
+          var acts = items.filter(function (i) { return i.type === 'act'; }).length;
           var day = '', out = '';
           items.slice().reverse().forEach(function (i) {
             var dd = ams(i.at);
             if (dd !== day) { day = dd; out += '<div class="j-day">' + (dd === todayAms() ? 'Hoy' : dd === addDays(todayAms(), -1) ? 'Ayer' : esc(dmy(i.at))) + '</div>'; }
             var what, cls = '';
-            if (i.type === 'open') { what = 'Abrió la app' + (i.n > 1 ? ' <span class="quiet">' + i.n + ' veces ese día</span>' : ''); cls = 'j-open'; }
+            if (i.type === 'open') { what = 'Entró a Nidi' + (i.n > 1 ? ' <span class="quiet">· ' + i.n + ' veces en el día</span>' : ''); cls = 'j-open'; }
+            else if (i.type === 'act') { what = esc(J_ACT[i.kind] || i.kind) + (i.age >= 1 ? ' <span class="quiet">· de hace ' + i.age + (i.age === 1 ? ' día' : ' días') + '</span>' : ''); cls = 'j-act'; }
             else if (i.type === 'step') { what = '<b>' + esc(J_STEP_L[i.kind] || i.kind) + '</b>'; cls = 'j-stepline'; }
             else {
-              what = (i.type === 'mail' ? 'Mail' : 'Push') + ': ' + esc(jKind(i.kind)) + ' <span class="tt-tag ' + (i.real ? 'real' : 'rem') + '">' + (i.real ? 'real' : 'recordatorio') + '</span>'
+              what = '<span class="j-arrow">←</span> ' + (i.real ? 'Aviso' : 'Recordatorio') + ': ' + esc(jKind(i.kind))
                 + (i.failed ? ' <span class="tt-tag fail">no llegó</span>' : '') + (i.queued ? ' <span class="tt-tag">programado</span>' : '')
-                + jAfter(i);
+                + '<span class="j-sub">' + (i.type === 'mail' ? 'mail' : 'push') + jAfter(i) + '</span>';
               cls = i.real ? 'j-real' : 'j-rem';
             }
             out += '<div class="j-row ' + cls + '"><span class="j-t">' + jTime(i.at) + '</span>' + jHome(i.home) + '<span class="j-who">' + esc(i.who || '') + '</span><span class="j-what">' + what + '</span></div>';
           });
-          return '<div class="j-head"><div>' + who + '</div><div class="quiet">Está en: <b>' + esc(last || '—') + '</b> · ' + reals + ' ' + plural(reals, 'aviso real', 'avisos reales') + ', ' + reminders + ' ' + plural(reminders, 'recordatorio', 'recordatorios') + '</div></div>'
+          return '<div class="j-head"><div>' + who + '</div><div class="quiet">Está en: <b>' + esc(last || '—') + '</b>' + (acts ? ' · hicieron ' + acts + ' ' + plural(acts, 'cosa', 'cosas') : '') + ' · ' + reals + ' ' + plural(reals, 'aviso', 'avisos') + ', ' + reminders + ' ' + plural(reminders, 'recordatorio', 'recordatorios') + '</div></div>'
             + '<div class="j-steps">' + chips + '</div><div class="j-list">' + (out || '<p class="quiet">Nada todavía.</p>') + '</div>';
         }
         function tabContactos(d) {
@@ -1740,7 +1757,7 @@
             res = list.length ? '<div class="j-hits">' + list.join('') + '</div>' : '<p class="quiet">Nadie de afuera con ese nombre o email.</p>';
           }
           return jAlarm(d.contact_alarm)
-            + card('Recorrido de una familia', 'Todo lo que le llegó a cada hogar (A = el que armó el nidi, B = el otro), cada día que abrió la app y en qué paso está, en orden, lo más nuevo arriba. Se busca por nombre o email; el email no se muestra. Hora de Amsterdam. Al lado de cada push: si lo tocó. De cada mail: si tocó el botón, donde se puede medir («Compartir el link» y «Entrar a Nidi»); en los otros, si abrió Nidi en las 24 h siguientes. Si abrieron un mail no se mide. Por ahora lee push_log, push_queue, dropout_reach y events; cuando IT tenga el registro único de contactos, lee de ahí.',
+            + card('Recorrido de una familia', 'Lo que hizo cada hogar (A = el que armó el nidi, B = el otro) y lo que le mandamos, en orden, lo más nuevo arriba. Cada fila habla de la persona que tiene al lado: en negro lo que hizo ella (entró, dejó una foto, vio lo que le dejaron) y con ← lo que le mandamos nosotros, aviso o recordatorio, con si lo tocó. Se busca por nombre o email; el email no se muestra. Hora de Amsterdam. «Vio una foto» cuenta solo si la abrió desde Hoy: en Recuerdos no queda marcada, y de las notas no hay marca de leído. De cada mail se ve si tocó el botón donde se puede medir («Compartir el link» y «Entrar a Nidi»); en los otros, si entró a Nidi en las 24 h siguientes. Si abrieron un mail no se mide. Lee exchanges, moment_notes, moment_views, push_log, push_queue, dropout_reach y events.',
               '<form id="jform" class="j-form"><input name="q" type="search" placeholder="Nombre o email" value="' + esc(J.q) + '" autocomplete="off" /><button class="primary" type="submit"' + (J.busy ? ' disabled' : '') + '>' + (J.busy ? 'Buscando…' : 'Buscar') + '</button></form>'
               + (J.err ? '<p class="warn">' + esc(J.err) + '</p>' : '') + res + (J.data ? jTimeline(J.data) : ''))
             + card('Las 8 reglas', 'Aprobadas por Maru el 23/11. Valen para todo recordatorio, push o mail.', jRules());
