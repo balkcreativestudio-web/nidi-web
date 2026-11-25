@@ -950,7 +950,7 @@
             + '<div class="rm-list"><div><h3>Se fue sola <span>' + lOwn.length + '</span></h3>' + (lOwn.length ? lOwn.map(rowHtml).join('') : '<p class="quiet" style="margin:6px 0">Nada todavía.</p>') + '</div>'
             + '<div><h3>La mandaste vos <span>' + lSent.length + '</span></h3>' + (lSent.length ? lSent.map(rowHtml).join('') : '<p class="quiet" style="margin:6px 0">Nada acá.</p>') + '</div>'
             + (lFam.length ? '<div><h3>Tu familia, no suma <span>' + lFam.length + '</span></h3>' + lFam.map(rowHtml).join('') + '</div>' : '') + '</div>'
-            + (M.unplaced.length ? '<p class="rm-none"><b style="font-weight:500;color:var(--ink)">Sin lugar en el mapa:</b> ' + esc(M.unplaced.join(', ')) + '. Se cargan con "editar" en Llegar → Web y tiendas, «Lugares y links».</p>' : '');
+            + (M.unplaced.length ? '<p class="rm-none"><b style="font-weight:500;color:var(--ink)">Sin lugar en el mapa:</b> ' + esc(M.unplaced.join(', ')) + '. Se cargan con "editar" en Acquisition → Web y tiendas, «Lugares y links».</p>' : '');
 
           Array.prototype.forEach.call(box.querySelectorAll('[data-mapview]'), function (b) { b.onclick = function () { MAP.view = b.getAttribute('data-mapview'); MAP.sel = null; drawMap(); }; });
           Array.prototype.forEach.call(box.querySelectorAll('[data-node]'), function (g) { g.onclick = function () { if (g.hasAttribute('data-cluster')) { MAP.view = 'nl'; MAP.sel = null; drawMap(); return; } var k = g.getAttribute('data-node'); MAP.sel = MAP.sel === k ? null : k; drawMap(); }; });
@@ -968,7 +968,14 @@
         // question each, with the team that owns it: Resumen, Tests, Llegar, Entrar, Usar, Plata, Board.
         // 2026-11-20 (Maru: "alinear las tabs con los chats"; mock Pwf6KE7N8Y9Cevr911sPmo): one tab per
         // team chat, everything by calendar month, one color code for state. Board lives at the end of Resumen.
-        var TABS = [['resumen', 'Resumen', 'Dirección'], ['plata', 'Plata', 'Finance'], ['llegar', 'Llegar', 'Marketing'], ['redes', 'Redes', 'Redes Sociales'], ['entrar', 'Nuevos', 'Producto'], ['usar', 'Usar', 'Producto'], ['errores', 'Errores', 'IT'], ['contactos', 'Contactos', 'HQ'], ['tests', 'Tests', 'todos'], ['meses', 'Meses', 'historial']];
+        // 2026-11-25 (Maru: nombres de empresa, «el resto todas en inglés»): the bar reads as a funnel —
+        // Overview, Acquisition, Activation, Retention, Finance — and keeps Tests, Social, CRM, Bugs and
+        // History as she named them. Only the labels are in English: everything inside stays in Spanish,
+        // and the ids do not change, so a tab saved on her phone still opens where it did.
+        var TABS = [['resumen', 'Overview', 'Dirección'], ['llegar', 'Acquisition', 'Marketing'], ['entrar', 'Activation', 'Producto'], ['usar', 'Retention', 'Producto'], ['plata', 'Finance', 'Finance'], ['tests', 'Tests', 'todos'], ['redes', 'Social', 'Redes Sociales'], ['contactos', 'CRM', 'HQ'], ['errores', 'Bugs', 'IT'], ['meses', 'History', 'historial']];
+        // The name of a tab is written once, here: Resumen's cards read it from TABS so the
+        // bar and the cards can never say different things.
+        var TAB_L = {}; TABS.forEach(function (t) { TAB_L[t[0]] = t[1]; });
         var ROOM_Q = {
           tests: ['¿Qué estamos probando y qué decidimos?', 'Todos los equipos'],
           llegar: ['¿De dónde viene la gente y cuánto cuesta?', 'Marketing'],
@@ -1078,7 +1085,8 @@
           var so = socialTotals(d), active = (s.nidis || []).filter(function (n) { return n.status === 'active'; }).length;
           var m = s.money || {};
           var pill = function (cls, t) { return '<span class="ar-pill ' + cls + '">' + t + '</span>'; };
-          var cardA = function (tab, name, p, num, what) {
+          var cardA = function (tab, suffix, p, num, what) {
+            var name = TAB_L[tab] + (suffix ? ' · ' + suffix : '');
             return '<button class="ar" data-tab="' + tab + '" style="--c:' + TEAM_C[tab] + '"><span class="ar-top"><span class="ar-name">' + name + '</span>' + p + '</span><span class="ar-num">' + num + '</span><span class="ar-what">' + what + '</span></button>';
           };
           var w = weeks[1], w0 = weeks[0];
@@ -1086,16 +1094,16 @@
           var mEur = monthEuros(mr), mNext = NV_TIERS.filter(function (t) { return mEur < t; })[0], mLeft = mNext ? Math.ceil((mNext - mEur) / NV_FAMILY_NET) : 0;
           var mSends = mr ? mr.sends_ok + mr.sends_err : 0, mRate = mSends ? mr.sends_err / mSends * 100 : 0;
           return '<div class="areas">'
-            + (mr ? cardA('plata', 'Plata · ' + mName, pill(mNext ? 'bad' : 'good', mNext ? 'faltan ' + mLeft + ' para €' + mNext.toLocaleString('es-AR') : 'todos los niveles'), '€' + Math.round(mEur).toLocaleString('es-AR'), mr.paid + ' ' + plural(mr.paid, 'pago', 'pagos') + (mr.paid_outside != null ? ' (' + mr.paid_outside + ' de afuera)' : '') + ' en ' + mName)
-                  + cardA('entrar', 'Nuevos · ' + mName, pill(mr.made && mr.joined / mr.made >= 0.5 ? 'good' : 'bad', mr.joined + ' de ' + mr.made + ' con la otra casa'), mr.arrived, plural(mr.arrived, 'persona llegó', 'personas llegaron') + ' por su cuenta, sin regalo')
-                  + cardA('errores', 'Errores · ' + mName, pill(mRate < 5 ? 'good' : mRate < 10 ? 'wait' : 'bad', mRate.toFixed(1).replace('.', ',') + ' % de envíos fallidos'), mr.sends_err, 'de ' + mSends + ' envíos · ' + mr.recovered + ' rescatados') : '')
-            + cardA('llegar', 'Llegar', mk ? pill('good', esc(mk.name) + ': ' + mk.families) : pill('flat', 'ninguna acción trajo familias'), inst, 'instalaciones en 7 días · ' + inst0 + ' los 7 anteriores · ' + web + ' visitas a la web')
-            + cardA('tests', 'Tests', soon.length ? pill('wait', 'próxima: ' + dmy(soon[0].decide_on + 'T12:00:00')) : pill('flat', 'nada por decidir'), open.length, plural(open.length, 'test midiendo', 'tests midiendo') + (soon.length ? ' · ' + esc(soon[0].title) : ''))
-            + (mr ? '' : cardA('entrar', 'Nuevos', pill((s.funnel || {}).activated ? 'good' : 'flat', ((s.funnel || {}).activated || 0) + ' de ' + ((s.funnel || {}).nidi || 0) + ' nidis completos'), active, plural(active, 'familia', 'familias') + ' con las dos casas adentro · ' + ((s.funnel || {}).installs || 0) + ' descargas desde el lanzamiento'))
+            + (mr ? cardA('plata', mName, pill(mNext ? 'bad' : 'good', mNext ? 'faltan ' + mLeft + ' para €' + mNext.toLocaleString('es-AR') : 'todos los niveles'), '€' + Math.round(mEur).toLocaleString('es-AR'), mr.paid + ' ' + plural(mr.paid, 'pago', 'pagos') + (mr.paid_outside != null ? ' (' + mr.paid_outside + ' de afuera)' : '') + ' en ' + mName)
+                  + cardA('entrar', mName, pill(mr.made && mr.joined / mr.made >= 0.5 ? 'good' : 'bad', mr.joined + ' de ' + mr.made + ' con la otra casa'), mr.arrived, plural(mr.arrived, 'persona llegó', 'personas llegaron') + ' por su cuenta, sin regalo')
+                  + cardA('errores', mName, pill(mRate < 5 ? 'good' : mRate < 10 ? 'wait' : 'bad', mRate.toFixed(1).replace('.', ',') + ' % de envíos fallidos'), mr.sends_err, 'de ' + mSends + ' envíos · ' + mr.recovered + ' rescatados') : '')
+            + cardA('llegar', '', mk ? pill('good', esc(mk.name) + ': ' + mk.families) : pill('flat', 'ninguna acción trajo familias'), inst, 'instalaciones en 7 días · ' + inst0 + ' los 7 anteriores · ' + web + ' visitas a la web')
+            + cardA('tests', '', soon.length ? pill('wait', 'próxima: ' + dmy(soon[0].decide_on + 'T12:00:00')) : pill('flat', 'nada por decidir'), open.length, plural(open.length, 'test midiendo', 'tests midiendo') + (soon.length ? ' · ' + esc(soon[0].title) : ''))
+            + (mr ? '' : cardA('entrar', '', pill((s.funnel || {}).activated ? 'good' : 'flat', ((s.funnel || {}).activated || 0) + ' de ' + ((s.funnel || {}).nidi || 0) + ' nidis completos'), active, plural(active, 'familia', 'familias') + ' con las dos casas adentro · ' + ((s.funnel || {}).installs || 0) + ' descargas desde el lanzamiento'))
             + (function () { var last = {}; (d.social || []).forEach(function (r) { last[r.network] = r; }); var ig = last.instagram || last.ig, tt = last.tiktok;
-                return cardA('redes', 'Redes', pill(ig && ig.followers >= SO_GOAL.ig.v1 ? 'good' : 'wait', 'meta ' + SO_GOAL.ig.v1 + ' al 30/11'), ig ? ig.followers : '—', 'seguidores en Instagram' + (tt ? ' · ' + tt.followers + ' en TikTok' : '')); })()
-            + cardA('usar', 'Usar', pill((gr.both_ways_7d || 0) ? 'good' : 'bad', (gr.both_ways_7d || 0) + ' de ' + (gr.families || 0) + ' comparten'), (s.moments ? s.moments.total : 0), 'momentos desde el lanzamiento · ' + (s.moments ? s.moments.notes : 0) + ' notas')
-            + (mr ? '' : cardA('plata', 'Plata', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con gift'))
+                return cardA('redes', '', pill(ig && ig.followers >= SO_GOAL.ig.v1 ? 'good' : 'wait', 'meta ' + SO_GOAL.ig.v1 + ' al 30/11'), ig ? ig.followers : '—', 'seguidores en Instagram' + (tt ? ' · ' + tt.followers + ' en TikTok' : '')); })()
+            + cardA('usar', '', pill((gr.both_ways_7d || 0) ? 'good' : 'bad', (gr.both_ways_7d || 0) + ' de ' + (gr.families || 0) + ' comparten'), (s.moments ? s.moments.total : 0), 'momentos desde el lanzamiento · ' + (s.moments ? s.moments.notes : 0) + ' notas')
+            + (mr ? '' : cardA('plata', '', pill(m.paid_active ? 'good' : 'bad', (m.paid_active || 0) + ' ' + plural(m.paid_active || 0, 'paga', 'pagan')), 'USD ' + (m.proceeds_usd_estimate || 0), 'neto estimado · ' + (m.gifts_redeemed || 0) + ' con gift'))
             + '</div>';
         }
 
@@ -2027,7 +2035,7 @@
             }).join('');
             return goals.replace('Las dos metas', 'La meta del mes')
               + '<div class="two">' + card('Deciden cuando termina la prueba', 'Familias sin regalo con las dos casas adentro y la prueba en curso. Ese día ven la pantalla de pago.', decideRows ? '<div class="tablewrap"><table class="nv-tbl"><tbody>' + decideRows + '</tbody></table></div>' : '<p class="quiet">Ninguna en prueba ahora.</p>', decide.length + ' ' + plural(decide.length, 'familia', 'familias'))
-              + card('Pueden pagar si entra la otra casa', 'Armaron su nidi, sin regalo, y esperan a la otra casa. La lista de trabajo está en Nuevos. Para pagar dentro de ' + monthName + ', la otra casa tiene que entrar a más tardar el ' + dmy(deadline + 'T12:00:00') + '.', '<div class="nv-big"><b>' + waitNames2.length + '</b><span>' + plural(waitNames2.length, 'nidi esperando', 'nidis esperando') + '</span></div>' + (waitNames2.length ? '<p class="nv-note">' + waitNames2.join(', ') + '.</p>' : ''))
+              + card('Pueden pagar si entra la otra casa', 'Armaron su nidi, sin regalo, y esperan a la otra casa. La lista de trabajo está en Activation. Para pagar dentro de' + monthName + ', la otra casa tiene que entrar a más tardar el ' + dmy(deadline + 'T12:00:00') + '.', '<div class="nv-big"><b>' + waitNames2.length + '</b><span>' + plural(waitNames2.length, 'nidi esperando', 'nidis esperando') + '</span></div>' + (waitNames2.length ? '<p class="nv-note">' + waitNames2.join(', ') + '.</p>' : ''))
               + '</div>' + card('Con regalo, no pagan', 'Aparte, para no mezclarlos con la plata posible.', '<div class="nv-big"><b>' + giftN.length + '</b><span>' + plural(giftN.length, 'nidi', 'nidis') + ' en 14 días</span></div>' + (giftN.length ? '<p class="nv-note">' + giftN.map(function (f) { return esc(f.p.name || ''); }).join(', ') + '.</p>' : ''));
           }
           return funC + workC
@@ -2083,8 +2091,8 @@
             + tile('Instalaciones', 'Teléfonos que abrieron Nidi por primera vez en el período elegido arriba, contra el mismo período anterior. No cuenta los que entraron con una cuenta de prueba.', wi.now, 'en ' + range + ' días', wkDelta(wi) + '<br>' + s.funnel.installs + ' desde el lanzamiento')
             + tile('Pagan', 'Familias (nidis con las dos casas adentro) donde alguien paga. Gifts: un año (códigos) o meses (founding families y creadoras). Si alguien paga, el nidi cuenta como que paga aunque la otra casa tenga tiempo gratis. Ingresos muestra todos los pagos.', paying, 'de ' + active.length, giftNidis + ' con gift' + (trialNidis ? '<br>' + trialNidis + ' en prueba' : ''))
             + '</div>';
-          // 2026-11-18: Resumen keeps the week and what to decide. Por día is in Usar → Uso, the
-          // families table in Usar → Familias, Se fueron in Usar → Vuelven, the funnel in Entrar.
+          // 2026-11-18: Overview keeps the week and what to decide. Por día is in Retention → Uso, the
+          // families table in Retention → Familias, Se fueron in Retention → Vuelven, the funnel in Activation.
           html += '<div class="rs-grid">' + decideSoon(d) + readings(s, f, wm, wn) + '</div>';
           // 2026-11-19 (Maru): the route map lives here, at the end, so it is seen without looking for it.
           html += '<h2>Dónde está Nidi</h2><div class="card"><div id="routemap"></div></div>';
@@ -2181,7 +2189,7 @@
             + '</div>';
         }
 
-        // Llegar → Web y tiendas (single sheet, 21/11): phones that opened Nidi
+        // Acquisition → Web y tiendas (single sheet, 21/11): phones that opened Nidi
         // for the first time, per platform, the download figure without the
         // stores' delay (Apple 2 days, Play 3-7).
         function phonesCard(d) {
@@ -2287,7 +2295,7 @@
           return card('Actividades', 'Qué parte de todo lo que pasa sale de una actividad: fotos, audios y textos, y también las notas. La actividad de bienvenida no cuenta. Los corazones no tienen fecha y quedan afuera.',
             legend(K) + chart(all, K, { label: 'Interacciones por día' }) + body, last7.p + '% esta semana');
         }
-        // Usar → Uso (2026-11-21, Maru): iPhone against Android, outside people only,
+        // Retention → Uso (2026-11-21, Maru): iPhone against Android, outside people only,
         // by the phone of their newest event (hq_months().platforms).
         function platCard(d) {
           var p = d.months && d.months.platforms;
@@ -2356,7 +2364,7 @@
           return html;
         }
 
-        // Usar → Avisos (2026-11-18): what went out, what was opened, when it lands, who is at the cap.
+        // Retention → Avisos (2026-11-18): what went out, what was opened, when it lands, who is at the cap.
         var PUSH_L = { exchange: 'Llegó un momento', note: 'Llegó una nota', morning: 'Mientras dormías (8:30)', burst: 'Y 3 fotos más', your_turn: '"Te dejó algo" (finde)',
           activity_waiting: 'Actividad esperando', reengage: 'Reactivación', go_first: 'La casa de lejos empieza', dropout_invite: 'Volver a empezar', relationship_joined: 'Entró la otra casa',
           meet_today: 'Hoy se ven', meet_soon: 'Se ven pronto', other: 'Otros' };
@@ -2835,7 +2843,7 @@
           return pre ? pre.name + ' (' + ref + ')' : REF_L[ref] || ref;
         }
 
-        // Llegar → Acciones (22/11): ad A, with Finance's cuts. The ad opens
+        // Acquisition → Acciones (22/11): ad A, with Finance's cuts. The ad opens
         // nidi.life/pasalo/?ref=ad-a; its one button sends nidi.life/go/?r=ad-a-wa
         // by WhatsApp. Cuts: ≤ €0,30 per tap, ≤ €0,60 per forwarded open, off
         // with €8 spent and no taps. Phones are a time window, not per person.
@@ -2863,7 +2871,7 @@
             + '<div class="tablewrap" style="margin-top:10px"><table><tr><th>Día</th><th class="num">Visitas</th><th class="num">Toques WhatsApp</th><th class="num">Aperturas reenvío</th><th class="num">Toques tienda</th><th class="num">Teléfonos iPhone / Android</th></tr>' + rows + '</table></div>',
             (spent == null ? 'sin gasto cargado' : '€' + spent.toFixed(2).replace('.', ',') + ' gastados') + (a.bursts_left_out ? ' · ' + a.bursts_left_out + ' ' + plural(a.bursts_left_out, 'ráfaga descartada', 'ráfagas descartadas') : ''));
         }
-        // Llegar → Acciones (22/11): ad B, the Spanish «qué se hace en Nidi»
+        // Acquisition → Acciones (22/11): ad B, the Spanish «qué se hace en Nidi»
         // carousel. It links straight to nidi.life/go/?r=ad-b: opens without
         // repeats by store, and new phones as a time window.
         function adBCard(d) {
