@@ -200,7 +200,7 @@ EN = dict(
          'account. To confirm, type DELETE. You choose whether everything '
          'you shared goes too; if not, it stays in your family\'s Memory.'),
         ('Who can see what we send?',
-         'Only the adults in that nidi. Photos and voice notes are '
+         'Only the adults in that nidi. Photos, videos and voice notes are '
          'stored privately and are not public, not searchable, and not '
          'shown to anyone else. We do not sell anything to anyone.'),
         ('I am not getting notifications.',
@@ -267,7 +267,7 @@ ES = dict(
          'borra todo lo que compartiste; si no, queda en los Recuerdos de '
          'tu familia.'),
         ('¿Quién puede ver lo que nos mandamos?',
-         'Solo los adultos de ese nidi. Las fotos y los audios se '
+         'Solo los adultos de ese nidi. Las fotos, los videos y los audios se '
          'guardan de forma privada: no son públicos, no aparecen en '
          'búsquedas y no se le muestran a nadie más. No le vendemos nada a '
          'nadie.'),

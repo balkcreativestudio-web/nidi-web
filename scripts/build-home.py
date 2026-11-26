@@ -551,7 +551,7 @@ TEMPLATE = r'''<!doctype html>
           <div>
             <p class="eyebrow">[[A shared space for two homes ||| Un espacio compartido entre dos hogares]]</p>
             <h1>[[Grow close. From&nbsp;*anywhere.* ||| Crece cerca. Desde&nbsp;*donde&nbsp;estés.*]]</h1>
-            <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. Share a voice, a photo or a few words, and do small things together. Made for children from 0 to 6. ||| Nidi une dos hogares: el de un niño que crece y otro que está lejos. Comparte una voz, una foto o unas palabras, y hagan cosas simples juntos. Pensada para niños de 0 a 6 años.]]</p>
+            <p class="lead">[[Nidi connects two homes: the one where a child is growing up, and one far away. Share a voice, a photo, a video or a few words, and do small things together. Made for children from 0 to 6. ||| Nidi une dos hogares: el de un niño que crece y otro que está lejos. Comparte una voz, una foto, un video o unas palabras, y hagan cosas simples juntos. Pensada para niños de 0 a 6 años.]]</p>
             <div class="cta">
               @@FORM:hero@@
             </div>
@@ -670,7 +670,7 @@ TEMPLATE = r'''<!doctype html>
               <div class="screen rv">[[<img src="/assets/screens/en-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Nidi's activities: cards such as Read the same page, with a label above each." /> ||| <img src="/assets/screens/es-bea-activities.jpg" width="720" height="1566" loading="lazy" alt="Las actividades de Nidi: tarjetas como Leer la misma página, con una etiqueta arriba de cada una." />]]</div>
             </div>
             <div class="row">
-              <div class="copy"><p class="eyebrow rv">[[Sharing ||| Compartir]]</p><h3 class="rv">[[A photo, a voice, or a few *words.* ||| Una foto, una voz o unas *palabras.*]]</h3><p class="rv">[[Whatever fits the moment. It all stays saved, for both homes. ||| Lo que entre en el momento. Todo queda guardado, para los dos hogares.]]</p></div>
+              <div class="copy"><p class="eyebrow rv">[[Sharing ||| Compartir]]</p><h3 class="rv">[[A photo, a video, a voice, or a few *words.* ||| Una foto, un video, una voz o unas *palabras.*]]</h3><p class="rv">[[Whatever fits the moment. A video runs up to 15 seconds: record it right there or pick it from your gallery, and in the other home it opens large, with sound. It all stays saved, for both homes. ||| Lo que entre en el momento. Un video dura hasta 15 segundos: lo grabas ahí mismo o lo eliges de tu galería, y en el otro hogar se abre grande, con sonido. Todo queda guardado, para los dos hogares.]]</p></div>
               <div class="pair rv">
                 <div class="screen mock recv back" role="img" aria-label="[[A photo from Bea of a grandfather's hand holding a baby's, with a line under it ||| Una foto de Bea de la mano de un abuelo tomando la de un bebé, con una línea debajo]]">
                   <div class="m-status"><span>15:04</span><i></i></div>
@@ -692,7 +692,7 @@ TEMPLATE = r'''<!doctype html>
               </div>
             </div>
             <div class="row flip">
-              <div class="copy"><p class="eyebrow rv">[[Memory ||| Recuerdos]]</p><h3 class="rv">[[Everything lands in *Memory.* ||| Todo queda en *Recuerdos.*]]</h3><p class="rv">[[By date, from both homes: photos, voice notes and messages. Reply to any of it, and keep all of it. ||| Por fecha, de los dos hogares: fotos, audios y mensajes. A todo le puedes contestar, y todo se queda.]]</p></div>
+              <div class="copy"><p class="eyebrow rv">[[Memory ||| Recuerdos]]</p><h3 class="rv">[[Everything lands in *Memory.* ||| Todo queda en *Recuerdos.*]]</h3><p class="rv">[[By date, from both homes: photos, videos, voice notes and messages. Reply to any of it, and keep all of it. ||| Por fecha, de los dos hogares: fotos, videos, audios y mensajes. A todo le puedes contestar, y todo se queda.]]</p></div>
               <div class="screen mock mem rv" role="img" aria-label="[[Memory: the moments worth keeping, three printed photos stacked one over another ||| Recuerdos: los momentos que vale la pena guardar, tres fotos impresas, una sobre otra]]">
                 <div class="m-status"><span>15:21</span><i></i></div>
                 <p class="m-title mem-title">[[The moments worth keeping ||| Los momentos que vale la pena guardar.]]</p>
@@ -713,7 +713,7 @@ TEMPLATE = r'''<!doctype html>
           <p class="eyebrow rv">[[Built for families ||| Hecha para familias]]</p>
           <h2 class="rv" style="max-width: 14em">[[Quiet on&nbsp;*purpose.* ||| Silenciosa a&nbsp;*propósito.*]]</h2>
           <div class="quiet-grid">
-            <div class="q rv"><p class="eyebrow">[[Private ||| Privado]]</p><p>[[Photos and voice notes are stored privately: never public and never searchable. ||| Las fotos y los audios se guardan de forma privada: no son públicos ni aparecen en búsquedas.]]</p></div>
+            <div class="q rv"><p class="eyebrow">[[Private ||| Privado]]</p><p>[[Photos, videos and voice notes are stored privately: never public and never searchable. ||| Las fotos, los videos y los audios se guardan de forma privada: no son públicos ni aparecen en búsquedas.]]</p></div>
             <div class="q rv" style="--d:.1s"><p class="eyebrow">[[Calm ||| Tranquilo]]</p><p>[[No ads, no feed, no counting. A few things a day, and then it lets you go. ||| Sin publicidad, sin feed, sin contadores. Algunos instantes en el día y después te deja ir.]]</p></div>
             <div class="q rv" style="--d:.2s"><p class="eyebrow">[[Simple ||| Simple]]</p><p>[[You sign in with a code sent to your email. No password to remember. ||| Entras con un código que te llega por email. Sin contraseña que recordar.]]</p></div>
             
@@ -1072,12 +1072,12 @@ def expand(html, lang):
 META = {
     'en': dict(
         title='Nidi. Grow close. From anywhere.',
-        desc='Nidi connects two homes: the one where a child is growing up, and one far away. Voice, photo and text, and small things to do together, kept in Memory.',
+        desc='Nidi connects two homes: the one where a child is growing up, and one far away. Voice, photo, video and text, and small things to do together, kept in Memory.',
         og_locale='en_GB', og_alt='Nidi: Grow close. From anywhere.',
         path='/', privacy='/privacy/', terms='/terms/', support='/support/'),
     'es': dict(
         title='Nidi. Crece cerca. Desde donde estés.',
-        desc='Nidi une dos hogares: el de un niño que crece y otro que está lejos. Voz, foto y texto, y cosas simples para hacer juntos, guardadas en Recuerdos.',
+        desc='Nidi une dos hogares: el de un niño que crece y otro que está lejos. Voz, foto, video y texto, y cosas simples para hacer juntos, guardadas en Recuerdos.',
         og_locale='es_AR', og_alt='Nidi: Crece cerca. Desde donde estés.',
         path='/es/', privacy='/privacidad/', terms='/terminos/', support='/soporte/'),
 }
