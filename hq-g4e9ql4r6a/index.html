@@ -2136,7 +2136,12 @@
         }
         function famNow(active) {
           if (!active.length) return '<p class="quiet">Ninguna todavía.</p>';
-          return '<div class="funnel">' + active.map(function (n) {
+          // 26/11 (Maru): most recent participation first, «nunca» last.
+          var sorted = active.slice().sort(function (x, y) {
+            var tx = x.last_moment ? Date.parse(x.last_moment) : -Infinity, ty = y.last_moment ? Date.parse(y.last_moment) : -Infinity;
+            return ty - tx;
+          });
+          return '<div class="funnel">' + sorted.map(function (n) {
             var hrs = sinceWord(n.last_moment), c = health(hrs);
             return '<div class="step" data-tip="' + esc(n.a + ' + ' + (n.b || '?') + ': ' + (hrs == null ? 'nunca compartieron' : 'hace ' + hoursWord(hrs))) + '"><span>' + esc(n.a) + ' + ' + esc(n.b || '?') + '</span><div class="bar"><i style="width:' + (hrs == null ? 100 : Math.min(100, Math.round(hrs / 96 * 100))) + '%;background:' + (c === 'ok' ? C1 : c === 'meh' ? C3 : C4) + '"></i></div><span class="num ' + c + '">' + (hrs == null ? 'nunca' : hoursWord(hrs)) + '</span><span class="pct">' + (c === 'ok' ? 'al día' : c === 'meh' ? 'tranquilo' : 'quieto') + '</span></div>';
           }).join('') + '</div>';
