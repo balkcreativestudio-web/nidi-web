@@ -1,12 +1,12 @@
 # Nidi
 
-> Nidi is an iPhone and Android app for families who live far apart. It connects two homes: the one where a child from 0 to 6 is growing up, and one far away (grandparents, aunts, uncles, godparents). Each day Nidi suggests something small to do, each in their own home, and both homes share a photo, a voice note or a few words. In the App Store and Google Play it is "Nidi: Long Distance Family" in English and "Nidi: Familia a distancia" in Spanish.
+> Nidi is an iPhone and Android app for families who live far apart. It connects two homes: the one where a child from 0 to 6 is growing up, and one far away (grandparents, aunts, uncles, godparents). Each day Nidi suggests something small to do, each in their own home, and both homes share a photo, a short video, a voice note or a few words. In the App Store and Google Play it is "Nidi: Long Distance Family" in English and "Nidi: Familia a distancia" in Spanish.
 
 ## What it does
 
 - Today: opens with a line about the other home (their time, their sky), then something to do or to share.
 - Activities: small things chosen for the child's age. Some are done alone, some are the same thing done in each home (for example, both homes look for something red outside and send a photo), and some are for the next call.
-- Sharing: a photo, a voice note or a few words.
+- Sharing: a photo, a video of up to 15 seconds (recorded on the spot or picked from the gallery; it opens large, with sound), a voice note or a few words.
 - Memory: everything from both homes, by date. Anyone in the nidi can reply to any of it.
 - Firsts: until the child is three, the home where they grow up also keeps their firsts.
 
@@ -50,13 +50,13 @@ María Calabrese, an Argentine mother living in the Netherlands, made Nidi so he
 
 # Nidi (en español)
 
-> Nidi es una app para iPhone y Android para familias que viven lejos. Une dos hogares: el de un niño de 0 a 6 años que crece y otro que está lejos (abuelos, tíos, padrinos). Cada día Nidi propone algo simple para hacer, cada uno en su hogar, y los dos hogares comparten una foto, un audio o unas palabras. En App Store y Google Play se llama «Nidi: Familia a distancia».
+> Nidi es una app para iPhone y Android para familias que viven lejos. Une dos hogares: el de un niño de 0 a 6 años que crece y otro que está lejos (abuelos, tíos, padrinos). Cada día Nidi propone algo simple para hacer, cada uno en su hogar, y los dos hogares comparten una foto, un video corto, un audio o unas palabras. En App Store y Google Play se llama «Nidi: Familia a distancia».
 
 ## Qué hace
 
 - Hoy: empieza con una línea sobre el otro hogar (su hora, su cielo) y después algo para hacer o compartir.
 - Actividades: cosas simples, elegidas para la edad del niño. Algunas son para hacer por tu cuenta, otras se hacen igual en cada hogar (por ejemplo, los dos hogares buscan algo rojo afuera y envían una foto) y otras, para la próxima llamada.
-- Compartir: una foto, un audio o unas palabras.
+- Compartir: una foto, un video de hasta 15 segundos (grabado en el momento o elegido de la galería; se abre grande, con sonido), un audio o unas palabras.
 - Recuerdos: todo lo de los dos hogares, por fecha. Cualquiera del nidi puede contestar a todo.
 - Primeras veces: hasta los tres años, el hogar donde crece el niño también guarda sus primeras veces.
 
