@@ -2136,14 +2136,21 @@
         }
         function famNow(active) {
           if (!active.length) return '<p class="quiet">Ninguna todavía.</p>';
-          // 26/11 (Maru): most recent participation first, «nunca» last.
+          // 26/11 (Maru): most recent participation first, «nunca» last. The state is
+          // the two homes in the last 7 days (homes_7d); the colour, how long since the
+          // last participation: green up to 3 days, amber up to 7, red after.
           var sorted = active.slice().sort(function (x, y) {
             var tx = x.last_moment ? Date.parse(x.last_moment) : -Infinity, ty = y.last_moment ? Date.parse(y.last_moment) : -Infinity;
             return ty - tx;
           });
           return '<div class="funnel">' + sorted.map(function (n) {
-            var hrs = sinceWord(n.last_moment), c = health(hrs);
-            return '<div class="step" data-tip="' + esc(n.a + ' + ' + (n.b || '?') + ': ' + (hrs == null ? 'nunca compartieron' : 'hace ' + hoursWord(hrs))) + '"><span>' + esc(n.a) + ' + ' + esc(n.b || '?') + '</span><div class="bar"><i style="width:' + (hrs == null ? 100 : Math.min(100, Math.round(hrs / 96 * 100))) + '%;background:' + (c === 'ok' ? C1 : c === 'meh' ? C3 : C4) + '"></i></div><span class="num ' + c + '">' + (hrs == null ? 'nunca' : hoursWord(hrs)) + '</span><span class="pct">' + (c === 'ok' ? 'al día' : c === 'meh' ? 'tranquilo' : 'quieto') + '</span></div>';
+            var hrs = sinceWord(n.last_moment);
+            var c = hrs == null ? 'warn' : hrs < 72 ? 'ok' : hrs < 168 ? 'meh' : 'warn';
+            var h7 = Number(n.homes_7d || 0);
+            var st = h7 >= 2 ? 'van los dos' : h7 === 1 ? 'de un solo lado' : 'quieto';
+            var d14 = Number(n.days_14d || 0);
+            var tip = n.a + ' + ' + (n.b || '?') + ': ' + (hrs == null ? 'nunca compartieron' : 'última vez hace ' + hoursWord(hrs)) + ' · ' + st + ' en 7 días · ' + d14 + ' ' + plural(d14, 'día', 'días') + ' con algo en 14';
+            return '<div class="step" data-tip="' + esc(tip) + '"><span>' + esc(n.a) + ' + ' + esc(n.b || '?') + '</span><div class="bar"><i style="width:' + (hrs == null ? 100 : Math.max(2, Math.min(100, Math.round(hrs / 168 * 100)))) + '%;background:' + (c === 'ok' ? C1 : c === 'meh' ? C3 : C4) + '"></i></div><span class="num ' + c + '">' + (hrs == null ? 'nunca' : hoursWord(hrs)) + '</span><span class="pct">' + st + '</span></div>';
           }).join('') + '</div>';
         }
 
@@ -2389,7 +2396,7 @@
             + '</div><div class="two" style="margin-top:10px">'
             + card('Familias por semana', 'Familias donde las dos casas participaron cada semana. Lo que hay que mirar es si siguen en la semana 2 y la 4.', weeks.length ? '<div class="funnel">' + weeks.map(function (w) { return stepRow('Semana del ' + dmy(w.start + 'T12:00:00'), w.both_ways, gr.families, C1, 'de ' + (gr.families || 0)); }).join('') + '</div>' : '<p class="quiet">Todavía sin semanas.</p>')
             + card('Quiénes vuelven', 'Cuentas nuevas desde el lanzamiento. La semana 1 se completa a los 8 días.', '<div class="funnel">' + stepRow('Al día siguiente', ret.d1, ret.eligible_d1) + stepRow('En la semana 1', ret.eligible_w1 ? ret.w1 : null, ret.eligible_w1, C1, ret.eligible_w1 ? null : 'pronto') + stepRow('En los últimos 7 días', ret.last7, ret.cohort) + stepRow('Participaron', ret.shared, ret.cohort) + '</div>', ret.cohort + ' ' + plural(ret.cohort, 'cuenta', 'cuentas'))
-            + card('Ahora mismo', 'Cuánto pasó desde la última participación de cada familia. Verde hasta 24 h, ámbar hasta 3 días, rojo después.', famNow(active))
+            + card('Ahora mismo', 'Cada familia, de la que participó hace menos a la que hace más. A la derecha, los últimos 7 días: «van los dos» si los dos hogares mandaron algo o contestaron con una nota, «de un solo lado» si solo uno, «quieto» si ninguno. El color es cuánto pasó desde la última vez: verde hasta 3 días, ámbar hasta 7, rojo después. Al pasar por encima, cuántos días tuvieron algo en las últimas 2 semanas.', famNow(active))
             + card('Cuánto tardan en volver', 'Tiempo entre dos visitas seguidas de una familia. Lo que se sube con menos de 2 h de diferencia cuenta como una visita.', '<div class="funnel">' + stepRow('El mismo día', gb.same_day || 0, gbTot) + stepRow('1 a 3 días', gb.one_to_three_days || 0, gbTot) + stepRow('Más de 3 días', gb.three_plus_days || 0, gbTot) + '</div>')
             + '</div>';
           html += '<div class="two" style="margin-top:10px">' + leftCard(s.left, s.store_deletions) + '</div>';
