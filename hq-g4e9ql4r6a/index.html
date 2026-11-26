@@ -2470,7 +2470,7 @@
           // 2026-11-13: the meetup gets days and a place. Only events, so
           // "before" is 0 by construction (the card's note says so).
           meetup_set: { label: 'De quienes abren Hoy, cuántos arman un encuentro con la pantalla nueva: el día, cuántos días y dónde.', unit: 'share' },
-          trial_conversion: { label: 'De las familias cuya prueba terminó (de 7 o de 14 días, según cuándo empezó su nidi) sin un regalo y sin haber pagado antes, cuántas pagan.', unit: 'share' },
+          trial_conversion: { label: 'De las familias cuya prueba terminó (pasaron sus 7 o 14 días y el nidi completó 3 intercambios, que es cuando aparece el pago) sin un regalo y sin haber pagado antes, cuántas pagan.', unit: 'share' },
           dropout_came_back: { label: 'De quienes recibieron el mensaje para retomar (mail o push), cuántos avanzan después: confirman el código, crean el nidi o entra la otra casa.', unit: 'share' },
           // 2026-11-14 (Diseño, invite-code and roles-question). The last two
           // are better when they go down: lower flips the colour and verdict.
@@ -2629,15 +2629,25 @@
           var a = c.after || {}, b = c.before || {}, unit = m.unit, col1 = '', col2 = '';
           var color = s.st === 'win' ? 'var(--olive)' : s.st === 'lose' ? 'var(--rose)' : s.st === 'mid' ? 'var(--honey)' : 'var(--ink3)';
           if (c.metric === 'trial_conversion') {
-            var up = a.upcoming || [], paidSoon = up.filter(function (u) { return u.label === 'ya pagó'; }), giftSoon = up.filter(function (u) { return u.label !== 'ya pagó' && u.label !== 'sin regalo'; });
+            // 2026-11-26: a trial ends when its days are over AND the nidi has
+            // its completed exchanges (a.floor, 3), the same rule as the app.
+            // Past the date and under that, the trial goes on: listed apart
+            // (still_open_list), never as "ended and did not pay".
+            var up = (a.upcoming || []).concat(a.still_open_list || []), open = a.still_open_list || [], fl = Number(a.floor || 3);
+            var paidSoon = up.filter(function (u) { return u.label === 'ya pagó'; }), giftSoon = up.filter(function (u) { return u.label !== 'ya pagó' && u.label !== 'sin regalo'; });
+            var openPay = open.filter(function (u) { return u.label === 'sin regalo'; });
+            var exch = function (u) { return u.completed == null ? '' : u.completed + ' de ' + fl + ' ' + plural(fl, 'intercambio', 'intercambios'); };
             col1 = '<div class="dl">Después de la prueba</div>' + ttSec([
               ['Pruebas terminadas', a.ended || 0],
               ['Pagaron después de la prueba', Number(a.den) ? a.num + ' de ' + a.den : '—'],
               ['Pagaron antes de que termine', Number(a.paid_early || 0) + paidSoon.length, paidSoon.map(function (u) { return esc(u.names.split(' + ')[0]); }).join(', ')],
-              ['Con gift (no pasan por el pago)', Number(a.gifted || 0) + giftSoon.length, '']
+              ['Con gift (no pasan por el pago)', Number(a.gifted || 0) + giftSoon.length, ''],
+              ['Pasó la fecha y la prueba sigue', openPay.length, openPay.map(function (u) { return esc(u.names) + ' (' + exch(u) + ')'; }).join(', ')]
             ]);
+            col1 += '<p class="quiet tt-foot">La prueba termina cuando pasan sus días y el nidi completó ' + fl + ' ' + plural(fl, 'intercambio', 'intercambios') + '. Recién ahí aparece el pago.</p>';
             if (c.goal != null) col1 += '<p class="quiet tt-foot">Meta: ' + esc(goalWord(c, m)) + ' de las familias cuya prueba termina pagan.</p>';
-            col2 = '<div class="dl">Próximos fines de prueba</div>' + (up.length ? ttSec(up.map(function (u) { return [esc(u.names), day12(u.ends), esc(u.label)]; })) : '<p class="quiet">Ninguno.</p>');
+            var soon = a.upcoming || [];
+            col2 = '<div class="dl">Próximos fines de prueba</div>' + (soon.length ? ttSec(soon.map(function (u) { return [esc(u.names), day12(u.ends), esc(u.label) + (u.label !== 'sin regalo' || u.completed == null ? '' : Number(u.completed) >= fl ? ' · ese día aparece el pago' : ' · ' + exch(u) + ', la prueba sigue')]; })) : '<p class="quiet">Ninguno.</p>');
           } else {
             var bl = m.ba ? m.ba[0] : 'Antes', al = m.ba ? m.ba[1] : 'Después';
             col1 = '<div class="dl">Antes y después</div>' + (unit === 'share'
