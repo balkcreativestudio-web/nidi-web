@@ -281,6 +281,12 @@
       .pill.paused { background:var(--rose-soft); color:var(--rose); }
       table.mk td.nm { min-width:240px; }
       table.mk td.when { white-space:nowrap; }
+      /* the Archivo (27/11): its link at the end of the bar, its tabs in a second row */
+      .tabs .arch-t { color:var(--ink3); }
+      .tabs .arch-t[aria-expanded="true"] { color:var(--ink); }
+      .arch-row { flex-wrap:wrap; margin-top:-6px; }
+      table.tl td { font-size:13.5px; }
+      table.tl td.hl { min-width:200px; }
       /* Acquisition by origin (27/11) */
       table.ch td.hl { min-width:220px; font-size:13px; }
       .ch-fold { margin-top:10px; font-size:13px; color:var(--ink2); }
@@ -1002,16 +1008,27 @@
         // Overview, Acquisition, Activation, Retention, Finance — and keeps Tests, Social, CRM, Bugs and
         // History as she named them. Only the labels are in English: everything inside stays in Spanish,
         // and the ids do not change, so a tab saved on her phone still opens where it did.
-        var TABS = [['resumen', 'Overview', 'Dirección'], ['llegar', 'Acquisition', 'Marketing'], ['entrar', 'Activation', 'Producto'], ['usar', 'Retention', 'Producto'], ['plata', 'Finance', 'Finance'], ['tests', 'Tests', 'todos'], ['carga', 'Carga diaria', 'todos'], ['redes', 'Social', 'Redes Sociales'], ['contactos', 'CRM', 'HQ'], ['errores', 'Bugs', 'IT'], ['meses', 'History', 'historial']];
+        // 2026-11-27 (HQ limpio, stage 3; Maru: «Sí, armala»): four tabs to read and
+        // Carga diaria to type, then the Archivo link. Archived tabs (fourth item 1)
+        // open in a second row behind «Archivo»; nothing was deleted and every id
+        // and name stays, so a tab saved on her phone still opens where it did.
+        var TABS = [['resumen', 'Overview', 'Dirección'], ['llegar', 'Acquisition', 'Marketing'], ['redes', 'Social', 'Redes Sociales'], ['tests', 'Tests', 'todos'], ['carga', 'Carga diaria', 'todos'],
+          ['entrar', 'Activation', 'Producto', 1], ['usar', 'Retention', 'Producto', 1], ['plata', 'Finance', 'Finance', 1], ['contactos', 'CRM', 'HQ', 1], ['errores', 'Bugs', 'IT', 1], ['meses', 'History', 'historial', 1],
+          ['ov_antes', 'Antes en Overview', 'Dirección', 1], ['so_antes', 'Antes en Social', 'Redes Sociales', 1], ['tests_arch', 'Tests archivados', 'todos', 1]];
+        var ARCH_OPEN = false;
+        try { ARCH_OPEN = localStorage.getItem('nidi-hq-arch') === '1'; } catch (e) {}
         // The name of a tab is written once, here: Resumen's cards read it from TABS so the
         // bar and the cards can never say different things.
         var TAB_L = {}; TABS.forEach(function (t) { TAB_L[t[0]] = t[1]; });
         var ROOM_Q = {
           resumen: ['¿Llegamos a Tier 1?', 'Dirección · €1.000 netos cobrados del 1 al 31/12'],
-          tests: ['¿Qué estamos probando y qué decidimos?', 'Todos los equipos'],
+          tests: ['¿Qué funcionó y qué hacemos?', 'Todos los equipos · la regla de corte se escribe antes de empezar: sin regla y sin fecha, no es un test'],
+          tests_arch: ['Tests archivados', 'Archivo · sin regla o sin fecha, y los cerrados hace más de 14 días'],
+          ov_antes: ['Antes en Overview', 'Archivo · novedades, áreas, familias y uso, lecturas, el mapa y el Board'],
+          so_antes: ['Antes en Social', 'Archivo · las tarjetas por red, Por link y Día por día'],
           carga: ['Lo único que se carga a mano', 'Todos los equipos · una fila por dato; lo demás se calcula solo'],
           llegar: ['¿Qué escalo y qué corto?', 'Marketing · una fila por origen, de la plata gastada a la prueba iniciada'],
-          redes: ['¿Crecemos en redes?', 'Redes Sociales'],
+          redes: ['¿Qué pieza se comparte?', 'Redes Sociales · una fila por pieza de @hello.nidi, cargada a los 3 días de publicada'],
           entrar: ['¿La gente nueva termina con un nidi funcionando?', 'Producto · por mes, sin regalos ni plata'],
           usar: ['¿Las familias usan Nidi y vuelven?', 'Producto'],
           plata: ['¿Cuánta plata entra este mes?', 'Finance · los regalos no cuentan'],
@@ -1051,7 +1068,7 @@
         // there before live inside their team: Familias, Uso and Retención
         // in Producto; Adquisición in Marketing; Tests in Design; Ingresos
         // in Finance. A room saved on this device from before opens in its team.
-        var TEAM_C = { resumen: 'var(--honey)', tests: '#9890b0', carga: '#8a7f6e', llegar: 'var(--c2)', redes: 'var(--lagoon)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', errores: '#c0563c', contactos: '#7a8fa6', meses: 'var(--ink3)', board: 'var(--ink)' };
+        var TEAM_C = { ov_antes: 'var(--honey)', so_antes: 'var(--lagoon)', tests_arch: '#9890b0', resumen: 'var(--honey)', tests: '#9890b0', carga: '#8a7f6e', llegar: 'var(--c2)', redes: 'var(--lagoon)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', errores: '#c0563c', contactos: '#7a8fa6', meses: 'var(--ink3)', board: 'var(--ink)' };
         // A tab saved on this device from before opens where its content went.
         var OLD_TAB = { fam: ['usar', 'fam'], uso: ['usar', 'uso'], ret: ['usar', 'ret'], prod: ['usar'], adq: ['llegar', 'web'], mkt: ['llegar'], social: ['redes'], board: ['resumen'],
                         cambios: ['tests'], design: ['tests'], ing: ['plata'], fin: ['plata'] };
@@ -1578,7 +1595,8 @@
             + '<div style="align-self:end"><button class="primary" type="submit" id="qsave">Guardar cuadre</button></div></form>'
             + '<p class="quiet" style="margin:8px 0 0">Teléfonos y aperturas salen directo de la app y de los links: se revisan en el código, no se cargan.</p></div>';
 
-          html += '<h2>Lo que todavía se carga en otra pestaña</h2><div class="card"><p style="margin:0"><b>Tests</b>: el alta y el cierre siguen en Tests hasta la última etapa.</p></div>';
+          // Tests: opened and closed here since 27/11 (stage 3)
+          html += tlForms(d);
           return html;
         }
         // "11,55", "1.234,56" and "11.55" all mean euros and cents.
@@ -1684,13 +1702,21 @@
             + '<div class="controls"><div class="range" role="group" aria-label="A quién contar">'
             + [['outside', 'Externos'], ['with_family', 'Con familia']].map(function (o) { return '<button data-view="' + o[0] + '" aria-pressed="' + (VIEW === o[0]) + '">' + o[1] + '</button>'; }).join('')
             + '</div><div class="range" role="group" aria-label="Rango">' + [7, 14, 28].map(function (r) { return '<button data-range="' + r + '" aria-pressed="' + (r === range) + '">' + r + 'd</button>'; }).join('') + '</div></div></header>'
-            + '<nav class="tabs" role="tablist">' + TABS.map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '</button>'; }).join('') + '</nav>'
+            + (function () {
+              var inArch = TABS.some(function (t) { return t[3] && t[0] === TAB; }), open = ARCH_OPEN || inArch;
+              return '<nav class="tabs" role="tablist">' + TABS.filter(function (t) { return !t[3]; }).map(function (t) { return '<button role="tab" data-tab="' + t[0] + '" aria-selected="' + (TAB === t[0]) + '"><i class="tdot" style="background:' + TEAM_C[t[0]] + '"></i>' + t[1] + '</button>'; }).join('')
+                + '<button type="button" class="arch-t" id="arch-t" aria-expanded="' + open + '">Archivo ' + (open ? '▾' : '▸') + '</button></nav>'
+                + (open ? '<div class="range team-sub arch-row" role="group" aria-label="Archivo">' + TABS.filter(function (t) { return t[3]; }).map(function (t) { return '<button data-tab="' + t[0] + '" aria-pressed="' + (TAB === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</div>' : '');
+            })()
             + '<div class="legend" aria-label="Código de colores"><span class="stp good">Va bien</span><span class="stp wait">En observación</span><span class="stp bad">Hay que actuar</span><span class="stp flat">Cerrado</span></div>'
             + (famWait ? '<p class="quiet" style="margin:4px 2px 10px">Cargando «Con familia»… Mientras tanto se ven los números de Externos.</p>' : '');
           var ROOMS = {
             // 27/11 (Maru, HQ limpio): the Portada first; the old Overview and the Board fold below until stage 3.
-            resumen: function (d, st) { var args = arguments; RS_SLIM = true; var old = tabResumen.apply(null, args); RS_SLIM = false; return tabPortada(d, st) + '<details class="nv-more pt-old" id="pt-old"><summary>Antes en Overview: novedades, áreas, familias y uso, lecturas, el mapa y el Board. Pasa al Archivo en la etapa 3.</summary>' + old + '<h2>Board</h2>' + tabBoard.apply(null, args) + '</details>'; },
-            tests: tabCambios, carga: tabCarga, redes: tabSocial, errores: tabErrores, contactos: tabContactos, meses: tabMeses,
+            // 27/11 (stage 3): the Portada alone; what was folded below it is in the Archivo
+            resumen: function (d, st) { return tabPortada(d, st); },
+            ov_antes: function () { var args = arguments; RS_SLIM = true; var old = tabResumen.apply(null, args); RS_SLIM = false; return old + '<h2>Board</h2>' + tabBoard.apply(null, args); },
+            tests: function (d) { return tabBitacora(d, false); }, tests_arch: function (d) { return tabBitacora(d, true); },
+            carga: tabCarga, redes: tabRedes, so_antes: tabSocial, errores: tabErrores, contactos: tabContactos, meses: tabMeses,
             plata: function (d, st, s) { return nuevosSection(d, st, 'plata') + goal30Card(d, s) + '<details class="nv-more"><summary>Detalle: todas las suscripciones, gifts y paywall</summary>' + tabIng(d, st, s) + '</details>'; },
             // 27/11 (HQ limpio, stage 2b): one row per origin; Web y tiendas folded at the foot
             llegar: function (d, st, s, gr, ser) { return tabCanales(d) + '<details class="nv-more" id="ch-web"><summary>Web y tiendas: visitas a la web, fichas de App Store y Google Play, búsquedas</summary>' + tabAdq(d, st, s, gr, ser, 'llegar') + '</details>'; },
@@ -1721,6 +1747,7 @@
           wireSocial();
           wireCarga();
           wirePortada();
+          wireTests();
           drawMap();
         }
 
@@ -3251,7 +3278,7 @@
           ['prensa', 'Prensa y comunidades', 'Se lee a las 24 y a las 72 h de la fecha de publicación o envío, que se anota en Carga diaria. Dice qué medio o comunidad tiene lectores con encaje real.'],
           ['org', 'Orgánico', 'Links de la bio, stories y posts propios. La salud es cuántas familias terminaron con las dos casas, con regalo o sin. Lo de adentro de Instagram se lee en Social.']
         ];
-        var CH_ST = { active: 'good', planned: 'wait', paused: 'flat', done: 'flat' };
+        var CH_PILL = { active: 'good', planned: 'wait', paused: 'flat', done: 'flat' };
         function chGroup(r) {
           if (r.channel === 'creators' || (r.ct && String(r.ct).toLowerCase().indexOf('cr-') === 0)) return 'cr';
           if (r.kind === 'paid') return 'pago';
@@ -3378,7 +3405,7 @@
         // the channel, the web visits and store taps, Ads Manager's impressions
         // and clicks, the accounts, the nidis still waiting, the place, the
         // net and the note, and the way to Carga diaria to change it.
-        function chDetail(r, d) {
+        function chRowDetail(r, d) {
           var t = r.ct && d.web_refs ? refsFor(r.ct, d.web_refs) : null;
           var made = mkMade(r), fam = mkFam(r), waiting = made != null && fam != null ? Number(made) - Number(fam) : 0;
           var bits = [esc(MK_CH[r.channel] || r.channel)];
@@ -3402,8 +3429,8 @@
           if (x.orphan) return '<b>' + esc(x.name) + '</b> <span class="stp wait">sin fila</span><div class="meta">' + (REF_L[x.name] ? esc(REF_L[x.name]) + ': ' : '') + 'un link que trae gente y no está en el registro. Cargalo en Carga diaria.</div>';
           var r = x.r, when = r.starts_on ? day12(r.starts_on) + (r.ends_on ? ' → ' + day12(r.ends_on) : ' →') : 'sin fecha';
           var stale = r.status === 'active' && x.state === 'done' ? ' · la fila dice «Activa»: mandan las fechas' : '';
-          return '<b>' + esc(r.name) + '</b> ' + chPill(CH_ST[x.state] || 'flat', MK_ST[x.state] || x.state)
-            + '<div class="meta">' + when + ' · ' + (r.ct ? esc(r.ct) : 'sin link') + stale + '</div>' + chDetail(r, d);
+          return '<b>' + esc(r.name) + '</b> ' + chPill(CH_PILL[x.state] || 'flat', MK_ST[x.state] || x.state)
+            + '<div class="meta">' + when + ' · ' + (r.ct ? esc(r.ct) : 'sin link') + stale + '</div>' + chRowDetail(r, d);
         }
         var CH_HEAD = '<thead><tr><th>Origen</th><th class="num">Gasto</th><th class="num">Aperturas</th><th class="num">Teléfonos</th><th class="num">Pruebas</th><th class="num">€ por prueba</th><th>Salud del canal</th></tr></thead>';
         function chTable(list, d) {
@@ -3551,12 +3578,238 @@
           if (MK_PENDING) { var r0 = byId(MK_PENDING); MK_PENDING = null; if (r0) fill(r0); }
         }
 
+        // ── Social → Redes & Contenido (27/11, HQ limpio stage 3; Maru: «Sí,
+        // armala» on mock SbA1ddetZvcvpoFoNUn7Pu) ──────────────────────────
+        // ¿Qué pieza se comparte? One row per piece of @hello.nidi, typed in
+        // Carga diaria 3 days after it went out, ordered by DM sends + saves
+        // per 1,000 reach: a small piece that is forwarded a lot ranks above a
+        // big one that is only looked at. Reach and likes are grey context;
+        // followers go in one line at the foot. The network cards, Por link and
+        // Día por día moved to the Archivo (Antes en Social).
+        function pieceScore(x) {
+          var r = Number(x.reach);
+          return r > 0 && (x.dm_sends != null || x.saves != null) ? ((Number(x.dm_sends) || 0) + (Number(x.saves) || 0)) / r * 1000 : null;
+        }
+        function tabRedes(d) {
+          if (!Array.isArray(d.social_pieces)) return card('Piezas', '', '<p class="quiet" style="margin:0">Todavía no está activo.</p>');
+          var cnt = function (v) { return v == null ? '<span class="quiet">—</span>' : Number(v).toLocaleString('es-AR'); };
+          var rows = d.social_pieces.slice().sort(function (a, b) {
+            var sa = pieceScore(a), sb = pieceScore(b);
+            if (sa == null && sb == null) return String(b.published_on).localeCompare(String(a.published_on));
+            if (sa == null) return 1; if (sb == null) return -1;
+            return sb - sa;
+          });
+          var html = '<div class="card"><div class="tablewrap"><table><tr><th>Pieza</th><th>Fecha</th><th>Tono</th><th class="num">Envíos por DM</th><th class="num">Guardados</th><th class="num">Visitas al perfil</th><th class="num">Toques al enlace</th><th class="num">Se comparte</th><th class="num">Alcance</th><th class="num">Likes</th></tr>'
+            + (rows.length ? rows.map(function (x) {
+              var sc = pieceScore(x);
+              return '<tr><td>' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>' : esc(x.title)) + (x.format ? ' <span class="quiet">' + esc(PIECE_FMT[x.format] || x.format) + '</span>' : '') + '</td>'
+                + '<td>' + day12(x.published_on) + '</td><td>' + esc(PIECE_TONE[x.tone] || '—') + '</td>'
+                + ['dm_sends', 'saves', 'profile_visits', 'link_taps'].map(function (k) { return '<td class="num">' + cnt(x[k]) + '</td>'; }).join('')
+                + '<td class="num"><b style="font-weight:500">' + (sc == null ? '<span class="quiet">—</span>' : (Math.round(sc * 10) / 10).toLocaleString('es-AR', { maximumFractionDigits: 1 })) + '</b></td>'
+                + ['reach', 'likes'].map(function (k) { return '<td class="num quiet">' + cnt(x[k]) + '</td>'; }).join('') + '</tr>';
+            }).join('') : '<tr><td colspan="10" class="quiet">Todavía no hay piezas cargadas. El atraso desde el 23/11 entra por Carga diaria → Piezas de redes, una fila por pieza, y aparece acá ordenado.</td></tr>')
+            + '</table></div><p class="quiet" style="margin:10px 0 0">«Se comparte» es envíos por DM más guardados cada 1.000 de alcance, y ordena la tabla: así una pieza chica que se reenvía mucho queda arriba de una grande que solo se mira. El tono deja comparar las piezas emocionales entre sí. Alcance y likes van en gris: son contexto, no deciden.</p></div>';
+          var ig = socialNow(d, 'ig'), tt = socialNow(d, 'tiktok'), bits = [];
+          if (ig) bits.push('Instagram ' + ig.last.followers + ' seguidores' + (ig.last.reach_7d != null ? ' y ' + Number(ig.last.reach_7d).toLocaleString('es-AR') + ' de alcance en 7 días' : ''));
+          if (tt) bits.push('TikTok ' + tt.last.followers + ' seguidores' + (tt.last.views_7d != null ? ' y ' + Number(tt.last.views_7d).toLocaleString('es-AR') + ' vistas en 7 días' : ''));
+          var lastDay = [ig, tt].filter(Boolean).map(function (x) { return x.last.day; }).sort().pop();
+          if (bits.length) html += '<p class="quiet" style="margin:2px 2px 0">Contexto · ' + bits.join(' · ') + ' · último día cargado: ' + day12(lastDay) + '. Se cargan en Carga diaria.</p>';
+          return html;
+        }
+
+        // ── Tests as a log (27/11, HQ limpio stage 3) ──────────────────────
+        // ¿Qué funcionó y qué hacemos? What we try, its layer, dates, the cut
+        // rule written before starting, the real result and the decision:
+        // escalar, pausar or seguir hasta. Without a rule and a date it is not a
+        // test: those wait in the Archivo with the ones closed more than 14
+        // days ago. Opening and closing happen in Carga diaria (nidi-app
+        // migration 20261127180000_hq_tests_bitacora). Closed before 27/11, a
+        // test keeps the verdict it had.
+        var TL_LAYER = { pauta: 'Pauta', mensajes: 'Mensajes', producto: 'Producto', precio: 'Precio', web: 'Web y tiendas' };
+        var TL_VERDICT = { works: ['good', 'Se queda'], no: ['flat', 'Sin efecto'], unclear: ['flat', 'Sin lectura'] };
+        var TL_TEAM = { producto: 'Producto', diseno: 'Diseño', marketing: 'Marketing', finance: 'Finance', direccion: 'Dirección' };
+        var TL_PENDING = null; // «cerrar o corregir en Carga diaria» from a Tests row
+        function tlRows(d) { var all = d.changes; return all ? ((VIEW === 'with_family' && all.with_family) ? all.with_family : (all.outside || [])).slice() : null; }
+        function tlLayer(c) { return c.layer || (/^ad-/.test(c.slug || '') ? 'pauta' : /^seo-/.test(c.slug || '') ? 'web' : c.topic === 'avisos' ? 'mensajes' : c.topic === 'precio' ? 'precio' : c.topic === 'web' || c.topic === 'tiendas' ? 'web' : 'producto'); }
+        function tlClosed(c) { return !!(c.verdict || c.decision === 'escalar' || c.decision === 'pausar'); }
+        function tlDecide(c) { return c.decision === 'seguir' && c.decision_until ? c.decision_until : (c.decide || c.decide_on || null); }
+        function tlGroup(c, today) {
+          if (tlClosed(c)) return c.closed_on && c.closed_on >= addDays(today, -14) ? 'closed' : 'old';
+          return c.cut_rule && tlDecide(c) ? 'run' : 'notest';
+        }
+        function tlMissing(c) { return !c.cut_rule && !tlDecide(c) ? 'sin regla ni fecha' : !c.cut_rule ? 'sin regla' : 'sin fecha'; }
+        function tlPct(v) { return (v < 10 && v % 1 ? (Math.round(v * 10) / 10).toLocaleString('es-AR', { maximumFractionDigits: 1 }) : Math.round(v)); }
+        function tlMeasured(m, unit) {
+          if (!m) return null;
+          var v = chValue(m, unit);
+          if (v == null) return null;
+          return unit === 'share' ? [tlPct(v) + ' %', m.num + ' de ' + m.den]
+            : [(Math.round(v * 10) / 10).toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' por día', m.days + ' ' + plural(m.days, 'día', 'días')];
+        }
+        function tlResult(c) {
+          var meta = CH_METRIC[c.metric] || { unit: 'share' }, unit = meta.unit, a = c.after, b = c.before;
+          var bits = [], measured = c.metric !== 'manual' ? tlMeasured(a, unit) : null;
+          if (c.result) bits.push(esc(c.result));
+          if (measured) {
+            var v = chValue(a, unit), ok = c.goal != null && (meta.lower ? v <= Number(c.goal) : v >= Number(c.goal));
+            bits.push((ok ? '<span class="ok">' + measured[0] + '</span>' : measured[0]) + ' <span class="quiet">(' + measured[1] + ')</span>');
+          } else if (!c.result && c.metric !== 'manual' && a && Number(a.den) === 0) bits.push('<span class="quiet">' + (tlClosed(c) ? 'sin casos después' : 'sin casos todavía') + '</span>');
+          if (!bits.length && c.reading) bits.push('<span class="quiet">' + esc(c.reading.length > 140 ? c.reading.slice(0, 137) + '…' : c.reading) + '</span>');
+          if (!bits.length) bits.push('<span class="quiet">—</span>');
+          var sub = [];
+          if (measured && a && Number(a.den) === 1) sub.push('con 1 caso todavía no dice nada');
+          var before = c.metric !== 'manual' ? tlMeasured(b, unit) : null;
+          if (before) sub.push('antes ' + before[0] + ' (' + before[1] + ')');
+          return bits.join('<br>') + (sub.length ? '<div class="meta">' + sub.join(' · ') + '</div>' : '');
+        }
+        function tlDecision(c, today) {
+          if (tlClosed(c)) {
+            var on = c.closed_on ? ' · ' + day12(c.closed_on) : '';
+            if (c.decision === 'escalar') return chPill('good', 'Escalar' + on);
+            if (c.decision === 'pausar') return chPill('flat', 'Pausado' + on);
+            var v = TL_VERDICT[c.verdict] || ['flat', 'Cerrado'];
+            return chPill(v[0], (c.status_label || v[1]) + on);
+          }
+          var dd = tlDecide(c);
+          if (!dd) return chPill('flat', 'Sin fecha');
+          var word = c.decision === 'seguir' ? 'Sigue hasta ' : 'Decide ';
+          if (dd < today) return chPill('bad', 'Venció el ' + day12(dd));
+          if (dd === today) return chPill('bad', c.decision === 'seguir' ? 'Sigue hasta hoy' : 'Decide hoy');
+          return chPill(dayDiff(today, dd) <= 3 ? 'wait' : 'flat', word + day12(dd));
+        }
+        function tlDetail(c) {
+          var meta = CH_METRIC[c.metric], bits = [];
+          if (c.team) bits.push(esc(TL_TEAM[c.team] || c.team));
+          if (c.metric === 'manual') bits.push('se mide a mano');
+          else bits.push('mide: ' + esc(c.measure || (meta && meta.label) || c.metric));
+          var a = c.after, b = c.before;
+          if (a && a.from) bits.push('después ' + day12(a.from) + '–' + day12(a.to));
+          if (b && b.from) bits.push('antes ' + day12(b.from) + '–' + day12(b.to));
+          return '<details class="nt"><summary>ver detalle</summary><div><p class="quiet">' + bits.join(' · ') + '</p>'
+            + (c.summary ? '<p>' + esc(c.summary) + '</p>' : '')
+            + (c.reading ? '<p>' + esc(c.reading) + '</p>' : '')
+            + (c.note ? '<p class="quiet">' + esc(c.note) + '</p>' : '')
+            + '<p><button class="link" type="button" data-tlgo="' + esc(c.id) + '">' + (tlClosed(c) ? 'corregir en Carga diaria' : 'cerrar o corregir en Carga diaria') + '</button></p></div></details>';
+        }
+        function tlTable(list, today) {
+          return '<div class="tablewrap mkwrap"><table class="mk tl"><thead><tr><th>Qué probamos</th><th>Capa</th><th>Fechas</th><th>Regla de corte</th><th>Resultado real</th><th>Decisión</th></tr></thead><tbody>'
+            + list.map(function (c) {
+              var dd = tlDecide(c);
+              return '<tr><td class="nm" data-l="Qué probamos"><b>' + esc(c.title) + '</b><div class="meta">' + esc(c.slug) + '</div>' + tlDetail(c) + '</td>'
+                + '<td data-l="Capa">' + esc(TL_LAYER[tlLayer(c)]) + '</td>'
+                + '<td class="when" data-l="Fechas">' + (c.shipped_on ? day12(c.shipped_on) : '') + (dd ? ' → ' + day12(dd) : c.shipped_on ? ' →' : '<span class="quiet">sin fecha</span>') + '</td>'
+                + '<td class="hl" data-l="Regla de corte">' + (c.cut_rule ? esc(c.cut_rule) : '<span class="quiet">no se escribió</span>') + '</td>'
+                + '<td data-l="Resultado real">' + tlResult(c) + '</td>'
+                + '<td data-l="Decisión">' + tlDecision(c, today) + '</td></tr>';
+            }).join('') + '</tbody></table></div>';
+        }
+        function tabBitacora(d, archived) {
+          var rows = tlRows(d);
+          if (!rows) return card('Tests', '', '<p class="quiet" style="margin:0">Todavía no está activo.</p>');
+          var today = todayAms(), G = { run: [], closed: [], notest: [], old: [] };
+          rows.forEach(function (c) { G[tlGroup(c, today)].push(c); });
+          G.run.sort(function (a, b) { return String(tlDecide(a)).localeCompare(String(tlDecide(b))); });
+          G.closed.sort(function (a, b) { return String(b.closed_on).localeCompare(String(a.closed_on)); });
+          G.old.sort(function (a, b) { return String(b.closed_on || '').localeCompare(String(a.closed_on || '')); });
+          var html = '';
+          if (archived) {
+            html += '<h2>Sin regla o sin fecha <small>' + G.notest.length + ' · no son tests todavía</small></h2>'
+              + '<div class="card">' + (G.notest.length ? tlTable(G.notest, today) + '<p class="quiet" style="margin:8px 0 0">Se completan en Carga diaria → Tests: con regla y fecha vuelven solos a Tests.</p>' : '<p class="quiet" style="margin:0">Ninguno.</p>') + '</div>'
+              + '<h2>Cerrados hace más de 14 días <small>' + G.old.length + '</small></h2>'
+              + '<div class="card">' + (G.old.length ? tlTable(G.old, today) : '<p class="quiet" style="margin:0">Ninguno todavía.</p>') + '</div>';
+            return html;
+          }
+          html += '<h2>Corriendo <small>' + G.run.length + ' · los que deciden antes, arriba</small></h2>'
+            + '<div class="card">' + (G.run.length ? tlTable(G.run, today) : '<p class="quiet" style="margin:0">Ninguno corriendo.</p>')
+            + (G.notest.length ? '<p class="quiet" style="margin:10px 0 0;padding-top:10px;border-top:1px solid var(--line2)">' + G.notest.length + ' sin regla o sin fecha, no ' + plural(G.notest.length, 'es un test', 'son tests') + ' todavía: '
+              + G.notest.map(function (c) { return esc(c.title) + ' (' + tlMissing(c) + ')'; }).join(' · ') + '. Se completan en Carga diaria; mientras tanto esperan en Archivo → Tests archivados.</p>' : '') + '</div>';
+          html += '<h2>Cerrados en los últimos 14 días <small>' + G.closed.length + '</small></h2>'
+            + '<div class="card">' + (G.closed.length ? tlTable(G.closed, today) : '<p class="quiet" style="margin:0">Ninguno.</p>') + '</div>';
+          html += '<p class="quiet" style="margin:2px 2px 0">La decisión es una de tres: escalar, pausar o seguir hasta una fecha. Los que se cerraron antes del 27/11 conservan su veredicto de entonces. Si un test se pausa con plata sin gastar, el rescate se anota en Carga diaria. Los cerrados hace más de 14 días pasan al Archivo.</p>';
+          return html;
+        }
+        // Carga diaria → Tests: opening one, and closing or correcting one.
+        function tlForms(d) {
+          var rows = tlRows(d);
+          if (!rows) return '';
+          var today = todayAms();
+          var fl = function (label, input, cls) { return '<label class="f' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span>' + input + '</label>'; };
+          var layers = Object.keys(TL_LAYER).map(function (k) { return '<option value="' + k + '">' + TL_LAYER[k] + '</option>'; }).join('');
+          var teams = '<option value="">—</option>' + Object.keys(TL_TEAM).map(function (k) { return '<option value="' + k + '">' + TL_TEAM[k] + '</option>'; }).join('');
+          var order = { run: 0, notest: 1, closed: 2, old: 3 }, lab = { run: 'corriendo', notest: 'sin regla o sin fecha', closed: 'cerrado', old: 'cerrado hace más de 14 días' };
+          var opts = rows.map(function (c) { return { c: c, g: tlGroup(c, today) }; }).sort(function (a, b) { return order[a.g] - order[b.g] || String(tlDecide(a.c) || '9999').localeCompare(String(tlDecide(b.c) || '9999')); })
+            .map(function (x) { var dd = tlDecide(x.c); return '<option value="' + esc(x.c.id) + '">' + esc(x.c.title) + ' · ' + (x.g === 'run' && dd ? 'decide ' + day12(dd) : lab[x.g]) + '</option>'; }).join('');
+          return '<h2>Tests</h2><p class="quiet" style="margin:-4px 2px 8px">El alta y el cierre de los tests. En la pestaña Tests solo se lee.</p>'
+            + '<div class="card"><p style="margin:0 0 10px"><b style="font-weight:500">Alta de un test.</b> <span class="quiet">Sin regla de corte o sin fecha de decisión no se guarda.</span></p>'
+            + '<form class="row mkf" id="tlnew">'
+            + fl('Qué probamos', '<input name="title" required maxlength="120" autocomplete="off" placeholder="Anuncios Meta en español contra inglés" />', 'wide')
+            + fl('Capa', '<select name="layer" required>' + layers + '</select>')
+            + fl('Equipo', '<select name="team">' + teams + '</select>')
+            + fl('Empieza', '<input name="shipped_on" type="date" value="' + today + '" />')
+            + fl('Decide el', '<input name="decide_on" type="date" required />')
+            + fl('Regla de corte', '<input name="cut_rule" required maxlength="200" autocomplete="off" placeholder="Con €150 gastados, si cada prueba cuesta más de €20, se apaga" />', 'full')
+            + '<div class="full"><button class="primary" type="submit" id="tlnewsave">Guardar</button></div></form></div>'
+            + '<div class="card"><p style="margin:0 0 10px"><b style="font-weight:500">Cerrar o corregir un test.</b> <span class="quiet">El resultado real y la decisión quedan en su fila. Acá también se completan la regla y las fechas de los que no las tienen.</span></p>'
+            + fl('Test', '<select id="tlpick"><option value="">— elegí uno —</option>' + opts + '</select>', 'wide')
+            + '<form class="row mkf" id="tledit" hidden style="margin-top:12px"><input type="hidden" name="id" />'
+            + fl('Resultado real', '<input name="result" maxlength="300" autocomplete="off" placeholder="3 % de quienes abren Hoy (1 de 31): lejos del 10 %" />', 'full')
+            + fl('Decisión', '<select name="decision"><option value="">Todavía no</option><option value="escalar">Escalar</option><option value="pausar">Pausar</option><option value="seguir">Seguir hasta…</option></select>')
+            + fl('Seguir hasta', '<input name="decision_until" type="date" />')
+            + fl('Empieza', '<input name="shipped_on" type="date" />')
+            + fl('Decide el', '<input name="decide_on" type="date" />')
+            + fl('Capa', '<select name="layer">' + layers + '</select>')
+            + fl('Regla de corte', '<input name="cut_rule" maxlength="200" autocomplete="off" />', 'full')
+            + '<p class="quiet full" style="margin:0">Escalar o pausar lo cierra hoy. Seguir pide la fecha hasta la que sigue.</p>'
+            + '<div class="full"><button class="primary" type="submit" id="tleditsave">Guardar</button> <button type="button" class="ghost" id="tlclear">Cancelar</button></div></form></div>';
+        }
+        function wireTests() {
+          Array.prototype.forEach.call(document.querySelectorAll('[data-tlgo]'), function (b) {
+            b.onclick = function () { TL_PENDING = b.getAttribute('data-tlgo'); TAB = 'carga'; try { localStorage.setItem('nidi-hq-tab', TAB); } catch (e) {} render(); };
+          });
+          var nf = document.getElementById('tlnew'), ef = document.getElementById('tledit'), pick = document.getElementById('tlpick');
+          var fail = function (btn) { return function (err) { alert(err.message === 'bad_test' ? 'No se guardó: revisá los campos. Hace falta qué probamos, la regla y la fecha de decisión; sin emails.' : 'No se guardó: ' + err.message); if (btn) btn.disabled = false; }; };
+          if (nf) nf.onsubmit = function (e) {
+            e.preventDefault();
+            var fd = new FormData(nf), body = { action: 'test_save' };
+            ['title', 'layer', 'team', 'shipped_on', 'decide_on', 'cut_rule'].forEach(function (k) { body[k] = String(fd.get(k) || '').trim(); });
+            if (!body.title || !body.cut_rule || !body.decide_on) { alert('Sin regla de corte o sin fecha de decisión no es un test.'); return; }
+            if (body.shipped_on && body.decide_on < body.shipped_on) { alert('Decide antes de empezar.'); return; }
+            var btn = document.getElementById('tlnewsave'); btn.disabled = true;
+            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(fail(btn));
+          };
+          if (!ef || !pick) return;
+          var byId = function (id) { return (tlRows(DATA) || []).filter(function (c) { return c.id === id; })[0]; };
+          var fill = function (c) {
+            ef.reset(); ef.hidden = false; pick.value = c.id;
+            var el = ef.elements;
+            el.namedItem('id').value = c.id;
+            ['result', 'decision', 'decision_until', 'shipped_on', 'decide_on', 'cut_rule'].forEach(function (k) { el.namedItem(k).value = c[k] || ''; });
+            el.namedItem('layer').value = tlLayer(c);
+            EDITING = true;
+            pick.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+          pick.onchange = function () { var c = byId(pick.value); if (c) fill(c); else { ef.hidden = true; EDITING = false; } };
+          document.getElementById('tlclear').onclick = function () { ef.reset(); ef.hidden = true; pick.value = ''; EDITING = false; };
+          ef.onsubmit = function (e) {
+            e.preventDefault();
+            var fd = new FormData(ef), body = { action: 'test_save', id: fd.get('id') };
+            ['result', 'decision', 'decision_until', 'shipped_on', 'decide_on', 'cut_rule', 'layer'].forEach(function (k) { body[k] = String(fd.get(k) || '').trim(); });
+            if (body.decision === 'seguir' && !body.decision_until) { alert('Seguir pide la fecha hasta la que sigue.'); return; }
+            if (body.shipped_on && body.decide_on && body.decide_on < body.shipped_on) { alert('Decide antes de empezar.'); return; }
+            var btn = document.getElementById('tleditsave'); btn.disabled = true;
+            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(fail(btn));
+          };
+          if (TL_PENDING) { var c0 = byId(TL_PENDING); TL_PENDING = null; if (c0) fill(c0); }
+        }
+
         function wire() {
           document.getElementById('refresh').onclick = load;
           document.getElementById('logout').onclick = function () { try { localStorage.removeItem(KEY); } catch (e) {} token = null; DATA = null; gate(); };
           Array.prototype.forEach.call(document.querySelectorAll('[data-range]'), function (b) { b.onclick = function () { range = Number(b.getAttribute('data-range')); try { localStorage.setItem(RANGE_KEY, String(range)); } catch (e) {} render(); }; });
 
           Array.prototype.forEach.call(document.querySelectorAll('[data-view]'), function (b) { b.onclick = function () { VIEW = b.getAttribute('data-view'); try { localStorage.setItem('nidi-hq-view', VIEW); } catch (e) {} render(); }; });
+          var archT = document.getElementById('arch-t');
+          if (archT) archT.onclick = function () { ARCH_OPEN = !ARCH_OPEN; try { localStorage.setItem('nidi-hq-arch', ARCH_OPEN ? '1' : '0'); } catch (e) {} render(); };
           Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (b) { b.onclick = function () { TAB = b.getAttribute('data-tab'); try { localStorage.setItem('nidi-hq-tab', TAB); } catch (e) {} render(); window.scrollTo(0, 0); }; });
           Array.prototype.forEach.call(document.querySelectorAll('.q'), function (b) { b.onclick = function (e) { e.stopPropagation(); var box = b.closest('.card,.kpi'), def = box && box.querySelector('.def'); if (!def) return; def.hidden = !def.hidden; b.setAttribute('aria-expanded', String(!def.hidden)); }; });
 
