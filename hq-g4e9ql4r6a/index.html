@@ -281,6 +281,14 @@
       .pill.paused { background:var(--rose-soft); color:var(--rose); }
       table.mk td.nm { min-width:240px; }
       table.mk td.when { white-space:nowrap; }
+      /* Social: each network on top (27/11) */
+      .rd-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; margin-bottom:10px; }
+      .rd-grid > .card { margin:0; }
+      .rd .sc-big { margin:10px 0 12px; }
+      .rd-tiles { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+      .rd-tile { background:#faf6ef; border-radius:10px; padding:8px 10px; min-width:0; }
+      .rd-tile b { display:block; font-family:var(--serif); font-weight:400; font-size:21px; line-height:1.2; }
+      .rd-tile span { display:block; font-size:12px; color:var(--ink2); }
       /* the Archivo (27/11): its link at the end of the bar, its tabs in a second row */
       .tabs .arch-t { color:var(--ink3); }
       .tabs .arch-t[aria-expanded="true"] { color:var(--ink); }
@@ -1028,7 +1036,7 @@
           so_antes: ['Antes en Social', 'Archivo · las tarjetas por red, Por link y Día por día'],
           carga: ['Lo único que se carga a mano', 'Todos los equipos · una fila por dato; lo demás se calcula solo'],
           llegar: ['¿Qué escalo y qué corto?', 'Marketing · una fila por origen, de la plata gastada a la prueba iniciada'],
-          redes: ['¿Qué pieza se comparte?', 'Redes Sociales · una fila por pieza de @hello.nidi, cargada a los 3 días de publicada'],
+          redes: ['¿Qué pieza se comparte?', 'Redes Sociales · arriba, cómo viene cada red; abajo, una fila por pieza de @hello.nidi'],
           entrar: ['¿La gente nueva termina con un nidi funcionando?', 'Producto · por mes, sin regalos ni plata'],
           usar: ['¿Las familias usan Nidi y vuelven?', 'Producto'],
           plata: ['¿Cuánta plata entra este mes?', 'Finance · los regalos no cuentan'],
@@ -1519,6 +1527,7 @@
           var item = function (done, text, sub) { return '<li class="ck' + (done ? ' done' : '') + '"><span class="ck-box" aria-hidden="true">' + (done ? '✓' : '') + '</span><div>' + text + (sub ? '<small>' + sub + '</small>' : '') + '</div></li>'; };
           var html = '<h2>Pendiente</h2><div class="card"><ul class="ck-list">'
             + (today <= '2026-12-04' ? item(false, 'El atraso de Instagram desde el 23/11', since + (since === 1 ? ' pieza cargada' : ' piezas cargadas') + ' hasta ahora, una fila por pieza') : '')
+            + (function () { var st = socialStale(d); return item(!st.length, 'Seguidores y la semana de la cuenta', st.length ? st.map(function (n) { return n.name + (n.day ? ': último día cargado ' + day(n.day) : ': sin cargar'); }).join(' · ') + ', más abajo en «Seguidores y la semana de la cuenta»' : 'Al día'); })()
             + item(rescued, 'El rescate de €11,55 del anuncio pausado', rescued ? 'Cargado' : 'Un movimiento de saldo, tipo Rescate')
             + item(!!b, 'La primera asignación del presupuesto', b ? 'Desde el ' + day(b.from) : 'Sin ella no hay saldo')
             + item(cuadreWeek, 'El cuadre de esta semana', cuadreWeek ? 'Hecho' : 'Lo gastado según HQ contra Ads Manager')
@@ -3590,6 +3599,28 @@
           var r = Number(x.reach);
           return r > 0 && (x.dm_sends != null || x.saves != null) ? ((Number(x.dm_sends) || 0) + (Number(x.saves) || 0)) / r * 1000 : null;
         }
+        // Each network's numbers on top, big (Maru, 27/11: «no deberíamos tener en
+        // social los números de las redes?»). They are typed in Carga diaria from
+        // Instagram Insights and TikTok Studio; past 2 days without a load the
+        // card says so in red and Carga diaria lists it as pending.
+        function socialStale(d) {
+          var today = todayAms(), out = [];
+          [['ig', 'Instagram'], ['tiktok', 'TikTok']].forEach(function (n) { var f = socialNow(d, n[0]); if (!f || dayDiff(f.last.day, today) > 2) out.push({ name: n[1], day: f ? f.last.day : null }); });
+          return out;
+        }
+        function redesCard(d, k, name) {
+          var f = socialNow(d, k), l = f && f.last, today = todayAms();
+          var pill = !l ? chPill('bad', 'Sin cargar todavía') : dayDiff(l.day, today) > 2 ? chPill('bad', 'Sin cargar desde el ' + day12(l.day)) : chPill('good', l.day === today ? 'Cargado hoy' : 'Cargado el ' + day12(l.day));
+          var T = k === 'ig' ? [['reach_7d', 'alcance en 7 días'], ['profile_visits_7d', 'visitas al perfil en 7 días'], ['link_taps_7d', 'toques al link de la bio en 7 días']]
+            : [['views_7d', 'vistas en 7 días'], ['profile_visits_7d', 'visitas al perfil en 7 días'], ['link_taps_7d', 'toques al link de la bio en 7 días']];
+          var tiles = T.map(function (t) {
+            var v = l ? l[t[0]] : null;
+            return '<div class="rd-tile"><b>' + (v == null ? '<span class="quiet">—</span>' : Number(v).toLocaleString('es-AR')) + '</b><span>' + (v == null && k === 'tiktok' && t[0] === 'link_taps_7d' ? 'TikTok no da toques al link' : t[1]) + '</span></div>';
+          }).join('');
+          return '<div class="card rd"><div class="sc-top"><div class="sc-name">' + name + '</div>' + pill + '</div>'
+            + '<div class="sc-big"><b>' + (l ? l.followers : '—') + '</b><span>seguidores' + (f && f.base ? ' · ' + followWord(f) : '') + '</span></div>'
+            + '<div class="rd-tiles">' + tiles + '</div></div>';
+        }
         function tabRedes(d) {
           if (!Array.isArray(d.social_pieces)) return card('Piezas', '', '<p class="quiet" style="margin:0">Todavía no está activo.</p>');
           var cnt = function (v) { return v == null ? '<span class="quiet">—</span>' : Number(v).toLocaleString('es-AR'); };
@@ -3599,7 +3630,9 @@
             if (sa == null) return 1; if (sb == null) return -1;
             return sb - sa;
           });
-          var html = '<div class="card"><div class="tablewrap"><table><tr><th>Pieza</th><th>Fecha</th><th>Tono</th><th class="num">Envíos por DM</th><th class="num">Guardados</th><th class="num">Visitas al perfil</th><th class="num">Toques al enlace</th><th class="num">Se comparte</th><th class="num">Alcance</th><th class="num">Likes</th></tr>'
+          var html = '<div class="rd-grid">' + redesCard(d, 'ig', 'Instagram') + redesCard(d, 'tiktok', 'TikTok') + '</div>'
+            + '<p class="quiet" style="margin:0 2px 14px">Estos números se cargan a mano en Carga diaria (de Instagram Insights y TikTok Studio), una vez por día. Si pasan más de 2 días sin cargar, la tarjeta lo dice en rojo y Carga diaria lo suma a sus pendientes.</p>';
+          html += '<div class="card"><div class="tablewrap"><table><tr><th>Pieza</th><th>Fecha</th><th>Tono</th><th class="num">Envíos por DM</th><th class="num">Guardados</th><th class="num">Visitas al perfil</th><th class="num">Toques al enlace</th><th class="num">Se comparte</th><th class="num">Alcance</th><th class="num">Likes</th></tr>'
             + (rows.length ? rows.map(function (x) {
               var sc = pieceScore(x);
               return '<tr><td>' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>' : esc(x.title)) + (x.format ? ' <span class="quiet">' + esc(PIECE_FMT[x.format] || x.format) + '</span>' : '') + '</td>'
@@ -3609,11 +3642,6 @@
                 + ['reach', 'likes'].map(function (k) { return '<td class="num quiet">' + cnt(x[k]) + '</td>'; }).join('') + '</tr>';
             }).join('') : '<tr><td colspan="10" class="quiet">Todavía no hay piezas cargadas. El atraso desde el 23/11 entra por Carga diaria → Piezas de redes, una fila por pieza, y aparece acá ordenado.</td></tr>')
             + '</table></div><p class="quiet" style="margin:10px 0 0">«Se comparte» es envíos por DM más guardados cada 1.000 de alcance, y ordena la tabla: así una pieza chica que se reenvía mucho queda arriba de una grande que solo se mira. El tono deja comparar las piezas emocionales entre sí. Alcance y likes van en gris: son contexto, no deciden.</p></div>';
-          var ig = socialNow(d, 'ig'), tt = socialNow(d, 'tiktok'), bits = [];
-          if (ig) bits.push('Instagram ' + ig.last.followers + ' seguidores' + (ig.last.reach_7d != null ? ' y ' + Number(ig.last.reach_7d).toLocaleString('es-AR') + ' de alcance en 7 días' : ''));
-          if (tt) bits.push('TikTok ' + tt.last.followers + ' seguidores' + (tt.last.views_7d != null ? ' y ' + Number(tt.last.views_7d).toLocaleString('es-AR') + ' vistas en 7 días' : ''));
-          var lastDay = [ig, tt].filter(Boolean).map(function (x) { return x.last.day; }).sort().pop();
-          if (bits.length) html += '<p class="quiet" style="margin:2px 2px 0">Contexto · ' + bits.join(' · ') + ' · último día cargado: ' + day12(lastDay) + '. Se cargan en Carga diaria.</p>';
           return html;
         }
 
