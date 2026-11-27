@@ -593,6 +593,24 @@
       .nv-tbl td.n, .nv-tbl th.n { text-align:right; font-variant-numeric:tabular-nums; }
       .nv-more { margin-top:14px; } .nv-more > summary { cursor:pointer; color:var(--ink2); font-size:15px; margin:4px 2px 10px; }
       @media (max-width:640px) { .nv2-split { grid-template-columns:repeat(2,minmax(0,1fr)); } .nv2-split.nv2-3 { grid-template-columns:repeat(3,minmax(0,1fr)); } .nv-dl span:nth-child(even) { visibility:hidden; } }
+      /* Cards hidden with a cross (27/11) */
+      .qx { display:flex; gap:6px; align-items:center; flex:none; }
+      .x { flex:none; width:18px; height:18px; border:1px solid var(--line); border-radius:50%; background:transparent; color:var(--ink3); font-size:13px; line-height:1; letter-spacing:0; padding:0; cursor:pointer; position:relative; }
+      .x::after { content:""; position:absolute; inset:-13px; }
+      .x:hover { color:var(--ink); border-color:var(--ink3); }
+      .hid-back { display:flex; gap:8px; align-items:flex-start; background:#f5ddd6; color:#7a3322; border-radius:10px; padding:7px 11px; font-size:13px; margin:0 0 10px; text-transform:none; letter-spacing:0; }
+      .hid-back b { font-weight:500; }
+      .hid-fold { border-top:1px solid var(--line); margin-top:26px; padding-top:12px; }
+      .hid-fold summary { cursor:pointer; font-size:13.5px; color:var(--ink2); list-style:none; display:flex; justify-content:space-between; gap:10px; }
+      .hid-fold summary::-webkit-details-marker { display:none; }
+      .hid-fold summary b { font-weight:500; color:var(--ink); }
+      .hid-list { background:var(--paper); border:1px solid var(--line); border-radius:14px; margin-top:10px; }
+      .hid-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-top:1px solid var(--line2); }
+      .hid-row:first-child { border-top:0; }
+      .hid-row small { display:block; font-size:12px; color:var(--ink2); }
+      .hid-show { font:inherit; font-size:13px; border:1px solid var(--line); border-radius:999px; background:#fff; color:var(--ink); padding:6px 14px; min-height:36px; cursor:pointer; white-space:nowrap; }
+      .hid-toast { position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--paper); border-radius:999px; padding:8px 18px; font-size:14px; display:flex; gap:14px; align-items:center; box-shadow:0 6px 18px rgba(42,36,29,.18); z-index:50; max-width:calc(100vw - 32px); }
+      .hid-toast button { background:none; border:0; color:inherit; font:inherit; font-weight:500; text-decoration:underline; text-underline-offset:3px; cursor:pointer; padding:8px 0; }
     </style>
   </head>
   <body>
@@ -709,10 +727,94 @@
         }
         // a card: a title, one line behind the "?", and what it shows
         function card(title, def, body, tail) {
-          return '<div class="card"><div class="title"><span>' + esc(title) + (tail ? ' <em>' + esc(tail) + '</em>' : '') + '</span>' + (def ? '<button class="q" type="button" aria-expanded="false" aria-label="Qué es ' + esc(title) + '">?</button>' : '') + '</div>' + (def ? '<p class="def" hidden>' + esc(def) + '</p>' : '') + body + '</div>';
+          var hs = hidState(hidKey(title), title, body, tail ? esc(tail) : '');
+          if (hs.hide) return '';
+          return '<div class="card">' + hs.back + '<div class="title"><span>' + esc(title) + (tail ? ' <em>' + esc(tail) + '</em>' : '') + '</span>' + qx(def, title, hs.x) + '</div>' + (def ? '<p class="def" hidden>' + esc(def) + '</p>' : '') + body + '</div>';
         }
         function tile(k, def, v, unit, note, sparkHtml) {
-          return '<div class="kpi"><div class="k"><span>' + esc(k) + '</span>' + (def ? '<button class="q" type="button" aria-expanded="false" aria-label="Qué es ' + esc(k) + '">?</button>' : '') + '</div>' + (def ? '<p class="def" hidden>' + esc(def) + '</p>' : '') + '<div class="v">' + v + (unit ? '<small>' + esc(unit) + '</small>' : '') + '</div><div class="d">' + (note || '') + '</div>' + (sparkHtml || '') + '</div>';
+          var hs = hidState(hidKey(k), k, String(v) + String(note || ''), String(v).replace(/<[^>]+>/g, '') + (unit ? ' ' + esc(unit) : ''));
+          if (hs.hide) return '';
+          return '<div class="kpi">' + hs.back + '<div class="k"><span>' + esc(k) + '</span>' + qx(def, k, hs.x) + '</div>' + (def ? '<p class="def" hidden>' + esc(def) + '</p>' : '') + '<div class="v">' + v + (unit ? '<small>' + esc(unit) + '</small>' : '') + '</div><div class="d">' + (note || '') + '</div>' + (sparkHtml || '') + '</div>';
+        }
+        function qx(def, title, x) {
+          var q = def ? '<button class="q" type="button" aria-expanded="false" aria-label="Qué es ' + esc(title) + '">?</button>' : '';
+          return x ? '<span class="qx">' + q + x + '</span>' : q;
+        }
+        // ── Cards hidden with a cross (27/11, Maru: «que pueda cerrar con cruces
+        // lo que no suma»; mock BBVTuTzQBqEcYXHK4a2fZF). Every card and number
+        // has a ✕ beside its «?». A hidden one is left out and listed at the
+        // foot of its tab, where «Mostrar» brings it back; one that turns red
+        // comes back on its own, saying why. Kept in hq_hidden (nidi-app
+        // migration 20261127234500_hq_ocultas), so the phone and the laptop
+        // agree. Nothing is deleted: the numbers are still computed. No ✕ in
+        // Carga diaria (forms: a hide redraws the page and would lose what is
+        // half typed) nor on the decision alerts, which go away on their own.
+        var HID_SEEN = [], HID_N = {}, HID_OPEN = false, HID_TOAST = null;
+        var HID_MONTHS = /\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\b/gi;
+        function hidScope() { return TAB === 'usar' ? 'usar.' + subOf('usar') : TAB; }
+        function hidOn() { return !!DATA && Array.isArray(DATA.hidden) && TAB !== 'carga'; }
+        function hidRow(key) { return ((DATA && DATA.hidden) || []).filter(function (h) { return h.key === key; })[0] || null; }
+        // the card's tab and title, with numbers and month names out so a title
+        // that carries them keeps its key; a second card of the same title in
+        // the same tab gets « 2»
+        function hidKey(title) {
+          var base = hidScope() + '|' + String(title).replace(HID_MONTHS, '#').replace(/\d+([.,]\d+)?/g, '#').replace(/\s+/g, ' ').trim().toLowerCase();
+          var n = HID_N[base] = (HID_N[base] || 0) + 1;
+          return (n > 1 ? base + ' ' + n : base).slice(0, 200);
+        }
+        // red = a «Hay que actuar» pill inside the card; its words say why it came back
+        function hidRed(html) { var m = /<span class="stp bad">([^<]*)<\/span>/.exec(html || ''); return m ? m[1] : null; }
+        // one card: hidden (and listed at the foot), or shown with its ✕ and,
+        // when it came back on its own, the reason on top
+        function hidState(key, label, html, summary) {
+          if (!hidOn()) return { hide: false, back: '', x: '' };
+          var h = hidRow(key), red = hidRed(html);
+          var x = '<button class="x" type="button" data-hide="' + esc(key) + '" data-hlabel="' + esc(label) + '"' + (red ? ' data-hred="1"' : '') + ' aria-label="Ocultar ' + esc(label) + '">×</button>';
+          if (!h) return { hide: false, back: '', x: x };
+          if (red && !h.was_red) return { hide: false, x: x, back: '<div class="hid-back"><span aria-hidden="true">↺</span><span><b>Volvió sola:</b> ' + red + '. Si la volvés a cerrar, vuelve la próxima vez que se ponga en rojo.</span></div>' };
+          // hidden while red and now out of red: from here on it comes back when it turns red
+          if (!red && h.was_red) { h.was_red = false; api('POST', { action: 'hide_set', key: key, tab: h.tab, label: h.label, hidden: true, was_red: false, quiet: true }).catch(function () { h.was_red = true; }); }
+          HID_SEEN.push({ key: key, label: h.label || label, summary: summary, at: h.hidden_at });
+          return { hide: true };
+        }
+        function hidWhen(iso) { if (!iso) return ''; var d = dayDiff(ams(iso), todayAms()); return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : 'el ' + dmy(iso); }
+        function hidFold() {
+          if (!HID_SEEN.length) return '';
+          var name = TAB === 'usar' ? TAB_L.usar + ' · ' + SUBS.usar.filter(function (x) { return x[0] === subOf('usar'); })[0][1] : (TAB_L[TAB] || TAB);
+          return '<details class="hid-fold" id="hid-fold"' + (HID_OPEN ? ' open' : '') + '><summary><span><b>Ocultas en ' + esc(name) + '</b> · ' + HID_SEEN.length + '</span><span class="hid-more">' + (HID_OPEN ? 'ocultar lista ▾' : 'ver ▸') + '</span></summary><div class="hid-list">'
+            + HID_SEEN.map(function (h) { return '<div class="hid-row"><div>' + esc(h.label) + '<small>' + (h.summary ? h.summary + ' · ' : '') + 'la ocultaste ' + hidWhen(h.at) + '</small></div><button class="hid-show" type="button" data-unhide="' + esc(h.key) + '">Mostrar</button></div>'; }).join('')
+            + '</div></details>';
+        }
+        function hidToast(text, undo) {
+          var old = document.getElementById('hid-toast'); if (old && old.parentNode) old.parentNode.removeChild(old);
+          clearTimeout(HID_TOAST);
+          var t = document.createElement('div'), gone = function () { if (t.parentNode) t.parentNode.removeChild(t); };
+          t.id = 'hid-toast'; t.className = 'hid-toast'; t.setAttribute('role', 'status');
+          t.innerHTML = '<span>' + esc(text) + '</span>' + (undo ? '<button type="button">Deshacer</button>' : '');
+          if (undo) t.querySelector('button').onclick = function () { clearTimeout(HID_TOAST); gone(); undo(); };
+          document.body.appendChild(t);
+          HID_TOAST = setTimeout(gone, 6000);
+        }
+        // hide or show one card: the page changes at once, and goes back if the save fails
+        function hideSet(key, label, on, wasRed) {
+          var before = (DATA.hidden || []).slice(), cur = hidRow(key), tab = cur ? cur.tab : hidScope();
+          if (!on && cur) label = cur.label;
+          DATA.hidden = (on ? [{ key: key, tab: tab, label: label, was_red: !!wasRed, hidden_at: new Date().toISOString() }] : []).concat(before.filter(function (h) { return h.key !== key; }));
+          render();
+          hidToast((on ? 'Ocultaste «' : 'Volvió «') + label + '»', on ? function () { hideSet(key, label, false); } : null);
+          api('POST', { action: 'hide_set', key: key, tab: tab, label: label, hidden: on, was_red: !!wasRed })
+            .then(function (r) { if (!r || !r.ok) throw new Error((r && r.error) || 'write_failed'); })
+            .catch(function (err) { DATA.hidden = before; render(); hidToast('No se guardó (' + err.message + '). Volvé a probar.', null); });
+        }
+        function wireHide() {
+          Array.prototype.forEach.call(document.querySelectorAll('[data-hide]'), function (b) {
+            b.onclick = function (e) { e.stopPropagation(); hideSet(b.getAttribute('data-hide'), b.getAttribute('data-hlabel'), true, b.getAttribute('data-hred') === '1'); };
+          });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-unhide]'), function (b) {
+            b.onclick = function () { hideSet(b.getAttribute('data-unhide'), null, false); };
+          });
+          var f = document.getElementById('hid-fold');
+          if (f) f.addEventListener('toggle', function () { HID_OPEN = f.open; var m = f.querySelector('.hid-more'); if (m) m.textContent = f.open ? 'ocultar lista ▾' : 'ver ▸'; });
         }
         function hoursWord(h) { if (h == null) return '—'; h = Number(h); if (h < 1) return Math.max(1, Math.round(h * 60)) + ' min'; if (h < 48) return Math.round(h) + ' h'; return Math.round(h / 24) + ' días'; }
         function minsWord(m) { if (m == null) return '—'; m = Number(m); if (m < 1) return '< 1 min'; if (m < 60) return (m < 10 ? m.toFixed(1).replace('.', ',').replace(',0', '') : Math.round(m)) + ' min'; if (m < 60 * 48) return (m / 60).toFixed(1).replace('.', ',') + ' h'; return Math.round(m / 60 / 24) + ' días'; }
@@ -1752,7 +1854,8 @@
             entrar: function (d, st, s, gr, ser) { return tabAdq(d, st, s, gr, ser, 'entrar'); },
             usar: function () { return usarGoal() + subNav('usar') + ({ fam: tabFamAll, uso: tabUso, ret: tabRet, avisos: tabAvisos })[subOf('usar')].apply(null, arguments); }
           };
-          html += roomHead(TAB) + (ROOMS[TAB] || tabResumen)(d, st, s, gr, ser, prev);
+          HID_SEEN = []; HID_N = {};
+          html += roomHead(TAB) + (ROOMS[TAB] || tabResumen)(d, st, s, gr, ser, prev) + hidFold();
           html += '<h2>Accesos</h2><div class="links">'
             + '<a href="https://appstoreconnect.apple.com/apps/6774968835/analytics" target="_blank" rel="noopener">App Store Connect</a>'
             + '<a href="https://play.google.com/console/u/1/developers/6039865059263874705/app/4974103052168493706/app-dashboard" target="_blank" rel="noopener">Google Play</a>'
@@ -1777,6 +1880,7 @@
           wireCarga();
           wirePortada();
           wireTests();
+          wireHide();
           drawMap();
         }
 
@@ -3637,7 +3741,9 @@
             var v = l ? l[t[0]] : null;
             return '<div class="rd-tile"><b>' + (v == null ? '<span class="quiet">—</span>' : Number(v).toLocaleString('es-AR')) + '</b><span>' + (v == null && k === 'tiktok' && t[0] === 'link_taps_7d' ? 'TikTok no da toques al link' : t[1]) + '</span></div>';
           }).join('');
-          return '<div class="card rd"><div class="sc-top"><div class="sc-name">' + name + '</div>' + pill + '</div>'
+          var hs = hidState(hidKey(name), name, pill, l ? l.followers + ' seguidores' : '');
+          if (hs.hide) return '';
+          return '<div class="card rd">' + hs.back + '<div class="sc-top"><div class="sc-name">' + name + '</div>' + (hs.x ? '<span class="qx">' + pill + hs.x + '</span>' : pill) + '</div>'
             + '<div class="sc-big"><b>' + (l ? l.followers : '—') + '</b><span>seguidores' + (f && f.base ? ' · ' + followWord(f) : '') + '</span></div>'
             + '<div class="rd-tiles">' + tiles + '</div></div>';
         }
