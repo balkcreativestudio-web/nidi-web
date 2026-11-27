@@ -221,6 +221,16 @@
       details.add summary { cursor:pointer; color:var(--ink2); font-size:13px; list-style:none; }
       details.add summary::before { content:"+ "; }
       details.add[open] summary::before { content:"− "; }
+      /* Portada (27/11) */
+      .kpis.pt-kpis { grid-template-columns:repeat(4,1fr); }
+      @media (max-width:900px) { .kpis.pt-kpis { grid-template-columns:repeat(2,1fr); } }
+      .pt-alerts { display:grid; }
+      .pt-alert { display:grid; grid-template-columns:96px 1fr; gap:4px 14px; padding:10px 0; border-top:1px solid var(--line2); }
+      .pt-alert:first-child { border-top:0; padding-top:0; }
+      .pt-when { font-family:var(--serif); font-size:15px; }
+      .pt-alert p { margin:4px 0 0; color:var(--ink2); font-size:13.5px; }
+      @media (max-width:640px) { .pt-alert { grid-template-columns:1fr; } }
+      details.pt-more, details.pt-old { margin-top:14px; }
       /* Carga diaria (27/11) */
       .ck-list { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
       .ck-list .ck { display:grid; grid-template-columns:20px 1fr; gap:10px; align-items:start; }
@@ -989,6 +999,7 @@
         // bar and the cards can never say different things.
         var TAB_L = {}; TABS.forEach(function (t) { TAB_L[t[0]] = t[1]; });
         var ROOM_Q = {
+          resumen: ['¿Llegamos a Tier 1?', 'Dirección · €1.000 netos cobrados del 1 al 31/12'],
           tests: ['¿Qué estamos probando y qué decidimos?', 'Todos los equipos'],
           carga: ['Lo único que se carga a mano', 'Todos los equipos · una fila por dato; lo demás se calcula solo'],
           llegar: ['¿De dónde viene la gente y cuánto cuesta?', 'Marketing'],
@@ -1342,6 +1353,99 @@
           };
         }
 
+        // ── Portada (2026-11-27, Maru; esquema Y2zSzui5WCbQMUF6Sp9PbT) ─────
+        // Overview opens with the four north numbers and the alerts that ask
+        // for a decision; everything that was here before is folded below
+        // until stage 3 moves it to the Archivo. Always counted outside.
+        // The goal is trials started (Plan Tier 1: 40 in December, 13 a week
+        // until 9/12 and 7 after); families active in 48 h sit beside it with
+        // no goal of their own.
+        // Organic base, fixed window 17–30/11 without paid-ad phones (Maru 27/11).
+        // Provisional values until the window closes; replace with the
+        // measured ones on 1/12.
+        var PORTADA_BASE = { phones: 3, nidis: 5, from: '2026-11-17', to: '2026-11-30', provisional: true };
+        function trialGoal(day) { return day <= '2026-12-09' ? 13 : 7; }
+        // trials started = outside nidis whose other home came in, without a gift
+        function trialsSince(st, from, to) {
+          var o = (st.views && st.views.outside) || st, m = o.money || {};
+          return (o.nidis || []).filter(function (x) { if (x.status !== 'active' || !x.activated_at || /^Gift/.test(planOf(x, m))) return false; var dd = ams(x.activated_at); return dd >= from && (!to || dd < to); }).length;
+        }
+        function decemberPayments(st) {
+          var o = (st.views && st.views.outside) || st, m = o.money || {};
+          var list = (m.paid_list || []).filter(function (p) { return p.since && ams(p.since) >= '2026-12-01'; });
+          // net per Plan Tier 1: €69 leaves €48 (trials charged until 16/12), €99,99 leaves €70
+          var net = list.reduce(function (a, p) { return a + (ams(p.since) <= '2026-12-16' ? 48 : 70); }, 0);
+          return { n: list.length, net: net };
+        }
+        function portadaAlerts(d, st) {
+          var today = todayAms(), out = [], go = d.growth || {};
+          var hourAms = Number(new Date().toLocaleTimeString('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hour12: false }).slice(0, 2));
+          var wd = (new Date(today + 'T12:00:00').getDay() + 6) % 7; // 0 = Monday
+          var near = function (iso, before) { return today <= iso && today >= addDays(iso, -(before == null ? 3 : before)); };
+          // Ventana €69: 26 trials from 27/11 to 9/12
+          if (today >= '2026-11-27' && today <= '2026-12-09') {
+            var tw = trialsSince(st, '2026-11-27'), elapsed = Math.max(0, Math.round((new Date(today + 'T12:00:00') - new Date('2026-11-27T12:00:00')) / 864e5)), pace = Math.round(26 * Math.min(13, elapsed) / 13);
+            var left = Math.round((new Date('2026-12-09T12:00:00') - new Date(today + 'T12:00:00')) / 864e5);
+            out.push({ cls: tw >= pace ? 'good' : tw >= pace * 2 / 3 ? 'wait' : 'bad', when: '27/11 al 9/12', what: 'Ventana €69', text: tw + ' de 26 pruebas desde el 27/11 · ' + (pace ? 'el ritmo pide ' + pace + ' a hoy' : 'el tramo arranca hoy') + ' · ' + (left ? 'quedan ' + left + ' ' + plural(left, 'día', 'días') : 'último día') + '. Una prueba que empieza el 9/12 se cobra a €69 el 16/12.' });
+          }
+          // Segunda casa: from Wednesday night to Sunday, if fewer than half the trials past their 48 h have both homes active
+          var aw = go.active_48h_weeks || [], cur = aw[aw.length - 1], prev = aw[aw.length - 2];
+          if (cur && (wd > 2 || (wd === 2 && hourAms >= 20))) {
+            var closed = (cur.joined - (cur.open || 0)) + (prev ? prev.joined : 0), act = cur.active + (prev ? prev.active : 0);
+            if (closed >= 2 && act / closed < 0.5) out.push({ cls: 'bad', when: 'Miércoles', what: 'Segunda casa', text: act + ' de ' + closed + ' pruebas de esta semana y la anterior que ya cumplieron sus 48 h tienen a las dos casas activas. Las horas de contenido y acompañamiento van a activar la segunda casa, y no se abre ningún canal nuevo.' });
+          }
+          // A1: the test that decides on its date
+          var a1 = changesOut(d).filter(function (c) { return c.metric === 'invite_leave_first'; })[0];
+          if (a1 && a1.decide_on && near(a1.decide_on)) out.push({ cls: 'wait', when: dmy(a1.decide_on + 'T12:00:00'), what: 'A1 · dejar algo antes de invitar', text: 'Decide el test «' + (a1.title || 'invite-leave-first') + '». Meta del plan: 3 de cada 5 creadores dejan algo antes de invitar. El detalle está en Tests.' });
+          // Freno por anuncio: €8 without phones, or 4 % or less of opens ending in a phone
+          (d.marketing || []).forEach(function (r) {
+            if (r.kind !== 'paid' || r.status !== 'active' || Number(r.spent_eur || 0) < 8) return;
+            var w = r.ct && d.web_refs ? d.web_refs[String(r.ct).toLowerCase()] : null, opens = w ? (w.opens || 0) : null, phones = Number(r.downloads) || 0;
+            var weak = !phones || (opens ? phones / opens <= 0.04 : false);
+            if (weak) out.push({ cls: 'bad', when: 'Ahora', what: 'Freno · ' + r.name, text: eur(r.spent_eur) + ' gastados, ' + phones + ' ' + plural(phones, 'teléfono', 'teléfonos') + (opens != null ? ' de ' + opens + ' aperturas' : '') + '. Se corta y lo que quedaba de su presupuesto vuelve como rescate.' });
+          });
+          // Frenos del plan
+          if (near('2026-12-04')) out.push({ cls: 'wait', when: '4/12', what: 'Conversión', text: 'Se cuentan las pruebas del 27 y 28/11 que pagaron. Si paga menos de 1 de cada 3, la meta sube a 60 pruebas y las horas pasan a acompañar nidis.' });
+          if (near('2026-12-05')) {
+            var b5 = budgetState(d), t5 = b5 ? trialsSince(st, b5.from) : 0, cpp = b5 && t5 ? b5.spent / t5 : null, hit = b5 && b5.spent >= 150;
+            out.push({ cls: hit && (cpp == null || cpp > 20) ? 'bad' : 'wait', when: '5/12', what: 'Campaña e idioma', text: (b5 ? eur(b5.spent) + ' gastados · ' + (cpp != null ? eur(cpp) + ' por prueba' : 'sin pruebas todavía') + '. ' : '') + 'Con €150, si cada prueba cuesta más de €20 se frena la campaña. Un idioma con el doble de pruebas se lleva todo.' });
+          }
+          if (near('2026-12-16')) { var p16 = decemberPayments(st); out.push({ cls: p16.n >= 10 ? 'wait' : 'bad', when: '16/12', what: 'Recuento de la promo', text: p16.n + ' pagos de diciembre. Con menos de 10, todo el esfuerzo va a los nidis en prueba.' }); }
+          // Sin cuadrar
+          var cq = cuadreState(d);
+          if (cq && !cq.ok) out.push({ cls: 'bad', when: dmy(cq.last.checked_on + 'T12:00:00'), what: 'Sin cuadrar', text: 'HQ cuenta ' + eur(cq.last.hq_value) + ' gastados y Ads Manager ' + eur(cq.last.source_value) + '. Hasta corregirlo, el saldo no es confiable.' });
+          // Bugs, only above 5 %
+          var mo = curMonth(d);
+          if (mo) { var tot = (mo.sends_ok || 0) + (mo.sends_err || 0), rate = tot ? mo.sends_err / tot * 100 : 0; if (tot && rate >= 5) out.push({ cls: 'bad', when: 'Este mes', what: 'Envíos que fallan', text: mo.sends_err + ' de ' + tot + ' envíos (' + Math.round(rate) + ' %). El detalle está en Bugs.' }); }
+          return out;
+        }
+        function tabPortada(d, st) {
+          var today = todayAms(), go = d.growth || {}, o = (st.views && st.views.outside) || st;
+          var goal = trialGoal(today), wk0 = weekStart(today), trials = trialsSince(st, wk0);
+          var aw = go.active_48h_weeks || [], cur = aw.length && aw[aw.length - 1].start >= wk0 ? aw[aw.length - 1] : null;
+          var pay = decemberPayments(st), payGoal = today <= '2026-12-16' ? 13 : 20;
+          var ph = (d.months && d.months.phones_daily) || [], ph7 = ph.slice(-7).reduce(function (a, r) { return a + (r.ios || 0) + (r.android || 0); }, 0);
+          var ser = o.series || [], nid7 = ser.slice(-7).reduce(function (a, r) { return a + (Number(r.nidis) || 0); }, 0);
+          var overPh = ph7 - 7 * PORTADA_BASE.phones, overN = nid7 - PORTADA_BASE.nidis;
+          var b = budgetState(d), bt = b ? trialsSince(st, b.from) : 0;
+          var sign = function (n) { return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n); };
+          var html = '<div class="kpis pt-kpis">'
+            + tile('Pruebas iniciadas · esta semana', 'Nidis de afuera, sin regalo, donde entró la otra casa esta semana (de lunes a domingo). Es la meta del Plan Tier 1: 40 en diciembre, 13 por semana hasta el 9/12 y 7 desde el 10/12. Al lado, sin meta propia, las familias de la semana donde los dos hogares mandaron algo en las primeras 48 h.', trials, 'de ' + goal, cur ? cur.active + ' ' + plural(cur.active, 'familia activa', 'familias activas') + ' en 48 h de ' + cur.joined + ' que entraron' + (cur.open ? ' · ' + cur.open + ' en sus 48 h' : '') : 'familias activas en 48 h: todavía ninguna esta semana')
+            + tile('Pagos de diciembre', 'Pagos cobrados desde el 1/12, de afuera. Neto aproximado como en el Plan Tier 1: €69 deja €48 (pruebas cobradas hasta el 16/12) y €99,99 deja €70. Debajo, las familias donde los dos hogares participaron en los últimos 7 días.', pay.n, 'de ' + payGoal + (payGoal === 13 ? ' al 16/12' : ' al 31/12'), '≈ ' + eur(pay.net) + ' de €1.000 netos<br>' + (go.both_ways_7d || 0) + ' de ' + (go.families || 0) + ' nidis activos esta semana')
+            + tile('Teléfonos sobre la base', 'Teléfonos que abrieron Nidi por primera vez en los últimos 7 días, menos la base orgánica de ' + PORTADA_BASE.phones + ' por día. Debajo, los nidis creados en 7 días contra la base de ' + PORTADA_BASE.nidis + ' por semana. La base sale del 17/11 al 30/11 sin los teléfonos de anuncios pagos.', sign(overPh), 'en 7 días', ph7 + ' teléfonos contra ' + 7 * PORTADA_BASE.phones + ' de base<br>' + nid7 + ' nidis creados contra ' + PORTADA_BASE.nidis + ' (' + sign(overN) + ')<br><span class="quiet">base del ' + dmy(PORTADA_BASE.from + 'T12:00:00') + ' al ' + dmy(PORTADA_BASE.to + 'T12:00:00') + (PORTADA_BASE.provisional ? ', provisoria hasta el 1/12' : '') + '</span>')
+            + tile('Pauta · saldo real', 'Asignado + rescatado − pagos a creadoras − lo gastado por las acciones pagas desde la primera asignación. Todo se carga en Carga diaria. Debajo, cuánto costó cada prueba iniciada desde esa fecha.', b ? eur(b.saldo) : '—', '', b ? eur(b.spent) + ' gastados desde el ' + dmy(b.from + 'T12:00:00') + '<br>' + (bt ? eur(b.spent / bt) + ' por prueba iniciada' : 'todavía sin pruebas desde entonces') : 'Cargá la primera asignación en Carga diaria')
+            + '</div>';
+          var al = portadaAlerts(d, st);
+          html += '<h2>Alertas de decisión</h2>' + (al.length
+            ? '<div class="card"><div class="pt-alerts">' + al.map(function (a) { return '<div class="pt-alert"><div class="pt-when">' + esc(a.when) + '</div><div><span class="stp ' + a.cls + '">' + esc(a.what) + '</span><p>' + esc(a.text) + '</p></div></div>'; }).join('') + '</div></div>'
+            : '<p class="quiet" style="margin:-4px 2px 8px">Nada pide una decisión hoy.</p>');
+          html += '<details class="nv-more pt-more"><summary>Seguimiento del día: quién espera a la otra casa y cada nidi en prueba</summary>' + nidisToday(d) + decideSoon(d) + '</details>';
+          return html;
+        }
+        function wirePortada() {
+          var old = TAB === 'resumen' && document.getElementById('pt-old');
+          if (old) old.addEventListener('toggle', function () { if (old.open) drawMap(); });
+        }
         // ── Carga diaria (2026-11-27, Maru; esquema Y2zSzui5WCbQMUF6Sp9PbT) ──
         // The one tab where numbers are typed, one row per fact; the other tabs
         // only read. Ads Manager's totals go on the paid action itself; money
@@ -1571,7 +1675,8 @@
             + '<div class="legend" aria-label="Código de colores"><span class="stp good">Va bien</span><span class="stp wait">En observación</span><span class="stp bad">Hay que actuar</span><span class="stp flat">Cerrado</span></div>'
             + (famWait ? '<p class="quiet" style="margin:4px 2px 10px">Cargando «Con familia»… Mientras tanto se ven los números de Externos.</p>' : '');
           var ROOMS = {
-            resumen: function () { return tabResumen.apply(null, arguments) + '<h2>Board</h2>' + tabBoard.apply(null, arguments); },
+            // 27/11 (Maru, HQ limpio): the Portada first; the old Overview and the Board fold below until stage 3.
+            resumen: function (d, st) { var args = arguments; RS_SLIM = true; var old = tabResumen.apply(null, args); RS_SLIM = false; return tabPortada(d, st) + '<details class="nv-more pt-old" id="pt-old"><summary>Antes en Overview: novedades, áreas, familias y uso, lecturas, el mapa y el Board. Pasa al Archivo en la etapa 3.</summary>' + old + '<h2>Board</h2>' + tabBoard.apply(null, args) + '</details>'; },
             tests: tabCambios, carga: tabCarga, redes: tabSocial, errores: tabErrores, contactos: tabContactos, meses: tabMeses,
             plata: function (d, st, s) { return nuevosSection(d, st, 'plata') + goal30Card(d, s) + '<details class="nv-more"><summary>Detalle: todas las suscripciones, gifts y paywall</summary>' + tabIng(d, st, s) + '</details>'; },
             llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : tabMkt).apply(null, arguments); },
@@ -1601,6 +1706,7 @@
           wireTeams();
           wireSocial();
           wireCarga();
+          wirePortada();
           drawMap();
         }
 
@@ -2274,6 +2380,7 @@
             + line('De quién', [['De afuera', c(function (n) { return n.grp === 'outside'; }), 'var(--c2)'], ['De familia', c(function (n) { return n.grp === 'family'; }), 'var(--ink3)']])
             + '</div>';
         }
+        var RS_SLIM = false; // true while the old Overview renders inside the Portada's fold
         function tabResumen(d, st, s, gr, ser) {
           var active = s.nidis.filter(function (n) { return n.status === 'active'; });
           var pending = s.nidis.filter(function (n) { return n.status === 'pending'; });
@@ -2286,7 +2393,7 @@
           var giftNidis = plans.filter(function (p) { return /^Gift/.test(p); }).length;
           var trialNidis = plans.filter(function (p) { return /^Prueba/.test(p); }).length;
           var html = newsHtml(d.news || []) + areasHtml(d, st, s, gr);
-          html += nidisToday(d);
+          if (!RS_SLIM) html += nidisToday(d);
           html += '<h2>Familias y uso</h2><div class="kpis rs-kpis">'
             + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron en el período elegido arriba (7, 14 o 28 días) contra el mismo período anterior.', active.length, '', wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + ' en ' + range + ' días<br>' + wkDelta(wa) + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
             + tile('Compartiendo', 'Familias donde las dos casas participaron en los últimos 7 días. Un momento o una nota cuenta.', gr.both_ways_7d || 0, 'de ' + (gr.families || 0), (gr.families ? '<span class="delta ' + ((gr.both_ways_7d || 0) === gr.families ? 'up' : 'flat') + '">' + pct(gr.both_ways_7d || 0, gr.families) + '%</span> · ' : '') + 'las dos casas esta semana')
@@ -2297,7 +2404,7 @@
             + '</div>';
           // 2026-11-18: Overview keeps the week and what to decide. Por día is in Retention → Uso, the
           // families table in Retention → Familias, Se fueron in Retention → Vuelven, the funnel in Activation.
-          html += '<div class="rs-grid">' + decideSoon(d) + readings(s, f, wm, wn) + '</div>';
+          html += '<div class="rs-grid">' + (RS_SLIM ? '' : decideSoon(d)) + readings(s, f, wm, wn) + '</div>';
           // 2026-11-19 (Maru): the route map lives here, at the end, so it is seen without looking for it.
           html += '<h2>Dónde está Nidi</h2><div class="card"><div id="routemap"></div></div>';
           return html;
