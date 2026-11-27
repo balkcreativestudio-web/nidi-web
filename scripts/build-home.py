@@ -69,6 +69,7 @@ TEMPLATE = r'''<!doctype html>
     <meta name="twitter:title" content="@@TITLE@@" />
     <meta name="twitter:description" content="@@DESC@@" />
     <meta name="twitter:image" content="https://nidi.life/assets/og.png" />
+    <meta name="p:domain_verify" content="193c94ba4e70e3d617a628a346d17bf1" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
     <meta name="theme-color" content="#F4EFE7" />
     <meta name="color-scheme" content="light" />
