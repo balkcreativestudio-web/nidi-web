@@ -221,6 +221,15 @@
       details.add summary { cursor:pointer; color:var(--ink2); font-size:13px; list-style:none; }
       details.add summary::before { content:"+ "; }
       details.add[open] summary::before { content:"− "; }
+      /* Carga diaria (27/11) */
+      .ck-list { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+      .ck-list .ck { display:grid; grid-template-columns:20px 1fr; gap:10px; align-items:start; }
+      .ck-box { width:18px; height:18px; border:1.5px solid var(--ink3); border-radius:5px; display:grid; place-items:center; font-size:12px; line-height:1; margin-top:2px; }
+      .ck.done .ck-box { background:var(--olive-soft); border-color:var(--olive-soft); color:#5c6b37; }
+      .ck.done > div { color:var(--ink2); }
+      .ck small { display:block; color:var(--ink2); font-size:12.5px; margin-top:2px; }
+      form.adf { margin-top:0; margin-bottom:8px; }
+      .adf-h { display:flex; flex-wrap:wrap; gap:6px; align-items:baseline; }
 
       /* rooms and controls */
       .controls { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
@@ -975,12 +984,13 @@
         // Overview, Acquisition, Activation, Retention, Finance — and keeps Tests, Social, CRM, Bugs and
         // History as she named them. Only the labels are in English: everything inside stays in Spanish,
         // and the ids do not change, so a tab saved on her phone still opens where it did.
-        var TABS = [['resumen', 'Overview', 'Dirección'], ['llegar', 'Acquisition', 'Marketing'], ['entrar', 'Activation', 'Producto'], ['usar', 'Retention', 'Producto'], ['plata', 'Finance', 'Finance'], ['tests', 'Tests', 'todos'], ['redes', 'Social', 'Redes Sociales'], ['contactos', 'CRM', 'HQ'], ['errores', 'Bugs', 'IT'], ['meses', 'History', 'historial']];
+        var TABS = [['resumen', 'Overview', 'Dirección'], ['llegar', 'Acquisition', 'Marketing'], ['entrar', 'Activation', 'Producto'], ['usar', 'Retention', 'Producto'], ['plata', 'Finance', 'Finance'], ['tests', 'Tests', 'todos'], ['carga', 'Carga diaria', 'todos'], ['redes', 'Social', 'Redes Sociales'], ['contactos', 'CRM', 'HQ'], ['errores', 'Bugs', 'IT'], ['meses', 'History', 'historial']];
         // The name of a tab is written once, here: Resumen's cards read it from TABS so the
         // bar and the cards can never say different things.
         var TAB_L = {}; TABS.forEach(function (t) { TAB_L[t[0]] = t[1]; });
         var ROOM_Q = {
           tests: ['¿Qué estamos probando y qué decidimos?', 'Todos los equipos'],
+          carga: ['Lo único que se carga a mano', 'Todos los equipos · una fila por dato; lo demás se calcula solo'],
           llegar: ['¿De dónde viene la gente y cuánto cuesta?', 'Marketing'],
           redes: ['¿Crecemos en redes?', 'Redes Sociales'],
           entrar: ['¿La gente nueva termina con un nidi funcionando?', 'Producto · por mes, sin regalos ni plata'],
@@ -1022,7 +1032,7 @@
         // there before live inside their team: Familias, Uso and Retención
         // in Producto; Adquisición in Marketing; Tests in Design; Ingresos
         // in Finance. A room saved on this device from before opens in its team.
-        var TEAM_C = { resumen: 'var(--honey)', tests: '#9890b0', llegar: 'var(--c2)', redes: 'var(--lagoon)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', errores: '#c0563c', contactos: '#7a8fa6', meses: 'var(--ink3)', board: 'var(--ink)' };
+        var TEAM_C = { resumen: 'var(--honey)', tests: '#9890b0', carga: '#8a7f6e', llegar: 'var(--c2)', redes: 'var(--lagoon)', entrar: 'var(--rose)', usar: 'var(--olive)', plata: 'var(--sienna, #b4553a)', errores: '#c0563c', contactos: '#7a8fa6', meses: 'var(--ink3)', board: 'var(--ink)' };
         // A tab saved on this device from before opens where its content went.
         var OLD_TAB = { fam: ['usar', 'fam'], uso: ['usar', 'uso'], ret: ['usar', 'ret'], prod: ['usar'], adq: ['llegar', 'web'], mkt: ['llegar'], social: ['redes'], board: ['resumen'],
                         cambios: ['tests'], design: ['tests'], ing: ['plata'], fin: ['plata'] };
@@ -1295,10 +1305,15 @@
               : rows.length ? rows.map(function (r) { var c = function (v) { return v == null ? '—' : Number(v).toLocaleString('es-AR'); }; return '<tr><td>' + dmy(r.day + 'T12:00:00') + '</td><td>' + (r.network === 'instagram' ? 'Instagram' : 'TikTok') + '</td><td class="num">' + c(r.followers) + '</td><td class="num">' + c(r.views_7d) + '</td><td class="num">' + c(r.reach_7d) + '</td><td class="num">' + c(r.profile_visits_7d) + '</td><td class="num">' + c(r.link_taps_7d) + '</td><td class="quiet">' + esc(r.note || '') + '</td></tr>'; }).join('')
               : '<tr><td colspan="8" class="quiet">Todavía ningún día cargado.</td></tr>')
             + '</table></div></div>';
-          if (rows !== null) {
+          if (rows !== null) html += '<p class="quiet" style="margin-top:10px">Los números de cada día se cargan en Carga diaria.</p>';
+          return html;
+        }
+        // Followers and the account's week: typed in Carga diaria since 27/11.
+        function socialForm(d) {
+          if (!Array.isArray(d.social)) return '';
             var fl = function (label, input, cls) { return '<label class="f' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span>' + input + '</label>'; };
             var num = function (name) { return '<input name="' + name + '" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />'; };
-            html += '<details class="add" id="sodetails" style="margin-top:12px"><summary>Cargar números del día</summary><form class="row mkf" id="soform">'
+            return '<details class="add" id="sodetails" style="margin-top:12px"><summary>Cargar números del día</summary><form class="row mkf" id="soform">'
               + fl('Red', '<select name="network"><option value="instagram">Instagram</option><option value="tiktok">TikTok</option></select>')
               + fl('Día', '<input name="day" type="date" required value="' + todayAms() + '" />')
               + fl('Seguidores', num('followers'))
@@ -1309,8 +1324,6 @@
               + fl('Nota', '<textarea name="note" maxlength="500" placeholder="qué posteo movió los números"></textarea>', 'full')
               + '<p class="quiet full" style="margin:0">De Instagram (Insights) y TikTok Studio. Vacío es "no lo miré"; 0 es cero. Si cargás un día que ya está, lo reemplaza.</p>'
               + '<div class="full"><button class="primary" type="submit" id="sosave">Guardar</button></div></form></details>';
-          }
-          return html;
         }
         function wireSocial() {
           var sf = document.getElementById('soform');
@@ -1326,6 +1339,193 @@
             if (body.followers == null && body.views_7d == null && body.reach_7d == null && body.profile_visits_7d == null && body.link_taps_7d == null) { alert('Cargá por lo menos un número.'); return; }
             document.getElementById('sosave').disabled = true;
             api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(function (err) { alert('No se guardó: ' + err.message); document.getElementById('sosave').disabled = false; });
+          };
+        }
+
+        // ── Carga diaria (2026-11-27, Maru; esquema Y2zSzui5WCbQMUF6Sp9PbT) ──
+        // The one tab where numbers are typed, one row per fact; the other tabs
+        // only read. Ads Manager's totals go on the paid action itself; money
+        // moves, Instagram pieces and the Monday check have their own tables
+        // (nidi-app migration 20261127120000_hq_carga_diaria).
+        var PIECE_TONE = { emocional: 'Emocional', como_funciona: 'Cómo funciona', perfil: 'Perfil', precio: 'Precio', otro: 'Otro' };
+        var PIECE_FMT = { reel: 'Reel', carrusel: 'Carrusel', post: 'Post', story: 'Story' };
+        var MOVE_L = { assign: 'Asignación', rescue: 'Rescate', creator: 'Pago a creadora' };
+        var PIECE_COUNTS = ['dm_sends', 'saves', 'profile_visits', 'link_taps', 'reach', 'likes'];
+        var PIECES_FROM = '2026-11-23'; // the Instagram backlog starts here
+        // Saldo = assigned + rescued − creators − spent by the paid actions that
+        // started on or after the first assignment.
+        function budgetState(d) {
+          var moves = d.budget_moves || [], from = null;
+          moves.forEach(function (m) { if (m.kind === 'assign' && (!from || m.day < from)) from = m.day; });
+          if (!from) return null;
+          var tot = function (k) { return moves.reduce(function (a, m) { return a + (m.kind === k ? Number(m.amount_eur) || 0 : 0); }, 0); };
+          var spent = (d.marketing || []).reduce(function (a, r) { return a + (r.kind === 'paid' && r.starts_on && r.starts_on >= from ? Number(r.spent_eur) || 0 : 0); }, 0);
+          var b = { from: from, assigned: tot('assign'), rescued: tot('rescue'), creators: tot('creator'), spent: spent };
+          b.saldo = Math.round((b.assigned + b.rescued - b.creators - b.spent) * 100) / 100;
+          return b;
+        }
+        // What HQ counts as spent: the number the Monday check puts next to Ads Manager.
+        function hqSpent(d) {
+          var b = budgetState(d);
+          if (b) return { v: b.spent, from: b.from };
+          return { v: (d.marketing || []).reduce(function (a, r) { return a + (r.kind === 'paid' ? Number(r.spent_eur) || 0 : 0); }, 0), from: null };
+        }
+        function cuadreState(d) {
+          var last = (d.cuadre || [])[0];
+          return last ? { last: last, ok: Math.abs(Number(last.hq_value) - Number(last.source_value)) < 0.01 } : null;
+        }
+        function cpmOf(r) { return r.impressions ? eur(Number(r.spent_eur || 0) / r.impressions * 1000) : '—'; }
+        function tabCarga(d) {
+          if (!Array.isArray(d.budget_moves) || !Array.isArray(d.social_pieces) || !Array.isArray(d.cuadre)) return '<div class="card"><p class="quiet" style="margin:0">Todavía no está activa: falta aplicar la migración hq_carga_diaria y publicar la función.</p></div>';
+          var fl = function (label, input, cls) { return '<label class="f' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span>' + input + '</label>'; };
+          var num = function (name, v) { return '<input name="' + name + '" inputmode="numeric" autocomplete="off" value="' + (known(v) ? esc(v) : '') + '" />'; };
+          var money = function (name, v, req) { return '<input name="' + name + '" inputmode="decimal" autocomplete="off" placeholder="0,00"' + (req ? ' required' : '') + ' value="' + (known(v) ? esc(String(v).replace('.', ',')) : '') + '" />'; };
+          var day = function (iso) { return dmy(iso + 'T12:00:00'); };
+          var b = budgetState(d), cq = cuadreState(d), spentNow = hqSpent(d), today = todayAms(), wk0 = weekStart(today);
+          var pieces = d.social_pieces, since = pieces.filter(function (x) { return x.published_on >= PIECES_FROM; }).length;
+          var rescued = d.budget_moves.some(function (m) { return m.kind === 'rescue' && Math.abs(Number(m.amount_eur) - 11.55) < 0.005; });
+          var cuadreWeek = d.cuadre.some(function (c) { return c.checked_on >= wk0; });
+          var item = function (done, text, sub) { return '<li class="ck' + (done ? ' done' : '') + '"><span class="ck-box" aria-hidden="true">' + (done ? '✓' : '') + '</span><div>' + text + (sub ? '<small>' + sub + '</small>' : '') + '</div></li>'; };
+          var html = '<h2>Pendiente</h2><div class="card"><ul class="ck-list">'
+            + (today <= '2026-12-04' ? item(false, 'El atraso de Instagram desde el 23/11', since + (since === 1 ? ' pieza cargada' : ' piezas cargadas') + ' hasta ahora, una fila por pieza') : '')
+            + item(rescued, 'El rescate de €11,55 del anuncio pausado', rescued ? 'Cargado' : 'Un movimiento de saldo, tipo Rescate')
+            + item(!!b, 'La primera asignación del presupuesto', b ? 'Desde el ' + day(b.from) : 'Sin ella no hay saldo')
+            + item(cuadreWeek, 'El cuadre de esta semana', cuadreWeek ? 'Hecho' : 'Lo gastado según HQ contra Ads Manager')
+            + '</ul></div>';
+
+          // Saldo de pauta
+          html += '<h2>Saldo de pauta</h2>';
+          if (b) html += '<div class="kpis">'
+            + tile('Saldo real', 'Asignado + rescatado − pagos a creadoras − lo gastado por las acciones pagas que empezaron desde la primera asignación.', eur(b.saldo), '', 'desde el ' + day(b.from))
+            + tile('Gastado', 'La suma de lo que dice Ads Manager para cada acción paga, cargado abajo en Pauta del día.', eur(b.spent), '', 'de ' + eur(b.assigned + b.rescued) + ' disponibles')
+            + tile('Rescatado', 'Plata que un anuncio de antes dejó sin gastar al pausarse y vuelve a la caja. Aparte, lo pagado a creadoras.', eur(b.rescued), '', eur(b.creators) + ' a creadoras')
+            + '</div>';
+          else html += '<p class="quiet" style="margin:-4px 2px 8px">Cargá la primera asignación para ver el saldo.</p>';
+          var mkName = {}; (d.marketing || []).forEach(function (r) { mkName[r.id] = r.name; });
+          html += '<div class="card" style="margin-top:10px"><div class="tablewrap"><table><tr><th>Día</th><th>Tipo</th><th class="num">Monto</th><th>Acción</th><th>Nota</th><th></th></tr>'
+            + (d.budget_moves.length ? d.budget_moves.slice().reverse().map(function (m) {
+                return '<tr><td>' + day(m.day) + '</td><td>' + esc(MOVE_L[m.kind] || m.kind) + '</td><td class="num">' + (m.kind === 'creator' ? '−' : '+') + eur(m.amount_eur) + '</td><td>' + esc(mkName[m.marketing_id] || '') + '</td><td>' + esc(m.note || '') + '</td><td><button class="link" type="button" data-bdel="' + esc(m.id) + '">borrar</button></td></tr>';
+              }).join('') : '<tr><td colspan="6" class="quiet">Todavía ningún movimiento.</td></tr>')
+            + '</table></div>'
+            + '<details class="add cg-det"><summary>Cargar un movimiento</summary><form class="row mkf" id="bform">'
+            + fl('Día', '<input name="day" type="date" required value="' + today + '" />')
+            + fl('Tipo', '<select name="kind"><option value="assign">Asignación (+)</option><option value="rescue">Rescate (+)</option><option value="creator">Pago a creadora (−)</option></select>')
+            + fl('Monto en €', money('amount_eur', null, true))
+            + fl('Acción (opcional)', '<select name="marketing_id"><option value="">—</option>' + (d.marketing || []).map(function (r) { return '<option value="' + esc(r.id) + '">' + esc(r.name) + '</option>'; }).join('') + '</select>', 'wide')
+            + fl('Nota', '<input name="note" maxlength="300" autocomplete="off" />', 'full')
+            + '<div class="full"><button class="primary" type="submit" id="bsave">Guardar</button></div></form></details></div>';
+
+          // Pauta del día: Ads Manager's totals per paid action
+          var paid = (d.marketing || []).filter(function (r) { return r.kind === 'paid' && (r.status === 'active' || r.status === 'planned' || (r.ends_on && r.ends_on >= addDays(today, -14))); });
+          html += '<h2>Pauta del día</h2><p class="quiet" style="margin:-4px 2px 8px">Los totales de Ads Manager de cada acción paga, como los muestra el panel. El CPM sale solo; los clics quedan acá y no entran en el embudo.</p>'
+            + (paid.length ? paid.map(function (r) {
+                return '<form class="card row mkf adf" data-id="' + esc(r.id) + '"><div class="full adf-h"><b>' + esc(r.name) + '</b><span class="quiet">' + esc(r.ct || 'sin link') + ' · CPM ' + cpmOf(r) + '</span></div>'
+                  + fl('Gastado (€)', money('spent_eur', r.spent_eur, true))
+                  + fl('Impresiones', num('impressions', r.impressions))
+                  + fl('Clics', num('clicks', r.clicks))
+                  + '<div style="align-self:end"><button class="primary" type="submit">Guardar</button></div></form>';
+              }).join('') : '<div class="card"><p class="quiet" style="margin:0">No hay acciones pagas corriendo. Una acción nueva se agrega en Acquisition → Acciones.</p></div>');
+
+          // Piezas de redes
+          var cnt = function (v) { return v == null ? '—' : Number(v).toLocaleString('es-AR'); };
+          html += '<h2>Piezas de redes</h2><div class="card"><div class="tablewrap"><table><tr><th>Fecha</th><th>Pieza</th><th>Tono</th><th class="num">Envíos DM</th><th class="num">Guardados</th><th class="num">Perfil</th><th class="num">Enlace</th><th class="num">Alcance</th><th class="num">Likes</th><th></th></tr>'
+            + (pieces.length ? pieces.map(function (x) {
+                return '<tr><td>' + day(x.published_on) + '</td><td>' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>' : esc(x.title)) + (x.format ? ' <span class="quiet">' + esc(PIECE_FMT[x.format] || x.format) + '</span>' : '') + '</td><td>' + esc(PIECE_TONE[x.tone] || '—') + '</td>'
+                  + ['dm_sends', 'saves', 'profile_visits', 'link_taps'].map(function (k) { return '<td class="num">' + cnt(x[k]) + '</td>'; }).join('')
+                  + ['reach', 'likes'].map(function (k) { return '<td class="num quiet">' + cnt(x[k]) + '</td>'; }).join('')
+                  + '<td><button class="link" type="button" data-pedit="' + esc(x.id) + '">editar</button> <button class="link" type="button" data-pdel="' + esc(x.id) + '">borrar</button></td></tr>';
+              }).join('') : '<tr><td colspan="10" class="quiet">Todavía ninguna pieza. El atraso empieza el 23/11.</td></tr>')
+            + '</table></div>'
+            + '<details class="add cg-det" id="pdet"><summary>Cargar una pieza</summary><form class="row mkf" id="pform"><input type="hidden" name="id" />'
+            + fl('Publicada el', '<input name="published_on" type="date" required value="' + today + '" />')
+            + fl('Pieza', '<input name="title" maxlength="80" required autocomplete="off" placeholder="Carrusel «Leave something first»" />', 'wide')
+            + fl('Formato', '<select name="format"><option value="">—</option>' + Object.keys(PIECE_FMT).map(function (k) { return '<option value="' + k + '">' + PIECE_FMT[k] + '</option>'; }).join('') + '</select>')
+            + fl('Tono', '<select name="tone"><option value="">—</option>' + Object.keys(PIECE_TONE).map(function (k) { return '<option value="' + k + '">' + PIECE_TONE[k] + '</option>'; }).join('') + '</select>')
+            + fl('Link de la pieza', '<input name="url" type="url" maxlength="300" autocomplete="off" placeholder="https://www.instagram.com/p/…" />', 'wide')
+            + fl('Envíos por DM', num('dm_sends')) + fl('Guardados', num('saves')) + fl('Visitas al perfil', num('profile_visits')) + fl('Toques al enlace', num('link_taps'))
+            + fl('Alcance', num('reach')) + fl('Likes', num('likes'))
+            + fl('Nota', '<input name="note" maxlength="300" autocomplete="off" />', 'full')
+            + '<p class="quiet full" style="margin:0">Una sola vez, a los 3 días de publicada, así todas se comparan igual. Vacío es «no lo miré»; 0 es cero.</p>'
+            + '<div class="full"><button class="primary" type="submit" id="psave">Guardar</button></div></form></details></div>';
+
+          // Seguidores and the account's week (moved here from Social)
+          html += '<h2>Seguidores y la semana de la cuenta</h2><div class="card">' + (socialForm(d) || '<p class="quiet" style="margin:0">Todavía no está activo.</p>') + '</div>';
+
+          // Cuadre de los lunes
+          html += '<h2>Cuadre de los lunes</h2><div class="card">'
+            + '<p style="margin:0 0 8px">HQ cuenta <b>' + eur(spentNow.v) + '</b> gastados' + (spentNow.from ? ' desde el ' + day(spentNow.from) : ' en todas las acciones pagas') + '.</p>'
+            + (cq ? '<p style="margin:0 0 8px"><span class="ar-pill ' + (cq.ok ? 'good' : 'bad') + '">' + (cq.ok ? 'Cuadra' : 'Sin cuadrar') + '</span> Último cuadre, ' + day(cq.last.checked_on) + ': HQ ' + eur(cq.last.hq_value) + ' · Ads Manager ' + eur(cq.last.source_value) + (cq.ok ? '' : ' · diferencia ' + eur(Math.abs(cq.last.hq_value - cq.last.source_value))) + '</p>' : '<p class="quiet" style="margin:0 0 8px">Todavía ningún cuadre.</p>')
+            + '<form class="row mkf" id="qform"><input type="hidden" name="hq_value" value="' + spentNow.v.toFixed(2) + '" />'
+            + fl('Total de Ads Manager, mismo período (€)', money('source_value', null, true), 'wide')
+            + fl('Nota', '<input name="note" maxlength="300" autocomplete="off" />', 'wide')
+            + '<div style="align-self:end"><button class="primary" type="submit" id="qsave">Guardar cuadre</button></div></form>'
+            + '<p class="quiet" style="margin:8px 0 0">Teléfonos y aperturas salen directo de la app y de los links: se revisan en el código, no se cargan.</p></div>';
+
+          html += '<h2>Lo que todavía se carga en otra pestaña</h2><div class="card"><p style="margin:0 0 6px"><b>Publicaciones y envíos</b> (prensa, escuelas, asociaciones, creadoras): como acción en Acquisition → Acciones, con su fecha y su link. Pasan acá en la próxima etapa.</p><p style="margin:0"><b>Tests</b>: el alta y el cierre siguen en Tests hasta la última etapa.</p></div>';
+          return html;
+        }
+        // "11,55", "1.234,56" and "11.55" all mean euros and cents.
+        function parseEur(v) { v = String(v == null ? '' : v).trim().replace(/\s/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.'); return v === '' ? null : /^\d+(\.\d{1,2})?$/.test(v) ? Number(v) : NaN; }
+        function parseCount(v) { v = String(v == null ? '' : v).replace(/[.\s]/g, ''); return v === '' ? null : /^\d+$/.test(v) ? Number(v) : NaN; }
+        function wireCarga() {
+          if (TAB !== 'carga') return;
+          var send = function (body, btn) {
+            if (btn) btn.disabled = true;
+            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); })
+              .catch(function (err) { alert('No se guardó: ' + err.message); if (btn) btn.disabled = false; });
+          };
+          Array.prototype.forEach.call(document.querySelectorAll('.cg-det'), function (det) { det.addEventListener('toggle', function () { EDITING = det.open; }); });
+          var bf = document.getElementById('bform');
+          if (bf) bf.onsubmit = function (e) {
+            e.preventDefault();
+            var fd = new FormData(bf), amount = parseEur(fd.get('amount_eur'));
+            if (amount == null || isNaN(amount) || amount <= 0) { alert('El monto va en euros, por ejemplo 11,55.'); return; }
+            send({ action: 'budget_upsert', day: String(fd.get('day') || ''), kind: String(fd.get('kind') || ''), amount_eur: amount, marketing_id: String(fd.get('marketing_id') || '') || null, note: String(fd.get('note') || '').trim() }, document.getElementById('bsave'));
+          };
+          Array.prototype.forEach.call(document.querySelectorAll('[data-bdel]'), function (btn) {
+            btn.onclick = function () { if (!confirm('¿Borrar este movimiento?')) return; send({ action: 'budget_delete', id: btn.getAttribute('data-bdel') }, btn); };
+          });
+          Array.prototype.forEach.call(document.querySelectorAll('form.adf'), function (f) {
+            f.addEventListener('input', function () { EDITING = true; });
+            f.onsubmit = function (e) {
+              e.preventDefault();
+              var fd = new FormData(f), spent = parseEur(fd.get('spent_eur')), imp = parseCount(fd.get('impressions')), cl = parseCount(fd.get('clicks'));
+              if (spent == null || isNaN(spent) || isNaN(imp) || isNaN(cl)) { alert('Gastado en euros (por ejemplo 3,85); impresiones y clics, números enteros.'); return; }
+              send({ action: 'ad_update', id: f.getAttribute('data-id'), spent_eur: spent, impressions: imp, clicks: cl }, f.querySelector('button[type=submit]'));
+            };
+          });
+          var pf = document.getElementById('pform'), pdet = document.getElementById('pdet');
+          if (pf) {
+            pf.onsubmit = function (e) {
+              e.preventDefault();
+              var fd = new FormData(pf), body = { action: 'piece_upsert' }, bad = false, id = String(fd.get('id') || '');
+              if (id) body.id = id;
+              ['published_on', 'title', 'format', 'tone', 'url', 'note'].forEach(function (k) { body[k] = String(fd.get(k) || '').trim(); });
+              PIECE_COUNTS.forEach(function (k) { var v = parseCount(fd.get(k)); if (isNaN(v)) bad = true; body[k] = v; });
+              if (bad) { alert('Solo números enteros, sin comas.'); return; }
+              send(body, document.getElementById('psave'));
+            };
+            Array.prototype.forEach.call(document.querySelectorAll('[data-pedit]'), function (btn) {
+              btn.onclick = function () {
+                var x = (DATA.social_pieces || []).filter(function (y) { return y.id === btn.getAttribute('data-pedit'); })[0], el = pf.elements;
+                if (!x) return;
+                el.namedItem('id').value = x.id;
+                ['published_on', 'title', 'format', 'tone', 'url', 'note'].forEach(function (k) { el.namedItem(k).value = x[k] == null ? '' : x[k]; });
+                PIECE_COUNTS.forEach(function (k) { el.namedItem(k).value = x[k] == null ? '' : x[k]; });
+                pdet.open = true; EDITING = true; pdet.querySelector('summary').textContent = 'Editando: ' + x.title;
+                pdet.scrollIntoView({ block: 'nearest' });
+              };
+            });
+            Array.prototype.forEach.call(document.querySelectorAll('[data-pdel]'), function (btn) {
+              btn.onclick = function () { if (!confirm('¿Borrar esta pieza?')) return; send({ action: 'piece_delete', id: btn.getAttribute('data-pdel') }, btn); };
+            });
+          }
+          var qf = document.getElementById('qform');
+          if (qf) qf.onsubmit = function (e) {
+            e.preventDefault();
+            var fd = new FormData(qf), src = parseEur(fd.get('source_value'));
+            if (src == null || isNaN(src)) { alert('El total va en euros, por ejemplo 142,30.'); return; }
+            send({ action: 'cuadre_save', checked_on: todayAms(), hq_value: Number(fd.get('hq_value')), source_value: src, note: String(fd.get('note') || '').trim() }, document.getElementById('qsave'));
           };
         }
 
@@ -1372,7 +1572,7 @@
             + (famWait ? '<p class="quiet" style="margin:4px 2px 10px">Cargando «Con familia»… Mientras tanto se ven los números de Externos.</p>' : '');
           var ROOMS = {
             resumen: function () { return tabResumen.apply(null, arguments) + '<h2>Board</h2>' + tabBoard.apply(null, arguments); },
-            tests: tabCambios, redes: tabSocial, errores: tabErrores, contactos: tabContactos, meses: tabMeses,
+            tests: tabCambios, carga: tabCarga, redes: tabSocial, errores: tabErrores, contactos: tabContactos, meses: tabMeses,
             plata: function (d, st, s) { return nuevosSection(d, st, 'plata') + goal30Card(d, s) + '<details class="nv-more"><summary>Detalle: todas las suscripciones, gifts y paywall</summary>' + tabIng(d, st, s) + '</details>'; },
             llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : tabMkt).apply(null, arguments); },
             entrar: function (d, st, s, gr, ser) { return tabAdq(d, st, s, gr, ser, 'entrar'); },
@@ -1400,6 +1600,7 @@
           wireNews();
           wireTeams();
           wireSocial();
+          wireCarga();
           drawMap();
         }
 
