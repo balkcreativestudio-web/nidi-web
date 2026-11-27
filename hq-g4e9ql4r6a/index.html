@@ -281,6 +281,13 @@
       .pill.paused { background:var(--rose-soft); color:var(--rose); }
       table.mk td.nm { min-width:240px; }
       table.mk td.when { white-space:nowrap; }
+      /* Acquisition by origin (27/11) */
+      table.ch td.hl { min-width:220px; font-size:13px; }
+      .ch-fold { margin-top:10px; font-size:13px; color:var(--ink2); }
+      .ch-fold > summary { cursor:pointer; padding-top:10px; border-top:1px solid var(--line2); list-style:none; }
+      .ch-fold > summary::-webkit-details-marker { display:none; }
+      .ch-fold > summary::before { content:"▸ "; }
+      .ch-fold[open] > summary::before { content:"▾ "; }
       .mk-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
       .mk-top b { font-weight:500; }
       .mk .meta { font-size:12px; color:var(--ink2); margin-top:2px; }
@@ -302,6 +309,7 @@
         table.mk tr:last-child { border-bottom:0; }
         table.mk td { padding:0; border:0; text-align:left; white-space:normal; }
         table.mk td.nm { grid-column:1 / -1; min-width:0; }
+        table.mk td.hl { grid-column:1 / -1; }
         table.mk td[data-l]::before { content:attr(data-l); display:block; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); margin-bottom:1px; }
       }
 
@@ -1002,7 +1010,7 @@
           resumen: ['¿Llegamos a Tier 1?', 'Dirección · €1.000 netos cobrados del 1 al 31/12'],
           tests: ['¿Qué estamos probando y qué decidimos?', 'Todos los equipos'],
           carga: ['Lo único que se carga a mano', 'Todos los equipos · una fila por dato; lo demás se calcula solo'],
-          llegar: ['¿De dónde viene la gente y cuánto cuesta?', 'Marketing'],
+          llegar: ['¿Qué escalo y qué corto?', 'Marketing · una fila por origen, de la plata gastada a la prueba iniciada'],
           redes: ['¿Crecemos en redes?', 'Redes Sociales'],
           entrar: ['¿La gente nueva termina con un nidi funcionando?', 'Producto · por mes, sin regalos ni plata'],
           usar: ['¿Las familias usan Nidi y vuelven?', 'Producto'],
@@ -1047,7 +1055,8 @@
         // A tab saved on this device from before opens where its content went.
         var OLD_TAB = { fam: ['usar', 'fam'], uso: ['usar', 'uso'], ret: ['usar', 'ret'], prod: ['usar'], adq: ['llegar', 'web'], mkt: ['llegar'], social: ['redes'], board: ['resumen'],
                         cambios: ['tests'], design: ['tests'], ing: ['plata'], fin: ['plata'] };
-        var SUBS = { llegar: [['acc', 'Acciones'], ['web', 'Web y tiendas']], usar: [['fam', 'Familias'], ['uso', 'Uso'], ['ret', 'Vuelven'], ['avisos', 'Avisos']] };
+        // 27/11: Acquisition is one table by origin; Web y tiendas folds at its foot.
+        var SUBS = { usar: [['fam', 'Familias'], ['uso', 'Uso'], ['ret', 'Vuelven'], ['avisos', 'Avisos']] };
         var SUB = {};
         try { SUB = JSON.parse(localStorage.getItem('nidi-hq-sub') || '{}') || {}; } catch (e) {}
         if (OLD_TAB[TAB]) { if (OLD_TAB[TAB][1]) SUB[OLD_TAB[TAB][0]] = OLD_TAB[TAB][1]; TAB = OLD_TAB[TAB][0]; }
@@ -1399,8 +1408,9 @@
           if (a1 && a1.decide_on && near(a1.decide_on)) out.push({ cls: 'wait', when: dmy(a1.decide_on + 'T12:00:00'), what: 'A1 · dejar algo antes de invitar', text: 'Decide el test «' + (a1.title || 'invite-leave-first') + '». Meta del plan: 3 de cada 5 creadores dejan algo antes de invitar. El detalle está en Tests.' });
           // Freno por anuncio: €8 without phones, or 4 % or less of opens ending in a phone
           (d.marketing || []).forEach(function (r) {
-            if (r.kind !== 'paid' || r.status !== 'active' || Number(r.spent_eur || 0) < 8) return;
-            var w = r.ct && d.web_refs ? d.web_refs[String(r.ct).toLowerCase()] : null, opens = w ? (w.opens || 0) : null, phones = Number(r.downloads) || 0;
+            // the dates decide the state, as in Acquisition: an ad past its last day is not cut again
+            if (r.kind !== 'paid' || mkState(r, today) !== 'active' || Number(r.spent_eur || 0) < 8) return;
+            var opens = chOpens(r.ct, d.web_refs), phones = Number(r.downloads) || 0;
             var weak = !phones || (opens ? phones / opens <= 0.04 : false);
             if (weak) out.push({ cls: 'bad', when: 'Ahora', what: 'Freno · ' + r.name, text: eur(r.spent_eur) + ' gastados, ' + phones + ' ' + plural(phones, 'teléfono', 'teléfonos') + (opens != null ? ' de ' + opens + ' aperturas' : '') + '. Se corta y lo que quedaba de su presupuesto vuelve como rescate.' });
           });
@@ -1528,7 +1538,10 @@
                   + fl('Impresiones', num('impressions', r.impressions))
                   + fl('Clics', num('clicks', r.clicks))
                   + '<div style="align-self:end"><button class="primary" type="submit">Guardar</button></div></form>';
-              }).join('') : '<div class="card"><p class="quiet" style="margin:0">No hay acciones pagas corriendo. Una acción nueva se agrega en Acquisition → Acciones.</p></div>');
+              }).join('') : '<div class="card"><p class="quiet" style="margin:0">No hay acciones pagas corriendo. Una acción nueva se agrega más abajo, en Acciones y publicaciones.</p></div>');
+
+          // Acciones y publicaciones (moved here from Acquisition on 27/11)
+          html += mkForm(d);
 
           // Piezas de redes
           var cnt = function (v) { return v == null ? '—' : Number(v).toLocaleString('es-AR'); };
@@ -1565,7 +1578,7 @@
             + '<div style="align-self:end"><button class="primary" type="submit" id="qsave">Guardar cuadre</button></div></form>'
             + '<p class="quiet" style="margin:8px 0 0">Teléfonos y aperturas salen directo de la app y de los links: se revisan en el código, no se cargan.</p></div>';
 
-          html += '<h2>Lo que todavía se carga en otra pestaña</h2><div class="card"><p style="margin:0 0 6px"><b>Publicaciones y envíos</b> (prensa, escuelas, asociaciones, creadoras): como acción en Acquisition → Acciones, con su fecha y su link. Pasan acá en la próxima etapa.</p><p style="margin:0"><b>Tests</b>: el alta y el cierre siguen en Tests hasta la última etapa.</p></div>';
+          html += '<h2>Lo que todavía se carga en otra pestaña</h2><div class="card"><p style="margin:0"><b>Tests</b>: el alta y el cierre siguen en Tests hasta la última etapa.</p></div>';
           return html;
         }
         // "11,55", "1.234,56" and "11.55" all mean euros and cents.
@@ -1679,7 +1692,8 @@
             resumen: function (d, st) { var args = arguments; RS_SLIM = true; var old = tabResumen.apply(null, args); RS_SLIM = false; return tabPortada(d, st) + '<details class="nv-more pt-old" id="pt-old"><summary>Antes en Overview: novedades, áreas, familias y uso, lecturas, el mapa y el Board. Pasa al Archivo en la etapa 3.</summary>' + old + '<h2>Board</h2>' + tabBoard.apply(null, args) + '</details>'; },
             tests: tabCambios, carga: tabCarga, redes: tabSocial, errores: tabErrores, contactos: tabContactos, meses: tabMeses,
             plata: function (d, st, s) { return nuevosSection(d, st, 'plata') + goal30Card(d, s) + '<details class="nv-more"><summary>Detalle: todas las suscripciones, gifts y paywall</summary>' + tabIng(d, st, s) + '</details>'; },
-            llegar: function () { var k = subOf('llegar'); return subNav('llegar') + (k === 'web' ? function () { return tabAdq.apply(null, Array.prototype.slice.call(arguments, 0, 5).concat(['llegar'])); } : tabMkt).apply(null, arguments); },
+            // 27/11 (HQ limpio, stage 2b): one row per origin; Web y tiendas folded at the foot
+            llegar: function (d, st, s, gr, ser) { return tabCanales(d) + '<details class="nv-more" id="ch-web"><summary>Web y tiendas: visitas a la web, fichas de App Store y Google Play, búsquedas</summary>' + tabAdq(d, st, s, gr, ser, 'llegar') + '</details>'; },
             entrar: function (d, st, s, gr, ser) { return tabAdq(d, st, s, gr, ser, 'entrar'); },
             usar: function () { return usarGoal() + subNav('usar') + ({ fam: tabFamAll, uso: tabUso, ret: tabRet, avisos: tabAvisos })[subOf('usar')].apply(null, arguments); }
           };
@@ -3207,10 +3221,6 @@
             (earlyNet ? 'incluye ' + eur(earlyNet) + ' de ' + early.length + ' ' + plural(early.length, 'pago', 'pagos') + ' del 1/11 al 8/11 · ' : '') + 'hasta el 9/12') + '</div>';
         }
 
-        // Is there anything to show yet, and did it cost anything?
-        var MK_RESULTS = ['downloads', 'accounts', 'nidis', 'families', 'paying'];
-        function mkHas(r) { return MK_RESULTS.some(function (k) { return Number(r[k]) > 0; }); }
-        function mkCosts(r) { return Number(r.spent_eur) > 0 || Number(r.budget_eur) > 0; }
         // The dates decide the state: an action whose last day has passed is
         // finished, whatever the row says. On 25/11 «Ads Manager: argentinos y
         // latinos afuera» still read «Activa» two days after it ended, so the
@@ -3223,121 +3233,264 @@
         // (Maru, 16/11), and how many were made is not known.
         function mkMade(r) { return r.results_auto_at ? r.nidis : null; }
         function mkFam(r) { return r.results_auto_at ? r.families : r.nidis; }
-        function tabMkt(d, st, s) {
-          var rows = d.marketing;
-          if (!Array.isArray(rows)) return card('Acciones', '', '<p class="quiet">El registro todavía no está activo: falta aplicar la migración hq_marketing y publicar la función.</p>');
-          var today = todayAms();
-          // newest first inside each group
-          rows = rows.slice().sort(function (a, b) { return String(b.starts_on || '0000').localeCompare(String(a.starts_on || '0000')); });
-          var spent = sum(rows, 'spent_eur'), budget = sum(rows, 'budget_eur');
-          var withNet = rows.filter(function (r) { return known(r.net_eur); }), net = sum(withNet, 'net_eur');
-          var paidDl = rows.filter(function (r) { return r.kind === 'paid' && known(r.downloads); }), dlSpent = sum(paidDl, 'spent_eur'), dl = sum(paidDl, 'downloads');
-          var got = { acc: 0, made: 0, fam: 0, pay: 0 };
-          rows.forEach(function (r) {
-            got.acc += Number(r.accounts) || 0; got.made += Number(mkMade(r)) || 0;
-            got.fam += Number(mkFam(r)) || 0; got.pay += Number(r.paying) || 0;
-          });
-          var html = '<div class="kpis">'
-            + tile('Invertido', 'Lo gastado hasta hoy en todas las acciones. Lo previsto es la suma de los presupuestos. El neto lo cargás a mano en cada acción: vacío es «todavía no se sabe», nunca cero.', eur(spent), '', (budget ? 'de ' + eur(budget) + ' previstos · ' : '') + (withNet.length ? 'neto ' + eur(net) : 'neto todavía sin cargar'))
-            + tile('Por descarga', 'Solo acciones pagas con descargas cargadas: lo gastado dividido por sus descargas. Verde hasta €4, ámbar hasta €8, rojo después.', dl ? costWord(dlSpent / dl, true) : '—', '', dl ? dl + ' ' + plural(dl, 'descarga', 'descargas') + ' de acciones pagas' : paidDl.length && dlSpent ? '<span class="warn">' + eur(dlSpent) + ' sin descargas</span>' : 'sin descargas cargadas')
-            + tile('Familias completas', 'Las dos casas adentro, de gente que llegó por una acción. Los regalos no cuentan como pago.', got.fam, '', got.pay ? got.pay + ' ' + plural(got.pay, 'paga', 'pagan') : 'ninguna paga todavía')
-            + '</div>';
-          // the same chain, in the same words, as Activation
-          html += '<div style="margin-top:10px">' + card('De las ' + got.acc + ' ' + plural(got.acc, 'persona que llegó', 'personas que llegaron') + ' por una acción',
-            'Solo gente de afuera. Cada paso, sobre las personas que llegaron por un link o un anuncio nuestro. Lo que pasa después de que la app se abre se mira entero en Activation.',
-            '<div class="funnel">'
-            + stepRow('Llegaron', got.acc, got.acc || 1, C1)
-            + stepRow('Armaron su nidi', got.made, got.acc || 1, C1)
-            + stepRow('Familia completa', got.fam, got.acc || 1, C1)
-            + stepRow('Pagan', got.pay, got.acc || 1, C3) + '</div>') + '</div>';
 
-          var num = function (v) { return known(v) ? Number(v).toLocaleString('es-AR') : '<span class="quiet">—</span>'; };
-          var when = function (r) { return r.starts_on ? day12(r.starts_on) + (r.ends_on ? ' → ' + day12(r.ends_on) : ' →') : r.ends_on ? 'hasta ' + day12(r.ends_on) : '<span class="quiet">sin fecha</span>'; };
-          var cpdOf = function (r) { return Number(r.spent_eur) > 0 && known(r.downloads) ? (Number(r.downloads) ? costWord(r.spent_eur / r.downloads, r.kind === 'paid') : '<span class="warn">sin descargas</span>') : '<span class="quiet">—</span>'; };
-          // Everything that is not one of the six columns lives here, with the
-          // edit button: the channel, the link and its visits, the downloads,
-          // the nidis still waiting for the other home, the net and the note.
-          var detail = function (r) {
-            var t = r.ct && d.web_refs ? refsFor(r.ct, d.web_refs) : null;
-            var made = mkMade(r), fam = mkFam(r), waiting = made != null && fam != null ? Number(made) - Number(fam) : 0;
-            var bits = [esc(MK_CH[r.channel] || r.channel)];
-            if (MK_KIND[r.kind] !== MK_CH[r.channel]) bits.push(esc(MK_KIND[r.kind] || r.kind));
-            bits.push(r.ct ? '<code>ct=' + esc(r.ct) + '</code>' : 'sin link');
-            if (t) bits.push(t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' · ' + t.clicks + ' ' + plural(t.clicks, 'click', 'clicks'));
-            if (known(r.downloads)) bits.push(num(r.downloads) + ' ' + plural(Number(r.downloads), 'descarga', 'descargas'));
-            if (waiting > 0) bits.push(waiting + ' ' + plural(waiting, 'nidi esperando a la otra casa', 'nidis esperando a la otra casa'));
-            if (r.place_city || r.place_country) bits.push(esc([r.place_city, r.place_country ? regionName(r.place_country) : null].filter(Boolean).join(', ')) + (known(r.audience) ? ' · ~' + Number(r.audience).toLocaleString('es-AR') + ' ' + plural(Number(r.audience), 'persona', 'personas') : ''));
-            else if (known(r.audience)) bits.push('~' + Number(r.audience).toLocaleString('es-AR') + ' ' + plural(Number(r.audience), 'persona', 'personas'));
-            if (known(r.net_eur)) bits.push('neto ' + eur(r.net_eur));
-            if (r.results_auto_at) bits.push('<span class="auto" data-tip="' + esc('Descargas, cuentas, nidis y pagan se cargan solos cada hora: la app se abrió por primera vez hasta 15 min después de una visita con este link. Solo gente de afuera. Última carga: ' + dmy(r.results_auto_at) + ' ' + String(new Date(r.results_auto_at).toTimeString()).slice(0, 5)) + '">resultados automáticos</span>');
-            return '<details class="nt"><summary>ver detalle</summary><div><p class="quiet">' + bits.join(' · ') + '</p>'
-              + (r.note ? '<p>' + esc(r.note) + '</p>' : '')
-              + (r.ct === 'ad-b' ? adBDetail(d) : '')
-              + '<p><button class="link" data-mk=\'' + esc(JSON.stringify(r)) + '\'>editar</button></p></div></details>';
-          };
-          // what is running: one card each, because it is what you came to see
-          var liveCard = function (r) {
-            return card(r.name, 'Lo que gastó y lo que trajo. Lo demás, en «ver detalle».',
-              '<div class="tablewrap"><table><thead><tr><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Llegaron</th><th class="num">Armaron nidi</th><th class="num">Familia completa</th><th class="num">€/descarga</th></tr></thead><tbody><tr>'
-              + '<td class="num">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '</td>'
-              + '<td class="num">' + num(r.downloads) + '</td><td class="num">' + num(r.accounts) + '</td>'
-              + '<td class="num">' + num(mkMade(r)) + '</td><td class="num">' + num(mkFam(r)) + '</td>'
-              + '<td class="num">' + cpdOf(r) + '</td></tr></tbody></table></div>'
-              + '<p class="quiet" style="margin:8px 0 0">' + when(r) + '</p>' + detail(r), MK_ST[mkState(r, today)]);
-          };
-          var nameCell = function (r) { return '<td class="nm" data-l="Acción"><b>' + esc(r.name) + '</b>' + detail(r) + '</td>'; };
-          var paidTable = function (list) {
-            return '<div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th class="num">Gastado</th><th class="num">Descargas</th><th class="num">Llegaron</th><th class="num">Familia completa</th></tr></thead><tbody>'
-              + list.map(function (r) {
-                return '<tr>' + nameCell(r) + '<td class="when" data-l="Cuándo">' + when(r) + '</td>'
-                  + '<td class="num" data-l="Gastado">' + eur(r.spent_eur) + (Number(r.budget_eur) > 0 ? '<span class="quiet"> de ' + eur(r.budget_eur) + '</span>' : '') + '<div class="meta">' + cpdOf(r) + ' por descarga</div></td>'
-                  + '<td class="num" data-l="Descargas">' + num(r.downloads) + '</td>'
-                  + '<td class="num" data-l="Llegaron">' + num(r.accounts) + '</td>'
-                  + '<td class="num" data-l="Familia completa">' + num(mkFam(r)) + '</td></tr>';
-              }).join('') + '</tbody></table></div></div>';
-          };
-          var freeTable = function (list) {
-            return '<div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Desde</th><th class="num">Llegaron</th><th class="num">Armaron nidi</th><th class="num">Familia completa</th></tr></thead><tbody>'
-              + list.map(function (r) {
-                return '<tr>' + nameCell(r) + '<td class="when" data-l="Desde">' + when(r) + '</td>'
-                  + '<td class="num" data-l="Llegaron">' + num(r.accounts) + '</td>'
-                  + '<td class="num" data-l="Armaron nidi">' + num(mkMade(r)) + '</td>'
-                  + '<td class="num" data-l="Familia completa">' + num(mkFam(r)) + '</td></tr>';
-              }).join('') + '</tbody></table></div></div>';
-          };
-          // The dates and what the action cost decide where each row lands.
-          var G = { now: [], planned: [], spent: [], links: [], quiet: [] };
-          rows.forEach(function (r) {
-            var state = mkState(r, today);
-            if (state === 'planned') G.planned.push(r);
-            else if (!mkCosts(r) && !mkHas(r)) G.quiet.push(r);
-            else if (r.kind !== 'free') (state === 'active' ? G.now : G.spent).push(r);
-            else G.links.push(r);
+        // ── Acquisition by origin (27/11, HQ limpio stage 2b; Maru: «Sí,
+        // armala» on mock QBjKnj2GNJW2XQNDfTEdW2) ────────────────────────────
+        // ¿Qué escalo y qué corto? One row per origin, grouped, every group with
+        // the same columns in funnel order: spend → link opens → phones →
+        // trials → € per trial → the channel's health, read differently in each
+        // group. Ads Manager's clicks never enter the table (only the row's
+        // detail), the dates decide the state, and origins without a single
+        // open fold at the foot. Nothing is typed here: actions and
+        // publications go in Carga diaria. Phones, trials, the 24/72 h windows
+        // and the per-link and per-day funnels are written once an hour by
+        // hq_marketing_refresh() (nidi-app migration 20261127160000_hq_canales).
+        var CH_G = [
+          ['pago', 'Pago · Meta', 'Freno por anuncio en test: con €8 sin teléfonos, o si el 4 % o menos de las aperturas terminan en teléfono, se corta y lo que quedaba vuelve como rescate. Freno de campaña: con €150 gastados, si cada prueba cuesta más de €20.'],
+          ['cr', 'Creadoras', 'Una fila por link cr-<nombre>. Cuenta si trajo familias con las dos casas antes del 9/12; las visitas solas no cuentan. Sus familias suelen entrar con regalo, y con regalo no suman pruebas. Una colaboración paga se carga como pago a creadora en Carga diaria.'],
+          ['prensa', 'Prensa y comunidades', 'Se lee a las 24 y a las 72 h de la fecha de publicación o envío, que se anota en Carga diaria. Dice qué medio o comunidad tiene lectores con encaje real.'],
+          ['org', 'Orgánico', 'Links de la bio, stories y posts propios. La salud es cuántas familias terminaron con las dos casas, con regalo o sin. Lo de adentro de Instagram se lee en Social.']
+        ];
+        var CH_ST = { active: 'good', planned: 'wait', paused: 'flat', done: 'flat' };
+        function chGroup(r) {
+          if (r.channel === 'creators' || (r.ct && String(r.ct).toLowerCase().indexOf('cr-') === 0)) return 'cr';
+          if (r.kind === 'paid') return 'pago';
+          return r.channel === 'organic' ? 'org' : 'prensa';
+        }
+        // A link open counts once whichever door it used: nidi.life/go/ (no
+        // repeats within 60 s) or a nidi.life/?ref= visit (`web`, from the
+        // function of 27/11; before it, the visits that were not /go/ opens).
+        function chOpens(ct, wr) {
+          if (!ct || !wr) return null;
+          var n = 0;
+          Object.keys(wr).forEach(function (k) {
+            if (!ctMatches(ct, k)) return;
+            var w = wr[k];
+            n += (w.opens || 0) + (w.web != null ? w.web : Math.max(0, (w.visits || 0) - (w.opens || 0)));
           });
-          html += '<h2>Corriendo ahora <small>' + G.now.length + '</small></h2>'
-            + (G.now.length ? G.now.map(liveCard).join('') : card('Ninguna corriendo', '', '<p class="quiet">No hay ninguna acción paga en marcha.</p>'));
-          if (G.planned.length) html += '<h2>Planeadas <small>' + G.planned.length + '</small></h2>'
-            + '<div class="card"><div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Cuándo</th><th class="num">Presupuesto</th></tr></thead><tbody>'
-            + G.planned.map(function (r) { return '<tr>' + nameCell(r) + '<td class="when" data-l="Cuándo">' + when(r) + '</td><td class="num" data-l="Presupuesto">' + (Number(r.budget_eur) > 0 ? eur(r.budget_eur) : '<span class="quiet">—</span>') + '</td></tr>'; }).join('')
-            + '</tbody></table></div></div>';
-          if (G.spent.length) html += '<h2>Terminadas, costaron plata <small>' + G.spent.length + ' · ' + eur(sum(G.spent, 'spent_eur')) + '</small></h2>' + paidTable(G.spent);
-          if (G.links.length) html += '<h2>Links abiertos, no cuestan plata <small>' + G.links.length + '</small></h2>' + freeTable(G.links);
-          // plegadas, pero enteras: cada una con su detalle y su botón editar
-          if (G.quiet.length) html += '<div class="card" style="margin-top:10px"><details class="nt"><summary>' + G.quiet.length + ' sin una sola visita todavía</summary><div><p class="quiet">Nadie se da por perdido: cualquiera puede traer gente mañana. Se pliegan para que no tapen lo que sí se mueve.</p>'
-            + '<div class="tablewrap mkwrap"><table class="mk"><thead><tr><th>Acción</th><th>Desde</th><th>Estado</th></tr></thead><tbody>'
-            + G.quiet.map(function (r) { return '<tr>' + nameCell(r) + '<td class="when" data-l="Desde">' + when(r) + '</td><td data-l="Estado"><span class="pill ' + esc(mkState(r, today)) + '">' + esc(MK_ST[mkState(r, today)] || '') + '</span></td></tr>'; }).join('')
-            + '</tbody></table></div></div></details></div>';
+          return n;
+        }
+        function chCreatorPaid(d, id) { return (d.budget_moves || []).reduce(function (a, m) { return a + (m.kind === 'creator' && m.marketing_id === id ? Number(m.amount_eur) || 0 : 0); }, 0); }
+        function pct1(x) { return (Math.round(x * 1000) / 10).toLocaleString('es-AR', { maximumFractionDigits: 1 }); }
+        function numOr(v) { return known(v) ? Number(v) : null; }
+        // Every row of the table: one per action, except that a ct ending in *
+        // (cr-* is every creator) opens one row per label under it, and a label
+        // that brought phones without a row of its own shows as «sin fila».
+        function chRows(d) {
+          var today = todayAms(), wr = d.web_refs, refs = Array.isArray(d.origin_refs) ? d.origin_refs : null, rows = d.marketing || [], out = [];
+          var own = {};
+          rows.forEach(function (r) { if (r.ct && String(r.ct).slice(-1) !== '*') own[String(r.ct).toLowerCase()] = 1; });
+          var refOf = function (ref) { return (refs || []).filter(function (o) { return o.ref === ref; })[0] || {}; };
+          rows.forEach(function (r) {
+            var g = chGroup(r), state = mkState(r, today);
+            var x = { g: g, r: r, name: r.name, ct: r.ct, state: state, start: r.starts_on, spend: (Number(r.spent_eur) || 0) + chCreatorPaid(d, r.id), budget: Number(r.budget_eur) || 0,
+              opens: chOpens(r.ct, wr), phones: numOr(r.downloads), trials: numOr(r.trials), families: numOr(mkFam(r)), nidis: numOr(r.nidis) };
+            if (r.ct && String(r.ct).slice(-1) === '*' && refs) {
+              var labels = {};
+              refs.forEach(function (o) { if (ctMatches(r.ct, o.ref) && !own[o.ref]) labels[o.ref] = 1; });
+              Object.keys(wr || {}).forEach(function (k) { if (ctMatches(r.ct, k) && !own[k]) labels[k] = 1; });
+              Object.keys(labels).forEach(function (ref) {
+                var o = refOf(ref), w = wr && wr[ref], from = w && w.first ? ams(w.first) : o.first_at ? ams(o.first_at) : null;
+                out.push({ g: g, parent: r, sub: true, name: ref, ct: ref, state: state, start: from, spend: 0, budget: 0,
+                  opens: chOpens(ref, wr), phones: Number(o.phones) || 0, trials: Number(o.trials) || 0, families: Number(o.families) || 0, fam912: Number(o.families_912) || 0, nidis: Number(o.nidis) || 0 });
+              });
+              // the umbrella row itself stays only if money went through it
+              if (!x.spend) return;
+              x.umbrella = true; x.opens = null; x.phones = null; x.trials = null; x.families = null; x.nidis = null;
+            }
+            out.push(x);
+          });
+          (refs || []).forEach(function (o) {
+            if (!(Number(o.phones) > 0) || /^web-/.test(o.ref) || rows.some(function (r) { return ctMatches(r.ct, o.ref); })) return;
+            out.push({ g: 'org', orphan: true, name: o.ref, ct: o.ref, state: null, start: o.first_at ? ams(o.first_at) : null, spend: 0, budget: 0,
+              opens: chOpens(o.ref, wr), phones: Number(o.phones) || 0, trials: Number(o.trials) || 0, families: Number(o.families) || 0, nidis: Number(o.nidis) || 0 });
+          });
+          return out;
+        }
+        // Folded at the foot: planned, or not a single open nor phone. A row
+        // with a link waits for the visits (they arrive a moment after the
+        // first screen) before it folds, unless it never cost anything.
+        function chFolded(x) {
+          if (x.state === 'planned') return true;
+          if (x.umbrella || (Number(x.phones) || 0) > 0) return false;
+          if (x.opens != null) return !x.opens;
+          if (!x.ct) return true;
+          return !x.spend;
+        }
+        function chPill(cls, t) { return '<span class="stp ' + cls + '">' + esc(t) + '</span>'; }
+        function chMeta(bits) { bits = bits.filter(Boolean); return bits.length ? '<div class="meta">' + bits.join(' · ') + '</div>' : ''; }
+        function chHealth(x, d) {
+          var today = todayAms(), p = Number(x.phones) || 0, o = x.opens, r = x.r || {};
+          if (x.g === 'pago') {
+            if (x.umbrella) return '';
+            var share = o ? p / o : null, live = x.state === 'active';
+            var head = o && p && share > 0.04 ? chPill('good', pct1(share) + ' % en teléfono')
+              : x.spend >= 8 ? chPill('bad', live ? 'Cortar: bajo el freno' : 'Bajo el freno')
+              : chPill('flat', 'Menos de €8: corta solo');
+            var first = o == null ? (r.ct ? null : 'sin link') : !o ? 'sin aperturas'
+              : share > 0.04 ? p + ' de ' + o + ' aperturas en teléfono'
+              : p ? pct1(share) + ' % de las aperturas en teléfono (corte en 4 %)' : '0 de ' + o + ' aperturas en teléfono';
+            var deliv = null;
+            if (x.budget > 0) {
+              if (live && r.starts_on && r.ends_on) { var tot = dayDiff(r.starts_on, r.ends_on) + 1, el = Math.min(tot, Math.max(1, dayDiff(r.starts_on, today) + 1)); deliv = 'a hoy, ' + pct(x.spend, x.budget * el / tot) + ' % de lo previsto'; }
+              else deliv = 'entregó ' + pct(x.spend, x.budget) + ' %';
+            }
+            return head + chMeta([first, deliv, Number(r.impressions) > 0 ? 'CPM ' + eur(x.spend / r.impressions * 1000) : 'CPM sin cargar']);
+          }
+          if (x.g === 'cr') {
+            if (x.umbrella) return '<span class="quiet">pagos a creadoras sin fila propia</span>';
+            var after = today > '2026-12-09', f = x.fam912 != null ? x.fam912 : (Number(x.families) || 0), wait = Math.max(0, (Number(x.nidis) || 0) - (Number(x.families) || 0));
+            return chPill(f ? 'good' : after ? 'bad' : 'wait', f + ' ' + plural(f, 'familia', 'familias') + (after ? ' antes del 9/12' : ' · hasta el 9/12'))
+              + chMeta([wait ? wait + ' ' + plural(wait, 'nidi espera', 'nidis esperan') + ' a la otra casa' : null]);
+          }
+          if (x.g === 'prensa') {
+            if (!r.starts_on) return chPill('flat', 'Sin fecha') + chMeta(['la fecha se carga en Carga diaria']);
+            var close = addDays(r.starts_on, 3);
+            if (today < r.starts_on) return chPill('wait', 'Sale el ' + day12(r.starts_on));
+            if (!r.ct) {
+              // no link: every phone of those three days, against the base
+              var ph = (d.origin_daily || []).filter(function (y) { return y.day >= r.starts_on && y.day < close; }).reduce(function (a, y) { return a + (Number(y.phones) || 0); }, 0);
+              return chPill(today < close ? 'wait' : 'flat', ph + ' ' + plural(ph, 'teléfono', 'teléfonos') + ' en 72 h') + chMeta(['sin link: todos los teléfonos de esos 3 días', 'base ~' + PORTADA_BASE.phones * 3]);
+            }
+            if (!known(r.phones_72h)) return chPill('flat', 'Sin leer todavía');
+            var a = Number(r.phones_24h) || 0, b = Number(r.phones_72h) || 0;
+            if (today < close) return chPill('wait', 'Abierta: ' + a + ' en 24 h') + chMeta(['cierra el ' + day12(close)]);
+            return chPill(b ? 'good' : 'flat', b ? a + ' en 24 h · ' + b + ' en 72 h' : '0 en 72 h');
+          }
+          var fam = Number(x.families) || 0, gift = Math.max(0, fam - (Number(x.trials) || 0));
+          return chPill(fam ? 'good' : 'flat', fam + ' ' + plural(fam, 'familia completa', 'familias completas') + (fam && gift === fam ? ', con regalo' : gift ? ' · ' + gift + ' con regalo' : ''));
+        }
+        function chNum(v) { return v == null ? '<span class="quiet">—</span>' : Number(v).toLocaleString('es-AR'); }
+        function chSpend(x) {
+          if (x.orphan) return '<span class="quiet">—</span>';
+          if (x.g === 'cr' && !x.spend) return '<span class="quiet">' + ((x.parent || x.r).channel === 'creators' ? 'regalo' : '€0') + '</span>';
+          if (!x.spend && x.g !== 'pago') return '<span class="quiet">€0</span>';
+          return eur(x.spend) + (x.budget ? '<div class="meta">de ' + eur(x.budget) + '</div>' : '');
+        }
+        // € per trial, only where money was paid; red past the campaign's €20
+        function chCost(x) {
+          if (!(x.r && (x.r.kind === 'paid' || x.spend > 0)) || x.trials == null) return '<span class="quiet">—</span>';
+          if (!x.trials) return x.spend ? '<span class="quiet">sin pruebas</span>' : '<span class="quiet">—</span>';
+          var c = x.spend / x.trials;
+          return '<span class="' + (c <= 20 ? 'ok' : 'warn') + '">' + eur(c) + '</span>';
+        }
+        // Everything that is not one of the columns lives in the row's detail:
+        // the channel, the web visits and store taps, Ads Manager's impressions
+        // and clicks, the accounts, the nidis still waiting, the place, the
+        // net and the note, and the way to Carga diaria to change it.
+        function chDetail(r, d) {
+          var t = r.ct && d.web_refs ? refsFor(r.ct, d.web_refs) : null;
+          var made = mkMade(r), fam = mkFam(r), waiting = made != null && fam != null ? Number(made) - Number(fam) : 0;
+          var bits = [esc(MK_CH[r.channel] || r.channel)];
+          if (MK_KIND[r.kind] !== MK_CH[r.channel]) bits.push(esc(MK_KIND[r.kind] || r.kind));
+          if (t) bits.push(t.visits + ' ' + plural(t.visits, 'visita', 'visitas') + ' a la web · ' + t.clicks + ' ' + plural(t.clicks, 'toque', 'toques') + ' a las tiendas');
+          if (r.kind === 'paid') bits.push('Ads Manager: ' + (known(r.impressions) ? Number(r.impressions).toLocaleString('es-AR') + ' impresiones' : 'impresiones sin cargar') + (known(r.clicks) ? ' · ' + Number(r.clicks).toLocaleString('es-AR') + ' clics' : ''));
+          if (known(r.accounts)) bits.push(r.accounts + ' ' + plural(Number(r.accounts), 'cuenta', 'cuentas'));
+          if (waiting > 0) bits.push(waiting + ' ' + plural(waiting, 'nidi esperando a la otra casa', 'nidis esperando a la otra casa'));
+          if (Number(r.paying) > 0) bits.push(r.paying + ' ' + plural(Number(r.paying), 'paga', 'pagan'));
+          if (r.place_city || r.place_country) bits.push(esc([r.place_city, r.place_country ? regionName(r.place_country) : null].filter(Boolean).join(', ')) + (known(r.audience) ? ' · ~' + Number(r.audience).toLocaleString('es-AR') + ' ' + plural(Number(r.audience), 'persona', 'personas') : ''));
+          else if (known(r.audience)) bits.push('~' + Number(r.audience).toLocaleString('es-AR') + ' ' + plural(Number(r.audience), 'persona', 'personas'));
+          if (known(r.net_eur)) bits.push('neto ' + eur(r.net_eur));
+          if (r.results_auto_at) bits.push('<span class="auto" data-tip="' + esc('Teléfonos, cuentas, nidis, pruebas y pagan se cargan solos cada hora: la app se abrió por primera vez hasta 15 min después de una visita con este link. Solo gente de afuera. Última carga: ' + dmy(r.results_auto_at) + ' ' + String(new Date(r.results_auto_at).toTimeString()).slice(0, 5)) + '">resultados automáticos</span>');
+          return '<details class="nt"><summary>ver detalle</summary><div><p class="quiet">' + bits.join(' · ') + '</p>'
+            + (r.note ? '<p>' + esc(r.note) + '</p>' : '')
+            + (r.ct === 'ad-b' ? adBDetail(d) : '')
+            + '<p><button class="link" type="button" data-mkgo="' + esc(r.id) + '">editar en Carga diaria</button></p></div></details>';
+        }
+        function chName(x, d) {
+          if (x.sub) return '<b>' + esc(x.name) + '</b><div class="meta">' + (x.start ? 'desde ' + day12(x.start) + ' · ' : '') + 'sale de «' + esc(x.parent.name) + '»</div>';
+          if (x.orphan) return '<b>' + esc(x.name) + '</b> <span class="stp wait">sin fila</span><div class="meta">' + (REF_L[x.name] ? esc(REF_L[x.name]) + ': ' : '') + 'un link que trae gente y no está en el registro. Cargalo en Carga diaria.</div>';
+          var r = x.r, when = r.starts_on ? day12(r.starts_on) + (r.ends_on ? ' → ' + day12(r.ends_on) : ' →') : 'sin fecha';
+          var stale = r.status === 'active' && x.state === 'done' ? ' · la fila dice «Activa»: mandan las fechas' : '';
+          return '<b>' + esc(r.name) + '</b> ' + chPill(CH_ST[x.state] || 'flat', MK_ST[x.state] || x.state)
+            + '<div class="meta">' + when + ' · ' + (r.ct ? esc(r.ct) : 'sin link') + stale + '</div>' + chDetail(r, d);
+        }
+        var CH_HEAD = '<thead><tr><th>Origen</th><th class="num">Gasto</th><th class="num">Aperturas</th><th class="num">Teléfonos</th><th class="num">Pruebas</th><th class="num">€ por prueba</th><th>Salud del canal</th></tr></thead>';
+        function chTable(list, d) {
+          return '<div class="tablewrap mkwrap"><table class="mk ch">' + CH_HEAD + '<tbody>'
+            + list.map(function (x) {
+              return '<tr><td class="nm" data-l="Origen">' + chName(x, d) + '</td>'
+                + '<td class="num" data-l="Gasto">' + chSpend(x) + '</td>'
+                + '<td class="num" data-l="Aperturas">' + chNum(x.opens) + '</td>'
+                + '<td class="num" data-l="Teléfonos">' + chNum(x.phones) + '</td>'
+                + '<td class="num" data-l="Pruebas">' + chNum(x.trials) + '</td>'
+                + '<td class="num" data-l="€ por prueba">' + chCost(x) + '</td>'
+                + '<td class="hl" data-l="Salud del canal">' + chHealth(x, d) + '</td></tr>';
+            }).join('') + '</tbody></table></div>';
+        }
+        // The phones that came with no link of ours, since the base starts:
+        // what everything else is measured against.
+        function chBase(d) {
+          var od = d.origin_daily, B = PORTADA_BASE, today = todayAms(), body;
+          if (!Array.isArray(od)) body = '<p class="quiet" style="margin:0">Todavía no está: falta aplicar la migración hq_canales y publicar la función.</p>';
+          else {
+            var days = od.filter(function (y) { return y.day >= B.from && y.day <= today; }), full = days.filter(function (y) { return y.day < today; });
+            var ph = sum(days, 'phones_unlinked'), tr = sum(days, 'trials_unlinked');
+            var per = full.length ? (Math.round(sum(full, 'phones_unlinked') / full.length * 10) / 10).toLocaleString('es-AR', { maximumFractionDigits: 1 }) : null;
+            body = '<div class="tablewrap mkwrap"><table class="mk ch">' + CH_HEAD + '<tbody><tr>'
+              + '<td class="nm" data-l="Origen"><b>Llegaron sin ningún link nuestro</b><div class="meta">desde el ' + day12(B.from) + ' · tienda, boca en boca, búsqueda</div></td>'
+              + '<td class="num" data-l="Gasto"><span class="quiet">—</span></td>'
+              + '<td class="num" data-l="Aperturas">' + (d.go_noref != null ? d.go_noref + '<div class="meta">/go/ sin ct</div>' : '<span class="quiet">—</span>') + '</td>'
+              + '<td class="num" data-l="Teléfonos">' + ph + '</td>'
+              + '<td class="num" data-l="Pruebas">' + tr + '</td>'
+              + '<td class="num" data-l="€ por prueba"><span class="quiet">—</span></td>'
+              + '<td class="hl" data-l="Salud del canal">' + (per != null ? chPill('flat', '~' + per + ' ' + plural(per === '1' ? 1 : 2, 'teléfono', 'teléfonos') + ' por día') : '')
+              + chMeta(['base ' + (B.provisional ? 'provisoria: ' : '') + B.phones + ' por día (' + day12(B.from) + '–' + day12(B.to) + (B.provisional ? ', se mide el 1/12' : '') + ')']) + '</td>'
+              + '</tr></tbody></table></div>';
+          }
+          return '<h2>Base sin link <small>contra esto se mide todo lo demás</small></h2><div class="card">' + body + '</div>';
+        }
+        function tabCanales(d) {
+          if (!Array.isArray(d.marketing)) return card('Canales', '', '<p class="quiet">El registro todavía no está activo.</p>');
+          var all = chRows(d).sort(function (a, b) { return String(b.start || '0000').localeCompare(String(a.start || '0000')); });
+          var html = '<div class="card"><p class="quiet" style="margin:0"><b style="font-weight:500;color:var(--ink)">Las columnas, en el orden del embudo.</b> Gasto: Ads Manager y pagos a creadoras, cargados en Carga diaria. · Aperturas: cada vez que alguien abre el link en nidi.life (por /go/, sin repetidos en 60 segundos, o por ?ref=). · Teléfonos: la app se abre por primera vez hasta 15 minutos después. · Pruebas: las dos casas adentro, sin regalo. · € por prueba: solo en las pagas. · Salud: lo que dice si ese canal funciona, distinto en cada grupo. Solo gente de afuera.</p></div>';
+          CH_G.forEach(function (g) {
+            var list = all.filter(function (x) { return x.g === g[0]; });
+            if (!list.length) return;
+            var shown = list.filter(function (x) { return !chFolded(x); }), fold = list.filter(chFolded);
+            var add = function (k) { return list.reduce(function (a, x) { return a + (Number(x[k]) || 0); }, 0); };
+            var spend = add('spend'), phones = add('phones'), trials = add('trials'), fam = list.reduce(function (a, x) { return a + (x.fam912 != null ? x.fam912 : Number(x.families) || 0); }, 0);
+            var tels = phones + ' ' + plural(phones, 'teléfono', 'teléfonos'), trs = trials + ' ' + plural(trials, 'prueba', 'pruebas');
+            var tot = g[0] === 'pago' ? [eur(spend) + ' gastados', tels, trs]
+              : g[0] === 'cr' ? [eur(spend), tels, fam + ' ' + plural(fam, 'familia', 'familias') + ' con las dos casas']
+              : g[0] === 'org' ? [tels, trs] : [eur(spend), tels, trs];
+            if (g[0] === 'pago') {
+              if (trials) tot.push(eur(spend / trials) + ' por prueba');
+              var others = {};
+              list.forEach(function (x) { if (x.r && x.r.channel !== 'ig_boost') others[MK_CH[x.r.channel] || x.r.channel] = 1; });
+              if (Object.keys(others).length) tot.push('incluye ' + Object.keys(others).join(', '));
+            }
+            html += '<h2>' + esc(g[1]) + ' <small>' + tot.join(' · ') + '</small></h2><p class="quiet" style="margin:-4px 2px 8px">' + esc(g[2]) + '</p>'
+              + '<div class="card">' + (shown.length ? chTable(shown, d) : '<p class="quiet" style="margin:0">Ninguno con aperturas todavía.</p>')
+              + (fold.length ? '<details class="nt ch-fold"><summary>' + fold.length + ' sin aperturas: ' + fold.map(function (x) { return esc(x.name) + (x.state === 'planned' && x.start ? ' (planeada, ' + day12(x.start) + ')' : ''); }).join(' · ') + '</summary>'
+                + '<p class="quiet">Nadie se da por perdido: si mañana alguien abre el link, la fila sube sola.' + (g[0] === 'pago' ? ' Su gasto sí suma arriba.' : '') + '</p>' + chTable(fold, d) + '</details>' : '') + '</div>';
+          });
+          html += chBase(d);
+          html += '<div class="card" style="margin-top:22px"><p class="quiet" style="margin:0 0 6px">Los clics de Ads Manager no entran en la tabla: se cargan en Carga diaria y se ven en «ver detalle» de cada anuncio, junto a impresiones, presupuesto, ciudad y nota.</p>'
+            + '<p class="quiet" style="margin:0">Para agregar o cambiar un origen: Carga diaria → Acciones y publicaciones. Acá no se escribe nada.</p></div>';
+          return html;
+        }
 
+        // Carga diaria → Acciones y publicaciones (27/11): the form that lived
+        // in Acquisition → Acciones, moved so nothing is typed outside Carga.
+        // A publication or a send (press, a school, a group, a creator) is a
+        // row like any other: its date opens the 24–72 h window.
+        var MK_PENDING = null; // «editar en Carga diaria» from an Acquisition row
+        function mkForm(d) {
           var opts = function (map) { return Object.keys(map).map(function (k) { return '<option value="' + k + '">' + esc(map[k]) + '</option>'; }).join(''); };
           var f = function (label, input, cls) { return '<label class="f' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span>' + input + '</label>'; };
           var money = function (name) { return '<input name="' + name + '" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" autocomplete="off" />'; };
           var count = function (name) { return '<input name="' + name + '" type="number" min="0" step="1" inputmode="numeric" />'; };
-          html += '<div class="card" style="margin-top:12px"><details class="add" id="mkdetails"><summary>Agregar acción</summary><form class="row mkf" id="mkform"><input type="hidden" name="id" />'
+          var rows = (Array.isArray(d.marketing) ? d.marketing : []).slice().sort(function (a, b) { return String(b.starts_on || '0000').localeCompare(String(a.starts_on || '0000')); });
+          return '<h2>Acciones y publicaciones</h2><p class="quiet" style="margin:-4px 2px 8px">Anuncios, creadoras, prensa, escuelas, grupos y posts: una fila por origen, con su fecha y su link (ct). La fecha de una publicación o un envío abre la ventana de 24–72 h en Acquisition.</p>'
+            + '<div class="card"><label class="f" style="max-width:460px"><span>Editar una que ya está</span><select id="mkpick"><option value="">— elegí una —</option>'
+            + rows.map(function (r) { return '<option value="' + esc(r.id) + '">' + esc(r.name) + (r.starts_on ? ' · ' + day12(r.starts_on) : '') + '</option>'; }).join('') + '</select></label>'
+            + '<details class="add" id="mkdetails" style="margin-top:12px"><summary>Agregar acción o publicación</summary><form class="row mkf" id="mkform"><input type="hidden" name="id" />'
             + f('Nombre', '<input name="name" required maxlength="80" />', 'wide')
             + f('Canal', '<select name="channel">' + opts(MK_CH) + '</select>')
             + f('Tipo', '<select name="kind">' + opts(MK_KIND) + '</select>')
             + f('Estado', '<select name="status"><option value="planned">Planeada</option><option value="active">Activa</option><option value="paused">Pausada</option><option value="done">Terminada</option></select>')
-            + f('Empieza', '<input name="starts_on" type="date" />')
+            + f('Empieza o sale', '<input name="starts_on" type="date" />')
             + f('Termina', '<input name="ends_on" type="date" />')
             + f('Presupuesto €', money('budget_eur'))
             + f('Gastado €', money('spent_eur'))
@@ -3346,21 +3499,36 @@
             + f('Nidis (las dos casas)', count('nidis'))
             + f('Familias que pagan', count('paying'))
             + f('Neto ganado €', money('net_eur'))
-            + f('Link ct', '<input name="ct" placeholder="ej. ig-boost" pattern="[a-z0-9_\\-]{1,40}\\*?" maxlength="41" autocomplete="off" />')
+            + f('Link ct', '<input name="ct" placeholder="ej. cr-marissa" pattern="[a-z0-9_\\-]{1,40}\\*?" maxlength="41" autocomplete="off" />')
             + f('Ciudad del lugar', '<input name="place_city" maxlength="60" placeholder="ej. Haarlem" autocomplete="off" />')
             + f('País del lugar', '<select name="place_country">' + countryOpts() + '</select>')
             + f('Alcance (personas)', count('audience'))
             + f('Notas', '<textarea name="note" maxlength="500" placeholder="sin emails"></textarea>', 'full')
-            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero. Las acciones con link (ct) cargan solas descargas, cuentas, nidis y pagan cada hora; lo gastado y el neto siguen siendo a mano.</p>'
+            + '<p class="quiet full" style="margin:0">Vacío es "todavía no se sabe"; 0 es cero. Con link (ct), teléfonos, cuentas, nidis, pruebas y pagan se cargan solos cada hora. El gasto de un anuncio también se actualiza arriba, en Pauta del día.</p>'
             + '<div class="full"><button class="primary" type="submit" id="mksave">Guardar</button> <button type="button" class="ghost" id="mkclear">Limpiar</button> <button type="button" class="link" id="mkdelete" hidden>Borrar esta acción</button></div></form></details></div>';
-          return html;
         }
 
         function wireMk() {
-          var mf = document.getElementById('mkform'), det = document.getElementById('mkdetails'), del = document.getElementById('mkdelete');
+          // from an Acquisition row to its form in Carga diaria
+          Array.prototype.forEach.call(document.querySelectorAll('[data-mkgo]'), function (b) {
+            b.onclick = function () { MK_PENDING = b.getAttribute('data-mkgo'); TAB = 'carga'; try { localStorage.setItem('nidi-hq-tab', TAB); } catch (e) {} render(); };
+          });
+          var mf = document.getElementById('mkform'), det = document.getElementById('mkdetails'), del = document.getElementById('mkdelete'), pick = document.getElementById('mkpick');
           if (!mf) return;
           var MONEY = ['budget_eur', 'spent_eur', 'net_eur'], COUNTS = ['downloads', 'accounts', 'nidis', 'paying'];
-          var reset = function () { mf.reset(); COUNTS.forEach(function (k) { mf[k].readOnly = false; }); mf.id.value = ''; del.hidden = true; det.querySelector('summary').textContent = 'Agregar acción'; EDITING = false; };
+          var reset = function () { mf.reset(); COUNTS.forEach(function (k) { mf[k].readOnly = false; }); mf.id.value = ''; del.hidden = true; if (pick) pick.value = ''; det.querySelector('summary').textContent = 'Agregar acción o publicación'; EDITING = false; };
+          var fill = function (r) {
+            reset();
+            mf.id.value = r.id; mf.name.value = r.name; mf.channel.value = r.channel; mf.kind.value = r.kind; mf.status.value = r.status;
+            mf.starts_on.value = r.starts_on || ''; mf.ends_on.value = r.ends_on || ''; mf.ct.value = r.ct || ''; mf.note.value = r.note || '';
+            mf.place_city.value = r.place_city || ''; mf.place_country.value = r.place_country || ''; mf.audience.value = known(r.audience) ? r.audience : '';
+            MONEY.forEach(function (k) { mf[k].value = known(r[k]) ? String(Number(r[k])).replace('.', ',') : ''; });
+            COUNTS.forEach(function (k) { mf[k].value = known(r[k]) ? r[k] : ''; mf[k].readOnly = !!r.results_auto_at; });
+            if (pick) pick.value = r.id;
+            del.hidden = false; det.open = true; det.querySelector('summary').textContent = 'Editando: ' + r.name; EDITING = true;
+            det.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+          var byId = function (id) { return (DATA.marketing || []).filter(function (x) { return x.id === id; })[0]; };
           mf.onsubmit = function (e) {
             e.preventDefault();
             var fd = new FormData(mf), body = { action: 'marketing_upsert' }, bad = false;
@@ -3372,26 +3540,15 @@
             if (body.starts_on && body.ends_on && body.ends_on < body.starts_on) { alert('Termina antes de empezar.'); return; }
             if (fd.get('id')) body.id = fd.get('id');
             document.getElementById('mksave').disabled = true;
-            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert(err.message === 'bad_marketing' ? 'No se guardó: revisá los campos. Las notas no pueden llevar emails.' : 'No se guardó: ' + err.message); document.getElementById('mksave').disabled = false; });
+            api('POST', body).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(function (err) { alert(err.message === 'bad_marketing' ? 'No se guardó: revisá los campos. Las notas no pueden llevar emails.' : 'No se guardó: ' + err.message); document.getElementById('mksave').disabled = false; });
           };
           document.getElementById('mkclear').onclick = reset;
           del.onclick = function () {
             if (!mf.id.value || !confirm('¿Borrar esta acción del registro?')) return;
-            api('POST', { action: 'marketing_delete', id: mf.id.value }).then(function (r) { if (!r.ok) throw new Error(r.error); load(); }).catch(function (err) { alert('No se borró: ' + err.message); });
+            api('POST', { action: 'marketing_delete', id: mf.id.value }).then(function (r) { if (!r.ok) throw new Error(r.error); EDITING = false; load(); }).catch(function (err) { alert('No se borró: ' + err.message); });
           };
-          Array.prototype.forEach.call(document.querySelectorAll('[data-mk]'), function (b) {
-            b.onclick = function () {
-              var r = JSON.parse(b.getAttribute('data-mk'));
-              reset();
-              mf.id.value = r.id; mf.name.value = r.name; mf.channel.value = r.channel; mf.kind.value = r.kind; mf.status.value = r.status;
-              mf.starts_on.value = r.starts_on || ''; mf.ends_on.value = r.ends_on || ''; mf.ct.value = r.ct || ''; mf.note.value = r.note || '';
-              mf.place_city.value = r.place_city || ''; mf.place_country.value = r.place_country || ''; mf.audience.value = known(r.audience) ? r.audience : '';
-              MONEY.forEach(function (k) { mf[k].value = known(r[k]) ? String(Number(r[k])).replace('.', ',') : ''; });
-              COUNTS.forEach(function (k) { mf[k].value = known(r[k]) ? r[k] : ''; mf[k].readOnly = !!r.results_auto_at; });
-              del.hidden = false; det.open = true; det.querySelector('summary').textContent = 'Editando: ' + r.name; EDITING = true;
-              det.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            };
-          });
+          if (pick) pick.onchange = function () { var r = byId(pick.value); if (r) fill(r); else reset(); };
+          if (MK_PENDING) { var r0 = byId(MK_PENDING); MK_PENDING = null; if (r0) fill(r0); }
         }
 
         function wire() {
