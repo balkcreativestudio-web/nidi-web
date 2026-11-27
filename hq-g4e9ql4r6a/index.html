@@ -1454,6 +1454,25 @@
           if (mo) { var tot = (mo.sends_ok || 0) + (mo.sends_err || 0), rate = tot ? mo.sends_err / tot * 100 : 0; if (tot && rate >= 5) out.push({ cls: 'bad', when: 'Este mes', what: 'Envíos que fallan', text: mo.sends_err + ' de ' + tot + ' envíos (' + Math.round(rate) + ' %). El detalle está en Bugs.' }); }
           return out;
         }
+        // «Hoy» (Maru, 27/11: «en ningún lado veo cuántos nidis hay andando externos,
+        // cuántos contando familia, cuántos pagos»): the state of today, always in
+        // sight above the Plan Tier 1 numbers. Every nidi without test accounts,
+        // from hq_nidis_today; «andando» = both homes inside. The detail by nidi
+        // stays folded in «Seguimiento del día».
+        function portadaHoy(d) {
+          var all = d.nidis_today;
+          if (!Array.isArray(all) || !all.length) return '';
+          var go = d.growth || {}, c = function (f) { return all.filter(f).length; };
+          var outA = c(function (n) { return n.grp === 'outside' && n.status === 'active'; }), outP = c(function (n) { return n.grp === 'outside' && n.status === 'pending'; });
+          var famA = c(function (n) { return n.grp === 'family' && n.status === 'active'; }), famP = c(function (n) { return n.grp === 'family' && n.status === 'pending'; });
+          var payO = c(function (n) { return n.pays && n.grp === 'outside'; }), payF = c(function (n) { return n.pays && n.grp === 'family'; });
+          var giftA = c(function (n) { return n.status === 'active' && !n.pays && n.gift; }), both = Number(go.both_ways_7d) || 0;
+          return '<h2>Hoy</h2><div class="kpis">'
+            + tile('Nidis andando de afuera', 'Nidis de gente de afuera con las dos casas adentro, hoy. Debajo, en cuántos mandaron algo los dos hogares en los últimos 7 días, y cuántos siguen esperando a la otra casa. Sin cuentas de prueba.', outA, 'con las dos casas adentro', both + ' ' + plural(both, 'mandó', 'mandaron') + ' las dos casas esta semana · ' + outP + ' ' + plural(outP, 'espera', 'esperan') + ' a la otra casa')
+            + tile('Nidis andando con familia', 'Todos los nidis con las dos casas adentro, de afuera y de familia. Sin cuentas de prueba.', outA + famA, 'en total', outA + ' de afuera + ' + famA + ' de familia · ' + famP + ' de familia ' + plural(famP, 'espera', 'esperan') + ' a la otra casa')
+            + tile('Pagan', 'Nidis con una suscripción paga activa, de afuera y de familia: la plata es plata, la pague quien la pague. Debajo, los nidis andando con un regalo.', payO + payF, plural(payO + payF, 'nidi', 'nidis'), payO + ' de afuera, ' + payF + ' de familia · ' + giftA + ' andando con regalo')
+            + '</div><h2>Hacia Tier 1</h2>';
+        }
         function tabPortada(d, st) {
           var today = todayAms(), go = d.growth || {}, o = (st.views && st.views.outside) || st;
           var goal = trialGoal(today), wk0 = weekStart(today), trials = trialsSince(st, wk0);
@@ -1464,7 +1483,7 @@
           var overPh = ph7 - 7 * PORTADA_BASE.phones, overN = nid7 - PORTADA_BASE.nidis;
           var b = budgetState(d), bt = b ? trialsSince(st, b.from) : 0;
           var sign = function (n) { return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n); };
-          var html = '<div class="kpis pt-kpis">'
+          var html = portadaHoy(d) + '<div class="kpis pt-kpis">'
             + tile('Pruebas iniciadas · esta semana', 'Nidis de afuera, sin regalo, donde entró la otra casa esta semana (de lunes a domingo). Es la meta del Plan Tier 1: 40 en diciembre, 13 por semana hasta el 9/12 y 7 desde el 10/12. Al lado, sin meta propia, las familias de la semana donde los dos hogares mandaron algo en las primeras 48 h.', trials, 'de ' + goal, cur ? cur.active + ' ' + plural(cur.active, 'familia activa', 'familias activas') + ' en 48 h de ' + cur.joined + ' que entraron' + (cur.open ? ' · ' + cur.open + ' en sus 48 h' : '') : 'familias activas en 48 h: todavía ninguna esta semana')
             + tile('Pagos de diciembre', 'Pagos cobrados desde el 1/12, de afuera. Neto aproximado como en el Plan Tier 1: €69 deja €48 (pruebas cobradas hasta el 16/12) y €99,99 deja €70. Debajo, las familias donde los dos hogares participaron en los últimos 7 días.', pay.n, 'de ' + payGoal + (payGoal === 13 ? ' al 16/12' : ' al 31/12'), '≈ ' + eur(pay.net) + ' de €1.000 netos<br>' + (go.both_ways_7d || 0) + ' de ' + (go.families || 0) + ' nidis activos esta semana')
             + tile('Teléfonos sobre la base', 'Teléfonos que abrieron Nidi por primera vez en los últimos 7 días, menos la base orgánica de ' + PORTADA_BASE.phones + ' por día. Debajo, los nidis creados en 7 días contra la base de ' + PORTADA_BASE.nidis + ' por semana. La base sale del 17/11 al 30/11 sin los teléfonos de anuncios pagos.', sign(overPh), 'en 7 días', ph7 + ' teléfonos contra ' + 7 * PORTADA_BASE.phones + ' de base<br>' + nid7 + ' nidis creados contra ' + PORTADA_BASE.nidis + ' (' + sign(overN) + ')<br><span class="quiet">base del ' + dmy(PORTADA_BASE.from + 'T12:00:00') + ' al ' + dmy(PORTADA_BASE.to + 'T12:00:00') + (PORTADA_BASE.provisional ? ', provisoria hasta el 1/12' : '') + '</span>')
