@@ -1586,7 +1586,8 @@
           var overPh = ph7 - 7 * PORTADA_BASE.phones, overN = nid7 - PORTADA_BASE.nidis;
           var b = budgetState(d), bt = b ? trialsSince(st, b.from) : 0;
           var sign = function (n) { return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n); };
-          var html = portadaHoy(d) + '<div class="kpis pt-kpis">'
+          // Novedades on Overview (Maru 28/11: «deberia ver esto en overview»)
+          var html = newsHtml(d.news || []) + portadaHoy(d) + '<div class="kpis pt-kpis">'
             + tile('Pruebas iniciadas · esta semana', 'Nidis de afuera, sin regalo, donde entró la otra casa esta semana (de lunes a domingo). Es la meta del Plan Tier 1: 40 en diciembre, 13 por semana hasta el 9/12 y 7 desde el 10/12. Al lado, sin meta propia, las familias de la semana donde los dos hogares mandaron algo en las primeras 48 h.', trials, 'de ' + goal, cur ? cur.active + ' ' + plural(cur.active, 'familia activa', 'familias activas') + ' en 48 h de ' + cur.joined + ' que entraron' + (cur.open ? ' · ' + cur.open + ' en sus 48 h' : '') : 'familias activas en 48 h: todavía ninguna esta semana')
             + tile('Pagos de diciembre', 'Pagos cobrados desde el 1/12, de afuera. Neto aproximado como en el Plan Tier 1: €69 deja €48 (pruebas cobradas hasta el 16/12) y €99,99 deja €70. Debajo, las familias donde los dos hogares participaron en los últimos 7 días.', pay.n, 'de ' + payGoal + (payGoal === 13 ? ' al 16/12' : ' al 31/12'), '≈ ' + eur(pay.net) + ' de €1.000 netos<br>' + (go.both_ways_7d || 0) + ' de ' + (go.families || 0) + ' nidis activos esta semana')
             + tile('Teléfonos sobre la base', 'Teléfonos que abrieron Nidi por primera vez en los últimos 7 días, menos la base orgánica de ' + PORTADA_BASE.phones + ' por día. Debajo, los nidis creados en 7 días contra la base de ' + PORTADA_BASE.nidis + ' por semana. La base sale del 17/11 al 30/11 sin los teléfonos de anuncios pagos.', sign(overPh), 'en 7 días', ph7 + ' teléfonos contra ' + 7 * PORTADA_BASE.phones + ' de base<br>' + nid7 + ' nidis creados contra ' + PORTADA_BASE.nidis + ' (' + sign(overN) + ')<br><span class="quiet">base del ' + dmy(PORTADA_BASE.from + 'T12:00:00') + ' al ' + dmy(PORTADA_BASE.to + 'T12:00:00') + (PORTADA_BASE.provisional ? ', provisoria hasta el 1/12' : '') + '</span>')
@@ -2570,7 +2571,8 @@
           var paying = plans.filter(function (p) { return p === 'Paga'; }).length;
           var giftNidis = plans.filter(function (p) { return /^Gift/.test(p); }).length;
           var trialNidis = plans.filter(function (p) { return /^Prueba/.test(p); }).length;
-          var html = newsHtml(d.news || []) + areasHtml(d, st, s, gr);
+          // the archive no longer repeats the novedades: they live on Overview (28/11)
+          var html = (RS_SLIM ? '' : newsHtml(d.news || [])) + areasHtml(d, st, s, gr);
           if (!RS_SLIM) html += nidisToday(d);
           html += '<h2>Familias y uso</h2><div class="kpis rs-kpis">'
             + tile('Familias', 'Nidis con las dos casas adentro. Abajo, las que entraron en el período elegido arriba (7, 14 o 28 días) contra el mismo período anterior.', active.length, '', wa.now + ' ' + plural(wa.now, 'nueva', 'nuevas') + ' en ' + range + ' días<br>' + wkDelta(wa) + (pending.length ? '<br>+' + pending.length + ' esperando a la otra casa' : ''))
