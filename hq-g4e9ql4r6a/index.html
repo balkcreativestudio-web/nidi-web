@@ -2174,21 +2174,25 @@
           saw_photo: 'Vio una foto', saw_voice: 'Escuchó un audio', saw_text: 'Leyó un mensaje', read_note: 'Leyó la nota' };
         var J_STEP = [['account', 'Cuenta'], ['nidi', 'Nidi armado'], ['link_sent', 'Link mandado'], ['link_opened', 'Link abierto'], ['joined', 'Entró el otro hogar'], ['first_moment', 'Primer momento'], ['trial', 'Prueba'], ['paid', 'Pago']];
         var J_STEP_L = { trial_end: 'Fin de la prueba', gift: 'Regalo' }; J_STEP.forEach(function (s) { J_STEP_L[s[0]] = s[1]; });
-        var J_RULE = { person_48h: 'Dos recordatorios a la misma persona en 48 h', nidi_48h: 'Los dos hogares de un nidi en 48 h', push_mail_day: 'Push y mail el mismo día' };
+        var J_RULE = { person_48h: 'Dos recordatorios a la misma persona en 48 h', nidi_48h: 'Los dos hogares de un nidi en 48 h', nidi_24h: 'Los dos hogares de un nidi en 24 h', push_mail_day: 'Push y mail el mismo día' };
         function jKind(k) { return J_KIND[k] || k; }
         function jTime(iso) { return new Date(iso).toLocaleTimeString('es-AR', { timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', hour12: false }); }
         function jHome(h) { return h ? '<span class="jh jh-' + h.toLowerCase() + '">' + h + '</span>' : '<span class="jh"></span>'; }
         function jRules() {
-          return '<ol class="j-rules"><li>Un recordatorio por persona cada 48 h.</li><li>Un solo hogar por nidi cada 48 h.</li><li>Nunca push y mail el mismo día.</li><li>Nada en las 3 h siguientes a algo real.</li><li>Uno solo por vez, en este orden: entrar &gt; no visto &gt; actividad &gt; volver &gt; empiezas tú.</li><li>Máximo 2 sin respuesta por persona.</li><li>La lista de no contactar vale para todos.</li><li>Un solo registro.</li></ol>'
+          return '<ol class="j-rules"><li>Un recordatorio por persona cada 48 h.</li><li>Un solo hogar por nidi cada 24 h (el push del último día de prueba no cuenta).</li><li>Nunca push y mail el mismo día.</li><li>Nada en las 3 h siguientes a algo real.</li><li>Uno solo por vez, en este orden: entrar &gt; no visto &gt; actividad &gt; volver &gt; empiezas tú.</li><li>Máximo 2 sin respuesta por persona.</li><li>La lista de no contactar vale para todos.</li><li>Un solo registro.</li></ol>'
             + '<p class="nv-note">Real: momento, nota, «vio todo», entró el otro hogar, y sus versiones juntas (resumen de la mañana, ráfaga), retomar y los avisos de encuentro. Todo lo demás es recordatorio: te toca, actividad, volver, empiezas tú, los mails y pushes de abandono y los pedidos únicos.</p>';
         }
         function jAlarm(a) {
           if (!a) return card('Alarma de contactos', '', '<p class="quiet">Todavía no hay datos (falta publicar hq_contact_alarm).</p>');
+          // An exception Maru asked for (hq_contact_exceptions, 28/11) stays in
+          // the list with her words, but counts in neither number.
+          var ex = Number(a.exceptions_week) || 0;
           var rows = (a.rows || []).map(function (r) {
-            return '<tr><td>' + esc(nvWhen(r.at)) + '</td><td>' + esc(J_RULE[r.rule] || r.rule) + '</td><td>' + esc(r.who) + (r.other ? ' <span class="quiet">y ' + esc(r.other) + '</span>' : '') + '</td><td>' + esc(jKind(r.first_kind)) + ' <span class="quiet">' + esc(nvWhen(r.first_at)) + '</span></td><td>' + esc(jKind(r.second_kind)) + '</td></tr>';
+            var mark = r.exception ? '<br><span class="stp wait">Excepción que pediste</span> <span class="quiet">' + esc(r.exception) + '</span>' : '';
+            return '<tr><td>' + esc(nvWhen(r.at)) + '</td><td>' + esc(J_RULE[r.rule] || r.rule) + mark + '</td><td>' + esc(r.who) + (r.other ? ' <span class="quiet">y ' + esc(r.other) + '</span>' : '') + '</td><td>' + esc(jKind(r.first_kind)) + ' <span class="quiet">' + esc(nvWhen(r.first_at)) + '</span></td><td>' + esc(jKind(r.second_kind)) + '</td></tr>';
           }).join('');
-          return card('Alarma de contactos', 'Se revisa todos los días: dos recordatorios a la misma persona en 48 h, los dos hogares de un nidi en 48 h, o push y mail a la misma persona el mismo día (su día). Con las reglas nuevas tendría que dar siempre cero. Si las últimas 24 h dan más de cero, a las 9:30 llega un aviso al iPhone. Solo gente de afuera.',
-            '<div class="nv-big"><b>' + a.last24 + '</b><span>' + plural(a.last24, 'regla rota', 'reglas rotas') + ' en las últimas 24 h · ' + a.week + ' en 7 días</span></div>'
+          return card('Alarma de contactos', 'Se revisa todos los días: dos recordatorios a la misma persona en 48 h, los dos hogares de un nidi en 24 h (el push del último día de prueba puede ir igual), o push y mail a la misma persona el mismo día (su día). Con las reglas nuevas tendría que dar siempre cero. Lo que pediste vos como excepción aparece en la lista marcado, pero no cuenta ni dispara el aviso. Si las últimas 24 h dan más de cero, a las 9:30 llega un aviso al iPhone. Solo gente de afuera.',
+            '<div class="nv-big"><b>' + a.last24 + '</b><span>' + plural(a.last24, 'regla rota', 'reglas rotas') + ' en las últimas 24 h · ' + a.week + ' en 7 días' + (ex ? ' · ' + ex + ' ' + plural(ex, 'excepción tuya aparte', 'excepciones tuyas aparte') : '') + '</span></div>'
             + '<span class="stp ' + (a.last24 ? 'bad' : a.week ? 'wait' : 'good') + '">' + (a.last24 ? 'hay que mirar' : a.week ? 'cero hoy; hubo cruces esta semana' : 'cero') + '</span>'
             + (rows ? '<div class="tablewrap"><table class="nv-tbl"><thead><tr><th>Cuándo</th><th>Regla</th><th>A quién</th><th>Primero</th><th>Después</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : ''));
         }
